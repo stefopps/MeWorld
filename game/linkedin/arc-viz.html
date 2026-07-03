@@ -616,9 +616,9 @@
       </div>
       <div class="read-toggle-bar" id="read-toggle-bar" style="display:none">
         <span class="read-toggle-label">Text</span>
-        <button class="read-toggle-btn active" id="read-toggle-orig" onclick="switchReadMode('original')">Original</button><span class="li-indicator" id="li-indicator-orig" onclick="event.stopPropagation();toggleLinkedInTake('original')" title="Mark for LinkedIn posting">LI</span>
-        <button class="read-toggle-btn" id="read-toggle-spoken" onclick="switchReadMode('spoken')">My Read</button><span class="li-indicator" id="li-indicator-spoken" onclick="event.stopPropagation();toggleLinkedInTake('spoken')" title="Mark for LinkedIn posting">LI</span>
-        <button class="read-toggle-btn" id="read-toggle-fused" onclick="switchReadMode('spoken')" style="display:none">Fused</button><span class="li-indicator" id="li-indicator-fused" onclick="event.stopPropagation();toggleLinkedInTake('fused')" title="Mark for LinkedIn posting" style="display:none">LI</span>
+        <button class="read-toggle-btn active" id="read-toggle-orig" onclick="switchReadMode('original')">Original</button><span class="li-indicator" id="li-indicator-orig" onclick="event.stopPropagation();toggleLinkedInReady('original')" title="Mark for LinkedIn posting">LI</span>
+        <button class="read-toggle-btn" id="read-toggle-spoken" onclick="switchReadMode('spoken')">My Read</button><span class="li-indicator" id="li-indicator-spoken" onclick="event.stopPropagation();toggleLinkedInReady('spoken')" title="Mark for LinkedIn posting">LI</span>
+        <button class="read-toggle-btn" id="read-toggle-fused" onclick="switchReadMode('spoken')" style="display:none">Fused</button><span class="li-indicator" id="li-indicator-fused" onclick="event.stopPropagation();toggleLinkedInReady('fused')" title="Mark for LinkedIn posting" style="display:none">LI</span>
         <button class="fuse-btn" id="fuse-btn" onclick="fuseWithLLM()">✦ Fuse</button>
       </div>
       <div class="reader-body" id="r-body"></div>
@@ -778,7 +778,7 @@ let fontSize = 17;
 let collapsedImages = {}; // per-post image collapse state
 let collapsedVideos = {}; // per-post video collapse state
 let readMode = "original"; // "original" | "spoken"
-let linkedinTake = {}; // per-post: maps index -> "original"|"spoken"|"fused" — which version gets posted
+let linkedinReadyTakeIdx = {}; // per-post: null=original body, or index in speechTakes — which version gets posted
 let platformStates = {}; // per-post waterfall states: { n: { linkedin, facebook, instagram } }
 let platformTexts = {}; // per-post platform text overrides
 
@@ -966,27 +966,25 @@ function renderReader() {
     g("read-toggle-orig").classList.add("active");
   }
   
-  // LI (LinkedIn posting) indicators — show for takes that EXIST, highlight the ONE selected per post
-  const liTake = linkedinTake[current];
-  // Determine which take types exist for this post (not which one is currently viewed)
-  const takes = speechTakes[current] || [];
-  const hasSpoken = takes.some(t => t.type !== "fused");
-  const hasFused = takes.some(t => t.type === "fused");
+  // LI indicators — one per post, stored as specific take index (not type)
+  const readyIdx = linkedinReadyTakeIdx[current]; // null=original, number=index in speechTakes, undefined=none
+  const selIdx = selectedTake[current];
+  const curTake = (selIdx != null && speechTakes[current]) ? speechTakes[current][selIdx] : null;
+  const isFused = !!(curTake && curTake.type === "fused");
   const origInd = g("li-indicator-orig");
   const spokenInd = g("li-indicator-spoken");
   const fusedInd = g("li-indicator-fused");
-  // Original always exists
   if (origInd) {
     origInd.style.display = "";
-    origInd.classList.toggle("active", liTake === "original");
+    origInd.classList.toggle("active", readyIdx === null);
   }
   if (spokenInd) {
-    spokenInd.style.display = hasSpoken ? "" : "none";
-    spokenInd.classList.toggle("active", liTake === "spoken");
+    spokenInd.style.display = (curTake && !isFused) ? "" : "none";
+    spokenInd.classList.toggle("active", (curTake && !isFused) ? readyIdx === selIdx : false);
   }
   if (fusedInd) {
-    fusedInd.style.display = hasFused ? "" : "none";
-    fusedInd.classList.toggle("active", liTake === "fused");
+    fusedInd.style.display = isFused ? "" : "none";
+    fusedInd.classList.toggle("active", isFused ? readyIdx === selIdx : false);
   }
 
   g("post-num").textContent = `${current+1} of ${posts.length}`;
@@ -1287,7 +1285,7 @@ function renderCalendar() {
     var liStatus = ps.linkedin || st;
     var liDot = liStatus === "posted" ? "posted" : liStatus === "ready" ? "ready" : "draft";
     // Only show if LI take is selected for this post
-    var hasLiTake = (typeof linkedinTake !== "undefined" && linkedinTake[idx] != null);
+    var hasLiTake = (typeof linkedinReadyTakeIdx !== "undefined" && linkedinReadyTakeIdx[idx] !== undefined);
     if (!hasLiTake) return;
     var dk = dayKey(d);
     if (!dayMap[dk]) dayMap[dk] = [];
@@ -1371,7 +1369,7 @@ function calExpandPost(idx, platform) {
   document.getElementById("cal-status-ready").style.display = st !== "posted" ? "" : "none";
   document.getElementById("cal-status-draft").style.display = st !== "posted" ? "" : "none";
 
-  var liTake = (typeof linkedinTake !== "undefined" && linkedinTake[idx]) || null;
+  var liTake = (typeof linkedinReadyTakeIdx !== "undefined" && linkedinReadyTakeIdx[idx] !== undefined);
   var liBadge = document.getElementById("cal-li-badge");
   var postBtn = document.getElementById("cal-post-btn");
   if (liTake && platform === "li") {
@@ -1410,7 +1408,7 @@ function calPostToLinkedIn() {
   btn.textContent = "Posting...";
 
   var text = p.body;
-  var liTake = linkedinTake[idx];
+  var liTaken = linkedinReadyTakeIdx[idx]; // null=original body, number=index in speechTakes
   if (liTake === "spoken" || liTake === "fused") {
     var take = getSelectedTake(idx);
     if (take) text = take.transcript;
@@ -1702,7 +1700,7 @@ function handleDrop(e, targetIdx) {
   }
 
   reorderIndexed(statuses);
-  reorderIndexed(linkedinTake);
+  reorderIndexed(linkedinReadyTakeIdx);
   reorderIndexed(selectedTake);
   reorderIndexed(speechTakes);
   reorderIndexed(fuseSources);
@@ -1828,16 +1826,25 @@ function toggleReader() {
 /* ── STATUS ── */
 function setStatus(s) { statuses[current] = s; saveStatuses(); refresh(); }
 function saveStatuses() { try { localStorage.setItem("arc-viz-statuses", JSON.stringify(statuses)); } catch(e) {} autoSave(); }
-function toggleLinkedInTake(mode) {
+function toggleLinkedInReady(mode) {
   // mode: "original" | "spoken" | "fused"
-  const curr = linkedinTake[current];
-  if (curr === mode) {
-    // deselect — same one clicked again
-    delete linkedinTake[current];
+  // Stores null for original body, or the index of the specific take in speechTakes[current]
+  if (mode === "original") {
+    if (linkedinReadyTakeIdx[current] === null) {
+      delete linkedinReadyTakeIdx[current];
+    } else {
+      linkedinReadyTakeIdx[current] = null;
+    }
   } else {
-    linkedinTake[current] = mode;
+    const selIdx = selectedTake[current];
+    if (selIdx == null) return;
+    if (linkedinReadyTakeIdx[current] === selIdx) {
+      delete linkedinReadyTakeIdx[current];
+    } else {
+      linkedinReadyTakeIdx[current] = selIdx;
+    }
   }
-  try { localStorage.setItem("arc-viz-linkedinTake", JSON.stringify(linkedinTake)); } catch(e) {}
+  try { localStorage.setItem("arc-viz-linkedinReadyTakeIdx", JSON.stringify(linkedinReadyTakeIdx)); } catch(e) {}
   renderReader();
   autoSave();
 }
@@ -1960,26 +1967,26 @@ function idbDel(id) {
   try { const st = JSON.parse(localStorage.getItem("arc-viz-statuses") || "{}"); Object.assign(statuses, st); } catch(e) {}
   try { const ci = JSON.parse(localStorage.getItem("arc-viz-collapsedImages") || "{}"); Object.assign(collapsedImages, ci); } catch(e) {}
   try { const cv = JSON.parse(localStorage.getItem("arc-viz-collapsedVideos") || "{}"); Object.assign(collapsedVideos, cv); } catch(e) {}
-  try { const lt = JSON.parse(localStorage.getItem("arc-viz-linkedinTake") || "{}"); Object.assign(linkedinTake, lt); } catch(e) {}
-  // Auto-cleanup: remove linkedinTake entries for out-of-range indices
+  try { const lt = JSON.parse(localStorage.getItem("arc-viz-linkedinReadyTakeIdx") || "{}"); Object.assign(linkedinReadyTakeIdx, lt); } catch(e) {}
+  // Auto-cleanup: remove linkedinReadyTakeIdx entries for out-of-range indices
   const maxIdx = posts.length - 1;
   let cleanedLiTake = false;
-  for (const k of Object.keys(linkedinTake)) {
+  for (const k of Object.keys(linkedinReadyTakeIdx)) {
     const idx = parseInt(k, 10);
-    if (isNaN(idx) || idx < 0 || idx > maxIdx) { delete linkedinTake[k]; cleanedLiTake = true; }
+    if (isNaN(idx) || idx < 0 || idx > maxIdx) { delete linkedinReadyTakeIdx[k]; cleanedLiTake = true; }
   }
-  if (cleanedLiTake) { localStorage.setItem("arc-viz-linkedinTake", JSON.stringify(linkedinTake)); }
+  if (cleanedLiTake) { localStorage.setItem("arc-viz-linkedinReadyTakeIdx", JSON.stringify(linkedinReadyTakeIdx)); }
   try { const ps = JSON.parse(localStorage.getItem("arc-viz-platformStates") || "{}"); Object.assign(platformStates, ps); } catch(e) {}
   try { const pt = JSON.parse(localStorage.getItem("arc-viz-platformTexts") || "{}"); Object.assign(platformTexts, pt); } catch(e) {}
 })().then(async () => {
-  // Pull linkedinTake from state-server as source of truth (fixes stale localStorage)
+  // Pull linkedinReadyTakeIdx from state-server as source of truth (fixes stale localStorage)
   try {
     const r = await fetch("http://127.0.0.1:9801/latest");
     const serverState = await r.json();
-    if (serverState.linkedinTake) {
-      // Merge server state into linkedinTake, server wins
-      Object.assign(linkedinTake, serverState.linkedinTake);
-      localStorage.setItem("arc-viz-linkedinTake", JSON.stringify(linkedinTake));
+    if (serverState.linkedinReadyTakeIdx) {
+      // Merge server state into linkedinReadyTakeIdx, server wins
+      Object.assign(linkedinReadyTakeIdx, serverState.linkedinReadyTakeIdx);
+      localStorage.setItem("arc-viz-linkedinReadyTakeIdx", JSON.stringify(linkedinReadyTakeIdx));
     }
   } catch(e) { /* state-server may not be running, use localStorage */ }
   // Now safe to init UI — takes are loaded
@@ -2013,7 +2020,7 @@ async function autoSave() {
   _autoSavePending = true;
   try {
     const state = {
-      speechTakes, selectedTake, fuseSources, statuses, linkedinTake,
+      speechTakes, selectedTake, fuseSources, statuses, linkedinReadyTakeIdx,
       platformStates, platformTexts,
       fontSize, dark, sideX, sideY, sideW, sideH, tlX, tlY,
       sidePanelOpen, sidePanelMinimized, sidePanelTab,
@@ -2045,12 +2052,14 @@ function postToLinkedIn() {
   btn.classList.add("posting");
   btn.textContent = "Posting...";
 
-  // Determine text: linkedinTake selection or original body
+  // Determine text: linkedinReadyTakeIdx selection (null=original body, number=index in speechTakes)
   let text = p.body;
-  const liTake = linkedinTake[current];
-  if (liTake === "spoken" || liTake === "fused") {
-    const take = getSelectedTake(current);
-    if (take) text = take.transcript;
+  const liTaken = linkedinReadyTakeIdx[current];
+  if (liTaken !== null && liTaken !== undefined) {
+    const takesArr = speechTakes[current];
+    if (takesArr && takesArr[liTaken]) {
+      text = takesArr[liTaken].transcript || text;
+    }
   }
 
   const payload = {
@@ -3057,7 +3066,7 @@ function saveSessionJSON() {
         image: p.image || null,
         video: p.video || null,
         status: getStatus(i),
-        linkedinTake: linkedinTake[i] || null,
+        linkedinReadyTakeIdx: linkedinReadyTakeIdx[i] != null ? linkedinReadyTakeIdx[i] : null,
         selectedTake: selectedTake[i] ?? null,
         takes,
         fuseSources: fuseSources[i] || []

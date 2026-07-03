@@ -204,13 +204,13 @@ function getTodayStr() {
 
   const state = loadState();
   const statuses = state.statuses || {};
-  const linkedinTake = state.linkedinTake || {};
+  const linkedinReadyTakeIdx = state.linkedinReadyTakeIdx || {};
 
   const readyToday = posts.filter((p, i) => {
     if (p.date !== today) return false;
     const st = statuses[i] || 'draft';
-    const liTake = linkedinTake[i];
-    return st === 'ready' && liTake != null;
+    const liTake = linkedinReadyTakeIdx[i];
+    return st === 'ready' && liTake !== undefined;
   });
 
   console.log(`[SCHED] Posts ready for today: ${readyToday.length}`);
@@ -218,21 +218,16 @@ function getTodayStr() {
   let postedCount = 0;
   for (const p of readyToday) {
     const idx = posts.indexOf(p);
-    const liTake = linkedinTake[idx];
+    const liTake = linkedinReadyTakeIdx[idx];
 
-    const tag = `[Index: ${idx}, Take: ${liTake || 'original'}]`;
+    const tag = `[Index: ${idx}, Take: ${liTake !== null && liTake !== undefined ? 'speechTake[' + liTake + ']' : 'original'}]`;
     console.log(`[SCHED] Posting "${p.spine}" ${tag}`);
 
     let text = p.body || '';
-    if (liTake === 'spoken' || liTake === 'fused') {
-      const takesKey = `takes_${idx}`;
-      const takes = state[takesKey];
-      if (takes) {
-        if (liTake === 'spoken' && takes.spoken) {
-          text = takes.spoken.transcript || text;
-        } else if (liTake === 'fused' && takes.fused) {
-          text = takes.fused.transcript || text;
-        }
+    if (liTake !== null && liTake !== undefined) {
+      const takesArr = state.speechTakes && state.speechTakes[idx];
+      if (takesArr && takesArr[liTake]) {
+        text = takesArr[liTake].transcript || text;
       }
     }
 
