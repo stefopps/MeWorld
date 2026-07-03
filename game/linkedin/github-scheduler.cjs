@@ -8,6 +8,8 @@ const httpsMod = require('https');
 const LI_ACCESS_TOKEN = process.env.LINKEDIN_ACCESS_TOKEN;
 const LI_PERSON_URN = process.env.LINKEDIN_PERSON_URN;
 
+const LI_HASHTAGS = '\n\n#MedEd #ClinicalSimulation #MedicalEducation #AIinMedicine #Immersa #FutureOfMedicine';
+
 if (!LI_ACCESS_TOKEN || !LI_PERSON_URN) {
   console.error('[SCHED] Missing LINKEDIN_ACCESS_TOKEN or LINKEDIN_PERSON_URN env vars');
   process.exit(1);
@@ -105,6 +107,7 @@ async function uploadImageToLinkedIn(imagePath) {
 }
 
 async function postToLinkedIn(text, imageUrn) {
+  text += LI_HASHTAGS;
   const personId = LI_PERSON_URN.split(':').pop();
   const postObj = {
     author: `urn:li:person:${personId}`,
