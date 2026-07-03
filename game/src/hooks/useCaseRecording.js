@@ -331,10 +331,17 @@ export function useCaseRecording({
         setBusy(true);
         try {
           if (batchModeRef.current && blob.size > 0) {
-            // Wait for any in-flight chunk Whisper calls, then run full-clip
-            // Whisper for the authoritative final transcript.
+            // Wait for in-flight chunk Whisper calls to finish.
+            // The live chunk-by-chunk transcription is typically more
+            // accurate (focused 12s windows) than full-file re-transcription.
+            // Only fall back to full-clip Whisper if the live transcript is empty.
             await whisperQueueRef.current;
-            await transcribeBatchClip(blob);
+            const liveText = (transcriptRef.current || '').trim();
+            if (!liveText) {
+              await transcribeBatchClip(blob);
+            }
+            // If live already has text, skip the full-file re-pass — it
+            // often produces worse results (see docs/voice-transcription-bug.md).
           } else {
             await mergeQueueRef.current;
           }
