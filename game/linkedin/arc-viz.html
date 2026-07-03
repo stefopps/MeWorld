@@ -966,23 +966,28 @@ function renderReader() {
     g("read-toggle-orig").classList.add("active");
   }
   
-  // LI (LinkedIn posting) indicators — show for visible tabs, highlight selected
+  // LI (LinkedIn posting) indicators — show for takes that EXIST, highlight the ONE selected per post
   const liTake = linkedinTake[current];
-  ["orig","spoken","fused"].forEach(id => {
-    const btn = g("read-toggle-" + id);
-    const ind = g("li-indicator-" + id);
-    if (!ind) return;
-    const visible = btn.style.display !== "none";
-    ind.style.display = visible ? "" : "none";
-    if (visible) {
-      const mode = id === "orig" ? "original" : "spoken";
-      // fused is spoken mode with fused type — but indicator tracks "fused" key
-      const matches = (id === "fused" && isFused && liTake === "fused")
-        || (id === "spoken" && !isFused && liTake === "spoken")
-        || (id === "orig" && liTake === "original");
-      ind.classList.toggle("active", !!matches);
-    }
-  });
+  // Determine which take types exist for this post (not which one is currently viewed)
+  const takes = speechTakes[current] || [];
+  const hasSpoken = takes.some(t => t.type !== "fused");
+  const hasFused = takes.some(t => t.type === "fused");
+  const origInd = g("li-indicator-orig");
+  const spokenInd = g("li-indicator-spoken");
+  const fusedInd = g("li-indicator-fused");
+  // Original always exists
+  if (origInd) {
+    origInd.style.display = "";
+    origInd.classList.toggle("active", liTake === "original");
+  }
+  if (spokenInd) {
+    spokenInd.style.display = hasSpoken ? "" : "none";
+    spokenInd.classList.toggle("active", liTake === "spoken");
+  }
+  if (fusedInd) {
+    fusedInd.style.display = hasFused ? "" : "none";
+    fusedInd.classList.toggle("active", liTake === "fused");
+  }
 
   g("post-num").textContent = `${current+1} of ${posts.length}`;
   g("reader").style.borderTop = `3px solid ${cAct(p)}`;
@@ -1956,9 +1961,27 @@ function idbDel(id) {
   try { const ci = JSON.parse(localStorage.getItem("arc-viz-collapsedImages") || "{}"); Object.assign(collapsedImages, ci); } catch(e) {}
   try { const cv = JSON.parse(localStorage.getItem("arc-viz-collapsedVideos") || "{}"); Object.assign(collapsedVideos, cv); } catch(e) {}
   try { const lt = JSON.parse(localStorage.getItem("arc-viz-linkedinTake") || "{}"); Object.assign(linkedinTake, lt); } catch(e) {}
+  // Auto-cleanup: remove linkedinTake entries for out-of-range indices
+  const maxIdx = posts.length - 1;
+  let cleanedLiTake = false;
+  for (const k of Object.keys(linkedinTake)) {
+    const idx = parseInt(k, 10);
+    if (isNaN(idx) || idx < 0 || idx > maxIdx) { delete linkedinTake[k]; cleanedLiTake = true; }
+  }
+  if (cleanedLiTake) { localStorage.setItem("arc-viz-linkedinTake", JSON.stringify(linkedinTake)); }
   try { const ps = JSON.parse(localStorage.getItem("arc-viz-platformStates") || "{}"); Object.assign(platformStates, ps); } catch(e) {}
   try { const pt = JSON.parse(localStorage.getItem("arc-viz-platformTexts") || "{}"); Object.assign(platformTexts, pt); } catch(e) {}
-})().then(() => {
+})().then(async () => {
+  // Pull linkedinTake from state-server as source of truth (fixes stale localStorage)
+  try {
+    const r = await fetch("http://127.0.0.1:9801/latest");
+    const serverState = await r.json();
+    if (serverState.linkedinTake) {
+      // Merge server state into linkedinTake, server wins
+      Object.assign(linkedinTake, serverState.linkedinTake);
+      localStorage.setItem("arc-viz-linkedinTake", JSON.stringify(linkedinTake));
+    }
+  } catch(e) { /* state-server may not be running, use localStorage */ }
   // Now safe to init UI — takes are loaded
   if (dark) {
     document.documentElement.setAttribute("data-theme", "dark");
