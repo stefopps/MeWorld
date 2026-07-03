@@ -264,7 +264,7 @@ function renderBlock(block, key) {
   }
 }
 
-function renderInline(chunk, keyPrefix = '') {
+export function renderInline(chunk, keyPrefix = '') {
   if (!chunk) return null;
   if (!chunk.includes('*') && !chunk.includes('_') && !chunk.includes('`') && !chunk.includes('[')) {
     return chunk;

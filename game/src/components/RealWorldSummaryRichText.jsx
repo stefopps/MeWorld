@@ -4,6 +4,7 @@ import {
   splitSummarySections,
   tokenizeTimestamps,
 } from '../lib/youtubeSummaryRichText.js';
+import { renderInline } from '../lib/chatMessageFormat.jsx';
 
 function TimestampLink({ time, seconds, activeSeconds, onSeek }) {
   const isActive = activeSeconds != null && Math.abs(activeSeconds - seconds) < 0.05;
@@ -35,7 +36,7 @@ function RichParagraph({ text, activeSeconds, onSeek }) {
             onSeek={onSeek}
           />
         ) : (
-          <span key={`t-${i}`}>{tok.value}</span>
+          <span key={`t-${i}`}>{renderInline(tok.value)}</span>
         ),
       )}
     </p>
@@ -65,7 +66,7 @@ export default function RealWorldSummaryRichText({
       {blocks.map((block, i) =>
         isSectionHeading(block) ? (
           <h4 key={`h-${i}`} className="diff-rw-summary-heading">
-            {block}
+            {renderInline(block)}
           </h4>
         ) : (
           <RichParagraph
@@ -96,7 +97,7 @@ export default function RealWorldSummaryRichText({
                     title={`Jump to ${formatYoutubeTimestamp(item.seconds)}`}
                   >
                     <span className="diff-rw-transcript-time">{item.time}</span>
-                    <span className="diff-rw-highlight-label">{item.label}</span>
+                    <span className="diff-rw-highlight-label">{renderInline(item.label)}</span>
                   </button>
                 </li>
               );
