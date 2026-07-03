@@ -2,11 +2,12 @@ name: Schedule LinkedIn Posts
 
 # Runs Mon/Wed/Fri at 7:00 AM ET (11:00 AM UTC)
 # Your PC can be off — GitHub's servers handle it.
+# LinkedIn posts that are marked "ready" with a LI take selected will auto-publish.
 
 on:
   schedule:
-    - cron: '0 11 * * 1,3,5'  # 11:00 UTC = 7:00 AM ET on Mon/Wed/Fri
-  workflow_dispatch:  # Manual trigger from GitHub UI
+    - cron: '0 11 * * 1,3,5'
+  workflow_dispatch:
 
 jobs:
   schedule:
@@ -23,10 +24,11 @@ jobs:
           node-version: '20'
 
       - name: Run LinkedIn scheduler
+        working-directory: game/linkedin
         env:
           LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
           LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
-        run: node linkedin/github-scheduler.js
+        run: node github-scheduler.js
 
       - name: Commit state update (if any)
         run: |
@@ -35,7 +37,7 @@ jobs:
           else
             git config user.name "Beiza Scheduler"
             git config user.email "scheduler@beiza.ai"
-            git add linkedin/state-autosave/latest.json
+            git add game/linkedin/state-autosave/latest.json
             git commit -m "Auto: LinkedIn post status update for $(date +'%a %b %d')"
             git push
           fi
