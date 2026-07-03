@@ -1,8 +1,9 @@
-// github-scheduler.js — Runs in GitHub Actions to post scheduled LinkedIn posts
+// github-scheduler.cjs — Runs in GitHub Actions to post scheduled LinkedIn posts
 // Mon/Wed/Fri at 7 AM ET (11 AM UTC). Your PC can be off.
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
+const https = require('http');
+const httpsMod = require('https');
 
 const LI_ACCESS_TOKEN = process.env.LINKEDIN_ACCESS_TOKEN;
 const LI_PERSON_URN = process.env.LINKEDIN_PERSON_URN;
@@ -29,7 +30,7 @@ function httpsReq(hostname, p, method, body, extraHeaders) {
     };
     const opts = { hostname, path: p, method, headers };
     if (body) opts.headers['Content-Length'] = Buffer.byteLength(body);
-    const req = https.request(opts, (res) => {
+    const req = httpsMod.request(opts, (res) => {
       let data = '';
       res.on('data', c => data += c);
       res.on('end', () => {
@@ -43,9 +44,70 @@ function httpsReq(hostname, p, method, body, extraHeaders) {
   });
 }
 
-function postToLinkedIn(text) {
-  const body = JSON.stringify({
-    author: `urn:li:person:${LI_PERSON_URN.split(':').pop()}`,
+function httpsUpload(uploadUrl, imageBuffer) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(uploadUrl);
+    const opts = {
+      hostname: url.hostname,
+      path: url.pathname + url.search,
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${LI_ACCESS_TOKEN}`,
+        'Content-Type': 'image/png',
+        'Content-Length': imageBuffer.length,
+      }
+    };
+    const mod = url.protocol === 'https:' ? httpsMod : https;
+    const req = mod.request(opts, (res) => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => resolve({ status: res.statusCode, body: data }));
+    });
+    req.on('error', reject);
+    req.write(imageBuffer);
+    req.end();
+  });
+}
+
+async function uploadImageToLinkedIn(imagePath) {
+  const imageBuffer = fs.readFileSync(imagePath);
+  
+  // Step 1: Initialize upload
+  const initBody = JSON.stringify({
+    initializeUploadRequest: {
+      owner: LI_PERSON_URN
+    }
+  });
+  const init = await httpsReq('api.linkedin.com', '/rest/images?action=initializeUpload', 'POST', initBody);
+  
+  if (init.status !== 200 && init.status !== 201) {
+    console.error(`[SCHED] Image init failed: ${init.status}`, JSON.stringify(init.body).slice(0, 300));
+    return null;
+  }
+  
+  const uploadUrl = init.body?.value?.uploadUrl;
+  const imageUrn = init.body?.value?.image;
+  
+  if (!uploadUrl || !imageUrn) {
+    console.error('[SCHED] No uploadUrl or image in init response');
+    return null;
+  }
+  
+  // Step 2: Upload binary
+  const upload = await httpsUpload(uploadUrl, imageBuffer);
+  if (upload.status !== 200 && upload.status !== 201) {
+    console.error(`[SCHED] Image upload failed: ${upload.status}`);
+    return null;
+  }
+  
+  console.log(`[SCHED] Image uploaded: ${imageUrn}`);
+  return imageUrn;
+}
+
+async function postToLinkedIn(text, imageUrn) {
+  const personId = LI_PERSON_URN.split(':').pop();
+  const postObj = {
+    author: `urn:li:person:${personId}`,
     commentary: text,
     visibility: 'PUBLIC',
     distribution: {
@@ -55,25 +117,31 @@ function postToLinkedIn(text) {
     },
     lifecycleState: 'PUBLISHED',
     isReshareDisabledByAuthor: false
-  });
-  return httpsReq('api.linkedin.com', '/rest/posts', 'POST', body);
+  };
+
+  if (imageUrn) {
+    postObj.content = {
+      media: {
+        id: imageUrn
+      }
+    };
+  }
+
+  return httpsReq('api.linkedin.com', '/rest/posts', 'POST', JSON.stringify(postObj));
 }
 
 function parseArcViz() {
   const html = fs.readFileSync(ARC_PATH, 'utf-8');
-  
-  // Extract posts array
+
   const postsMatch = html.match(/const posts = \[([\s\S]*?)\];/);
   if (!postsMatch) { console.error('[SCHED] Could not find posts array'); return []; }
-  
-  // Parse each post object
+
   const postsStr = postsMatch[1];
   const postRegex = /\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/g;
   const posts = [];
   let m;
   while ((m = postRegex.exec(postsStr)) !== null) {
     try {
-      // Parse the object liberally
       const obj = {};
       const entries = m[1];
       const propRe = /(\w+):"((?:[^"\\]|\\.)*)"/g;
@@ -81,7 +149,13 @@ function parseArcViz() {
       while ((pm = propRe.exec(entries)) !== null) {
         obj[pm[1]] = pm[2];
       }
-      if (obj.spine) posts.push(obj);
+      if (obj.spine) {
+        // Fix: convert escaped \n to actual newlines
+        if (obj.body) {
+          obj.body = obj.body.replace(/\\n/g, '\n');
+        }
+        posts.push(obj);
+      }
     } catch {}
   }
   return posts;
@@ -114,46 +188,40 @@ function getTodayStr() {
 (async () => {
   const today = getTodayStr();
   console.log(`[SCHED] Today is ${today} (ET)`);
-  
-  // Only run on Mon, Wed, Fri
+
   const validDays = ['Mon', 'Wed', 'Fri'];
   const todayName = today.split(' ')[0];
   if (!validDays.includes(todayName)) {
     console.log(`[SCHED] ${todayName} is not a posting day. Skipping.`);
     process.exit(0);
   }
-  
+
   const posts = parseArcViz();
   console.log(`[SCHED] Found ${posts.length} posts in arc-viz.html`);
-  
+
   const state = loadState();
   const statuses = state.statuses || {};
   const linkedinTake = state.linkedinTake || {};
-  
-  // Find posts for today that are "ready" with LI take selected
+
   const readyToday = posts.filter((p, i) => {
-    const postIdx = i; // index in the array
     if (p.date !== today) return false;
-    const st = statuses[postIdx] || 'draft';
-    const liTake = linkedinTake[postIdx];
+    const st = statuses[i] || 'draft';
+    const liTake = linkedinTake[i];
     return st === 'ready' && liTake != null;
   });
-  
+
   console.log(`[SCHED] Posts ready for today: ${readyToday.length}`);
-  
+
   let postedCount = 0;
   for (const p of readyToday) {
-    // Find the actual index in posts array
     const idx = posts.indexOf(p);
     const liTake = linkedinTake[idx];
-    
-    // Select the right text: original, spoken, or fused
+
     const tag = `[Index: ${idx}, Take: ${liTake || 'original'}]`;
     console.log(`[SCHED] Posting "${p.spine}" ${tag}`);
-    
+
     let text = p.body || '';
     if (liTake === 'spoken' || liTake === 'fused') {
-      // For non-original takes, use the transcript if available
       const takesKey = `takes_${idx}`;
       const takes = state[takesKey];
       if (takes) {
@@ -164,20 +232,30 @@ function getTodayStr() {
         }
       }
     }
-    
+
     if (!text || text.trim().length < 3) {
       console.log(`[SCHED] SKIP: empty text for "${p.spine}"`);
       continue;
     }
-    
+
     try {
-      const result = await postToLinkedIn(text);
+      // Upload image if present
+      let imageUrn = null;
+      if (p.image) {
+        const imagePath = path.join(DIR, p.image);
+        if (fs.existsSync(imagePath)) {
+          console.log(`[SCHED] Uploading image: ${p.image}`);
+          imageUrn = await uploadImageToLinkedIn(imagePath);
+        } else {
+          console.log(`[SCHED] Image not found: ${imagePath}, posting without image`);
+        }
+      }
+
+      const result = await postToLinkedIn(text, imageUrn);
       if (result.status === 200 || result.status === 201) {
         console.log(`[SCHED] POSTED: "${p.spine}" (status ${result.status})`);
-        // Update state
         statuses[idx] = 'posted';
         postedCount++;
-        // Cascade to Facebook
         const fbStates = state.platformStates || {};
         if (!fbStates[idx]) fbStates[idx] = {};
         fbStates[idx].facebook = 'ready';
@@ -189,12 +267,11 @@ function getTodayStr() {
       console.error(`[SCHED] ERROR posting "${p.spine}":`, err.message);
     }
   }
-  
-  // Save updated state
+
   state.statuses = statuses;
   saveState(state);
   console.log(`[SCHED] Done. Posted: ${postedCount}. State saved.`);
-  
+
   if (postedCount > 0) {
     console.log('[SCHED] ::state-updated::true');
   }
