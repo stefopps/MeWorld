@@ -36,3 +36,6 @@ case*-play-screenshot.png
 # LinkedIn post source art — large binaries, Steve machine only (never upload)
 linkedin/assets/
 *.psd
+# LinkedIn tokens — never commit
+.linkedin-token.env
+linkedin/.linkedin-token.env

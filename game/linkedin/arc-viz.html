@@ -266,7 +266,17 @@
   .cal-expand-date { font-size: 10px; color: var(--text-muted); }
   .cal-expand-media { margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 0.5px solid var(--border); max-height: 200px; }
   .cal-expand-media img, .cal-expand-media video { width: 100%; max-height: 200px; object-fit: contain; display: block; }
-  .cal-expand-body { font-size: var(--fs-reader); line-height: 1.8; color: var(--text); white-space: pre-wrap; font-weight: 420; letter-spacing: -0.01em; }
+  
+  .cal-expand-actions { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 0.5px solid var(--border); }
+  .cal-status-btn { font-size: 9px; padding: 3px 10px; border-radius: 14px; border: 0.5px solid var(--border); background: var(--bg-surface); color: var(--text-muted); cursor: pointer; font-family: inherit; font-weight: 500; letter-spacing: -0.01em; transition: all 0.15s; }
+  .cal-status-btn:hover { border-color: var(--border-hi); color: var(--text); }
+  .cal-status-btn.s-ready { background: var(--ready-bg); border-color: var(--dot-ready); color: var(--ready-text); }
+  .cal-status-btn.s-posted { background: var(--posted-bg); border-color: var(--dot-posted); color: var(--posted-text); }
+  .cal-status-btn.active-ready { background: var(--ready-bg); border-color: var(--dot-ready); color: var(--ready-text); font-weight: 600; }
+  .cal-status-btn.active-posted { background: var(--posted-bg); border-color: var(--dot-posted); color: var(--posted-text); font-weight: 600; }
+  .cal-li-badge { font-size: 8px; padding: 2px 6px; border-radius: 8px; background: var(--accent); color: #fff; font-weight: 600; letter-spacing: 0.04em; margin-left: auto; }
+
+.cal-expand-body { font-size: var(--fs-reader); line-height: 1.8; color: var(--text); white-space: pre-wrap; font-weight: 420; letter-spacing: -0.01em; }
   .cal-legend { display: flex; gap: 14px; padding-top: 8px; margin-top: 8px; border-top: 0.5px solid var(--border); flex-shrink: 0; }
   .cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 8px; color: var(--text-muted); font-weight: 450; letter-spacing: 0.02em; }
   .cal-legend-swatch { width: 10px; height: 6px; border-radius: 2px; }
@@ -643,7 +653,14 @@
       </div>
       <div class="cal-expand-media" id="cal-expand-media" style="display:none"></div>
       <div class="cal-expand-body" id="cal-expand-body"></div>
-    </div>
+    </div>      <div class="cal-expand-actions" id="cal-expand-actions">
+        <button class="cal-status-btn" id="cal-status-draft" onclick="calSetStatus('draft')">Draft</button>
+        <button class="cal-status-btn" id="cal-status-ready" onclick="calSetStatus('ready')">Ready</button>
+        <button class="cal-status-btn" id="cal-status-posted" style="display:none" onclick="calSetStatus('posted')">Posted</button>
+        <button class="post-li-btn" id="cal-post-btn" onclick="calPostToLinkedIn()" style="display:none">Post LI</button>
+        <span class="cal-li-badge" id="cal-li-badge" style="display:none">LI</span>
+      </div>
+
     <div class="cal-legend">
       <div class="cal-legend-item"><div class="cal-legend-swatch" style="background:rgba(0,113,227,0.3)"></div> LinkedIn</div>
       <div class="cal-legend-item"><div class="cal-legend-swatch" style="background:rgba(66,103,178,0.3)"></div> Facebook</div>
@@ -1264,6 +1281,9 @@ function renderCalendar() {
     var st = (typeof statuses !== "undefined" && statuses[idx]) || "draft";
     var liStatus = ps.linkedin || st;
     var liDot = liStatus === "posted" ? "posted" : liStatus === "ready" ? "ready" : "draft";
+    // Only show if LI take is selected for this post
+    var hasLiTake = (typeof linkedinTake !== "undefined" && linkedinTake[idx] != null);
+    if (!hasLiTake) return;
     var dk = dayKey(d);
     if (!dayMap[dk]) dayMap[dk] = [];
     dayMap[dk].push({ idx:idx, platform:"li", date:p.date, act:p.act, status:liStatus, dotClass:liDot, cssClass:"cal-post-li" });
@@ -1338,7 +1358,106 @@ function calExpandPost(idx, platform) {
     mediaEl.innerHTML = '<img src="' + p.image + '" style="width:100%;max-height:200px;object-fit:contain;" />';
   }
   document.getElementById("cal-expand").classList.add("active");
+
+  // Action bar: status + Post LI
+  var st = (typeof statuses !== "undefined" && statuses[idx]) || "draft";
+  document.getElementById("cal-status-draft").className = "cal-status-btn" + (st === "draft" ? " active-ready" : "");
+  document.getElementById("cal-status-ready").className = "cal-status-btn" + (st === "ready" ? " active-ready" : "") + (st === "ready" ? "" : " s-ready");
+  document.getElementById("cal-status-ready").style.display = st !== "posted" ? "" : "none";
+  document.getElementById("cal-status-draft").style.display = st !== "posted" ? "" : "none";
+
+  var liTake = (typeof linkedinTake !== "undefined" && linkedinTake[idx]) || null;
+  var liBadge = document.getElementById("cal-li-badge");
+  var postBtn = document.getElementById("cal-post-btn");
+  if (liTake && platform === "li") {
+    liBadge.style.display = "";
+    liBadge.textContent = "LI: " + liTake;
+    postBtn.style.display = st !== "posted" ? "" : "none";
+    postBtn.textContent = st === "posted" ? "Posted" : "Post LI";
+    postBtn.style.background = st === "posted" ? "#22C55E" : "";
+  } else {
+    liBadge.style.display = "none";
+    postBtn.style.display = "none";
+  }
+
   renderCalendar();
+}
+
+
+function calSetStatus(s) {
+  if (calExpandedPost && calExpandedPost.idx != null) {
+    statuses[calExpandedPost.idx] = s;
+    try { localStorage.setItem("arc-viz-statuses", JSON.stringify(statuses)); } catch(e) {}
+    calExpandPost(calExpandedPost.idx, calExpandedPost.platform);
+    autoSave();
+    refresh();
+  }
+}
+
+function calPostToLinkedIn() {
+  if (!calExpandedPost || calExpandedPost.idx == null) return;
+  var idx = calExpandedPost.idx;
+  var p = posts[idx];
+  var btn = document.getElementById("cal-post-btn");
+  if (btn.classList.contains("posting")) return;
+  btn.disabled = true;
+  btn.classList.add("posting");
+  btn.textContent = "Posting...";
+
+  var text = p.body;
+  var liTake = linkedinTake[idx];
+  if (liTake === "spoken" || liTake === "fused") {
+    var take = getSelectedTake(idx);
+    if (take) text = take.transcript;
+  }
+
+  var payload = {
+    index: idx,
+    platform: "linkedin",
+    text: text,
+    image: p.image || null,
+    video: p.video || null
+  };
+
+  fetch("http://127.0.0.1:9801/post-platform", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.ok) {
+      statuses[idx] = "posted";
+      try { localStorage.setItem("arc-viz-statuses", JSON.stringify(statuses)); } catch(e) {}
+      btn.textContent = "Posted";
+      btn.style.background = "#22C55E";
+      if (typeof platformStates !== "undefined") {
+        if (!platformStates[idx]) platformStates[idx] = {};
+        platformStates[idx].facebook = "ready";
+        try { localStorage.setItem("arc-viz-platformStates", JSON.stringify(platformStates)); } catch(e) {}
+      }
+      autoSave();
+      calExpandPost(idx, calExpandedPost.platform);
+      refresh();
+    } else {
+      btn.textContent = "Failed";
+      btn.style.background = "#EF4444";
+    }
+  })
+  .catch(function() {
+    btn.textContent = "Error";
+    btn.style.background = "#EF4444";
+  })
+  .finally(function() {
+    btn.disabled = false;
+    btn.classList.remove("posting");
+    setTimeout(function() {
+      if (btn.textContent === "Posted" || btn.textContent === "Failed" || btn.textContent === "Error") {
+        btn.textContent = "Post LI";
+        btn.style.background = "";
+      }
+    }, 4000);
+  });
 }
 
 function calCloseExpand() {

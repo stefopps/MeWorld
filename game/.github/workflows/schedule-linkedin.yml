@@ -1,0 +1,41 @@
+name: Schedule LinkedIn Posts
+
+# Runs Mon/Wed/Fri at 7:00 AM ET (11:00 AM UTC)
+# Your PC can be off — GitHub's servers handle it.
+
+on:
+  schedule:
+    - cron: '0 11 * * 1,3,5'  # 11:00 UTC = 7:00 AM ET on Mon/Wed/Fri
+  workflow_dispatch:  # Manual trigger from GitHub UI
+
+jobs:
+  schedule:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run LinkedIn scheduler
+        env:
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
+        run: node linkedin/github-scheduler.js
+
+      - name: Commit state update (if any)
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+          else
+            git config user.name "Beiza Scheduler"
+            git config user.email "scheduler@beiza.ai"
+            git add linkedin/state-autosave/latest.json
+            git commit -m "Auto: LinkedIn post status update for $(date +'%a %b %d')"
+            git push
+          fi
