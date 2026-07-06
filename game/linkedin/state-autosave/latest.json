@@ -2371,7 +2371,7 @@
     "0": "posted",
     "1": "ready",
     "2": "ready",
-    "3": "ready",
+    "3": "posted",
     "4": "draft",
     "5": "draft",
     "6": "draft",
@@ -2449,5 +2449,10 @@
       "hasMedia": true
     }
   },
-  "_at": "2026-07-05T23:02:39.556404+00:00"
+  "_at": "2026-07-05T23:02:39.556404+00:00",
+  "platformStates": {
+    "3": {
+      "facebook": "ready"
+    }
+  }
 }
