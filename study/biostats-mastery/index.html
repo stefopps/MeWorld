@@ -753,24 +753,28 @@ function renderFormulaForOption(q, opt, optIdx) {
   const g = opt.graph || {};
   let mathLine = '';
   if (gt === 'cumulative' && g.hr != null) {
-    mathLine = '\\(HR = '+g.hr.toFixed(2)+' \\rightarrow 1.0 - '+g.hr.toFixed(2)+' = '+(1-g.hr).toFixed(2)+' = '+((1-g.hr)*100).toFixed(0)+'\\%\\text{ prevented}\\)';
+    mathLine = 'HR = '+g.hr.toFixed(2)+' \\rightarrow 1.0 - '+g.hr.toFixed(2)+' = '+(1-g.hr).toFixed(2)+' = '+((1-g.hr)*100).toFixed(0)+'\\%\\text{ prevented}';
   } else if (gt === 'normal' && g.d != null) {
-    mathLine = '\\(d = '+g.d.toFixed(2)+',\\quad n = '+(g.n ?? 64)+'\\)';
+    mathLine = 'd = '+g.d.toFixed(2)+',\\quad n = '+(g.n ?? 64);
   } else if ((gt === 'bar' || gt === 'bar-multigroup') && g.control != null) {
-    mathLine = '\\(\\text{Control } = '+(g.control*100).toFixed(0)+'\\%,\\quad \\text{Treatment } = '+((g.treatment ?? g.control)*100).toFixed(0)+'\\%\\)';
+    mathLine = '\\text{Control } = '+(g.control*100).toFixed(0)+'\\%,\\quad \\text{Treatment } = '+((g.treatment ?? g.control)*100).toFixed(0)+'\\%';
   } else if (gt === 'forestPlot' && q.baseGraph?.rows) {
     const fr = q.baseGraph.rows.find(r => r.label === 'Overall trial') || q.baseGraph.rows[0];
-    mathLine = '\\(\\text{Forest plot · Overall HR = '+fr.estimate.toFixed(2)+' ['+fr.ciLow.toFixed(2)+'–'+fr.ciHigh.toFixed(2)+']}\\)';
+    mathLine = '\\text{Forest plot · Overall HR = '+fr.estimate.toFixed(2)+' ['+fr.ciLow.toFixed(2)+'–'+fr.ciHigh.toFixed(2)+']}';
   } else {
-    mathLine = '\\(\\text{'+gt.replace(/-/g,' ')+' scenario — option '+opt.label+'}\\)';
+    mathLine = '\\text{'+gt.replace(/-/g,' ')+' scenario — option '+opt.label+'}';
   }
+  // Render math through KaTeX directly — do not rely on renderMath's regex scan
+  let mathHTML = mathLine;
+  try { mathHTML = katex.renderToString(mathLine, {throwOnError:false}); }
+  catch(e) { mathHTML = '<code>'+mathLine+'</code>'; }
   let verdict = '';
   if (qAnswered && optIdx !== undefined) {
     verdict = optIdx === q.correct
       ? '<div class="formula-verdict correct">Correct answer</div>'
       : '<div class="formula-verdict wrong">Incorrect — why this option fails:</div>';
   }
-  return verdict + renderMath('<span class="math-line">'+mathLine+'</span><span class="body-text">'+renderMath(opt.desc, false)+'</span>', false) +
+  return verdict + '<span class="math-line">'+mathHTML+'</span><span class="body-text">'+renderMath(opt.desc, false)+'</span>' +
     '<button class="ask-ai-btn" onclick="simplifyThis('+currentQ+','+optIdx+')" style="margin-top:8px"><i class="ti ti-messages"></i> Simplify this</button>';
 }
 
