@@ -72,8 +72,8 @@
         "label": "A",
         "text": "The advertisement reports the absolute risk reduction (ARR) of 0.6 percentage points correctly.",
         "graph": {
-          "control": 0.3,
-          "treatment": 0.24
+          "control": 0.03,
+          "treatment": 0.024
         },
         "desc": "ARR = 3.0% − 2.4% = 0.6 ppt. That's the absolute gap. But the ad says 20% — which is the relative calculation: (3.0% − 2.4%) / 3.0% = 0.6/3.0 = 20%. <strong>The ad reports RRR, not ARR. It exploits a perceptual hack: 20% sounds enormous, 0.6 ppt sounds trivial. Same trial.</strong>"
       },
@@ -81,8 +81,8 @@
         "label": "B",
         "text": "The advertisement reports relative risk reduction (RRR) of 20%, but the ARR is only 0.6 ppt and NNT is approximately 167.",
         "graph": {
-          "control": 0.3,
-          "treatment": 0.24
+          "control": 0.03,
+          "treatment": 0.024
         },
         "desc": "RRR = (3.0% − 2.4%) / 3.0% = 20%. The absolute difference is 0.6 ppt — a sliver. NNT = 1/0.006 ≈ 167. <strong>You need to treat 167 people to prevent ONE cardiac event. The other 166 get the drug, pay the cost, bear side effects, and get zero benefit.</strong>"
       },
@@ -90,8 +90,8 @@
         "label": "C",
         "text": "The hazard ratio of 0.80 means an 80% reduction in events.",
         "graph": {
-          "control": 0.3,
-          "treatment": 0.06
+          "control": 0.03,
+          "treatment": 0.006
         },
         "desc": "Same error as Q1 — the brain sees 0.80 and reaches for 80%. <strong>HR = 0.80 means treatment retains 80% of control hazard. Only 20% gets eliminated.</strong> 1.0 − 0.80 = 0.20. But look at the graph — this option shows <strong>HR = 0.20</strong>, eliminating 80% of the hazard velocity. That gap is what '80% reduction' would actually demand. The graph is showing what the wrong reasoning implies, not what the trial found."
       },
@@ -99,8 +99,8 @@
         "label": "D",
         "text": "The p-value of 0.03 confirms the 20% reduction is both statistically and clinically significant.",
         "graph": {
-          "control": 0.3,
-          "treatment": 0.24
+          "control": 0.03,
+          "treatment": 0.024
         },
         "desc": "The p-value answers one question: could this be chance? At p=0.03, probably not. But it says nothing about clinical importance. An ARR of 0.6 ppt may be statistically detectable but clinically meaningless. <strong>Statistical significance ≠ clinical significance.</strong>"
       },
@@ -108,8 +108,8 @@
         "label": "E",
         "text": "The NNT is 20, meaning 20 patients need treatment to prevent one event.",
         "graph": {
-          "control": 0.3,
-          "treatment": 0.24
+          "control": 0.03,
+          "treatment": 0.024
         },
         "desc": "NNT = 1/0.006 ≈ 167, not 20. To get NNT=20 you'd need ARR=5 ppt — impossible given the baseline rate is only 3.0%. <strong>Always verify NNT against baseline.</strong>"
       }
@@ -1193,7 +1193,7 @@
           "n": 12,
           "alpha": 0.05
         },
-        "desc": "<strong>The mean difference is identical: 2.6 days. Same effect, same SD.</strong> The drug hasn't gotten worse — the trial has less data. The graph shows HR=0.55 because the effect is the same. A p-value depends on sample size as much as effect size."
+        "desc": "<strong>The mean difference is identical: 2.6 days. Same effect, same SD.</strong> The drug hasn't gotten worse — the trial has less data. The graph shows d=1.64 because the effect is the same. A p-value depends on sample size as much as effect size."
       },
       {
         "label": "B",
@@ -1203,7 +1203,7 @@
           "n": 12,
           "alpha": 0.05
         },
-        "desc": "<strong>The test statistic for a paired t-test is: t = (mean difference) / (SD_diff / √n).</strong> At n = 30: t = 2.6 / (1.4/√30) = 2.6 / 0.256 ≈ 10.2 → p < 0.0001. At n = 12: t = 2.6 / (1.4/√12) = 2.6 / 0.404 ≈ 6.4 → still significant! Wait — that means even at n=12 the t is large. But if it really were p=0.08, that means the SD of differences must be wider in the smaller trial (more variability in a smaller sample). <strong>Power is the probability of detecting a real effect.</strong> A smaller n → larger standard error → wider CI → higher p-value for the same point estimate. That's Type II error territory: missing a real effect because you didn't collect enough data."
+        "desc": "<strong>The test statistic for a paired t-test is: t = (mean difference) / (SD_diff / √n).</strong> At n = 30 with SD_diff = 1.4: t = 2.6 / (1.4/√30) ≈ 10.2 → p < 0.0001, highly significant. Shrink n to 12 and, all else equal, the standard error grows and t shrinks — exactly the mechanism that can push a real effect below the significance threshold. <strong>Power is the probability of detecting a real effect when one exists.</strong> A smaller n means a larger standard error, a wider CI, and a higher p-value for the same point estimate. That's Type II error territory: missing a real effect because you didn't collect enough data."
       },
       {
         "label": "C",
@@ -1213,7 +1213,7 @@
           "n": 12,
           "alpha": 0.05
         },
-        "desc": "<strong>No sample size requirement forbids a paired analysis.</strong> Paired t-tests can be run on n = 5 if the differences are normally distributed. The graph shows HR=1.0 — the null that an independent test might produce — but there's no minimum patient count for paired designs. The issue is power, not test eligibility."
+        "desc": "<strong>No sample size requirement forbids a paired analysis.</strong> Paired t-tests can be run on n = 5 if the differences are normally distributed. The graph shows d=0.00 — the null that an independent test might produce — but there's no minimum patient count for paired designs. The issue is power, not test eligibility."
       },
       {
         "label": "D",
@@ -1223,7 +1223,7 @@
           "n": 12,
           "alpha": 0.05
         },
-        "desc": "<strong>A smaller p-value means LESS chance of Type I error, not more.</strong> p < 0.0001 means the probability of a false positive is extremely low. A Type I error is claiming an effect when none exists — and p < 0.0001 makes that very unlikely. The graph shows HR=1.0 — but the large trial has strong evidence against the null, not weak evidence."
+        "desc": "<strong>A smaller p-value means LESS chance of Type I error, not more.</strong> p < 0.0001 means the probability of a false positive is extremely low. A Type I error is claiming an effect when none exists — and p < 0.0001 makes that very unlikely. The graph shows d=0.00 — but the large trial has strong evidence against the null, not weak evidence."
       },
       {
         "label": "E",
@@ -1233,7 +1233,7 @@
           "n": 12,
           "alpha": 0.05
         },
-        "desc": "<strong>Crossover designs are more powerful than parallel designs at every sample size — because each patient contributes two data points.</strong> A crossover with n=12 is equivalent in precision to a parallel design with a much larger n. The graph shows a moderate gap (HR=0.80). The design amplifies power. The sample size is the bottleneck."
+        "desc": "<strong>Crossover designs are more powerful than parallel designs at every sample size — because each patient contributes two data points.</strong> A crossover with n=12 is equivalent in precision to a parallel design with a much larger n. The graph shows a moderate gap (d=0.50). The design amplifies power. The sample size is the bottleneck."
       }
     ],
     "correct": 1,
@@ -1301,7 +1301,7 @@
     "baseGraph": {
       "hr": 0.6,
       "brate": 0.3,
-      "type": "biasDiagram"
+      "type": "cumulative"
     },
     "explanation": "Carryover effect is the Achilles heel of crossover trials. If the drug's effect outlasts the washout, the second period's measurements are contaminated — the placebo arm gets a free ride on the drug's lingering effect. The result: the drug looks LESS effective than it truly is because the control arm is artificially 'treated.'",
     "trap": "The washout period is not a formality — it's the crossover trial's most important design element. Always check: (1) Is the washout long enough for the drug's biological effect to clear? (2) Did they test for carryover? If the answer is no, the paired comparison is biased — direction depends on which treatment came first.",

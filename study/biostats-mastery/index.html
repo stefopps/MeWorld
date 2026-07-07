@@ -721,6 +721,7 @@ function setQMode(mode) {
   if (!qAnswered) {
     const q = QUESTION_BANK[currentQ];
     applyGraphPresetByType(q.baseGraph, q.baseGraph);
+    syncViewModeToCrossAt();
     updateSlidersFromState();
     document.getElementById('cbody-formula').innerHTML = '<span class="empty">Click an option to see formula</span>';
   }
@@ -867,11 +868,23 @@ function renderQuestion() {
     updateQuizVisualForOption(currentPickedOpt);
   } else {
     applyGraphPresetByType(q.baseGraph, q.baseGraph);
+    syncViewModeToCrossAt();
     updateSlidersFromState();
     updateQuizGraph();
     updateQuizCard();
   }
   if (pivotMode) updatePivotUI();
+}
+
+// The default cumulative view uses a flat exponential and never implements
+// crossing hazards — only the survival-view step-function math (buildKMSteps)
+// actually handles crossAt/hrEarly. Auto-switch to survival when crossAt is
+// present so crossing questions render correctly without requiring the student
+// to flip a toggle they don't know matters.
+function syncViewModeToCrossAt() {
+  qzViewMode = qzCrossAt ? 'survival' : 'cumulative';
+  const toggle = document.getElementById('qz-view-toggle');
+  if (toggle) toggle.checked = (qzViewMode === 'survival');
 }
 
 function updateSlidersFromState() {
@@ -1030,6 +1043,7 @@ function updateQuizVisualForOption(optIdx) {
   } else {
     applyGraphPresetByType(q.baseGraph, q.baseGraph);
   }
+  syncViewModeToCrossAt();
   updateSlidersFromState();
   updateQuizGraph();
   updateQuizCard();
