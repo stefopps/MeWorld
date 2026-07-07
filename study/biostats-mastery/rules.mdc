@@ -1,0 +1,118 @@
+# Statistical Power Visualizer — Question Writing Rules
+
+## THE ONE RULE THAT GOVERNS EVERYTHING
+
+**Every option must update the chart.** When a student clicks A, B, C, D, or E, the graph must change to reflect the scenario that option implies. The student learns by seeing — not by being told.
+
+This means:
+
+---
+
+## RULE 1 — DISTINCTIVE GRAPH PRESETS
+
+Every question option must have a `graph` object with `hr` and `brate` values that are deliberately chosen to visualize the concept at stake.
+
+If all five options have the same `hr` and `brate`, the student learns nothing from clicking. The graph must change.
+
+| Scenario | How to Set the Graph |
+|---|---|
+| Correct answer | Match the trial's actual HR (e.g., `hr: 0.60`) |
+| Wrong answer that exaggerates benefit | Set HR lower to show the exaggerated gap (e.g., `hr: 0.40` for "60% reduction") |
+| Wrong answer about no effect | Set `hr: 1.00` to show curves lying on top of each other |
+| Wrong answer that confuses HR with survival time | Set HR to the mathematically equivalent value (e.g., `hr: 0.71` for "40% longer survival" since 1/1.4 ≈ 0.71) |
+| Wrong answer about different endpoint | Same HR as correct — the lesson is conceptual, the graph reinforces the actual data |
+
+---
+
+## RULE 2 — GRAPHS SHOW DIFFERENCE, NOT SIMILARITY
+
+If two options teach different lessons but produce visually identical charts, they fail the rule. The student must see a meaningful difference when toggling between them.
+
+- Option A: "ARR = 0.6 ppt" → graph shows narrow gap
+- Option B: "RRR = 20% with NNT = 167" → same narrow gap, but the formula card explains the perceptual hack
+- Both can share the same `hr/brate` ONLY if the explanation does the heavy lifting and the chart provides context
+
+---
+
+## RULE 3 — THE CHART IS THE PRIMARY TEACHING TOOL
+
+The floating formula card is reinforcement. The chart is the lesson.
+
+- The hazard ratio slider must update live when an option is clicked
+- The base rate slider must update live
+- The cumulative event curves must redraw immediately
+- The hazard velocity bar (kept vs prevented) must reflect the new HR
+- The horizontal dimension line must reflect the new treatment curve position
+
+---
+
+## RULE 4 — SLIDERS REMAIN LIVE
+
+After clicking an option, the HR and base rate sliders must still work. The student should be able to:
+
+- Click option B (HR=0.40) → see the exaggerated gap
+- Manually slide HR up to 0.60 → see the gap narrow
+- Manually slide HR up to 0.80 → see it narrow further
+- Compare all three states visually
+
+The sliders are how they explore the neighborhood around each answer.
+
+---
+
+## RULE 5 — QUESTION JSON SCHEMA
+
+```json
+{
+  "id": 1,
+  "ad": "The drug ad text — sets clinical context",
+  "stem": "The question — what is being asked",
+  "options": [
+    {
+      "label": "A",
+      "text": "Option text displayed to student",
+      "graph": { "hr": 0.60, "brate": 0.30 },
+      "desc": "Attending-voice explanation: mechanism-first, why this option is right or wrong. Bold the key learning moment. Connect to the graph. 3-5 sentences."
+    }
+  ],
+  "correct": 0,
+  "baseGraph": { "hr": 0.60, "brate": 0.30 },
+  "explanation": "The correct-answer explanation shown in answer mode. Concept-level summary.",
+  "trap": "The trap: what the brain wants to do, and why that's wrong. Must be actionable — a heuristic the student can use on the real exam."
+}
+```
+
+---
+
+## RULE 6 — ATTENDING VOICE FOR DESCRIPTIONS
+
+Every `desc` field must follow attending voice:
+- Mechanism-first, not definition-first
+- Connect to what the student sees on the chart
+- Bold the key learning moment
+- No hedging, no grandstanding
+- 3-5 sentences max
+- Every line must pass the mouth test — say it out loud
+
+---
+
+## RULE 7 — WRONG ANSWERS ARE TEACHING TOOLS
+
+Wrong options are not filler. Each one must:
+1. Target a real, common misconception students actually have (not a strawman)
+2. Have a graph that shows WHY it's wrong (not just the same chart as the correct answer)
+3. Have an explanation that diagnoses the thinking error, not just says "wrong"
+
+---
+
+## PRE-WRITE CHECKLIST
+
+Before adding a question to the bank:
+
+- [ ] Every option has a `graph` with `hr` and `brate`
+- [ ] At least 2 options have DIFFERENT graph values (visible change when toggling)
+- [ ] The option whose graph is most extreme (e.g., HR=1.0 or HR=0.40) targets a high-yield misconception
+- [ ] Every `desc` is attending voice — mechanism-first, chart-connected, bolded key moment
+- [ ] The `trap` field gives a reusable heuristic, not just restates the right answer
+- [ ] The `explanation` field summarizes at concept level (for answer mode)
+- [ ] `correct` field is a 0-based index into the options array
+- [ ] `baseGraph` matches the trial's actual parameters (the default state before clicking any option)

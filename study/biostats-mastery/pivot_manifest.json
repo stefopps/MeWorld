@@ -1,0 +1,599 @@
+{
+  "version": 2,
+  "layeringModel": "42 fixed concept slots. Each pivot is a module that deepens through layers: primary → reinforce → advance. New questions get layered onto existing pivots rather than creating new slots. The 42 never grows.",
+  "layeringRules": {
+    "whenToLayer": "A new question layers onto an existing pivot when it covers the SAME concept — different clinical context (reinforce) or harder variant / edge case (advance).",
+    "whenToSwap": "If a new question covers a concept with NO existing pivot, replace the lowest-yield pivot. The displaced pivot becomes an advance layer on its nearest sibling.",
+    "layerRoles": {
+      "primary": "Concept anchor. Always answered first. Every pivot has exactly one.",
+      "reinforce": "Same concept, different clinical scenario. Reinforces the pattern.",
+      "advance": "Same concept, harder — edge case, multi-step, or subtle variant. Unlocked after primary."
+    }
+  },
+  "totalPivots": 42,
+  "levels": {
+    "1": {
+      "name": "Foundation",
+      "slug": "foundation",
+      "description": "The vocabulary you need before anything else. Study design IDs, basic measures, trial phases, ethics.",
+      "pivots": [
+        {
+          "pivotIdx": 1,
+          "concept": "Case-control design + IRB scope",
+          "whyHere": "You cannot spot flawed studies if you cannot name the study design. Start with the most misidentified design.",
+          "layers": {
+            "primary": 49,
+            "reinforce": [
+              68
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 2,
+          "concept": "Cross-sectional study identification",
+          "whyHere": "One survey, one time point, no follow-up. The second most common study design question on NBME.",
+          "layers": {
+            "primary": 51,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 3,
+          "concept": "Case fatality rate vs mortality rate",
+          "whyHere": "Before NNT, before HR — the most basic rate in medicine. What percentage of patients die?",
+          "layers": {
+            "primary": 66,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 4,
+          "concept": "Mean vs median vs mode — outlier sensitivity",
+          "whyHere": "Every clinical paper reports a mean. You need to know when it's lying. Which measure to trust.",
+          "layers": {
+            "primary": 65,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 5,
+          "concept": "NNT calculation from an abstract",
+          "whyHere": "The most clinically useful number in every trial. Foundation for every drug-ad question.",
+          "layers": {
+            "primary": 45,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 6,
+          "concept": "Intention-to-treat — the firewall between honest trials and marketing",
+          "whyHere": "ITT is non-negotiable. Analyze everyone where you put them, regardless of what happened after.",
+          "layers": {
+            "primary": 6,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 7,
+          "concept": "Power and sample size — why 'negative' trials may prove nothing",
+          "whyHere": "A trial with n=20 that finds no effect: was the drug useless or was the trial too small? This pivot teaches that reflex.",
+          "layers": {
+            "primary": 8,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 8,
+          "concept": "Clinical vs statistical significance — two different questions",
+          "whyHere": "p < 0.05 does not mean the difference matters. Learn to ask both questions before every paper.",
+          "layers": {
+            "primary": 52,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 9,
+          "concept": "Clinical trial Phase I — safety, PK, PD",
+          "whyHere": "Every drug in every USMLE question passed through 4 phases. Name them or you cannot evaluate any drug.",
+          "layers": {
+            "primary": 58,
+            "reinforce": [
+              63
+            ],
+            "advance": [
+              69
+            ]
+          }
+        },
+        {
+          "pivotIdx": 10,
+          "concept": "Research ethics — recruitment disparities",
+          "whyHere": "The NBME pattern: enrollment is uneven across groups. The answer is NEVER coercion and NEVER acceptance.",
+          "layers": {
+            "primary": 55,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 11,
+          "concept": "Drug ad: not indicated = not prescribed",
+          "whyHere": "The single most common drug-ad answer. Patient lacks the condition. Diagnosis before prescription.",
+          "layers": {
+            "primary": 56,
+            "reinforce": [
+              57
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 12,
+          "concept": "Type II error — missing a real effect because n is too small",
+          "whyHere": "A negative trial might simply be underpowered. Before concluding the drug doesn't work, check n.",
+          "layers": {
+            "primary": 19,
+            "reinforce": [],
+            "advance": []
+          }
+        }
+      ]
+    },
+    "2": {
+      "name": "Core Mechanics",
+      "slug": "core-mechanics",
+      "description": "The calculation layer. HR, RR, ARR, RRR, NNT. Chi-square vs t-test vs ANOVA. Confidence intervals. Read the numbers.",
+      "pivots": [
+        {
+          "pivotIdx": 13,
+          "concept": "RRR, ARR, NNT — the three numbers every trial must give you",
+          "whyHere": "RRR without ARR is marketing. Learn to calculate all three from any paper. Highest-yield calculation skill on the exam.",
+          "layers": {
+            "primary": 2,
+            "reinforce": [
+              10
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 14,
+          "concept": "Hazard Ratio interpretation — survival analysis in one number",
+          "whyHere": "HR is the survival-analysis version of RR. Oncology, cardiology — every trial abstract reports HR. Learn to read it.",
+          "layers": {
+            "primary": 1,
+            "reinforce": [
+              31
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 15,
+          "concept": "p-value — the single most misunderstood number in medicine",
+          "whyHere": "p < 0.01 ≠ 99% chance the drug works. Learn what a p-value actually is. Earns points across 5+ exam questions.",
+          "layers": {
+            "primary": 11,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 16,
+          "concept": "Confidence interval — does it cross the line of no effect?",
+          "whyHere": "HR 0.60 (95% CI: 0.35 to 1.02). Close but not significant. The CI tells the story the point estimate hides.",
+          "layers": {
+            "primary": 3,
+            "reinforce": [
+              16
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 17,
+          "concept": "Statistical test selection — t-test vs ANOVA vs chi-square",
+          "whyHere": "Every USMLE has at least one: which test? 2-group continuous → t. 3-group → ANOVA. Categorical → chi-square.",
+          "layers": {
+            "primary": 59,
+            "reinforce": [
+              25
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 18,
+          "concept": "Chi-square — when the outcome is yes/no, not a number",
+          "whyHere": "Binary outcome + categorical groups. Not t-test. Not ANOVA. Lock in the test-selection decision tree.",
+          "layers": {
+            "primary": 25,
+            "reinforce": [
+              59
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 19,
+          "concept": "Tiny effect + huge N = statistically significant but clinically meaningless",
+          "whyHere": "The largest N trials detect trivially small differences. p < 0.001 with 0.3 kg over 6 months. Learn to laugh.",
+          "layers": {
+            "primary": 15,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 20,
+          "concept": "NNT depends on baseline risk — not a fixed property of the drug",
+          "whyHere": "Same drug, same RRR, different baseline risk = different NNT. Treating high-risk patients shrinks NNT.",
+          "layers": {
+            "primary": 14,
+            "reinforce": [
+              23
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 21,
+          "concept": "Alpha, beta, power — the three Greek letters that control every trial",
+          "whyHere": "α = false positive rate. β = false negative rate. Power = 1−β. Confuse these → lose points across multiple question types.",
+          "layers": {
+            "primary": 61,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 22,
+          "concept": "Normal distribution — the 68-95-99.7 rule",
+          "whyHere": "1 SD = 68%. 2 SD = 95%. 3 SD = 99.7%. Every normal-distribution question on the exam reduces to these three numbers.",
+          "layers": {
+            "primary": 60,
+            "reinforce": [],
+            "advance": []
+          }
+        }
+      ]
+    },
+    "3": {
+      "name": "Critical Appraisal",
+      "slug": "critical-appraisal",
+      "description": "Now you spot the tricks. Attrition. Confounding. Surrogates. Lead-time. Ecological fallacy. Read a paper like a detective.",
+      "pivots": [
+        {
+          "pivotIdx": 23,
+          "concept": "Attrition bias — completers-only analysis is how trials lie",
+          "whyHere": "The most common way trials lie: analyze only the people who finished. Dropouts aren't random. Check who was analyzed.",
+          "layers": {
+            "primary": 7,
+            "reinforce": [
+              67
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 24,
+          "concept": "Confounding — the third variable that explains everything",
+          "whyHere": "Observational studies say X causes Y. Confounders say: what about Z? No randomization = no causation proof.",
+          "layers": {
+            "primary": 9,
+            "reinforce": [
+              36
+            ],
+            "advance": [
+              40
+            ]
+          }
+        },
+        {
+          "pivotIdx": 25,
+          "concept": "Surrogate endpoints — the biomarker is not the outcome",
+          "whyHere": "PFS is not OS. Bone density is not fractures. Tumor shrinkage is not survival. The trap is everywhere.",
+          "layers": {
+            "primary": 4,
+            "reinforce": [
+              53
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 26,
+          "concept": "Lead-time bias — screening makes survival look better when it isn't",
+          "whyHere": "ALS survival increased 2 months after screening began. Did anyone live longer — or just diagnosed earlier?",
+          "layers": {
+            "primary": 41,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 27,
+          "concept": "Healthy user bias + ecological fallacy — why observational data lies",
+          "whyHere": "Patients who take vitamins are healthier. Is it the vitamins — or is it that vitamin-takers already do everything right?",
+          "layers": {
+            "primary": 39,
+            "reinforce": [
+              38
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 28,
+          "concept": "External validity — can you generalize from this trial to your patient?",
+          "whyHere": "A trial of 45-year-old marathon runners cannot be generalized to 75-year-olds with COPD. Check who was studied.",
+          "layers": {
+            "primary": 28,
+            "reinforce": [
+              46
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 29,
+          "concept": "ROC curves — which test for screening, which for confirmation?",
+          "whyHere": "Left side = screening (high sensitivity, low FPR). Right side = diagnosis. Read curves by region, not overall.",
+          "layers": {
+            "primary": 50,
+            "reinforce": [
+              54
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 30,
+          "concept": "Cutoff shift — the sensitivity/specificity trade-off",
+          "whyHere": "Move cutoff one way → sensitivity up, specificity down. Move it the other way → reverse. Every diagnostic test is a trade-off.",
+          "layers": {
+            "primary": 62,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 31,
+          "concept": "Immortal time bias — you had to survive long enough to get the drug",
+          "whyHere": "Patients who received the drug lived longer. But they had to survive until month 6 to start it. The drug gets credit for survival time it had nothing to do with.",
+          "layers": {
+            "primary": 37,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 32,
+          "concept": "Regression to the mean — extreme measurements drift toward average",
+          "whyHere": "Select patients at the extreme low end. Measure again. They improved. Was it the treatment — or just physics?",
+          "layers": {
+            "primary": 42,
+            "reinforce": [],
+            "advance": []
+          }
+        }
+      ]
+    },
+    "4": {
+      "name": "Advanced Synthesis",
+      "slug": "advanced-synthesis",
+      "description": "The exam-differentiator level. PH violations. Non-inferiority. Meta-analysis. Simpson's paradox. These separate pass from honors.",
+      "pivots": [
+        {
+          "pivotIdx": 33,
+          "concept": "Proportional hazards violation — KM curves that cross",
+          "whyHere": "A single HR cannot summarize a treatment effect when curves cross. Early harm + late benefit (or vice versa). Most sophisticated KM question type.",
+          "layers": {
+            "primary": 5,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 34,
+          "concept": "One-tailed vs two-tailed — doubling your false-positive rate",
+          "whyHere": "Switching from two-tailed to one-tailed halves the p-value threshold. Almost always inappropriate. Most common statistical sleight-of-hand.",
+          "layers": {
+            "primary": 12,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 35,
+          "concept": "Multiple comparisons — fishing for significant subgroups",
+          "whyHere": "Test 20 endpoints at α = 0.05, one will be significant by pure chance. FWER multiplies. Demand Bonferroni correction.",
+          "layers": {
+            "primary": 13,
+            "reinforce": [
+              29
+            ],
+            "advance": [
+              48
+            ]
+          }
+        },
+        {
+          "pivotIdx": 36,
+          "concept": "Non-inferiority — proving you're not worse, not proving you're better",
+          "whyHere": "The null hypothesis in a non-inferiority trial is that the new drug IS worse. Reject the null → conclude it is non-inferior. Completely different logic from superiority trials.",
+          "layers": {
+            "primary": 22,
+            "reinforce": [
+              21
+            ],
+            "advance": [
+              24
+            ]
+          }
+        },
+        {
+          "pivotIdx": 37,
+          "concept": "Meta-analysis heterogeneity — I² = 0% means the studies agree",
+          "whyHere": "I² tells you whether pooled studies measure the same thing. 0% = valid pooling. Greater than 50% = don't pool. Forest plots tell the story.",
+          "layers": {
+            "primary": 26,
+            "reinforce": [
+              64
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 38,
+          "concept": "Publication bias — the empty left side of the funnel plot",
+          "whyHere": "Small negative studies never get published. Meta-analyses of only published data overestimate treatment effects. This kills drugs.",
+          "layers": {
+            "primary": 27,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 39,
+          "concept": "Odds Ratio vs Relative Risk — case-control ≠ cohort",
+          "whyHere": "Case-control studies calculate OR, not RR. Rare disease → OR ≈ RR. Common disease → they diverge. Know which design gives which measure.",
+          "layers": {
+            "primary": 34,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 40,
+          "concept": "Simpson's paradox — the aggregated result reverses when stratified",
+          "whyHere": "Overall data says the drug works. But in men, no. And in women, no. The reversal is Simpson's paradox — a lurking variable changes everything.",
+          "layers": {
+            "primary": 35,
+            "reinforce": [
+              33
+            ],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 41,
+          "concept": "PPV depends on prevalence — a test with 95% sensitivity can still be useless",
+          "whyHere": "95% sensitivity, 90% specificity — sounds great. With 5% prevalence, PPV ≈ 33%. Two-thirds of positives are false. This is why screening low-risk populations is dangerous.",
+          "layers": {
+            "primary": 43,
+            "reinforce": [],
+            "advance": []
+          }
+        },
+        {
+          "pivotIdx": 42,
+          "concept": "Carryover effect + crossover trial fatal flaw",
+          "whyHere": "Crossover trials save sample size by using each patient as their own control. But if the drug's effect spills into the washout period, the design is compromised. Fatal flaw of crossover designs.",
+          "layers": {
+            "primary": 20,
+            "reinforce": [
+              17
+            ],
+            "advance": []
+          }
+        }
+      ]
+    }
+  },
+  "domainCoverage": {
+    "studyDesign": [
+      "Q49",
+      "Q51",
+      "Q6",
+      "Q28",
+      "Q58",
+      "Q69"
+    ],
+    "measuresOfAssociation": [
+      "Q1",
+      "Q2",
+      "Q10",
+      "Q14",
+      "Q23",
+      "Q31",
+      "Q34",
+      "Q45",
+      "Q53"
+    ],
+    "diagnosticTesting": [
+      "Q43",
+      "Q50",
+      "Q54",
+      "Q60",
+      "Q62"
+    ],
+    "hypothesisTesting": [
+      "Q3",
+      "Q8",
+      "Q11",
+      "Q12",
+      "Q13",
+      "Q15",
+      "Q16",
+      "Q19",
+      "Q21",
+      "Q22",
+      "Q24",
+      "Q25",
+      "Q29",
+      "Q48",
+      "Q52",
+      "Q59",
+      "Q61"
+    ],
+    "biasAndError": [
+      "Q4",
+      "Q5",
+      "Q7",
+      "Q9",
+      "Q17",
+      "Q20",
+      "Q33",
+      "Q35",
+      "Q36",
+      "Q37",
+      "Q38",
+      "Q39",
+      "Q40",
+      "Q41",
+      "Q42",
+      "Q67"
+    ],
+    "distributions": [
+      "Q60",
+      "Q65"
+    ],
+    "incidencePrevalence": [
+      "Q66"
+    ],
+    "drugAds": [
+      "Q4",
+      "Q56",
+      "Q57"
+    ],
+    "metaAnalysisEthics": [
+      "Q26",
+      "Q27",
+      "Q55",
+      "Q64"
+    ],
+    "crossoverDesign": [
+      "Q17",
+      "Q20"
+    ]
+  }
+}

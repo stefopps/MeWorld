@@ -1,0 +1,2499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistical Visualizer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#f5f5f5;color:#1a1a2e;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+html{font-size:17px}
+.top-bar{display:flex;align-items:center;padding:8px 20px;background:#fff;border-bottom:1px solid #e5e7eb;flex-shrink:0;gap:16px}
+.top-breadcrumb{font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;color:#1a1a2e;display:flex;align-items:center;gap:4px;cursor:pointer;user-select:none}
+.top-breadcrumb i{font-size:14px;color:#9ca3af;vertical-align:middle}
+.top-section-label{font-family:'Inter',sans-serif;font-size:.5625rem;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;margin-right:auto;white-space:nowrap}
+.tab-bar{display:flex;align-items:center;gap:0;background:#fff;padding:0 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0}
+.tab-btn{padding:10px 16px;font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;color:#9ca3af;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s}
+.tab-btn:hover{color:#4b5563}
+.tab-btn.active{color:#2563eb;border-bottom-color:#2563eb}
+.tab-spacer{flex:1}
+.quiz-nav-group{display:flex;align-items:center;gap:8px}
+.quiz-nav-group .q-progress{font-size:.6875rem;font-weight:600;color:#374151}
+.quiz-nav-group .prev-btn,.quiz-nav-group .next-btn{padding:6px 12px;font-family:'Inter',sans-serif;font-size:.6875rem;font-weight:600;border-radius:5px;cursor:pointer;border:none}
+.quiz-nav-group .next-btn{background:#2563eb;color:#fff}
+.quiz-nav-group .next-btn:hover{background:#1d4ed8}
+.quiz-nav-group .prev-btn{background:#f3f4f6;color:#374151}
+.quiz-nav-group .prev-btn:hover{background:#e5e7eb}
+/* pivot mode toggle */
+.pivot-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.625rem;font-weight:600;color:#9ca3af;padding:4px 10px;border-radius:5px;border:1px solid #e5e7eb;background:#fff;user-select:none;transition:all 0.15s}
+.pivot-toggle.pivot-active{color:#2563eb;border-color:#2563eb;background:#eff6ff}
+.pivot-toggle .pivot-icon{font-size:14px}
+.pivot-info-bar{display:none;align-items:center;gap:10px;padding:6px 14px;background:linear-gradient(135deg,#eff6ff,#faf5ff);border-bottom:1px solid #dbeafe;font-size:.625rem;flex-shrink:0}
+.pivot-info-bar.pivot-visible{display:flex}
+.pivot-info-bar .pivot-level{font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.04em}
+.pivot-info-bar .pivot-level-desc{color:#6b7280;font-size:.5625rem}
+.pivot-info-bar .pivot-why{color:#374151;font-style:italic;flex:1;font-size:.5625rem}
+.pivot-info-bar .pivot-step{color:#6b7280;flex-shrink:0}
+.settings-wrap{position:relative;margin-left:12px}
+.settings-btn{background:none;border:none;cursor:pointer;color:#9ca3af;font-size:16px;padding:6px;border-radius:6px;display:flex;align-items:center}
+.settings-btn:hover{color:#4b5563;background:#f3f4f6}
+.settings-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:200;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.settings-backdrop.open{opacity:1;pointer-events:auto}
+.settings-panel{position:fixed;top:0;right:-340px;width:320px;height:100vh;background:#fff;border-left:1px solid #e5e7eb;box-shadow:-4px 0 24px rgba(0,0,0,.12);z-index:201;display:flex;flex-direction:column;transition:right .25s ease}
+.settings-panel.open{right:0}
+.settings-panel-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #f3f4f6;flex-shrink:0}
+.settings-panel-header h3{font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;color:#1a1a2e;margin:0}
+.settings-close-btn{background:none;border:none;cursor:pointer;color:#9ca3af;font-size:18px;padding:4px;border-radius:6px;display:flex;align-items:center}
+.settings-close-btn:hover{color:#4b5563;background:#f3f4f6}
+.settings-panel-body{flex:1;overflow-y:auto;padding:20px}
+.settings-section{margin-bottom:22px}
+.settings-section-label{font-size:.6875rem;font-weight:600;color:#6b7280;font-family:'Inter',sans-serif;display:block;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
+.settings-hint{font-size:.625rem;color:#9ca3af;font-family:'Inter',sans-serif;display:block;margin-top:4px}
+.settings-hint a{color:#9ca3af}
+.score-pill{font-size:.6875rem;color:#9ca3af;font-family:'Inter',sans-serif;white-space:nowrap;display:none;align-items:center;gap:2px}
+.score-pill.show{display:flex}
+.score-pill .correct{color:#059669;font-weight:600}
+.score-pill .slash{color:#d1d5db}
+.layout{display:flex;flex:1;min-height:0}
+.sidebar{width:280px;min-width:200px;background:#fff;padding:20px 16px;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;z-index:2;gap:0;overflow-y:auto}
+.sidebar h2{font-size:1rem;font-weight:700;color:#111}
+.sidebar .subtitle{font-size:.6875rem;color:#9ca3af;line-height:1.4}
+/* ── Sidebar resize rail ── */
+.side-resize-rail{width:6px;cursor:col-resize;flex-shrink:0;position:relative;background:transparent;z-index:3;transition:background .15s}
+.side-resize-rail:hover,.side-resize-rail.active{background:rgba(37,99,235,.15)}
+.side-resize-grip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:2px;height:32px;background:#d1d5db;border-radius:1px;pointer-events:none}
+.side-resize-rail:hover .side-resize-grip,.side-resize-rail.active .side-resize-grip{background:#2563eb}
+.collapsible{border-top:1px solid #f3f4f6}
+.collapsible:last-child{border-bottom:1px solid #f3f4f6}
+.collapsible-header{display:flex;align-items:center;justify-content:space-between;padding:10px 0;cursor:pointer;user-select:none;font-size:.6875rem;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em}
+.collapsible-header:hover{color:#374151}
+.collapsible-chevron{font-size:12px;transition:transform .2s;opacity:.3;display:inline-flex;align-items:center}
+.collapsible.open .collapsible-chevron{transform:rotate(180deg)}
+.collapsible-body{overflow:hidden;max-height:0;transition:max-height .25s ease}
+.collapsible.open .collapsible-body{max-height:600px;padding-bottom:10px}
+.control-group{display:flex;flex-direction:column;gap:2px;margin-bottom:12px}
+.control-group:last-child{margin-bottom:0}
+.control-group label{font-size:.6875rem;font-weight:600;color:#374151;display:flex;justify-content:space-between;align-items:baseline}
+.value-display{font-size:1.25rem;font-weight:700;color:#2563eb}
+.unit-hint{font-size:.5625rem;color:#9ca3af}
+.reset-hint{font-size:.5rem;color:#d1d5db;text-align:right;font-style:italic}
+input[type=range]{width:100%;cursor:pointer;appearance:none;height:4px;background:#e5e7eb;border-radius:2px;outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;background:#2563eb;border-radius:50%;cursor:pointer;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.toggle-group{display:flex;flex-direction:column;gap:6px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between}
+.toggle-label{font-size:.6875rem;font-weight:500;color:#4b5563}
+.toggle-switch{position:relative;width:36px;height:18px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#d1d5db;transition:.2s;border-radius:18px}
+.toggle-slider:before{content:"";position:absolute;height:12px;width:12px;left:3px;bottom:3px;background:#fff;transition:.2s;border-radius:50%}
+input:checked+.toggle-slider{background:#2563eb}
+input:checked+.toggle-slider:before{transform:translateX(18px)}
+
+.main{flex:1;display:flex;flex-direction:column;padding:20px;min-width:0}
+.chart-area{flex:1;position:relative;background:#fff;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,.04);min-height:0}
+.chart-panel{display:none;position:absolute;inset:20px}
+.chart-panel.active{display:block}
+.chart-panel canvas{width:100%!important;height:100%!important}
+.chart-panel #chart-quiz-html{width:100%;height:100%;overflow:auto}
+.chart-panel #chart-quiz-html img{user-select:none}
+.option-image-badge{font-size:.5625rem;color:#7c3aed;background:#f5f3ff;padding:4px 10px;border-radius:4px;border:1px solid #ede9fe}
+
+/* ── Floating card — the command center ── */
+.float-card{position:absolute;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border:1px solid #e5e7eb;border-radius:10px;min-width:140px;box-shadow:0 2px 16px rgba(0,0,0,.06);user-select:none;overflow:visible;cursor:grab;display:flex;flex-direction:column}
+.float-card:active{cursor:default}
+.float-card .card-tabs{display:flex;border-bottom:1px solid #f3f4f6}
+.float-card .card-tab{padding:10px 14px;font-family:'Inter',sans-serif;font-size:1rem;color:#9ca3af;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;flex:0 0 auto;display:flex;align-items:center;justify-content:center;line-height:1}
+.float-card .card-tab:hover{color:#4b5563}
+.float-card .card-tab.active{color:#2563eb;border-bottom-color:#2563eb}
+.float-card .card-body .math-line{font-weight:700;color:#2563eb;margin-bottom:6px;display:block}
+.float-card .card-body .body-text{color:#374151;margin-bottom:8px;display:block}
+.float-card .card-body .body-text strong{color:#1a1a2e;font-weight:700}
+.float-card .card-body .answer-correct{color:#166534}
+.float-card .card-body .answer-wrong{color:#991b1b}
+.float-card .card-body .trap-note{margin-top:6px;padding:6px 8px;background:#fff3cd;border-radius:4px;color:#92400e;font-size:.625rem}
+.float-card .card-body .empty{color:#9ca3af;font-style:italic;text-align:center;padding:12px 0;font-size:.6875rem}
+.float-card .stats-row{display:flex;justify-content:space-between;align-items:center;padding:2px 0;font-size:.6875rem}
+.float-card .stats-row .key{color:#9ca3af;font-weight:600;font-size:.5625rem;text-transform:uppercase}
+.float-card .stats-row .val{font-weight:700;color:#2563eb;font-size:.75rem}
+.float-card .stats-row .val.green{color:#22c55e}
+.float-card .stats-row .val.red{color:#ef4444}
+.float-card .rs-handle{position:absolute;z-index:11}
+.float-card .rs-n{top:-4px;left:8px;right:8px;height:8px;cursor:ns-resize}
+.float-card .rs-s{bottom:-4px;left:8px;right:8px;height:8px;cursor:ns-resize}
+.float-card .rs-e{top:8px;bottom:8px;right:-4px;width:8px;cursor:ew-resize}
+.float-card .rs-w{top:8px;bottom:8px;left:-4px;width:8px;cursor:ew-resize}
+.float-card .rs-ne{top:-4px;right:-4px;width:14px;height:14px;cursor:nesw-resize}
+.float-card .rs-nw{top:-4px;left:-4px;width:14px;height:14px;cursor:nwse-resize}
+.float-card .rs-sw{bottom:-4px;left:-4px;width:14px;height:14px;cursor:nesw-resize}
+.float-card .rs-se{bottom:-4px;right:-4px;width:16px;height:16px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,#d1d5db 50%);border-radius:0 0 10px 0;opacity:.4;transition:opacity .15s}
+.float-card .rs-se:hover{opacity:.8}
+.float-card .rs-n:hover,.float-card .rs-s:hover,.float-card .rs-e:hover,.float-card .rs-w:hover,.float-card .rs-ne:hover,.float-card .rs-nw:hover,.float-card .rs-sw:hover{background:rgba(37,99,235,.12)}
+.float-card .card-body{padding:18px 20px 14px 20px;font-size:.6875rem;line-height:1.6;flex:1 1 auto;min-height:40px;overflow-y:auto;overflow-x:hidden}
+#card-quiz{width:min(420px,38vw)}
+.chat-context{font-size:.5625rem;color:#6b7280;margin-bottom:8px;padding:6px 8px;background:#f9fafb;border-radius:6px;border:1px solid #f3f4f6}
+.card-hidden{display:none}
+
+/* ── Quiz sidebar ── */
+.q-sidebar{width:340px;min-width:200px}
+.q-option{display:block;width:100%;text-align:left;padding:8px 10px;margin-bottom:4px;font-family:'Inter',sans-serif;font-size:.6875rem;color:#374151;background:#fff;border:1px solid #e5e7eb;border-radius:5px;cursor:pointer;transition:all .12s;line-height:1.4}
+.q-option:hover{background:#f0f4ff;border-color:#93c5fd}
+.q-option.correct-flash{background:#dcfce7;border-color:#22c55e;color:#166534}
+.q-option.wrong-flash{background:#fee2e2;border-color:#ef4444;color:#991b1b}
+.q-option.exploring{outline:2px solid #2563eb;outline-offset:1px;background:#eff6ff}
+.formula-verdict{font-size:.5625rem;font-weight:700;margin-bottom:6px;padding:4px 8px;border-radius:4px}
+.formula-verdict.correct{background:#dcfce7;color:#166534}
+.formula-verdict.wrong{background:#fee2e2;color:#991b1b}
+.reset-btn{padding:6px 12px;font-family:'Inter',sans-serif;font-size:.625rem;font-weight:600;border-radius:5px;cursor:pointer;background:none;color:#9ca3af;border:1px solid #e5e7eb}
+.reset-btn:hover{color:#6b7280;background:#f9fafb}
+.q-json-row{display:flex;gap:4px;margin-top:6px}
+.q-json-row button{padding:3px 8px;font-family:'Inter',sans-serif;font-size:.5625rem;font-weight:500;border-radius:4px;cursor:pointer;background:#f9fafb;color:#9ca3af;border:1px solid #e5e7eb}
+.q-json-row button:hover{background:#f3f4f6;color:#6b7280}
+/* inline mode toggle in header */
+.mode-toggle-inline{display:inline-flex;align-items:center;gap:0;cursor:pointer;font-family:'Inter',sans-serif}
+.mode-toggle-inline input{opacity:0;width:0;height:0}
+.toggle-slider-sm{position:relative;display:inline-block;width:28px;height:14px;background:#d1d5db;border-radius:14px;transition:background .2s}
+.toggle-slider-sm:before{content:"";position:absolute;height:10px;width:10px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:transform .2s}
+.mode-toggle-inline input:checked+.toggle-slider-sm{background:#2563eb}
+.mode-toggle-inline input:checked+.toggle-slider-sm:before{transform:translateX(14px)}
+
+.q-mode-bar{display:none}
+.q-progress{font-size:.625rem;color:#9ca3af}
+.q-number{font-size:.875rem;font-weight:700;color:#1a1a2e}
+.q-ad-text{font-size:.6875rem;color:#4b5563;line-height:1.6;padding:8px 10px;background:#f9fafb;border-radius:4px;border-left:2px solid #e5e7eb;margin-bottom:10px;font-family:'Inter',sans-serif;max-height:28vh;overflow-y:auto}
+.q-family-badge{font-size:.5625rem;font-weight:600;color:#2563eb;background:#eff6ff;padding:2px 8px;border-radius:10px;margin-left:6px;vertical-align:middle}
+.q-preamble-block{margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f3f4f6}
+.q-stem-text{font-size:.75rem;font-weight:600;color:#111;line-height:1.45;margin-bottom:10px}
+.q-label{font-size:.5625rem;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;margin-bottom:2px}
+.show-trap-btn{font-size:.5625rem;color:#f87171;background:none;border:1px solid #fecaca;border-radius:3px;padding:3px 6px;cursor:pointer;font-family:'Inter',sans-serif;margin-top:4px}
+.show-trap-btn:hover{background:#fef2f2}
+.compare-btn{font-size:.5625rem;color:#6366f1;background:none;border:1px solid #c7d2fe;border-radius:3px;padding:3px 6px;cursor:pointer;font-family:'Inter',sans-serif;margin-top:4px;display:none}
+.compare-btn:hover{background:#eef2ff}
+.compare-btn.visible{display:inline-block}
+.hr-def{font-size:.5625rem;color:#9ca3af;line-height:1.4;padding:6px 8px;background:#f9fafb;border-radius:4px;border-left:2px solid #e5e7eb}
+.hr-def strong{color:#6b7280}
+
+/* DeepSeek AI integration */
+.ask-ai-btn{display:block;width:100%;padding:7px 10px;margin-top:10px;font-family:'Inter',sans-serif;font-size:.5625rem;font-weight:600;background:#f3f0ff;color:#7c3aed;border:1px solid #ddcefe;border-radius:4px;cursor:pointer;transition:background .15s}
+.ask-ai-btn:hover{background:#ede5ff}
+.ai-reply{margin-top:10px;padding:10px 12px;background:#faf8ff;border-left:2px solid #7c3aed;border-radius:0 4px 4px 0;font-size:.625rem;line-height:1.5;color:#374151;font-family:'Inter',sans-serif}
+.ai-reply-label{font-size:.4375rem;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;margin-bottom:4px;}
+.ai-reply :first-child{margin-top:0}
+.ai-reply p{margin:0 0 4px;color:#374151}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Voice input */
+.voice-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.mic-btn{width:32px;height:32px;border-radius:50%;border:1px solid #e5e7eb;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;color:#6b7280}
+.mic-btn:hover{background:#fef2f2;border-color:#fca5a5}
+.mic-btn.recording{background:#fee2e2;border-color:#ef4444;animation:pulse 1.5s ease-in-out infinite}
+.mic-btn.recording i{color:#ef4444}
+.voice-preview{font-size:.625rem;color:#9ca3af;font-style:italic;line-height:1.3;flex:1;min-width:0}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
+
+/* Chat input & history */
+.chat-input-row{display:flex;gap:6px;margin-top:10px;align-items:center}
+.chat-input{flex:1;padding:8px 10px;font-family:'Inter',sans-serif;font-size:.625rem;border:1px solid #e5e7eb;border-radius:6px;background:#fff;color:#374151;outline:none}
+.chat-input:focus{border-color:#7c3aed;box-shadow:0 0 0 2px rgba(124,58,237,.1)}
+.chat-send-btn{width:32px;height:32px;border-radius:50%;border:1px solid #7c3aed;background:#7c3aed;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
+.chat-send-btn:hover{background:#6d28d9}
+.chat-history{display:flex;flex-direction:column;gap:6px;margin-top:10px;margin-bottom:8px}
+.chat-msg-student,.chat-msg-attending{font-size:.5625rem;line-height:1.45;padding:6px 10px;border-radius:6px;font-family:'Inter',sans-serif;flex-shrink:0}
+.chat-msg-student{background:#f0f9ff;border:1px solid #bfdbfe;color:#1e40af;align-self:flex-end;max-width:90%}
+.chat-msg-attending{background:#faf8ff;border:1px solid #ddcefe;color:#374151;align-self:flex-start;max-width:90%}
+.chat-role{font-size:.4375rem;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:2px;color:#9ca3af}
+/* KaTeX math styling */
+.katex{font-size:1.05em !important}
+.katex-display{margin:.5em 0;overflow-x:auto;overflow-y:hidden}
+.ai-reply .katex,.chat-history .katex,.body-text .katex{font-size:1em !important}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <span class="top-breadcrumb" id="top-breadcrumb">Oncology Biostats <i class="ti ti-chevron-down" style="font-size:12px;color:#9ca3af;vertical-align:middle"></i></span>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn" data-tab="arr" onclick="switchTab('arr')">ARR / Two Spikes</button>
+  <button class="tab-btn" data-tab="hr" onclick="switchTab('hr')">Hazard Ratio</button>
+  <button class="tab-btn active" data-tab="quiz" onclick="switchTab('quiz')">Questions</button>
+  <span class="tab-spacer"></span>
+
+  <div class="quiz-nav-group" id="quiz-nav-group" style="display:none">
+    <span class="score-pill" id="score-pill"><span class="correct" id="score-correct">0</span><span class="slash">/</span><span id="score-total">0</span></span>
+    <span class="q-progress q-number" id="q-progress" onclick="startQuestionJump()" style="cursor:pointer" title="Click to jump to a question">Stat 0001</span>
+    <button class="prev-btn" onclick="prevQuestion()" id="prev-btn"><i class="ti ti-chevron-left"></i></button>
+    <button class="next-btn" onclick="nextQuestion()" id="next-btn"><i class="ti ti-chevron-right"></i> Next</button>
+    <label class="mode-toggle-inline" onclick="event.stopPropagation()">
+      <input type="checkbox" id="mode-answer-toggle" onchange="setQMode(this.checked?'answer':'viz')">
+      <span class="toggle-slider-sm"></span>
+      <span style="font-size:.5625rem;color:#9ca3af;margin-left:4px">Answer</span>
+    </label>
+    <button class="pivot-toggle" id="pivot-toggle" onclick="togglePivotMode()" title="Pivot Mode: 42 curated concept anchors in progressive sequence">
+      <i class="ti ti-target pivot-icon"></i>
+      <span id="pivot-toggle-label">Pivot</span>
+    </button>
+  </div>
+
+  <div class="settings-wrap">
+    <button class="settings-btn" id="settings-btn" onclick="toggleSettingsPanel()" title="Settings"><i class="ti ti-settings"></i></button>
+  </div>
+</div>
+
+<div class="settings-backdrop" id="settings-backdrop" onclick="closeSettingsPanel()"></div>
+<aside class="settings-panel" id="settings-panel" aria-label="Settings">
+  <div class="settings-panel-header">
+    <h3>Settings</h3>
+    <button class="settings-close-btn" onclick="closeSettingsPanel()" title="Close"><i class="ti ti-x"></i></button>
+  </div>
+  <div class="settings-panel-body">
+    <div class="settings-section">
+      <div class="settings-section-label">Question Bank</div>
+      <div class="q-json-row">
+        <button onclick="exportQuestions()"><i class="ti ti-download"></i> Export</button>
+        <button onclick="importQuestions()"><i class="ti ti-upload"></i> Import</button>
+        <button onclick="copyQuestionsJSON()"><i class="ti ti-copy"></i> Copy</button>
+        <input type="file" id="json-import-file" accept=".json" style="display:none" onchange="handleImportFile(event)">
+      </div>
+    </div>
+    <div class="settings-section">
+      <label class="settings-section-label">Font size <span id="font-size-label">100%</span></label>
+      <input type="range" id="font-scale-slider" min="80" max="200" value="100" style="width:100%">
+      <span class="settings-hint">questions &amp; explanations</span>
+    </div>
+    <div class="settings-section">
+      <label class="settings-section-label">DeepSeek API key</label>
+      <input type="password" id="ds-api-key" placeholder="DeepSeek API key" style="width:100%;padding:6px 10px;font-family:'Inter',sans-serif;font-size:.75rem;border:1px solid #e5e7eb;border-radius:6px">
+      <span class="settings-hint">stored locally · <a href="#" onclick="document.getElementById('ds-api-key').value='';localStorage.removeItem('stats_viz_ds_key');return false">clear</a></span>
+    </div>
+    <div class="settings-section">
+      <button class="reset-btn" onclick="resetQuestions()" style="width:100%"><i class="ti ti-rotate-clockwise"></i> Reset Progress</button>
+    </div>
+  </div>
+</aside>
+
+<div class="pivot-info-bar" id="pivot-info-bar">
+  <span class="pivot-level" id="pivot-level"></span>
+  <span class="pivot-step" id="pivot-step"></span>
+  <span class="pivot-why" id="pivot-why"></span>
+</div>
+
+<div class="layout">
+
+  <!-- ARR sidebar -->
+  <aside class="sidebar" id="sidebar-arr">
+    <h2>Two Spikes</h2>
+    <p class="subtitle" style="margin-bottom:14px">SE shrinks with n. ARR = gap between means.</p>
+    <div class="collapsible open" id="s-arr">
+      <div class="collapsible-header" onclick="toggleSection('s-arr')">Controls<i class="ti ti-chevron-down collapsible-chevron"></i></div>
+      <div class="collapsible-body">
+        <div class="control-group"><label>Sample Size <span class="value-display" id="n-val">30</span></label><input type="range" id="n-slider" min="1" max="1000" value="65"><span class="unit-hint">scales to 100k</span><span class="reset-hint">double-click to reset</span></div>
+        <div class="control-group"><label>True Difference <span class="value-display" id="diff-val">2.0</span></label><input type="range" id="diff-slider" min="0" max="5" value="2" step="0.1"><span class="unit-hint">ARR (ppt)</span><span class="reset-hint">double-click to reset</span></div>
+        <div class="toggle-group">
+          <div class="toggle-row"><span class="toggle-label">Show Means</span><label class="toggle-switch"><input type="checkbox" id="toggle-means" checked><span class="toggle-slider"></span></label></div>
+          <div class="toggle-row"><span class="toggle-label">Show ARR Overlay</span><label class="toggle-switch"><input type="checkbox" id="toggle-arr" checked><span class="toggle-slider"></span></label></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- HR sidebar -->
+  <aside class="sidebar" id="sidebar-hr" style="display:none">
+    <h2>Hazard Ratio</h2>
+    <div class="hr-def" style="margin-bottom:12px"><strong>HR</strong> = Hazard Ratio — compares the <strong>velocity</strong> (instantaneous rate) of an event in treatment vs control over time. HR &lt; 1 = treatment slows events.</div>
+    <div class="collapsible open" id="s-hr">
+      <div class="collapsible-header" onclick="toggleSection('s-hr')">Controls<i class="ti ti-chevron-down collapsible-chevron"></i></div>
+      <div class="collapsible-body">
+        <div class="control-group"><label>Hazard Ratio <span class="value-display" id="hr-val">0.60</span></label><input type="range" id="hr-slider" min="10" max="200" value="60"><span class="unit-hint">treatment / control</span><span class="reset-hint">double-click to reset</span></div>
+        <div class="control-group"><label>Base Rate <span class="value-display" id="rate-val">0.30</span></label><input type="range" id="rate-slider" min="5" max="100" value="30"><span class="unit-hint">control events / time</span><span class="reset-hint">double-click to reset</span></div>
+        <div class="toggle-group"><div class="toggle-row"><span class="toggle-label">HR=1 reference</span><label class="toggle-switch"><input type="checkbox" id="toggle-hr-ref" checked><span class="toggle-slider"></span></label></div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Quiz sidebar -->
+  <aside class="sidebar q-sidebar" id="sidebar-quiz" style="display:none">
+    <div class="q-preamble-block" id="q-preamble-block" style="display:none">
+      <div class="q-label">Preamble <span class="q-family-badge" id="q-family-badge" style="display:none"></span></div>
+      <div class="q-ad-text" id="q-ad"></div>
+    </div>
+    <div class="q-label">Question</div>
+    <div class="q-stem-text" id="q-stem"></div>
+    <div id="q-options"></div>
+  </aside>
+
+  <div class="side-resize-rail" id="side-resize-rail"><div class="side-resize-grip"></div></div>
+
+  <main class="main">
+    <div class="chart-area">
+      <div class="chart-panel" id="panel-arr"><canvas id="chart-arr"></canvas></div>
+      <div class="chart-panel" id="panel-hr"><canvas id="chart-hr"></canvas></div>
+      <div class="chart-panel active" id="panel-quiz">
+        <canvas id="chart-quiz-cumulative"></canvas>
+        <canvas id="chart-quiz-normal" style="display:none"></canvas>
+                <canvas id="chart-quiz-bar" style="display:none"></canvas>
+        <canvas id="chart-quiz-ppv" style="display:none"></canvas>
+        <canvas id="chart-quiz-forest" style="display:none"></canvas>
+        <canvas id="chart-quiz-roc" style="display:none"></canvas>
+        <canvas id="chart-quiz-dot" style="display:none"></canvas>
+        <div id="chart-quiz-html" style="display:none;width:100%;height:100%;overflow:auto;padding:16px"></div>
+      </div>
+
+      <!-- Floating command cards — HUD overlays on chart -->
+      <div class="float-card" id="card-arr" style="top:16px;right:16px">
+        <div class="card-body">
+        <div class="stats-row"><span class="key">SE</span><span class="val" id="cv-se">0.730</span></div>
+        <div class="stats-row"><span class="key">ARR%</span><span class="val" id="cv-arr">0.020</span></div>
+        <div class="stats-row"><span class="key">NNT</span><span class="val" id="cv-nnt">50.0</span></div>
+        <div class="stats-row"><span class="key">Z</span><span class="val" id="cv-z">2.74</span></div>
+        </div>
+        <div class="rs-handle rs-n" data-dir="n"></div>
+        <div class="rs-handle rs-s" data-dir="s"></div>
+        <div class="rs-handle rs-e" data-dir="e"></div>
+        <div class="rs-handle rs-w" data-dir="w"></div>
+        <div class="rs-handle rs-ne" data-dir="ne"></div>
+        <div class="rs-handle rs-nw" data-dir="nw"></div>
+        <div class="rs-handle rs-sw" data-dir="sw"></div>
+        <div class="rs-handle rs-se" data-dir="se"></div>
+      </div>
+      <div class="float-card" id="card-hr" style="top:16px;right:16px">
+        <div class="card-body">
+        <div class="stats-row"><span class="key">HR</span><span class="val green" id="cv-hr">0.60</span></div>
+        <div class="stats-row"><span class="key">Control rate</span><span class="val red" id="cv-ctrl">30%</span></div>
+        <div class="stats-row"><span class="key">Treatment rate</span><span class="val green" id="cv-trt">18%</span></div>
+        <div class="stats-row"><span class="key">Prevented</span><span class="val green" id="cv-red">40%</span></div>
+        </div>
+        <div class="rs-handle rs-n" data-dir="n"></div>
+        <div class="rs-handle rs-s" data-dir="s"></div>
+        <div class="rs-handle rs-e" data-dir="e"></div>
+        <div class="rs-handle rs-w" data-dir="w"></div>
+        <div class="rs-handle rs-ne" data-dir="ne"></div>
+        <div class="rs-handle rs-nw" data-dir="nw"></div>
+        <div class="rs-handle rs-sw" data-dir="sw"></div>
+        <div class="rs-handle rs-se" data-dir="se"></div>
+      </div>
+      <div class="float-card" id="card-quiz" style="top:16px;right:16px">
+        <div class="card-tabs">
+          <button class="card-tab active" data-card="card-quiz" data-tab="formula" title="Formula"><i class="ti ti-math-function"></i></button>
+          <button class="card-tab" data-card="card-quiz" data-tab="chat" title="Chat"><i class="ti ti-message"></i></button>
+          <button class="card-tab" data-card="card-quiz" data-tab="answer" title="Answer"><i class="ti ti-clipboard-check"></i></button>
+          <button class="card-tab" data-card="card-quiz" data-tab="stats" title="Stats"><i class="ti ti-chart-bar"></i></button>
+          <button class="card-tab" data-card="card-quiz" data-tab="controls" title="Controls"><i class="ti ti-adjustments"></i></button>
+        </div>
+        <div class="card-body" id="cbody-formula">
+          <span class="empty">Click an option to see the formula for that scenario</span>
+        </div>
+        <div class="card-body" id="cbody-chat" style="display:none">
+          <span class="empty">Chat loads with each question</span>
+        </div>
+        <div class="card-body" id="cbody-answer" style="display:none">
+          <span class="empty">Select an option and enter Answer Mode to see the explanation here</span>
+        </div>
+        <div class="card-body" id="cbody-stats" style="display:none">
+          <div class="stats-row"><span class="key">HR</span><span class="val green" id="cvq-hr">0.60</span></div>
+          <div class="stats-row"><span class="key">Control rate</span><span class="val red" id="cvq-ctrl">30%</span></div>
+          <div class="stats-row"><span class="key">Treatment rate</span><span class="val green" id="cvq-trt">18%</span></div>
+          <div class="stats-row"><span class="key">Prevented</span><span class="val green" id="cvq-red">40%</span></div>
+        </div>
+        <div class="card-body" id="cbody-controls" style="display:none">
+          <!-- Cumulative / KM controls -->
+          <div id="qz-ctrls-cumulative">
+            <div class="control-group"><label>Hazard Ratio <span class="value-display" id="qz-hr-val">0.60</span></label><input type="range" id="qz-hr-slider" min="10" max="200" value="60"><span class="reset-hint">double-click to reset</span></div>
+            <div class="control-group"><label>Base Rate <span class="value-display" id="qz-rate-val">0.30</span></label><input type="range" id="qz-rate-slider" min="5" max="100" value="30"><span class="reset-hint">double-click to reset</span></div>
+            <div class="control-group"><label>N per arm <span class="value-display" id="qz-n-val">40</span></label><input type="range" id="qz-n-slider" min="10" max="200" value="40"><span class="unit-hint">patients — lower = chunkier KM steps</span><span class="reset-hint">double-click to reset</span></div>
+            <div class="toggle-group" style="margin-bottom:12px">
+              <div class="toggle-row"><span class="toggle-label">Survival view</span><label class="toggle-switch"><input type="checkbox" id="qz-view-toggle" onchange="qzViewMode=this.checked?'survival':'cumulative';updateQuizGraph()"><span class="toggle-slider"></span></label></div>
+            </div>
+          </div>
+          <!-- Normal / Gaussian controls -->
+          <div id="qz-ctrls-normal" style="display:none">
+            <div class="control-group"><label>Effect Size (d) <span class="value-display" id="qz-nd-val">0.80</span></label><input type="range" id="qz-nd-slider" min="10" max="250" value="80"><span class="unit-hint">Cohen's d — mean difference / SD</span><span class="reset-hint">double-click to reset</span></div>
+            <div class="control-group"><label>Sample Size (n) <span class="value-display" id="qz-nn-val">64</span></label><input type="range" id="qz-nn-slider" min="4" max="500" value="64"><span class="unit-hint">per group — shapes SE = SD/√n</span><span class="reset-hint">double-click to reset</span></div>
+            <div class="control-group"><label>Alpha (α) <span class="value-display" id="qz-na-val">0.05</span></label><input type="range" id="qz-na-slider" min="1" max="20" value="5"><span class="unit-hint">significance threshold</span><span class="reset-hint">double-click to reset</span></div>
+            <div class="toggle-group" style="margin-bottom:12px">
+              <div class="toggle-row"><span class="toggle-label">One-tailed test</span><label class="toggle-switch"><input type="checkbox" id="qz-1tail-toggle" onchange="qzOneTail=this.checked;updateQuizGraph()"><span class="toggle-slider"></span></label></div>
+            </div>
+          </div>
+          <!-- Bar / rate controls -->
+          <div id="qz-ctrls-bar" style="display:none">
+            <div class="control-group"><label>Control Rate <span class="value-display" id="qz-bc-val">0.35</span></label><input type="range" id="qz-bc-slider" min="1" max="100" value="35"><span class="reset-hint">double-click to reset</span></div>
+            <div class="control-group"><label>Treatment Rate <span class="value-display" id="qz-bt-val">0.15</span></label><input type="range" id="qz-bt-slider" min="1" max="100" value="15"><span class="reset-hint">double-click to reset</span></div>
+          </div>
+          <button class="show-trap-btn" id="show-trap-btn" onclick="toggleTrapCurve()">Compare: Option B (60% reduction) curve</button>
+          <button class="compare-btn" id="compare-btn" onclick="toggleCompareCurves()">Show baseline curves</button>
+        </div>
+        <div class="rs-handle rs-n" data-dir="n"></div>
+        <div class="rs-handle rs-s" data-dir="s"></div>
+        <div class="rs-handle rs-e" data-dir="e"></div>
+        <div class="rs-handle rs-w" data-dir="w"></div>
+        <div class="rs-handle rs-ne" data-dir="ne"></div>
+        <div class="rs-handle rs-nw" data-dir="nw"></div>
+        <div class="rs-handle rs-sw" data-dir="sw"></div>
+        <div class="rs-handle rs-se" data-dir="se"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ── ATTENDING SYSTEM PROMPT (must be first — top of script, no TDZ) ──
+const ATTENDING_SYSTEM = `You are an attending physician teaching statistics for USMLE / board exam preparation. You are a brilliant senior resident who loves teaching — direct, warm, and never pedantic. Speak in short, spoken-word sentences.
+
+Your teaching philosophy: mechanistic inevitability. The learner should feel "Of course. How could it be any other way?" after every explanation.
+
+The Explanation Stack (follow this sequence for every response):
+
+1. Lead with the mechanism, not the definition.
+Never start with "This option is wrong because..." Start with the underlying statistical logic that forces the interpretation to be right or wrong. Reveal the mechanism.
+
+2. Answer the spatial/physical "why."
+If the graph shows something, explain WHY it shows that — what the numbers are doing under the hood. Make it visual: "Look at where the curves separate..." not "The hazard ratio changed."
+
+3. Connect the finding to the concept.
+Every option is not a disconnected trivia fact. It is a window into a statistical principle (proportional hazards, study design, Type I error, etc.). Name the principle and show how it flows from the data.
+
+4. Use contrast to sharpen understanding.
+Compare to what the correct answer would look like on the graph vs what the wrong answer implies. "If this option were true, you'd see this curve shift here — but it doesn't, so..."
+
+5. End with a clinical anchor.
+Tie the mechanism back to a real decision: what this means for reading a drug ad, interpreting a trial, or catching a trap on test day.
+
+Voice rules:
+- Direct, unhurried, spoken words only. No bullet points without mechanism.
+- Occasionally ask the learner a question back to check understanding.
+- No hedging, no grandstanding, no "8k" or "masterpiece" language.
+- Earn the insight — don't announce it. Let the logic do the work.
+- 3 to 5 sentences max. Make every one count.`;
+
+// ══════════════════════════════════════════════
+//  QUESTION BANK — loaded dynamically
+// ══════════════════════════════════════════════
+let QUESTION_BANK = [];
+let questionsLoaded = false;
+
+async function loadQuestions() {
+  try {
+    const r = await fetch('stats_questions.json?v=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    if (!Array.isArray(data) || data.length === 0) throw new Error('Empty bank');
+    QUESTION_BANK = data;
+    questionsLoaded = true;
+    return true;
+  } catch(e) {
+    console.warn('Failed to load stats_questions.json, using empty bank:', e.message);
+    return false;
+  }
+}
+
+// ═══ STATE ═══
+const SK = 'stats_viz_questions';
+let qState = loadQS();
+let currentQ = 0, qAnswered = false, showTrap = false, showCompare = false, qMode = 'viz';
+let qzHR = 0.60, qzBRate = 0.30, qzTreat = 0.18, qzCrossAt = null, qzHrEarly = 2.0;
+let qzViewMode = 'cumulative'; // 'cumulative' or 'survival'
+let qzNPerArm = 40; // patients per arm for KM simulation
+let qzGraphType = 'cumulative'; // 'cumulative', 'normal', or 'bar'
+// Normal graph state
+let qzNormD = 0.80, qzNormN = 64, qzNormAlpha = 0.05, qzOneTail = false;
+// Bar graph state
+let qzBarC = 0.35, qzBarT = 0.15;
+let activeCardTab = 'formula';
+let currentPickedOpt = -1;
+
+// ═══ PIVOT MODE ═══
+let pivotMode = false;
+let pivotManifest = null;
+let pivotSequence = [];           // array of {pivotIdx, concept, whyHere, level, levelName, levelDesc, layers: [{role,questionId}]}
+let pivotBank = [];              // the full QUESTION_BANK, saved when pivot mode activates
+let pivotCurrentIdx = 0;         // 0-based index into QUESTION_BANK (flat, across all layers)
+let pivotLayerMap = [];          // parallel to QUESTION_BANK: maps flat index → {pivotIdx, layerIdx, layerRole, slotConcept, slotWhyHere, level, levelName}
+
+async function loadPivotManifest() {
+  try {
+    const r = await fetch('pivot_manifest.json?v=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    pivotManifest = await r.json();
+    pivotSequence = [];
+    const levels = pivotManifest.levels;
+    for (const lvl of Object.keys(levels).sort((a,b)=>Number(a)-Number(b))) {
+      const level = levels[lvl];
+      for (const p of level.pivots) {
+        pivotSequence.push({
+          ...p,
+          level: Number(lvl),
+          levelName: level.name,
+          levelDesc: level.description
+        });
+      }
+    }
+    return true;
+  } catch(e) {
+    console.warn('Failed to load pivot_manifest.json:', e.message);
+    return false;
+  }
+}
+
+function enterPivotMode() {
+  if (pivotMode) return;
+  if (!pivotManifest) return;
+  pivotBank = [...QUESTION_BANK];
+  const seen = new Set();
+  const ordered = [];
+  pivotLayerMap = [];
+  for (const slot of pivotSequence) {
+    const layers = slot.layers || {};
+    const primary = layers.primary;
+    const reinforce = Array.isArray(layers.reinforce) ? layers.reinforce : [];
+    const advance = Array.isArray(layers.advance) ? layers.advance : [];
+    // Primary first
+    if (primary !== null && primary !== undefined) {
+      const q = pivotBank.find(q => q.id === primary);
+      if (q && !seen.has(q.id)) {
+        seen.add(q.id);
+        ordered.push(q);
+        pivotLayerMap.push({
+          pivotIdx: slot.pivotIdx, slotConcept: slot.concept, slotWhyHere: slot.whyHere,
+          level: slot.level, levelName: slot.levelName,
+          layerRole: 'primary', subIdx: 0, subCount: 1,
+          roleCount: { primary: 1, reinforce: reinforce.length, advance: advance.length },
+          totalLayers: 1 + reinforce.length + advance.length
+        });
+      }
+    }
+    // Then reinforce questions
+    for (let ri = 0; ri < reinforce.length; ri++) {
+      const q = pivotBank.find(q => q.id === reinforce[ri]);
+      if (q && !seen.has(q.id)) {
+        seen.add(q.id);
+        ordered.push(q);
+        pivotLayerMap.push({
+          pivotIdx: slot.pivotIdx, slotConcept: slot.concept, slotWhyHere: slot.whyHere,
+          level: slot.level, levelName: slot.levelName,
+          layerRole: 'reinforce', subIdx: ri, subCount: reinforce.length,
+          roleCount: { primary: 1, reinforce: reinforce.length, advance: advance.length },
+          totalLayers: 1 + reinforce.length + advance.length
+        });
+      }
+    }
+    // Then advance questions
+    for (let ai = 0; ai < advance.length; ai++) {
+      const q = pivotBank.find(q => q.id === advance[ai]);
+      if (q && !seen.has(q.id)) {
+        seen.add(q.id);
+        ordered.push(q);
+        pivotLayerMap.push({
+          pivotIdx: slot.pivotIdx, slotConcept: slot.concept, slotWhyHere: slot.whyHere,
+          level: slot.level, levelName: slot.levelName,
+          layerRole: 'advance', subIdx: ai, subCount: advance.length,
+          roleCount: { primary: 1, reinforce: reinforce.length, advance: advance.length },
+          totalLayers: 1 + reinforce.length + advance.length
+        });
+      }
+    }
+  }
+  if (ordered.length === 0) return;
+  QUESTION_BANK.length = 0;
+  QUESTION_BANK.push(...ordered);
+  pivotMode = true;
+  pivotCurrentIdx = currentQ < ordered.length ? currentQ : 0;
+  currentQ = pivotCurrentIdx;
+  document.getElementById('pivot-toggle').classList.add('pivot-active');
+  document.getElementById('pivot-toggle-label').innerText = 'Pivot ✓';
+  document.getElementById('pivot-info-bar').classList.add('pivot-visible');
+  updatePivotUI();
+  qAnswered = false; showTrap = false; showCompare = false;
+  renderQuestion();
+  updateScorePill();
+}
+
+function exitPivotMode() {
+  if (!pivotMode) return;
+  if (pivotBank.length > 0) {
+    const origId = QUESTION_BANK[currentQ]?.id;
+    QUESTION_BANK.length = 0;
+    QUESTION_BANK.push(...pivotBank);
+    // find the question we were on in the full bank
+    const idx = QUESTION_BANK.findIndex(q => q.id === origId);
+    currentQ = idx >= 0 ? idx : 0;
+  }
+  pivotMode = false;
+  document.getElementById('pivot-toggle').classList.remove('pivot-active');
+  document.getElementById('pivot-toggle-label').innerText = 'Pivot';
+  document.getElementById('pivot-info-bar').classList.remove('pivot-visible');
+  qAnswered = false; showTrap = false; showCompare = false;
+  renderQuestion();
+  updateScorePill();
+}
+
+async function togglePivotMode() {
+  if (pivotMode) { exitPivotMode(); return; }
+  if (!pivotManifest) {
+    const ok = await loadPivotManifest();
+    if (!ok) { alert('Could not load pivot_manifest.json'); return; }
+  }
+  enterPivotMode();
+}
+
+function updatePivotUI() {
+  if (!pivotMode || pivotCurrentIdx >= pivotLayerMap.length) {
+    document.getElementById('pivot-info-bar').classList.remove('pivot-visible');
+    return;
+  }
+  const m = pivotLayerMap[pivotCurrentIdx];
+  if (!m) return;
+  const roleLabels = { primary: 'Primary', reinforce: 'Reinforce', advance: 'Advance' };
+  document.getElementById('pivot-info-bar').classList.add('pivot-visible');
+  document.getElementById('pivot-level').innerText = 'L' + m.level + ' · ' + m.levelName;
+  document.getElementById('pivot-step').innerText = 'Pivot ' + m.pivotIdx + '/42' + (m.totalLayers > 1 ? ' · ' + roleLabels[m.layerRole] + (m.subCount > 1 ? ' ' + (m.subIdx+1)+'/'+m.subCount : '') : '');
+  document.getElementById('pivot-why').innerText = m.slotConcept + ' — ' + m.slotWhyHere;
+}
+
+// ── Seeded PRNG (mulberry32) — deterministic curves per question ──
+function mulberry32(a) { return function() { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// ── Build KM step data from synthetic patient event times ──
+function buildKMSteps(rate, N, seed, crossAt, hrEarly, lateRate, maxTime) {
+  const rng = mulberry32(seed);
+  const times = [];
+  for (let i = 0; i < N; i++) {
+    const u = rng();
+    let t;
+    if (crossAt) {
+      // piecewise hazard: early-phase rate * hrEarly, then lateRate after crossAt
+      const fCross = 1 - Math.exp(-rate * hrEarly * crossAt);
+      if (u < fCross) {
+        t = -Math.log(1 - u) / (rate * hrEarly);
+      } else {
+        t = crossAt - (Math.log(1 - u) + rate * hrEarly * crossAt) / lateRate;
+      }
+    } else {
+      t = -Math.log(1 - u) / rate;
+    }
+    if (t <= maxTime) times.push(t); // event observed
+    // else censored at maxTime — just don't add a step
+  }
+  times.sort((a, b) => a - b);
+  // Build step points for Chart.js stepped: 'after'
+  // Each step: flat at S until ti, then drops to S - 1/N at ti
+  const points = [{x: 0, y: 1}];
+  let surv = 1;
+  let i = 0;
+  while (i < times.length) {
+    // group ties (same time within 0.001)
+    let k = 1;
+    while (i + k < times.length && times[i + k] - times[i] < 0.001) k++;
+    const ti = times[i];
+    // flat segment to ti at current surv
+    points.push({x: ti, y: surv});
+    surv -= k / N;
+    points.push({x: ti, y: surv});
+    i += k;
+  }
+  // final flat to maxTime
+  points.push({x: maxTime, y: surv});
+  return points;
+}
+
+function loadQS() { try { const r = localStorage.getItem(SK); if (r) return JSON.parse(r); } catch(e){} return { answers:{}, score:0 }; }
+function saveQS() { localStorage.setItem(SK, JSON.stringify(qState)); updateScorePill(); }
+function resetQuestions() { if (!confirm('Reset all progress?')) return; qState = { answers:{}, score:0 }; saveQS(); renderQuestion(); }
+function updateScorePill() {
+  const a = Object.values(qState.answers).filter(v=>v!==undefined).length;
+  const c = Object.values(qState.answers).filter(v=>v===true).length;
+  document.getElementById('score-correct').innerText = c;
+  document.getElementById('score-total').innerText = a;
+  document.getElementById('score-pill').classList.toggle('show', a>0);
+}
+
+function setQMode(mode) {
+  qMode = mode;
+  document.getElementById('mode-answer-toggle').checked = (mode==='answer');
+  if (mode==='answer' && qAnswered) { renderQuestion(); return; }
+  if (!qAnswered) {
+    const q = QUESTION_BANK[currentQ];
+    applyGraphPresetByType(q.baseGraph, q.baseGraph);
+    updateSlidersFromState();
+    document.getElementById('cbody-formula').innerHTML = '<span class="empty">Click an option to see formula</span>';
+  }
+}
+
+function switchCardTab(tab) {
+  activeCardTab = tab;
+  const card = document.getElementById('card-quiz');
+  ['formula','chat','answer','stats','controls'].forEach(t => {
+    const btn = card.querySelector('.card-tab[data-tab="'+t+'"]');
+    if (btn) btn.classList.toggle('active', t===tab);
+    const body = document.getElementById('cbody-'+t);
+    if (body) body.style.display = t===tab ? '' : 'none';
+  });
+}
+
+function renderFormulaForOption(q, opt, optIdx) {
+  const gt = q.baseGraph?.type || 'cumulative';
+  const g = opt.graph || {};
+  let mathLine = '';
+  if (gt === 'cumulative' && g.hr != null) {
+    mathLine = '\\(HR = '+g.hr.toFixed(2)+' \\rightarrow 1.0 - '+g.hr.toFixed(2)+' = '+(1-g.hr).toFixed(2)+' = '+((1-g.hr)*100).toFixed(0)+'\\%\\text{ prevented}\\)';
+  } else if (gt === 'normal' && g.d != null) {
+    mathLine = '\\(d = '+g.d.toFixed(2)+',\\quad n = '+(g.n ?? 64)+'\\)';
+  } else if ((gt === 'bar' || gt === 'bar-multigroup') && g.control != null) {
+    mathLine = '\\(\\text{Control } = '+(g.control*100).toFixed(0)+'\\%,\\quad \\text{Treatment } = '+((g.treatment ?? g.control)*100).toFixed(0)+'\\%\\)';
+  } else {
+    mathLine = '\\(\\text{'+gt.replace(/-/g,' ')+' scenario — option '+opt.label+'}\\)';
+  }
+  let verdict = '';
+  if (qAnswered && optIdx !== undefined) {
+    verdict = optIdx === q.correct
+      ? '<div class="formula-verdict correct">Correct answer</div>'
+      : '<div class="formula-verdict wrong">Incorrect — why this option fails:</div>';
+  }
+  return verdict + renderMath('<span class="math-line">'+mathLine+'</span><span class="body-text">'+renderMath(opt.desc)+'</span>');
+}
+
+function highlightExploredOption(i) {
+  document.querySelectorAll('#q-options .q-option').forEach((btn, idx) => {
+    btn.classList.toggle('exploring', idx === i);
+  });
+}
+
+function getStemFamilyKey(stem) {
+  const m = (stem || '').match(/^(Q\d+)/i);
+  return m ? m[1].toUpperCase() : null;
+}
+
+function getAdSiblingInfo(q) {
+  if (!q.ad) return null;
+  const siblings = QUESTION_BANK.filter(x => x.ad === q.ad);
+  const idx = siblings.findIndex(x => x.id === q.id);
+  return {
+    total: siblings.length,
+    index: idx >= 0 ? idx + 1 : 1,
+    key: getStemFamilyKey(q.stem) || getStemFamilyKey(siblings[0]?.stem) || 'Set'
+  };
+}
+
+function renderQuestion() {
+  const q = QUESTION_BANK[currentQ];
+  if (renderQuestion._lastQ !== currentQ) {
+    currentPickedOpt = -1;
+    renderQuestion._lastQ = currentQ;
+  }
+  qAnswered = qState.answers[q.id] !== undefined;
+  const m = pivotLayerMap[pivotCurrentIdx] || {};
+  const roleAbbr = { primary: 'Pri', reinforce: 'Rein', advance: 'Adv' };
+  document.getElementById('q-progress').innerText = pivotMode
+    ? 'Pivot ' + m.pivotIdx + '/42' + (m.totalLayers > 1 ? ' · ' + roleAbbr[m.layerRole] + (m.subCount > 1 ? ' ' + (m.subIdx+1)+'/'+m.subCount : '') : '') + ' | ' + (currentQ + 1) + '/' + QUESTION_BANK.length
+    : 'Stat '+String(q.id).padStart(4,'0')+' / '+String(QUESTION_BANK.length).padStart(4,'0');
+
+  const preambleBlock = document.getElementById('q-preamble-block');
+  const adEl = document.getElementById('q-ad');
+  const badgeEl = document.getElementById('q-family-badge');
+  if (q.ad) {
+    preambleBlock.style.display = '';
+    adEl.textContent = q.ad;
+    const fam = getAdSiblingInfo(q);
+    if (fam && fam.total > 1) {
+      badgeEl.textContent = fam.key + ' · ' + fam.index + ' of ' + fam.total;
+      badgeEl.style.display = '';
+    } else {
+      badgeEl.textContent = '';
+      badgeEl.style.display = 'none';
+    }
+  } else {
+    preambleBlock.style.display = 'none';
+    adEl.textContent = '';
+    badgeEl.style.display = 'none';
+  }
+
+  document.getElementById('q-stem').innerText = q.stem;
+
+  const optsDiv = document.getElementById('q-options'); optsDiv.innerHTML = '';
+  const inAM = (qMode === 'answer');
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'q-option';
+    if (qAnswered && inAM && i === q.correct) btn.classList.add('correct-flash');
+    if (qAnswered && inAM && qState.answers[q.id] === false && i === qState.picked) btn.classList.add('wrong-flash');
+    if (qAnswered && inAM && qState.answers[q.id] === true && i === qState.picked) btn.classList.add('correct-flash');
+    if (i === currentPickedOpt) btn.classList.add('exploring');
+    btn.innerHTML = '<strong>'+opt.label+')</strong> '+opt.text;
+    btn.onclick = () => pickAnswer(i);
+    optsDiv.appendChild(btn);
+  });
+
+  // Card tabs — formula + chat always ready per question
+  if (currentPickedOpt < 0 && qState.picked !== undefined && qAnswered) currentPickedOpt = qState.picked;
+  if (currentPickedOpt >= 0) {
+    document.getElementById('cbody-formula').innerHTML = renderFormulaForOption(q, q.options[currentPickedOpt], currentPickedOpt);
+  } else {
+    document.getElementById('cbody-formula').innerHTML = '<span class="empty">Click an option to see the formula for that scenario</span>';
+  }
+  renderChatPanel(currentQ);
+  if (qAnswered && inAM) {
+    const corr = q.options[q.correct].label;
+    document.getElementById('cbody-answer').innerHTML =
+      '<div class="answer-'+(qState.answers[q.id]?'correct':'wrong')+'"><strong>You picked: '+q.options[qState.picked].label+'</strong><br><strong>Correct: '+corr+'</strong><br><br>'+q.explanation+'<div class="trap-note">'+q.trap+'</div></div>';
+  } else {
+    document.getElementById('cbody-answer').innerHTML = '<span class="empty">Switch to Answer Mode to submit</span>';
+  }
+  switchCardTab(qAnswered ? 'answer' : 'formula');
+
+  // trap button — show if question defines trapGraph
+  const qTrap = q.trapGraph;
+  document.getElementById('show-trap-btn').style.display = qTrap ? '' : 'none';
+  if (qTrap) {
+    const tl = 'HR='+qTrap.hr.toFixed(2)+' \u2014 '+((1-qTrap.hr)*100).toFixed(0)+'% reduction';
+    document.getElementById('show-trap-btn').innerText = 'Show trap: '+tl;
+  }
+  document.getElementById('compare-btn').classList.remove('visible');
+  showCompare = false;
+  document.getElementById('prev-btn').style.visibility = currentQ===0 ? 'hidden' : '';
+  document.getElementById('next-btn').style.visibility = currentQ===QUESTION_BANK.length-1 ? 'hidden' : '';
+  updateScorePill();
+
+  if (currentPickedOpt >= 0) {
+    updateQuizVisualForOption(currentPickedOpt);
+  } else {
+    applyGraphPresetByType(q.baseGraph, q.baseGraph);
+    updateSlidersFromState();
+    updateQuizGraph();
+    updateQuizCard();
+  }
+  if (pivotMode) updatePivotUI();
+}
+
+function updateSlidersFromState() {
+  document.getElementById('qz-hr-slider').value = Math.round(qzHR*100);
+  document.getElementById('qz-rate-slider').value = Math.round(qzBRate*100);
+  document.getElementById('qz-hr-val').innerText = qzHR.toFixed(2);
+  document.getElementById('qz-rate-val').innerText = qzBRate.toFixed(2);
+  // Normal
+  document.getElementById('qz-nd-slider').value = Math.round(qzNormD*100);
+  document.getElementById('qz-nn-slider').value = qzNormN;
+  document.getElementById('qz-na-slider').value = Math.round(qzNormAlpha*100);
+  document.getElementById('qz-nd-val').innerText = qzNormD.toFixed(2);
+  document.getElementById('qz-nn-val').innerText = qzNormN;
+  document.getElementById('qz-na-val').innerText = qzNormAlpha.toFixed(2);
+  // Bar
+  document.getElementById('qz-bc-slider').value = Math.round(qzBarC*100);
+  document.getElementById('qz-bt-slider').value = Math.round(qzBarT*100);
+  document.getElementById('qz-bc-val').innerText = qzBarC.toFixed(2);
+  document.getElementById('qz-bt-val').innerText = qzBarT.toFixed(2);
+}
+
+function pickAnswer(i) {
+  const q = QUESTION_BANK[currentQ];
+  const opt = q.options[i];
+  currentPickedOpt = i;
+
+  if (opt.graph || optionPrefersImage(opt)) {
+    updateQuizVisualForOption(i);
+    if (!optionPrefersImage(opt)) {
+      showCompare = false;
+      document.getElementById('compare-btn').classList.add('visible');
+      document.getElementById('compare-btn').innerText = 'Show baseline curves';
+    } else {
+      document.getElementById('compare-btn').classList.remove('visible');
+    }
+  }
+
+  document.getElementById('cbody-formula').innerHTML = renderFormulaForOption(q, opt, i);
+  renderChatPanel(currentQ);
+  highlightExploredOption(i);
+  switchCardTab('formula');
+
+  if (qMode === 'viz') return;
+
+  // After first submit, keep exploring — don't re-score or overwrite pick
+  if (qAnswered) return;
+
+  qState.answers[q.id] = (i === q.correct);
+  qState.picked = i;
+  qAnswered = true;
+  saveQS();
+  renderQuestion();
+  switchCardTab('answer');
+}
+
+function applyGraphPreset(hr, br, crossAt, hrEarly) { qzHR=hr; qzBRate=br; qzTreat=hr*br; qzCrossAt = crossAt || null; qzHrEarly = (hrEarly !== undefined) ? hrEarly : 2.0; }
+function applyNormalPreset(d, n, alpha) { qzNormD = d; qzNormN = n; qzNormAlpha = (alpha !== undefined) ? alpha : 0.05; }
+function applyBarPreset(c, t) { qzBarC = c; qzBarT = t; }
+
+function applyGraphPresetByType(graph, baseGraph) {
+  const gt = baseGraph && baseGraph.type ? baseGraph.type : 'cumulative';
+  graph = graph || {};
+  baseGraph = baseGraph || {};
+  if (gt === 'normal') {
+    applyNormalPreset(graph.d ?? baseGraph.d ?? 0.8, graph.n ?? baseGraph.n ?? 64, graph.alpha ?? baseGraph.alpha);
+  } else if (gt === 'bar' || gt === 'bar-multigroup') {
+    applyBarPreset(graph.control ?? baseGraph.control ?? 0.3, graph.treatment ?? baseGraph.treatment ?? 0.2);
+  } else if (gt === 'cumulative') {
+    applyGraphPreset(
+      graph.hr ?? baseGraph.hr ?? 0.6,
+      graph.brate ?? baseGraph.brate ?? 0.3,
+      graph.crossAt ?? baseGraph.crossAt,
+      graph.hrEarly ?? baseGraph.hrEarly
+    );
+  }
+}
+
+function nextQuestion() { if (currentQ<QUESTION_BANK.length-1){currentQ++; if(pivotMode) pivotCurrentIdx=currentQ; qAnswered=false;showTrap=false;showCompare=false;renderQuestion(); updatePivotUI(); } }
+function prevQuestion() { if (currentQ>0){currentQ--; if(pivotMode) pivotCurrentIdx=currentQ; qAnswered=false;showTrap=false;showCompare=false;renderQuestion(); updatePivotUI(); } }
+function startQuestionJump(){
+  const el = document.getElementById('q-progress');
+  const current = QUESTION_BANK[currentQ].id;
+  el.innerHTML = '<input type="text" id="q-jump-input" value="'+current+'" style="width:50px;font-size:.875rem;font-weight:700;font-family:Inter,sans-serif;color:#1a1a2e;border:1px solid #2563eb;border-radius:4px;padding:2px 6px;outline:none;text-align:center" onblur="finishQuestionJump()" onkeydown="if(event.key===\'Enter\')finishQuestionJump()">';
+  const inp = document.getElementById('q-jump-input');
+  if (inp) { setTimeout(() => { inp.focus(); inp.select(); }, 10); }
+}
+function finishQuestionJump(){
+  const inp = document.getElementById('q-jump-input');
+  if (!inp) return;
+  const val = parseInt(inp.value);
+  if (isNaN(val) || val < 1) { renderQuestion(); return; }
+  const idx = QUESTION_BANK.findIndex(q => q.id === val);
+  if (idx === -1) { renderQuestion(); return; }
+  currentQ = idx; if(pivotMode) pivotCurrentIdx=idx; qAnswered = false; showTrap = false; showCompare = false;
+  renderQuestion(); updatePivotUI();
+}
+function toggleTrapCurve(){
+  showTrap=!showTrap;
+  const q = QUESTION_BANK[currentQ];
+  const tg = q.trapGraph;
+  const label = tg ? ('HR='+tg.hr.toFixed(2)+' \u2014 '+((1-tg.hr)*100).toFixed(0)+'% reduction') : 'Comparison curve';
+  document.getElementById('show-trap-btn').innerText = showTrap ? ('Hide trap: '+label) : ('Show trap: '+label);
+  updateQuizGraph();
+}
+function toggleCompareCurves(){
+  showCompare=!showCompare;
+  const btn = document.getElementById('compare-btn');
+  btn.innerText = showCompare ? 'Hide baseline curves' : 'Show baseline curves';
+  updateQuizGraph();
+}
+
+function optionPrefersImage(opt) {
+  return !!(opt && opt.visual && opt.visual.src && (opt.visual.prefer === 'image' || opt.visual.type === 'image'));
+}
+
+function hideAllQuizChartPanels() {
+  ['chart-quiz-cumulative','chart-quiz-normal','chart-quiz-bar','chart-quiz-ppv','chart-quiz-forest','chart-quiz-roc','chart-quiz-dot','chart-quiz-html'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  ['qz-ctrls-cumulative','qz-ctrls-normal','qz-ctrls-bar'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+}
+
+function renderOptionImage(q, opt) {
+  const v = opt.visual;
+  const div = document.getElementById('chart-quiz-html');
+  if (!div) return;
+  hideAllQuizChartPanels();
+  div.style.display = '';
+  const safeText = (opt.text || '').replace(/</g, '&lt;');
+  const caption = v.caption || 'Concept image — clearer than a graph for this answer trap.';
+  div.innerHTML = '<div style="font-family:Inter,sans-serif;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;gap:10px;text-align:center">'+
+    '<div style="font-size:.75rem;font-weight:700;color:#7c3aed">'+safeText+'</div>'+
+    '<img src="'+v.src+'" alt="'+(v.alt||opt.text||'Concept').replace(/"/g,'&quot;')+'" style="max-width:min(100%,520px);max-height:62vh;object-fit:contain;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.12)">'+
+    '<div style="font-size:.625rem;color:#6b7280;max-width:440px;line-height:1.5">'+caption+'</div>'+
+    '<div class="option-image-badge">Image over graph — this trap is conceptual, not numeric</div>'+
+    '</div>';
+}
+
+function updateQuizVisualForOption(optIdx) {
+  const q = QUESTION_BANK[currentQ];
+  const opt = optIdx != null ? q.options[optIdx] : null;
+
+  if (optionPrefersImage(opt)) {
+    renderOptionImage(q, opt);
+    updateQuizCard();
+    return;
+  }
+
+  if (opt && opt.graph) {
+    applyGraphPresetByType(opt.graph, q.baseGraph);
+  } else {
+    applyGraphPresetByType(q.baseGraph, q.baseGraph);
+  }
+  updateSlidersFromState();
+  updateQuizGraph();
+  updateQuizCard();
+}
+
+function updateQuizGraph(){
+  const q = QUESTION_BANK[currentQ];
+  const bg = q.baseGraph || {};
+  const gt = bg.type || 'cumulative';
+  qzGraphType = gt;
+
+  hideAllQuizChartPanels();
+
+  // Show the right canvas/control for this type
+  const chartTypes = ['cumulative','normal','bar','ppvCurve','forestPlot','rocCurve','dotplot',
+    'contingencyTable','biasDiagram','studyDesignGrid','phaseTimeline','dag','decisionTree','bar-multigroup'];
+  const htmlTypes = ['contingencyTable','biasDiagram','studyDesignGrid','phaseTimeline','dag','decisionTree'];
+
+  if (gt === 'bar-multigroup') {
+    document.getElementById('chart-quiz-bar').style.display = '';
+    document.getElementById('qz-ctrls-bar').style.display = '';
+  } else if (gt === 'bar') {
+    document.getElementById('chart-quiz-bar').style.display = '';
+    document.getElementById('qz-ctrls-bar').style.display = '';
+  } else if (htmlTypes.includes(gt)) {
+    document.getElementById('chart-quiz-html').style.display = '';
+  } else if (['ppvCurve','forestPlot','rocCurve','dotplot'].includes(gt)) {
+    const canvasId = gt==='ppvCurve'?'chart-quiz-ppv':gt==='forestPlot'?'chart-quiz-forest':gt==='rocCurve'?'chart-quiz-roc':'chart-quiz-dot';
+    document.getElementById(canvasId).style.display = '';
+  } else {
+    document.getElementById('chart-quiz-'+gt).style.display = '';
+    document.getElementById('qz-ctrls-'+gt).style.display = '';
+  }
+
+  if (gt==='cumulative') {
+    document.getElementById('cvq-hr').innerText = qzHR.toFixed(2);
+    document.getElementById('cvq-ctrl').innerText = (qzBRate*100).toFixed(0)+'%';
+    document.getElementById('cvq-trt').innerText = (qzTreat*100).toFixed(0)+'%';
+    document.getElementById('cvq-red').innerHTML = ((1-qzHR)*100).toFixed(0)+'% <span style="font-size:.5rem;color:#d1d5db;font-weight:400">(1.0−'+qzHR.toFixed(2)+'='+(1-qzHR).toFixed(2)+')</span>';
+    updateCumulativeChart(q, bg);
+  } else if (gt==='normal') {
+    updateNormalChart(q, bg);
+  } else if (['bar','bar-multigroup'].includes(gt)) {
+    updateBarChart(q, bg);
+  } else if (gt==='ppvCurve') {
+    updatePPVCurveChart(q, bg);
+  } else if (gt==='forestPlot') {
+    updateForestPlotChart(q, bg);
+  } else if (gt==='rocCurve') {
+    updateROCChart(q, bg);
+  } else if (gt==='dotplot') {
+    updateDotplotChart(q, bg);
+  } else if (gt==='contingencyTable') {
+    renderContingencyTable(q, bg);
+  } else if (gt==='biasDiagram') {
+    renderBiasDiagram(q, bg);
+  } else if (gt==='studyDesignGrid') {
+    renderStudyDesignGrid(q, bg);
+  } else if (gt==='phaseTimeline') {
+    renderPhaseTimeline(q, bg);
+  } else if (gt==='dag') {
+    renderDAG(q, bg);
+  } else if (gt==='decisionTree') {
+    renderDecisionTree(q, bg);
+  }
+}
+
+// Cumulative / KM chart rendering
+function updateCumulativeChart(q, bg) {
+  const needsWide = (qzViewMode==='survival' && qzCrossAt);
+  const xMax = needsWide ? Math.max(6, qzCrossAt + 3) : 6;
+  const isSurvival = (qzViewMode==='survival');
+  const qIdSeed = q.id * 2654435761;
+  if (isSurvival) {
+    const cRate = qzBRate * (6.0 / xMax);
+    const tRate = qzTreat * (6.0 / xMax);
+    const tg = q.trapGraph;
+    const trapRate = (tg ? tg.hr : 0.40) * qzBRate * (6.0 / xMax);
+    const bgCRate = bg.brate * (6.0 / xMax);
+    const bgTRate = bg.brate * bg.hr * (6.0 / xMax);
+    chartQuiz.data.datasets[0].data = buildKMSteps(cRate, qzNPerArm, qIdSeed, qzCrossAt, qzHrEarly, tRate, xMax);
+    chartQuiz.data.datasets[1].data = buildKMSteps(cRate, qzNPerArm, qIdSeed + 1, qzCrossAt, qzHrEarly, tRate, xMax);
+    chartQuiz.data.datasets[2].data = buildKMSteps(cRate, qzNPerArm, qIdSeed + 2, null, 1, cRate, xMax);
+    chartQuiz.data.datasets[3].data = buildKMSteps(cRate, qzNPerArm, qIdSeed + 3, null, 1, trapRate, xMax);
+    chartQuiz.data.datasets[4].data = buildKMSteps(bgCRate, qzNPerArm, qIdSeed + 4, null, 1, bgTRate, xMax);
+    chartQuiz.data.datasets[5].data = buildKMSteps(bgCRate, qzNPerArm, qIdSeed + 5, null, 1, bgTRate, xMax);
+    chartQuiz.options.scales.y.title.text = "Progression-Free Survival";
+    chartQuiz.data.datasets[0].label = "Control (Chemo)";
+    chartQuiz.data.datasets[1].label = "Treatment (OncoMab)";
+    [0,1,2,3,4,5].forEach(i => { chartQuiz.data.datasets[i].stepped = "after"; chartQuiz.data.datasets[i].tension = 0; });
+  } else {
+    const xv=[],cy=[],ty=[],hy=[],trapY=[],baseCy=[],baseTy=[];
+    const step = .05, tScale = 2.5;
+    for(let t=0;t<=xMax;t+=step){
+      xv.push(t);
+      cy.push(1-Math.exp(-qzBRate*t*tScale));
+      ty.push(1-Math.exp(-qzTreat*t*tScale));
+      hy.push(1-Math.exp(-qzBRate*t*tScale));
+      const tg = q.trapGraph;
+      const trapHR = tg ? tg.hr : 0.40;
+      const trapBRate = tg ? tg.brate : qzBRate;
+      trapY.push(1-Math.exp(-trapBRate*trapHR*t*tScale));
+      baseCy.push(1-Math.exp(-bg.brate*t*tScale));
+      baseTy.push(1-Math.exp(-bg.brate*bg.hr*t*tScale));
+    }
+    chartQuiz.data.labels=xv;
+    chartQuiz.data.datasets[0].data=cy;chartQuiz.data.datasets[1].data=ty;chartQuiz.data.datasets[2].data=hy;
+    chartQuiz.data.datasets[3].data=trapY;chartQuiz.data.datasets[4].data=baseCy;chartQuiz.data.datasets[5].data=baseTy;
+    chartQuiz.options.scales.y.title.text = "Cumulative Events";
+    chartQuiz.data.datasets[0].label = "Control";
+    chartQuiz.data.datasets[1].label = "Treatment";
+    [0,1,2,3,4,5].forEach(i => { chartQuiz.data.datasets[i].stepped = false; chartQuiz.data.datasets[i].tension = 0.15; });
+  }
+  chartQuiz.options.scales.y.ticks.callback = v => (v*100).toFixed(0)+"%";
+  const tg = q.trapGraph;
+  if (tg) { chartQuiz.data.datasets[3].label = "Trap: HR="+tg.hr.toFixed(2)+" ("+((1-tg.hr)*100).toFixed(0)+"% reduction)"; }
+  else { chartQuiz.data.datasets[3].label = "Trap curve"; }
+  chartQuiz.setDatasetVisibility(3,showTrap);
+  chartQuiz.setDatasetVisibility(4,showCompare);
+  chartQuiz.setDatasetVisibility(5,showCompare);
+  chartQuiz.options.scales.x.max = xMax;
+  chartQuiz.options.scales.x.ticks.stepSize = (xMax > 10) ? 2 : 1;
+  const vt = document.getElementById("qz-view-toggle");
+  if (vt) vt.checked = (qzViewMode==="survival");
+  const ns2 = document.getElementById("qz-n-slider");
+  if (ns2) { ns2.value = qzNPerArm; document.getElementById("qz-n-val").innerText = qzNPerArm; }
+  chartQuiz.update();
+}
+
+// Normal / Gaussian chart rendering
+function pDF(x,m,s){const v=s*s;return Math.exp(-.5*(x-m)*(x-m)/v)/Math.sqrt(2*Math.PI*v)}
+function cDF(x,m,s){return.5*(1+eRF((x-m)/(s*Math.SQRT2)))}
+function eRF(x){const sgn=x>=0?1:-1;x=Math.abs(x);const a1=.254829592,a2=-.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=.3275911;const t=1/(1+p*x);return sgn*(1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x))}
+function nQ(p){if(p<=0||p>=1)return 0;if(p<.5)return -nQ(1-p);const a=[-3.969683028665376e1,2.209460984245205e2,-2.759285104469687e2,1.38357751867269e2,-3.066479806614716e1,2.506628277459239e0];const b=[-5.447609879822406e1,1.615858368580409e2,-1.556989798598866e2,6.680131188771972e1,-1.328068155288572e1];const c=[-7.784894002430293e-3,-3.223964580411365e-1,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783];const dd=[7.784695709041462e-3,3.224671290700398e-1,2.445134137142996,3.754408661907416];const q=p-.5;let r,val;if(Math.abs(q)<=.425){r=.180625-q*q;val=q*(((((a[5]*r+a[4])*r+a[3])*r+a[2])*r+a[1])*r+a[0])/(((((b[4]*r+b[3])*r+b[2])*r+b[1])*r+b[0])*r+1)}else{r=q<0?p:1-p;r=Math.sqrt(-Math.log(r));val=(((((c[5]*r+c[4])*r+c[3])*r+c[2])*r+c[1])*r+c[0])/((((dd[3]*r+dd[2])*r+dd[1])*r+dd[0])*r+1);if(q<0)val=-val}return val}
+
+function updateNormalChart(q, bg) {
+  const d = qzNormD, n = qzNormN, alpha = qzNormAlpha;
+  const se = Math.sqrt(2/n);
+  const zCrit = qzOneTail ? nQ(1-alpha) : nQ(1-alpha/2);
+  const xCrit = zCrit * se;
+  const xMin = Math.min(-4, d - 4), xMax2 = Math.max(4, d + 4);
+  const step = (xMax2 - xMin)/200;
+  const cy=[], ty=[], aShade=[], bShade=[];
+  for (let x = xMin; x <= xMax2; x += step) {
+    cy.push({x,y:pDF(x,0,se)});
+    ty.push({x,y:pDF(x,d,se)});
+    aShade.push({x, y: x>=xCrit ? pDF(x,0,se) : 0});
+    bShade.push({x, y: x<=xCrit ? pDF(x,d,se) : 0});
+  }
+  const peakH = Math.max(...cy.map(p=>p.y), ...ty.map(p=>p.y));
+  chartQuizNormal.data.datasets[0].data = cy;
+  chartQuizNormal.data.datasets[1].data = ty;
+  chartQuizNormal.data.datasets[2].data = [{x:xCrit,y:0},{x:xCrit,y:peakH*1.1}];
+  chartQuizNormal.data.datasets[3].data = aShade;
+  chartQuizNormal.data.datasets[4].data = bShade;
+  const beta = cDF(xCrit, d, se);
+  const power = 1 - beta;
+  chartQuizNormal.options.scales.y.max = peakH * 1.15;
+  chartQuizNormal.data.datasets[0].label = "Null (mu=0)";
+  chartQuizNormal.data.datasets[1].label = "True Effect (d="+d.toFixed(2)+")";
+  chartQuizNormal.data.datasets[3].label = "Type I error (a="+alpha.toFixed(2)+")";
+  chartQuizNormal.data.datasets[4].label = "Type II error (b="+beta.toFixed(2)+")";
+  chartQuizNormal.options.scales.x.min = xMin;
+  chartQuizNormal.options.scales.x.max = xMax2;
+  const tl = (qzOneTail?"One-tailed":"Two-tailed")+"  z_crit=+"+zCrit.toFixed(2)+"  n="+n+"  Power="+(power*100).toFixed(0)+"%";
+  chartQuizNormal.options.scales.x.title.text = tl;
+  chartQuizNormal.update();
+}
+
+// Bar chart rendering
+function updateBarChart(q, bg) {
+  chartQuizBar.data.datasets[0].data = [qzBarC, qzBarT];
+  chartQuizBar.options.scales.y.max = Math.max(qzBarC, qzBarT) * 1.4;
+  const arr = qzBarC - qzBarT;
+  if (arr > 0) {
+    chartQuizBar.options.scales.x.title.text = "ARR = "+((qzBarC-qzBarT)*100).toFixed(0)+"pp  |  NNT = "+(1/arr).toFixed(0);
+  }
+  chartQuizBar.update();
+}
+
+function updateQuizCard(){
+  if (qzGraphType !== 'cumulative') return; // Only shows HR stats for cumulative type
+  const hr=qzHR,br=qzBRate,tr=hr*br,pc=(1-hr)*100;
+  ['cvq-hr','qz-hr-val'].forEach(id=>{const e=document.getElementById(id);if(e){e.innerText=hr.toFixed(2);e.className='val '+(hr<1?'green':'red')}});
+  document.getElementById('cvq-ctrl').innerText=(br*100).toFixed(0)+'%';
+  document.getElementById('cvq-trt').innerText=(tr*100).toFixed(0)+'%';
+  document.getElementById('cvq-red').innerHTML=pc.toFixed(0)+'% <span style="font-size:.5rem;color:#d1d5db;font-weight:400">(1.0−'+hr.toFixed(2)+'='+(1-hr).toFixed(2)+')</span>';
+  document.getElementById('qz-rate-val').innerText=br.toFixed(2);
+}
+
+// ═══ TABS ═══
+let activeTab='quiz';
+
+// ═══ Chart plugins ═══
+const qzDimPlugin={id:'qzDim',afterDraw(chart){if(activeTab!=='quiz'||qzViewMode==='survival'||qzGraphType!=='cumulative')return;const{ctx,chartArea:{top,bottom,left,right},scales:{x,y}}=chart;const td=2.5,xd=x.getPixelForValue(td);const yc=y.getPixelForValue(1-Math.exp(-qzBRate*td*2.5));const yt=y.getPixelForValue(1-Math.exp(-qzTreat*td*2.5));const hr=qzHR,kept=hr*100,trimmed=(1-hr)*100;ctx.save();ctx.strokeStyle='rgba(0,0,0,.1)';ctx.lineWidth=1;ctx.setLineDash([2,4]);ctx.beginPath();ctx.moveTo(xd,top);ctx.lineTo(xd,bottom);ctx.stroke();ctx.setLineDash([]);[{yy:yc,c:'#ef4444',l:'Control '+(qzBRate*100).toFixed(0)+'%'},{yy:yt,c:'#2563eb',l:'Treatment '+(qzTreat*100).toFixed(0)+'%'}].forEach(p=>{ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(xd,p.yy,5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#374151';ctx.font='600 11px Inter,sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(p.l,xd+12,p.yy)});const bx=xd+100;ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=2;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(bx,yc);ctx.lineTo(bx,yt);ctx.stroke();[yc,yt].forEach(yy=>{ctx.beginPath();ctx.moveTo(bx-8,yy);ctx.lineTo(bx+8,yy);ctx.stroke()});ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.moveTo(bx,yt);ctx.lineTo(bx-5,yt+10);ctx.lineTo(bx+5,yt+10);ctx.fill();ctx.beginPath();ctx.moveTo(bx,yc);ctx.lineTo(bx-5,yc-10);ctx.lineTo(bx+5,yc-10);ctx.fill();const gm=(yc+yt)/2;ctx.fillStyle='#1a1a2e';ctx.font='700 13px Inter,sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText('↓ '+trimmed.toFixed(0)+'%',bx+16,gm-8);ctx.fillStyle='#6b7280';ctx.font='400 10px Inter,sans-serif';ctx.fillText('reduction in hazard',bx+16,gm+8);const barX=right-320,barW=290,barHB=16,barR=3,barGap=18,keptW=(kept/100)*barW,trimW=(trimmed/100)*barW;const barYc=bottom-68,barYt=bottom-34;ctx.fillStyle='#6b7280';ctx.font='500 .625rem Inter,sans-serif';ctx.textAlign='left';ctx.fillText('Hazard Velocity',barX,barYc-9);ctx.fillStyle='#e5e7eb';ctx.strokeStyle='#d1d5db';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(barX,barYc,barW,barHB,barR);ctx.fill();ctx.stroke();ctx.fillStyle='#374151';ctx.font='600 .625rem Inter,sans-serif';ctx.textAlign='right';ctx.fillText('Control 100%',barX+barW-8,barYc+barHB/2+1);if(keptW>1){ctx.fillStyle='#93c5fd';ctx.beginPath();ctx.roundRect(barX,barYt,keptW,barHB,{tl:barR,tr:0,bl:barR,br:0});ctx.fill();ctx.fillStyle='#1e40af';ctx.font='700 .625rem Inter,sans-serif';ctx.textAlign='center';ctx.fillText('Kept '+kept.toFixed(0)+'%',barX+keptW/2,barYt+barHB/2+1)}if(trimW>1){ctx.fillStyle='rgba(252,165,165,.2)';ctx.strokeStyle='#fca5a5';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.roundRect(barX+keptW,barYt,trimW,barHB,{tl:0,tr:barR,bl:0,br:barR});ctx.fill();ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#991b1b';ctx.font='700 .625rem Inter,sans-serif';ctx.textAlign='center';ctx.fillText(trimmed.toFixed(0)+'% prevented',barX+keptW+trimW/2,barYt+barHB/2+1)}ctx.fillStyle='#6b7280';ctx.font='500 .625rem Inter,sans-serif';ctx.textAlign='left';ctx.fillText('Tx',barX-28,barYt+barHB/2+1);const bracketX=barX-16;ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=1.5;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(bracketX,barYc+barHB);ctx.lineTo(bracketX,barYt);ctx.stroke();ctx.beginPath();ctx.moveTo(bracketX-4,barYc+barHB);ctx.lineTo(bracketX+4,barYc+barHB);ctx.stroke();ctx.beginPath();ctx.moveTo(bracketX-4,barYt);ctx.lineTo(bracketX+4,barYt);ctx.stroke();ctx.fillStyle='#1a1a2e';ctx.font='700 .75rem Inter,sans-serif';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText('↓ '+(1-hr).toFixed(2)+' = '+(trimmed).toFixed(0)+'%',bracketX-10,(barYc+barHB+barYt)/2);ctx.restore()}};
+Chart.register(qzDimPlugin);
+const chartQuiz=new Chart(document.getElementById('chart-quiz-cumulative'),{type:'line',data:{labels:[],datasets:[{label:'Control',data:[],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'Treatment',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'HR=1',data:[],borderColor:'rgba(0,0,0,.12)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0},{label:'Trap curve',data:[],borderColor:'#f87171',backgroundColor:'rgba(248,113,113,.06)',borderWidth:2,borderDash:[3,5],fill:true,pointRadius:0,tension:.15,order:0,hidden:true},{label:'Baseline Control',data:[],borderColor:'rgba(99,102,241,.45)',borderWidth:2,borderDash:[2,6],pointRadius:0,fill:false,tension:.15,order:0,hidden:true},{label:'Baseline Treatment',data:[],borderColor:'rgba(99,102,241,.45)',borderWidth:2,borderDash:[8,4],pointRadius:0,fill:false,tension:.15,order:0,hidden:true}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16}}},zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},scales:{x:{type:'linear',min:0,max:6,title:{display:true,text:'Time (months)',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:1},grid:{color:'rgba(0,0,0,.04)'}},y:{min:0,max:1,title:{display:true,text:'Cumulative Events',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:.2,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(0,0,0,.04)'}}},interaction:{mode:'index',intersect:false}}});
+
+// ── Normal / Gaussian distribution chart ──
+const chartQuizNormal = new Chart(document.getElementById('chart-quiz-normal'), {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [
+      {label:'Control (Null)',data:[],borderColor:'#6b7280',backgroundColor:'rgba(107,114,128,.08)',borderWidth:2,fill:true,pointRadius:0,tension:.3,order:2},
+      {label:'Treatment (True Effect)',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.10)',borderWidth:2,fill:true,pointRadius:0,tension:.3,order:2},
+      {label:'Critical Value',data:[],borderColor:'rgba(239,68,68,.6)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0},
+      {label:'Type I Error',data:[],borderColor:'transparent',backgroundColor:'rgba(239,68,68,.15)',borderWidth:0,fill:true,pointRadius:0,order:1},
+      {label:'Type II Error (β)',data:[],borderColor:'transparent',backgroundColor:'rgba(251,191,36,.20)',borderWidth:0,fill:true,pointRadius:0,order:1}
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, animation: false,
+    plugins: { legend: {position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16,filter: i => i.datasetIndex <= 1}} },zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},
+    scales: {
+      x: { type:'linear', min:-5, max:5, title:{display:true,text:'Standardized Effect (z-score)',font:{family:'Inter',size:12},color:'#6b7280'}, ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:1}, grid:{color:'rgba(0,0,0,.04)'} },
+      y: { min:0, max:0.5, title:{display:true,text:'Probability Density',font:{family:'Inter',size:12},color:'#6b7280'}, ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:.1, callback:v=>v.toFixed(1)}, grid:{color:'rgba(0,0,0,.04)'} }
+    },
+    interaction: {mode:'index',intersect:false}
+  }
+});
+
+// ── Bar / rate comparison chart ──
+const chartQuizBar = new Chart(document.getElementById('chart-quiz-bar'), {
+  type: 'bar',
+  data: {
+    labels: ['Control', 'Treatment'],
+    datasets: [
+      {label:'Event Rate',data:[0.35,0.15],backgroundColor:['#ef4444','#2563eb'],borderColor:['#dc2626','#1d4ed8'],borderWidth:1,borderRadius:4,barPercentage:.5}
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, animation: false,
+    plugins: { legend: {display:false} },zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},
+    scales: {
+      x: { title:{display:true,text:'Group',font:{family:'Inter',size:12},color:'#6b7280'}, ticks:{font:{family:'Inter',size:13,weight:'600'},color:'#374151'}, grid:{display:false} },
+      y: { min:0, max:1, title:{display:true,text:'Event Rate',font:{family:'Inter',size:12},color:'#6b7280'}, ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:.1,callback:v=>(v*100).toFixed(0)+'%'}, grid:{color:'rgba(0,0,0,.04)'} }
+    }
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// PPV CURVE CHART — PPV vs Prevalence
+// ═══════════════════════════════════════════════════════════
+let chartQuizPPV = null;
+function getPPVChartCtx() {
+  const canvas = document.getElementById('chart-quiz-ppv');
+  if (!canvas) return null;
+  return canvas.getContext('2d');
+}
+function updatePPVCurveChart(q, bg) {
+  // Default sens/spec from question or common values
+  let sens = bg.sensitivity || 0.56;
+  let spec = bg.specificity || 0.88;
+  // Try to extract from stem text
+  const stem = (q.stem || '').toLowerCase();
+  const sensMatch = stem.match(/sensitivity[^0-9]*([0-9]+)%/) || stem.match(/([0-9]+)%[sS]*sensitivity/);
+  const specMatch = stem.match(/specificity[^0-9]*([0-9]+)%/) || stem.match(/([0-9]+)%[sS]*specificity/);
+  if (sensMatch) sens = parseInt(sensMatch[1]) / 100;
+  if (specMatch) spec = parseInt(specMatch[1]) / 100;
+  // Try Mehlman-style data: "X of Y tested positive" pattern
+  const tpMatch = stem.match(/([0-9]+)[^0-9]*patients?[^0-9]*test positive[^0-9]*asthma|asthma[^0-9]*([0-9]+)[^0-9]*test positive/);
+  const fpMatch = stem.match(/([0-9]+)[^0-9]*not have[^0-9]*test positive|no asthma[^0-9]*([0-9]+)[^0-9]*positive/);
+
+  const canvas = document.getElementById('chart-quiz-ppv');
+  if (!canvas) return;
+  // Destroy previous chart
+  if (chartQuizPPV) { chartQuizPPV.destroy(); chartQuizPPV = null; }
+  canvas.style.display = '';
+
+  // Build PPV curve data
+  const prev = [], ppvVals = [];
+  for (let i = 0; i <= 100; i++) {
+    const p = i / 100;
+    prev.push(p);
+    const ppv = (sens * p) / (sens * p + (1 - spec) * (1 - p));
+    ppvVals.push(isNaN(ppv) ? 0 : ppv * 100);
+  }
+
+  // Mark key prevalence points
+  const keyPrevs = [0.10, 0.21, 0.30, 0.50, 0.61];
+  const keyLabels = keyPrevs.map(p => ({
+    x: p, y: (sens * p) / (sens * p + (1 - spec) * (1 - p)) * 100,
+    label: (p*100).toFixed(0)+'% prev → PPV=' + ((sens*p)/(sens*p+(1-spec)*(1-p))*100).toFixed(0)+'%'
+  }));
+
+  chartQuizPPV = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: prev.map(p => (p*100).toFixed(0)+'%'),
+      datasets: [
+        {label:'PPV',data:ppvVals,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',borderWidth:2.5,fill:true,pointRadius:0,tension:.3},
+        {label:'Sensitivity = '+(sens*100).toFixed(0)+'%',data:Array(101).fill(sens*100),borderColor:'rgba(239,68,68,.4)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false},
+        {label:'Specificity = '+(spec*100).toFixed(0)+'%',data:Array(101).fill(spec*100),borderColor:'rgba(34,197,94,.4)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false}
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, animation:false,
+      plugins: {
+        legend: {position:'top',labels:{font:{family:'Inter',size:12},color:'#6b7280',usePointStyle:true,padding:12}},
+        annotation: {
+          annotations: keyLabels.map((k,i) => ({
+            type:'point',xValue:k.x*100,yValue:k.y,backgroundColor:'#ef4444',radius:5,borderWidth:2,borderColor:'#fff',
+            label:{enabled:true,content:k.label,position:'top',font:{size:10,family:'Inter'},backgroundColor:'rgba(0,0,0,.75)',color:'#fff',padding:4,yAdjust:-8}
+          }))
+        }
+      },
+      scales: {
+        x: {title:{display:true,text:'Prevalence',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'},min:0,max:100},
+        y: {title:{display:true,text:'PPV (%)',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'},min:0,max:100}
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// FOREST PLOT — Meta-analysis results
+// ═══════════════════════════════════════════════════════════
+let chartQuizForest = null;
+function updateForestPlotChart(q, bg) {
+  const canvas = document.getElementById('chart-quiz-forest');
+  if (!canvas) return;
+  if (chartQuizForest) { chartQuizForest.destroy(); chartQuizForest = null; }
+  canvas.style.display = '';
+
+  // Default meta-analysis data — can be overridden per question
+  const studies = bg.studies || [
+    {name:'Study A',or:0.8,ciLow:0.6,ciHigh:1.05,weight:0.2},
+    {name:'Study B',or:0.9,ciLow:0.7,ciHigh:1.15,weight:0.2},
+    {name:'Study C',or:0.5,ciLow:0.35,ciHigh:0.7,weight:0.15},
+    {name:'Study D',or:1.1,ciLow:0.85,ciHigh:1.4,weight:0.2},
+    {name:'Study E',or:0.6,ciLow:0.45,ciHigh:0.8,weight:0.25}
+  ];
+
+  // Build datasets: scatter points + error bars + pooled diamond
+  const orValues = [], ciLow = [], ciHigh = [], names = [];
+  studies.forEach(s => { orValues.push({x:s.or,y:s.name}); ciLow.push({x:s.ciLow,y:s.name}); ciHigh.push({x:s.ciHigh,y:s.name}); names.push(s.name); });
+
+  const pooled = bg.pooled || {or:0.78, ciLow:0.65, ciHigh:0.94};
+
+  chartQuizForest = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: [...names, 'Pooled'],
+      datasets: [
+        {label:'OR',data:[...orValues.map(s=>s.x),pooled.or],backgroundColor:'#2563eb',borderColor:'#1d4ed8',borderWidth:1,borderRadius:2,barPercentage:.3,indexAxis:'y'},
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, animation:false, indexAxis:'y',
+      plugins: {
+        legend: {display:false},
+        annotation: {
+          annotations: {
+            line1: {type:'line',xMin:1,xMax:1,borderColor:'#ef4444',borderWidth:2,borderDash:[6,4],label:{enabled:true,content:'OR=1 (null)',position:'start',font:{size:10,family:'Inter'},backgroundColor:'rgba(0,0,0,.65)',color:'#fff',padding:3}}
+          }
+        }
+      },
+      scales: {
+        x: {type:'logarithmic',min:0.2,max:2,title:{display:true,text:'Odds Ratio (log scale)',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af'},grid:{color:'rgba(0,0,0,.04)'}},
+        y: {ticks:{font:{family:'Inter',size:12,weight:'600'},color:'#374151'},grid:{display:false}}
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ROC CURVE — Sensitivity vs 1-Specificity
+// ═══════════════════════════════════════════════════════════
+let chartQuizROC = null;
+function updateROCChart(q, bg) {
+  const canvas = document.getElementById('chart-quiz-roc');
+  if (!canvas) return;
+  if (chartQuizROC) { chartQuizROC.destroy(); chartQuizROC = null; }
+  canvas.style.display = '';
+
+  // Default AUC from question or reasonable value
+  const auc = bg.auc || 0.82;
+  // Generate ROC curve points
+  const tpr = [], fpr = [];
+  const N = 80;
+  for (let i = 0; i <= N; i++) {
+    const x = i / N;
+    fpr.push(x);
+    // Approximation: TPR = FPR^((1-AUC)/AUC)
+    const t = Math.pow(x, (1 - auc) / Math.max(auc, 0.01));
+    tpr.push(Math.min(1, t));
+  }
+
+  chartQuizROC = new Chart(canvas, {
+    type: 'line',
+    data: {
+      datasets: [
+        {label:'Test (AUC='+auc.toFixed(2)+')',data:tpr.map((y,i)=>({x:fpr[i]*100,y:y*100})),borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',borderWidth:2.5,fill:true,pointRadius:0,tension:.3},
+        {label:'Chance (AUC=0.50)',data:[{x:0,y:0},{x:100,y:100}],borderColor:'#6b7280',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false}
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, animation:false,
+      plugins: {legend:{position:'top',labels:{font:{family:'Inter',size:12},color:'#6b7280',usePointStyle:true,padding:12}}},
+      scales: {
+        x: {title:{display:true,text:'1 − Specificity (False Positive Rate %)',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'},min:0,max:100},
+        y: {title:{display:true,text:'Sensitivity (True Positive Rate %)',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'},min:0,max:100}
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// DOT PLOT — Raw data points for median/mode/outlier/range
+// ═══════════════════════════════════════════════════════════
+let chartQuizDot = null;
+function updateDotplotChart(q, bg) {
+  const canvas = document.getElementById('chart-quiz-dot');
+  if (!canvas) return;
+  if (chartQuizDot) { chartQuizDot.destroy(); chartQuizDot = null; }
+  canvas.style.display = '';
+
+  // Try to extract numbers from stem
+  const nums = (bg.values) ? bg.values : (() => {
+    const m = (q.stem||'').match(/[0-9]+/g);
+    if (!m) return [145,129,140,129,129,132,145]; // Default: BP question
+    return m.map(Number).filter(n => n > 0 && n < 1000);
+  })();
+
+  const sorted = [...nums].sort((a,b)=>a-b);
+  const mean = nums.reduce((a,b)=>a+b,0)/nums.length;
+  const median = sorted.length%2===1 ? sorted[Math.floor(sorted.length/2)] : (sorted[sorted.length/2-1]+sorted[sorted.length/2])/2;
+
+  // Jitter y for visibility
+  const jittered = nums.map((v,i) => ({x:v, y:0.5 + (Math.sin(i*2.7)*0.15)}));
+
+  chartQuizDot = new Chart(canvas, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {label:'Data Points',data:jittered,backgroundColor:'#2563eb',borderColor:'#1d4ed8',pointRadius:5,pointHoverRadius:7},
+        {label:'Mean='+mean.toFixed(1),data:[{x:mean,y:0.5}],borderColor:'#ef4444',backgroundColor:'#ef4444',pointRadius:6,pointStyle:'rectRot',showLine:false},
+        {label:'Median='+median,data:[{x:median,y:0.5}],borderColor:'#22c55e',backgroundColor:'#22c55e',pointRadius:6,pointStyle:'triangle',showLine:false}
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, animation:false,
+      plugins: {legend:{position:'top',labels:{font:{family:'Inter',size:12},color:'#6b7280',usePointStyle:true,padding:12}}},
+      scales: {
+        x: {title:{display:true,text:'Value',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af'},grid:{color:'rgba(0,0,0,.04)'}},
+        y: {display:false,min:0,max:1}
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// HTML-RENDERED VISUALIZATIONS
+// ═══════════════════════════════════════════════════════════
+
+// ── 2×2 CONTINGENCY TABLE ──
+function renderContingencyTable(q, bg) {
+  const div = document.getElementById('chart-quiz-html');
+  if (!div) return;
+  div.style.display = '';
+
+  // Try to extract numbers from stem
+  const stem = q.stem || '';
+  let tp=0,fp=0,fn=0,tn=0;
+  // Pattern: "X patients with [disease] undergo test and Y test positive"
+  const withDisease = stem.match(/([0-9]+)s+patients?s+withs+(?:confirmeds+)?([a-z]+)[sS]*?([0-9]+)s+(?:ofs+thems+)?tests+positive/i);
+  const withoutDisease = stem.match(/([0-9]+)s+patients?s+(?:whos+ares+)?(?:confirmeds+)?(?:nots+tos+have|without)s+([a-z]+)[sS]*?([0-9]+)s+(?:ofs+thems+)?(?:receives+as+)?positive/i);
+
+  if (withDisease) {
+    const totalDisease = parseInt(withDisease[1]);
+    tp = parseInt(withDisease[3]);
+    fn = totalDisease - tp;
+  }
+  if (withoutDisease) {
+    const totalNoDisease = parseInt(withoutDisease[1]);
+    fp = parseInt(withoutDisease[3]);
+    tn = totalNoDisease - fp;
+  }
+
+  if (tp+fp+fn+tn === 0) { tp=56; fp=12; fn=44; tn=88; } // default
+
+  const sens = (tp/(tp+fn)*100).toFixed(0);
+  const spec = (tn/(tn+fp)*100).toFixed(0);
+  const ppv = (tp/(tp+fp)*100).toFixed(0);
+  const npv = (tn/(tn+fn)*100).toFixed(0);
+
+  div.innerHTML = '<div style="font-family:Inter,sans-serif;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;padding:8px">'+
+    '<div style="font-size:.75rem;color:#6b7280;font-weight:600;margin-bottom:4px">2×2 Contingency Table</div>'+
+    '<table style="border-collapse:collapse;text-align:center;font-size:.75rem">'+
+    '<tr><th style="padding:10px 16px;background:#f9fafb;border:1px solid #e5e7eb;font-weight:600;color:#374151" colspan="2" rowspan="2"></th><th style="padding:10px 16px;background:#f9fafb;border:1px solid #e5e7eb;font-weight:600;color:#374151" colspan="2">Gold Standard</th></tr>'+
+    '<tr><th style="padding:8px 16px;background:#eff6ff;border:1px solid #e5e7eb;color:#2563eb">Disease (+)</th><th style="padding:8px 16px;background:#fef2f2;border:1px solid #e5e7eb;color:#ef4444">Disease (−)</th></tr>'+
+    '<tr><td style="padding:8px 16px;background:#eff6ff;border:1px solid #e5e7eb;font-weight:600;color:#2563eb" rowspan="2">Test</td><td style="padding:8px 16px;background:#eff6ff;border:1px solid #e5e7eb;color:#2563eb">(+)</td><td style="padding:8px 16px;background:#e0f2e0;border:2px solid #22c55e;font-weight:700;color:#166534">TP: '+tp+'</td><td style="padding:8px 16px;background:#fce4e4;border:1px solid #e5e7eb;color:#991b1b">FP: '+fp+'</td></tr>'+
+    '<tr><td style="padding:8px 16px;background:#eff6ff;border:1px solid #e5e7eb;color:#2563eb">(−)</td><td style="padding:8px 16px;background:#fce4e4;border:1px solid #e5e7eb;color:#991b1b">FN: '+fn+'</td><td style="padding:8px 16px;background:#e0f2e0;border:2px solid #22c55e;font-weight:700;color:#166534">TN: '+tn+'</td></tr>'+
+    '</table>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;font-size:.6875rem;color:#6b7280;margin-top:4px">'+
+    '<div><b style="color:#2563eb">Sens</b> = TP/(TP+FN) = '+tp+'/'+(tp+fn)+' = <b>'+sens+'%</b></div>'+
+    '<div><b style="color:#ef4444">Spec</b> = TN/(TN+FP) = '+tn+'/'+(tn+fp)+' = <b>'+spec+'%</b></div>'+
+    '<div><b style="color:#22c55e">PPV</b> = TP/(TP+FP) = '+tp+'/'+(tp+fp)+' = <b>'+ppv+'%</b></div>'+
+    '<div><b style="color:#f59e0b">NPV</b> = TN/(TN+FN) = '+tn+'/'+(tn+fn)+' = <b>'+npv+'%</b></div>'+
+    '</div></div>';
+}
+
+// ── BIAS DIAGRAM ──
+function renderBiasDiagram(q, bg) {
+  const div = document.getElementById('chart-quiz-html');
+  if (!div) return;
+  div.style.display = '';
+
+  const concept = q.concept || '';
+  let diagram='';
+  if (concept.includes('lead-time')) {
+    diagram = '<div style="text-align:center;font-family:Inter">'+
+      '<div style="font-weight:700;color:#ef4444;margin-bottom:8px">Lead-Time Bias</div>'+
+      '<div style="display:flex;align-items:center;gap:4px;font-size:.6875rem;color:#6b7280;margin-bottom:12px">'+
+      '<div style="flex:1;text-align:center"><div style="background:#e5e7eb;border-radius:8px;padding:8px"><b>Without screening</b><br/>Dx at symptoms → Death</div><div style="height:4px;background:#374151;margin:4px 0;border-radius:2px"></div></div>'+
+      '<div style="text-align:center;color:#22c55e;font-weight:700;margin:0 8px">vs</div>'+
+      '<div style="flex:1;text-align:center"><div style="background:#dbeafe;border-radius:8px;padding:8px"><b>With screening</b><br/>Early Dx → Same death date</div><div style="height:4px;background:#2563eb;margin:4px 0;border-radius:2px;border-left:12px solid #ef4444"></div></div>'+
+      '</div>'+
+      '<div style="font-size:.625rem;color:#9ca3af">Apparent survival increase = earlier detection, not actual prolonged life</div></div>';
+  } else if (concept.includes('length-time')) {
+    diagram = '<div style="text-align:center;font-family:Inter">'+
+      '<div style="font-weight:700;color:#ef4444;margin-bottom:8px">Length-Time Bias</div>'+
+      '<div style="font-size:.6875rem;color:#6b7280;margin-bottom:12px">Screening preferentially detects slow-growing diseases with long preclinical phases</div>'+
+      '<div style="display:flex;flex-direction:column;gap:8px;max-width:500px;margin:0 auto">'+
+      '<div style="background:#fef2f2;border-radius:8px;padding:8px;font-size:.6875rem"><b>Slow-growing</b>: long detectable window → likely caught by screening → appears less lethal</div>'+
+      '<div style="background:#f0fdf4;border-radius:8px;padding:8px;font-size:.6875rem"><b>Fast-growing</b>: short detectable window → often missed by screening → appears more lethal</div>'+
+      '</div></div>';
+  } else if (concept.includes('recall')) {
+    diagram = '<div style="text-align:center;font-family:Inter">'+
+      '<div style="font-weight:700;color:#ef4444;margin-bottom:8px">Recall Bias</div>'+
+      '<div style="display:flex;align-items:center;gap:16px;max-width:500px;margin:0 auto 12px">'+
+      '<div style="flex:1;background:#fef2f2;border-radius:8px;padding:12px;font-size:.6875rem"><b>Cases</b><br/>"Did I ever...?"<br/>← Searches memory harder</div>'+
+      '<div style="font-size:2rem;color:#6b7280">≠</div>'+
+      '<div style="flex:1;background:#f0fdf4;border-radius:8px;padding:12px;font-size:.6875rem"><b>Controls</b><br/>"Nah, nothing"<br/>← Less motivated to recall</div>'+
+      '</div>'+
+      '<div style="font-size:.625rem;color:#9ca3af">Differential accuracy of past-exposure recall between groups</div></div>';
+  } else if (concept.includes('observer')) {
+    diagram = '<div style="text-align:center;font-family:Inter">'+
+      '<div style="font-weight:700;color:#ef4444;margin-bottom:8px">Observer Bias</div>'+
+      '<div style="font-size:.6875rem;color:#6b7280;margin-bottom:12px">The assessor\u2019s knowledge of group assignment influences their measurement</div>'+
+      '<div style="display:flex;gap:12px;max-width:500px;margin:0 auto">'+
+      '<div style="flex:1;background:#eff6ff;border-radius:8px;padding:12px;font-size:.6875rem"><b>Known treatment</b><br/>"I think I see improvement"<br/>← Finds evidence</div>'+
+      '<div style="flex:1;background:#f9fafb;border-radius:8px;padding:12px;font-size:.6875rem"><b>Known control</b><br/>"Nothing happening"<br/>← Overlooks changes</div>'+
+      '</div><div style="font-size:.625rem;color:#9ca3af;margin-top:8px">Solution: Blinding the outcome assessor</div></div>';
+  } else if (concept.includes('selection')) {
+    diagram = '<div style="text-align:center;font-family:Inter">'+
+      '<div style="font-weight:700;color:#ef4444;margin-bottom:8px">Selection Bias</div>'+
+      '<div style="font-size:.6875rem;color:#6b7280;margin-bottom:12px">The study sample does not represent the target population</div>'+
+      '<div style="display:flex;align-items:center;gap:8px;max-width:500px;margin:0 auto">'+
+      '<div style="flex:1;background:#fef2f2;border:2px solid #ef4444;border-radius:8px;padding:12px;font-size:.6875rem"><b>Sample</b><br/>Biased subset<br/>of population</div>'+
+      '<div style="font-size:1.5rem;color:#6b7280">↛</div>'+
+      '<div style="flex:1;background:#f0fdf4;border:2px solid #22c55e;border-radius:8px;padding:12px;font-size:.6875rem"><b>Population</b><br/>True effect<br/>unknown</div>'+
+      '</div></div>';
+  } else {
+    diagram = '<div style="text-align:center;font-family:Inter;padding:24px">'+
+      '<div style="font-weight:700;color:#ef4444;margin-bottom:8px">'+(concept||'Bias')+'</div>'+
+      '<div style="font-size:.6875rem;color:#6b7280">Systematic error that distorts the association between exposure and outcome</div>'+
+      '<div style="font-size:.625rem;color:#9ca3af;margin-top:12px">Key: Randomization eliminates most bias. Observational studies require careful design.</div></div>';
+  }
+  div.innerHTML = diagram;
+}
+
+// ── STUDY DESIGN COMPARISON GRID ──
+function renderStudyDesignGrid(q, bg) {
+  const div = document.getElementById('chart-quiz-html');
+  if (!div) return;
+  div.style.display = '';
+
+  const designs = [
+    {name:'Case-Control',arrow:'← Outcome → Exposure',time:'Past',key:'OR\nStart: disease status\nRetrospective'},
+    {name:'Cohort',arrow:'Exposure → → Outcome',time:'Future',key:'RR\nStart: exposure status\nProspective or retrospective'},
+    {name:'RCT',arrow:'Randomize → Intervention → Outcome',time:'Future',key:'RR/NNT\nGold standard\nActive intervention'},
+    {name:'Cross-sectional',arrow:'Snapshot (one time)',time:'Present',key:'Prevalence\nNo follow-up\nSurvey/one data collection'},
+    {name:'Case series',arrow:'Describe → observe',time:'Any',key:'No comparison group\nDescriptive only'}
+  ];
+
+  const concept = (q.concept||'').toLowerCase();
+  let highlighted = 'cohort';
+  if (concept.includes('case-control')) highlighted = 'case-control';
+  else if (concept.includes('rct')||concept.includes('randomized')||concept.includes('clinical trial')) highlighted = 'rct';
+  else if (concept.includes('cross-sectional')||concept.includes('cross sectional')) highlighted = 'cross-sectional';
+  else if (concept.includes('case series')) highlighted = 'case series';
+
+  let table = '<div style="font-family:Inter;height:100%;overflow:auto;padding:4px">'+
+    '<div style="font-size:.75rem;font-weight:600;color:#6b7280;margin-bottom:8px;text-align:center">Study Design Comparison</div>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:.625rem">'+
+    '<tr style="background:#f9fafb"><th style="padding:6px 8px;border:1px solid #e5e7eb;text-align:left">Design</th><th style="padding:6px 8px;border:1px solid #e5e7eb">Flow</th><th style="padding:6px 8px;border:1px solid #e5e7eb">Timeline</th><th style="padding:6px 8px;border:1px solid #e5e7eb">Key Measure</th></tr>';
+
+  designs.forEach(d => {
+    const isHL = d.name.toLowerCase().replace(/\s+/g,'-') === highlighted;
+    const bgColor = isHL ? '#eff6ff' : '#fff';
+    const borderColor = isHL ? '2px solid #2563eb' : '1px solid #e5e7eb';
+    const nameSlug = d.name.toLowerCase().replace(/s+/g,'-');
+    table += '<tr style="background:'+bgColor+'">'+
+      '<td style="padding:6px 8px;border:'+borderColor+';font-weight:'+(isHL?'700':'500')+';color:'+(isHL?'#2563eb':'#374151')+'">'+(isHL?'★ ':'')+d.name+'</td>'+
+      '<td style="padding:6px 8px;border:'+borderColor+';font-size:.5625rem;color:#6b7280">'+d.arrow+'</td>'+
+      '<td style="padding:6px 8px;border:'+borderColor+';color:#6b7280">'+d.time+'</td>'+
+      '<td style="padding:6px 8px;border:'+borderColor+';font-size:.5625rem;color:#374151;white-space:pre-line">'+d.key+'</td>'+
+      '</tr>';
+  });
+
+  table += '</table></div>';
+  div.innerHTML = table;
+}
+
+// ── CLINICAL TRIAL PHASE TIMELINE ──
+function renderPhaseTimeline(q, bg) {
+  const div = document.getElementById('chart-quiz-html');
+  if (!div) return;
+  div.style.display = '';
+
+  const phases = [
+    {name:'Phase I',desc:'Safety & dosing',n:'20-80\nhealthy volunteers',color:'#f59e0b'},
+    {name:'Phase II',desc:'Efficacy & safety',n:'100-300\npatients',color:'#f97316'},
+    {name:'Phase III',desc:'Compare to standard',n:'300-3000+\npatients (RCT)',color:'#ef4444'},
+    {name:'Phase IV',desc:'Post-marketing',n:'Thousands\nsurveillance',color:'#8b5cf6'}
+  ];
+
+  const concept = (q.concept||'').toLowerCase();
+  let highlighted = -1;
+  if (concept.includes('phase i') && !concept.includes('phase ii')) highlighted = 0;
+  else if (concept.includes('phase ii') && !concept.includes('phase iii')) highlighted = 1;
+  else if (concept.includes('phase iii')) highlighted = 2;
+  else if (concept.includes('phase iv')||concept.includes('post-marketing')) highlighted = 3;
+
+  let html = '<div style="font-family:Inter;height:100%;display:flex;flex-direction:column;justify-content:center;padding:12px">'+
+    '<div style="font-size:.75rem;font-weight:600;color:#6b7280;margin-bottom:12px;text-align:center">Clinical Trial Phases</div>'+
+    '<div style="display:flex;align-items:center;height:4px;background:#e5e7eb;border-radius:2px;margin-bottom:8px">';
+
+  phases.forEach((p,i) => {
+    const isHL = highlighted === i;
+    html += '<div style="flex:1;height:'+(isHL?'14px':'4px')+';background:'+p.color+';border-radius:2px;margin:0 1px;position:relative">'+
+      (isHL ? '<div style="position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:.5625rem;font-weight:700;color:'+p.color+'">▼ NOW</div>' : '')+
+      '</div>';
+  });
+
+  html += '</div>'+
+    '<div style="display:flex;justify-content:space-between">';
+
+  phases.forEach((p,i) => {
+    const isHL = highlighted === i;
+    html += '<div style="flex:1;text-align:center;padding:4px;background:'+(isHL?'#eff6ff':'transparent')+';border-radius:6px;border:'+(isHL?'2px solid '+p.color:'1px solid transparent')+'">'+
+      '<div style="font-size:.6875rem;font-weight:'+(isHL?'700':'600')+';color:'+p.color+'">'+p.name+'</div>'+
+      '<div style="font-size:.5625rem;color:#6b7280">'+p.desc+'</div>'+
+      '<div style="font-size:.5rem;color:#9ca3af;white-space:pre-line">'+p.n+'</div>'+
+      '</div>';
+  });
+
+  html += '</div></div>';
+  div.innerHTML = html;
+}
+
+// ── DAG (CONFOUNDING DIAGRAM) ──
+function renderDAG(q, bg) {
+  const div = document.getElementById('chart-quiz-html');
+  if (!div) return;
+  div.style.display = '';
+  div.innerHTML = '<div style="font-family:Inter;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px">'+
+    '<div style="font-size:.75rem;font-weight:600;color:#6b7280">Confounding — Directed Acyclic Graph</div>'+
+    '<svg width="300" height="160" viewBox="0 0 300 160">'+
+    '<defs><marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#374151"/></marker></defs>'+
+    '<rect x="30" y="90" width="80" height="36" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/><text x="70" y="114" text-anchor="middle" font-size="11" font-family="Inter" fill="#2563eb" font-weight="600">Exposure</text>'+
+    '<rect x="190" y="90" width="80" height="36" rx="6" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/><text x="230" y="114" text-anchor="middle" font-size="11" font-family="Inter" fill="#ef4444" font-weight="600">Outcome</text>'+
+    '<rect x="110" y="10" width="80" height="36" rx="6" fill="#fefce8" stroke="#f59e0b" stroke-width="2"/><text x="150" y="34" text-anchor="middle" font-size="11" font-family="Inter" fill="#f59e0b" font-weight="600">Confounder</text>'+
+    '<line x1="150" y1="46" x2="70" y2="90" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrowhead)"/><line x1="150" y1="46" x2="230" y2="90" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrowhead)"/><line x1="110" y1="112" x2="190" y2="112" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowhead)" stroke-dasharray="4,4"/>'+
+    '<text x="150" y="145" text-anchor="middle" font-size="9" font-family="Inter" fill="#6b7280">Confounding: third variable causes both exposure AND outcome</text>'+
+    '</svg><div style="font-size:.625rem;color:#9ca3af;max-width:300px;text-align:center">Without randomization, the confounder creates a spurious association. RCTs block this path.</div></div>';
+}
+
+// ── DECISION TREE (WHICH STATISTICAL TEST) ──
+function renderDecisionTree(q, bg) {
+  const div = document.getElementById('chart-quiz-html');
+  if (!div) return;
+  div.style.display = '';
+  div.innerHTML = '<div style="font-family:Inter;height:100%;overflow:auto;padding:8px">'+
+    '<div style="font-size:.75rem;font-weight:600;color:#6b7280;margin-bottom:8px;text-align:center">Statistical Test Selection</div>'+
+    '<div style="display:flex;flex-direction:column;align-items:center;gap:6px;font-size:.625rem">'+
+    '<div style="background:#eff6ff;border:2px solid #2563eb;border-radius:8px;padding:8px 16px;font-weight:700;color:#2563eb">What is the outcome type?</div>'+
+    '<div style="display:flex;gap:24px">'+
+    '<div style="text-align:center"><div style="font-weight:600;color:#22c55e;margin-bottom:4px">Continuous</div><div style="background:#f0fdf4;border-radius:6px;padding:6px 12px;margin-bottom:4px"><b>2 groups?</b> → t-test</div><div style="background:#f0fdf4;border-radius:6px;padding:6px 12px;margin-bottom:4px"><b>3+ groups?</b> → ANOVA</div><div style="background:#f0fdf4;border-radius:6px;padding:6px 12px"><b>Paired?</b> → paired t-test</div></div>'+
+    '<div style="text-align:center"><div style="font-weight:600;color:#f59e0b;margin-bottom:4px">Categorical</div><div style="background:#fefce8;border-radius:6px;padding:6px 12px;margin-bottom:4px"><b>Binary?</b> → Chi-square</div><div style="background:#fefce8;border-radius:6px;padding:6px 12px;margin-bottom:4px"><b>Small n?</b> → Fisher exact</div><div style="background:#fefce8;border-radius:6px;padding:6px 12px"><b>Ordinal?</b> → Mann-Whitney</div></div>'+
+    '<div style="text-align:center"><div style="font-weight:600;color:#ef4444;margin-bottom:4px">Time-to-event</div><div style="background:#fef2f2;border-radius:6px;padding:6px 12px"><b>Survival?</b> → Log-rank test</div></div>'+
+    '</div></div></div>';
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODIFIED BAR CHART — supports bar and bar-multigroup
+// ═══════════════════════════════════════════════════════════
+// (updateBarChart already exists — we just need to handle multigroup in it)
+
+
+// Quiz slider events
+document.getElementById('qz-hr-slider').oninput=function(){qzHR=parseFloat(this.value)/100;qzTreat=qzHR*qzBRate;updateQuizGraph();updateQuizCard();document.getElementById('cbody-formula').innerHTML='<span class="empty">Manual override — click an option to restore</span>'};
+document.getElementById('qz-rate-slider').oninput=function(){qzBRate=parseFloat(this.value)/100;qzTreat=qzHR*qzBRate;updateQuizGraph();updateQuizCard();document.getElementById('cbody-formula').innerHTML='<span class="empty">Manual override — click an option to restore</span>'};
+document.getElementById('qz-hr-slider').ondblclick=function(){this.value=60;qzHR=0.60;qzTreat=qzHR*qzBRate;qzCrossAt=null;qzHrEarly=2.0;updateQuizGraph();updateQuizCard()};
+document.getElementById('qz-rate-slider').ondblclick=function(){this.value=30;qzBRate=0.30;qzTreat=qzHR*qzBRate;qzCrossAt=null;qzHrEarly=2.0;updateQuizGraph();updateQuizCard()};
+document.getElementById('qz-n-slider').oninput = function() { qzNPerArm = parseInt(this.value); document.getElementById('qz-n-val').innerText = qzNPerArm; updateQuizGraph(); };
+document.getElementById('qz-n-slider').ondblclick = function() { this.value = 40; qzNPerArm = 40; document.getElementById('qz-n-val').innerText = 40; updateQuizGraph(); };
+
+// Normal chart slider events
+document.getElementById('qz-nd-slider').oninput = function(){ qzNormD = parseFloat(this.value)/100; document.getElementById('qz-nd-val').innerText = qzNormD.toFixed(2); updateQuizGraph(); };
+document.getElementById('qz-nd-slider').ondblclick = function(){ this.value=80; qzNormD=0.80; document.getElementById('qz-nd-val').innerText='0.80'; updateQuizGraph(); };
+document.getElementById('qz-nn-slider').oninput = function(){ qzNormN = parseInt(this.value); document.getElementById('qz-nn-val').innerText = qzNormN; updateQuizGraph(); };
+document.getElementById('qz-nn-slider').ondblclick = function(){ this.value=64; qzNormN=64; document.getElementById('qz-nn-val').innerText='64'; updateQuizGraph(); };
+document.getElementById('qz-na-slider').oninput = function(){ qzNormAlpha = parseFloat(this.value)/100; document.getElementById('qz-na-val').innerText = qzNormAlpha.toFixed(2); updateQuizGraph(); };
+document.getElementById('qz-na-slider').ondblclick = function(){ this.value=5; qzNormAlpha=0.05; document.getElementById('qz-na-val').innerText='0.05'; updateQuizGraph(); };
+
+// Bar chart slider events
+document.getElementById('qz-bc-slider').oninput = function(){ qzBarC = parseFloat(this.value)/100; document.getElementById('qz-bc-val').innerText = qzBarC.toFixed(2); updateQuizGraph(); };
+document.getElementById('qz-bc-slider').ondblclick = function(){ this.value=35; qzBarC=0.35; document.getElementById('qz-bc-val').innerText='0.35'; updateQuizGraph(); };
+document.getElementById('qz-bt-slider').oninput = function(){ qzBarT = parseFloat(this.value)/100; document.getElementById('qz-bt-val').innerText = qzBarT.toFixed(2); updateQuizGraph(); };
+document.getElementById('qz-bt-slider').ondblclick = function(){ this.value=15; qzBarT=0.15; document.getElementById('qz-bt-val').innerText='0.15'; updateQuizGraph(); };
+
+// ═══ TABS ═══
+function switchTab(t){
+  activeTab=t;
+  document.querySelectorAll('.tab-bar .tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===t));
+  document.querySelectorAll('.chart-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+(t==='quiz'?'quiz':t==='arr'?'arr':'hr')).classList.add('active');
+  document.getElementById('sidebar-arr').style.display=t==='arr'?'':'none';
+  document.getElementById('sidebar-hr').style.display=t==='hr'?'':'none';
+  document.getElementById('sidebar-quiz').style.display=t==='quiz'?'':'none';
+  document.getElementById('quiz-nav-group').style.display=t==='quiz'?'':'none';
+  document.getElementById('pivot-toggle').style.display=t==='quiz'?'':'none';
+  document.getElementById('card-arr').classList.toggle('card-hidden',t!=='arr');
+  document.getElementById('card-hr').classList.toggle('card-hidden',t!=='hr');
+  document.getElementById('card-quiz').classList.toggle('card-hidden',t!=='quiz');
+  if(t==='arr'){updateARR();updateARRCard()}
+  if(t==='hr'){updateHR();updateHRCard()}
+  if(t==='quiz'){renderQuestion();updateScorePill()}
+}
+function toggleSection(id){document.getElementById(id).classList.toggle('open')}
+function toggleSettingsPanel() {
+  const panel = document.getElementById('settings-panel');
+  const backdrop = document.getElementById('settings-backdrop');
+  const open = !panel.classList.contains('open');
+  panel.classList.toggle('open', open);
+  backdrop.classList.toggle('open', open);
+}
+function closeSettingsPanel() {
+  document.getElementById('settings-panel').classList.remove('open');
+  document.getElementById('settings-backdrop').classList.remove('open');
+}
+function normalPDF(x,m,s){const v=s*s;return Math.exp(-.5*(x-m)*(x-m)/v)/Math.sqrt(2*Math.PI*v)}
+
+// ── Draggable + resizable cards with JSON persistence + shared sizing ──
+const CARD_STORAGE_KEY = 'stats_viz_card_positions';
+const SHARED_SIZE_KEY = 'stats_viz_shared_card_size';
+let cardPositions = {};
+
+// Shared sizing across all three cards — resize one, all follow
+let sharedCardW = 280, sharedCardH = null;
+try {
+  const saved = localStorage.getItem(SHARED_SIZE_KEY);
+  if (saved) { const sz = JSON.parse(saved); sharedCardW = sz.w || 280; sharedCardH = sz.h || null; }
+  const pos = localStorage.getItem(CARD_STORAGE_KEY);
+  if (pos) cardPositions = JSON.parse(pos);
+} catch(e) {}
+
+function saveCardPositions() {
+  localStorage.setItem(CARD_STORAGE_KEY, JSON.stringify(cardPositions));
+}
+function saveSharedSize() {
+  localStorage.setItem(SHARED_SIZE_KEY, JSON.stringify({ w: sharedCardW, h: sharedCardH }));
+}
+
+// Auto-save timer: saves positions + shared size after 30s of inactivity
+let autoSaveTimer = 0;
+function resetAutoSave() {
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => {
+    // snapshot current positions of all cards
+    document.querySelectorAll('.float-card').forEach(c => {
+      cardPositions[c.id] = {
+        top: parseInt(c.style.top) || 16,
+        left: c.style.right === 'auto' ? (parseInt(c.style.left) || undefined) : undefined,
+        right: c.style.left === 'auto' ? (parseInt(c.style.right) || 16) : undefined
+      };
+      // If neither left nor right set, default to right
+      if (cardPositions[c.id].left === undefined && cardPositions[c.id].right === undefined) {
+        cardPositions[c.id].right = 16;
+      }
+    });
+    saveCardPositions();
+    saveSharedSize();
+  }, 30000);
+}
+// Hook auto-save into all user interactions
+['mousemove','touchmove','mouseup','touchend','click','input','change'].forEach(evt => {
+  window.addEventListener(evt, resetAutoSave, { passive: true });
+});
+
+// Apply shared sizing to all three cards
+function applySharedSize(excludeCard) {
+  document.querySelectorAll('.float-card').forEach(c => {
+    if (c === excludeCard) return;
+    c.style.width = sharedCardW + 'px';
+    if (sharedCardH) c.style.height = sharedCardH + 'px';
+    else c.style.height = 'auto';
+  });
+}
+
+// Let card grow/shrink to fit content — clear locked height
+function autoFitCard() {
+  sharedCardH = null;
+  saveSharedSize();
+  document.querySelectorAll('.float-card').forEach(c => { c.style.height = 'auto'; });
+}
+
+document.querySelectorAll('.float-card').forEach(card => {
+  const id = card.id;
+  // Restore per-card position (supports left or right anchoring)
+  if (cardPositions[id]) {
+    const p = cardPositions[id];
+    if (p.top !== undefined) { card.style.top = p.top + 'px'; card.style.bottom = 'auto'; }
+    if (p.right !== undefined) { card.style.right = p.right + 'px'; card.style.left = 'auto'; card.style.bottom = 'auto'; }
+    if (p.left !== undefined) { card.style.left = p.left + 'px'; card.style.right = 'auto'; card.style.bottom = 'auto'; }
+  }
+  // Apply shared sizing
+  card.style.width = sharedCardW + 'px';
+  if (sharedCardH) card.style.height = sharedCardH + 'px';
+
+  // Drag — anywhere on the card that isn't a button/tab/input
+  let ox = 0, oy = 0, dragging = false;
+  card.addEventListener('mousedown', e => {
+    if (e.target.closest('button, a, input, .card-tab, .rs-handle')) return;
+    dragging = true;
+    const r = card.getBoundingClientRect();
+    ox = e.clientX - r.left;
+    oy = e.clientY - r.top;
+    card.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  card.addEventListener('touchstart', e => {
+    if (e.target.closest('button, a, input, .card-tab, .rs-handle')) return;
+    dragging = true;
+    const r = card.getBoundingClientRect();
+    ox = e.touches[0].clientX - r.left;
+    oy = e.touches[0].clientY - r.top;
+    card.style.cursor = 'grabbing';
+    e.preventDefault();
+  }, { passive: false });
+
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const parent = card.parentElement.getBoundingClientRect();
+    const cw = card.offsetWidth, ch = card.offsetHeight;
+    let nx = e.clientX - parent.left - ox;
+    let ny = e.clientY - parent.top - oy;
+    // Clamp to the full viewport, not the chart area — the floater can sit anywhere on screen
+    nx = Math.max(-parent.left, Math.min(nx, window.innerWidth - cw - parent.left));
+    ny = Math.max(-parent.top, Math.min(ny, window.innerHeight - ch - parent.top));
+    card.style.left = nx + 'px';
+    card.style.top = ny + 'px';
+    card.style.right = 'auto';
+    card.style.bottom = 'auto';
+    resetAutoSave();
+  });
+  window.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const parent = card.parentElement.getBoundingClientRect();
+    const cw = card.offsetWidth, ch = card.offsetHeight;
+    let nx = e.touches[0].clientX - parent.left - ox;
+    let ny = e.touches[0].clientY - parent.top - oy;
+    nx = Math.max(-parent.left, Math.min(nx, window.innerWidth - cw - parent.left));
+    ny = Math.max(-parent.top, Math.min(ny, window.innerHeight - ch - parent.top));
+    card.style.left = nx + 'px';
+    card.style.top = ny + 'px';
+    card.style.right = 'auto';
+    card.style.bottom = 'auto';
+    resetAutoSave();
+  }, { passive: false });
+
+  window.addEventListener('mouseup', () => {
+    if (dragging) {
+      dragging = false; card.style.cursor = '';
+      cardPositions[id] = { top: parseInt(card.style.top), left: parseInt(card.style.left) };
+      saveCardPositions();
+    }
+  });
+  window.addEventListener('touchend', () => {
+    if (dragging) {
+      dragging = false; card.style.cursor = '';
+      cardPositions[id] = { top: parseInt(card.style.top), left: parseInt(card.style.left) };
+      saveCardPositions();
+    }
+  });
+});
+
+// ── Resize handles — all 8 directions, shared width/height across all three cards ──
+// Width & height are shared (resizing one card resizes all three, same as before).
+// Left/top only ever change on the card actually being dragged, since position is per-card.
+const MIN_CARD_W = 180, MIN_CARD_H = 80;
+function computeResize(dir, dx, dy, startW, startH, startLeft, startTop) {
+  let width = startW, height = startH, left = startLeft, top = startTop;
+  if (dir.includes('e')) width = Math.max(MIN_CARD_W, startW + dx);
+  if (dir.includes('w')) {
+    width = Math.max(MIN_CARD_W, startW - dx);
+    left = startLeft + (startW - width);
+  }
+  if (dir.includes('s')) height = Math.max(MIN_CARD_H, startH + dy);
+  if (dir.includes('n')) {
+    height = Math.max(MIN_CARD_H, startH - dy);
+    top = startTop + (startH - height);
+  }
+  return { width, height, left, top };
+}
+document.querySelectorAll('.float-card .rs-handle').forEach(handle => {
+  const dir = handle.dataset.dir;
+  const card = handle.parentElement;
+  let rs = false, sx = 0, sy = 0, startW = 0, startH = 0, startLeft = 0, startTop = 0;
+
+  function begin(clientX, clientY) {
+    rs = true; sx = clientX; sy = clientY;
+    const r = card.getBoundingClientRect();
+    const parent = card.parentElement.getBoundingClientRect();
+    startW = sharedCardW;
+    startH = sharedCardH || card.offsetHeight;
+    startLeft = r.left - parent.left;
+    startTop = r.top - parent.top;
+  }
+  function move(clientX, clientY) {
+    if (!rs) return;
+    const { width, height, left, top } = computeResize(dir, clientX - sx, clientY - sy, startW, startH, startLeft, startTop);
+    document.querySelectorAll('.float-card').forEach(c => {
+      c.style.width = width + 'px';
+      c.style.height = height + 'px';
+    });
+    if (dir.includes('w') || dir.includes('n')) {
+      card.style.left = left + 'px';
+      card.style.top = top + 'px';
+      card.style.right = 'auto';
+    }
+  }
+  function end() {
+    if (!rs) return;
+    rs = false;
+    const w = parseInt(card.style.width), h = parseInt(card.style.height);
+    sharedCardW = isNaN(w) ? sharedCardW : w;
+    sharedCardH = isNaN(h) ? sharedCardH : h;
+    saveSharedSize();
+    if (dir.includes('w') || dir.includes('n')) {
+      cardPositions[card.id] = { top: parseInt(card.style.top), left: parseInt(card.style.left) };
+      saveCardPositions();
+    }
+    resetAutoSave();
+  }
+
+  handle.addEventListener('mousedown', e => { begin(e.clientX, e.clientY); e.preventDefault(); e.stopPropagation(); });
+  handle.addEventListener('touchstart', e => { begin(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); e.stopPropagation(); }, { passive: false });
+  window.addEventListener('mousemove', e => move(e.clientX, e.clientY));
+  window.addEventListener('touchmove', e => { if (rs) move(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+  window.addEventListener('mouseup', end);
+  window.addEventListener('touchend', end);
+});
+
+// ═══ ARR ═══
+let showArrOverlay=true,arrSE=0.73,arrDiff=2.0;
+const arrDimPlugin={id:'arrDim',afterDraw(chart){if(activeTab!=='arr'||!showArrOverlay||arrDiff<=0)return;const{ctx,chartArea:{top,bottom},scales:{x}}=chart;const xs=x.getPixelForValue(0),xe=x.getPixelForValue(arrDiff),dy=top+(bottom-top)*.22;ctx.save();ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(xs,dy);ctx.lineTo(xe,dy);ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle='rgba(0,0,0,.3)';ctx.lineWidth=1.5;[xs,xe].forEach(xx=>{ctx.beginPath();ctx.moveTo(xx,dy-8);ctx.lineTo(xx,dy+8);ctx.stroke()});const a=5;ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.moveTo(xs,dy);ctx.lineTo(xs+a,dy-a);ctx.lineTo(xs+a,dy+a);ctx.fill();ctx.beginPath();ctx.moveTo(xe,dy);ctx.lineTo(xe-a,dy-a);ctx.lineTo(xe-a,dy+a);ctx.fill();ctx.fillStyle='#1a1a2e';ctx.font='700 15px Inter,sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText('ARR = '+arrDiff.toFixed(1)+' ppt',(xs+xe)/2,dy-12);ctx.restore()}};
+Chart.register(arrDimPlugin);
+const chartARR=new Chart(document.getElementById('chart-arr'),{type:'line',data:{labels:[],datasets:[{label:'Placebo',data:[],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.08)',borderWidth:2,fill:true,pointRadius:0,tension:.1,order:1},{label:'Treatment',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.08)',borderWidth:2,fill:true,pointRadius:0,tension:.1,order:1},{label:'μ₀',data:[],borderColor:'rgba(239,68,68,.5)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0},{label:'μ₁',data:[],borderColor:'rgba(37,99,235,.5)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16,filter:i=>i.datasetIndex<2}}},zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},scales:{x:{type:'linear',min:-4,max:8,title:{display:true,text:'Effect Measurement',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af'},grid:{color:'rgba(0,0,0,.04)'}},y:{display:false,min:0,grid:{color:'rgba(0,0,0,.03)'}}},interaction:{mode:'index',intersect:false}}});
+function updateARR(){const rn=parseFloat(document.getElementById('n-slider').value);const d=parseFloat(document.getElementById('diff-slider').value);const n=Math.floor(Math.pow(rn/1000,3)*99998)+2;const se=4/Math.sqrt(n);arrSE=se;arrDiff=d;document.getElementById('n-val').innerText=n.toLocaleString();document.getElementById('diff-val').innerText=d.toFixed(1);updateARRCard();const xv=[],ny=[],ay=[];for(let x=-4;x<=8;x+=.05){xv.push(x);ny.push(normalPDF(x,0,se));ay.push(normalPDF(x,d,se))}const mh=Math.max(...ny,...ay)*1.05;chartARR.data.labels=xv;chartARR.data.datasets[0].data=ny;chartARR.data.datasets[1].data=ay;chartARR.data.datasets[2].data=[{x:0,y:0},{x:0,y:mh}];chartARR.data.datasets[3].data=[{x:d,y:0},{x:d,y:mh}];chartARR.options.scales.y.max=mh*1.15;chartARR.update()}
+function updateARRCard(){document.getElementById('cv-se').innerText=arrSE.toFixed(3);document.getElementById('cv-arr').innerText=(arrDiff/100).toFixed(3);document.getElementById('cv-nnt').innerText=arrDiff>0?(100/arrDiff).toFixed(1):'∞';document.getElementById('cv-z').innerText=(arrDiff/arrSE).toFixed(2)}
+
+// ═══ HR ═══
+let hrV=0.6,ctrlR=0.3,treatR=0.18;
+const hrDimPlugin={id:'hrDim',afterDraw(chart){if(activeTab!=='hr')return;const{ctx,chartArea:{top,bottom,left,right},scales:{x,y}}=chart;const td=2.5,xd=x.getPixelForValue(td);const yc=y.getPixelForValue(1-Math.exp(-ctrlR*td*2.5));const yt=y.getPixelForValue(1-Math.exp(-treatR*td*2.5));const hr=hrV,kept=hr*100,trimmed=(1-hr)*100;ctx.save();ctx.strokeStyle='rgba(0,0,0,.1)';ctx.lineWidth=1;ctx.setLineDash([2,4]);ctx.beginPath();ctx.moveTo(xd,top);ctx.lineTo(xd,bottom);ctx.stroke();ctx.setLineDash([]);[{yy:yc,c:'#ef4444',l:'Control '+(ctrlR*100).toFixed(0)+'%'},{yy:yt,c:'#2563eb',l:'Treatment '+(treatR*100).toFixed(0)+'%'}].forEach(p=>{ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(xd,p.yy,5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#374151';ctx.font='600 11px Inter,sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(p.l,xd+12,p.yy)});const bx=xd+100;ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=2;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(bx,yc);ctx.lineTo(bx,yt);ctx.stroke();[yc,yt].forEach(yy=>{ctx.beginPath();ctx.moveTo(bx-8,yy);ctx.lineTo(bx+8,yy);ctx.stroke()});ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.moveTo(bx,yt);ctx.lineTo(bx-5,yt+10);ctx.lineTo(bx+5,yt+10);ctx.fill();ctx.beginPath();ctx.moveTo(bx,yc);ctx.lineTo(bx-5,yc-10);ctx.lineTo(bx+5,yc-10);ctx.fill();const gm=(yc+yt)/2;ctx.fillStyle='#1a1a2e';ctx.font='700 13px Inter,sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText('↓ '+trimmed.toFixed(0)+'%',bx+16,gm-8);ctx.fillStyle='#6b7280';ctx.font='400 10px Inter,sans-serif';ctx.fillText('reduction in hazard',bx+16,gm+8);const barX=right-320,barW=290,barHB=16,barR=3,barGap=18,keptW=(kept/100)*barW,trimW=(trimmed/100)*barW;const barYc=bottom-68,barYt=bottom-34;ctx.fillStyle='#6b7280';ctx.font='500 .625rem Inter,sans-serif';ctx.textAlign='left';ctx.fillText('Hazard Velocity',barX,barYc-9);ctx.fillStyle='#e5e7eb';ctx.strokeStyle='#d1d5db';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(barX,barYc,barW,barHB,barR);ctx.fill();ctx.stroke();ctx.fillStyle='#374151';ctx.font='600 .625rem Inter,sans-serif';ctx.textAlign='right';ctx.fillText('Control 100%',barX+barW-8,barYc+barHB/2+1);if(keptW>1){ctx.fillStyle='#93c5fd';ctx.beginPath();ctx.roundRect(barX,barYt,keptW,barHB,{tl:barR,tr:0,bl:barR,br:0});ctx.fill();ctx.fillStyle='#1e40af';ctx.font='700 .625rem Inter,sans-serif';ctx.textAlign='center';ctx.fillText('Kept '+kept.toFixed(0)+'%',barX+keptW/2,barYt+barHB/2+1)}if(trimW>1){ctx.fillStyle='rgba(252,165,165,.2)';ctx.strokeStyle='#fca5a5';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.roundRect(barX+keptW,barYt,trimW,barHB,{tl:0,tr:barR,bl:0,br:barR});ctx.fill();ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#991b1b';ctx.font='700 .625rem Inter,sans-serif';ctx.textAlign='center';ctx.fillText(trimmed.toFixed(0)+'% prevented',barX+keptW+trimW/2,barYt+barHB/2+1)}ctx.fillStyle='#6b7280';ctx.font='500 .625rem Inter,sans-serif';ctx.textAlign='left';ctx.fillText('Tx',barX-28,barYt+barHB/2+1);const bracketX=barX-16;ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=1.5;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(bracketX,barYc+barHB);ctx.lineTo(bracketX,barYt);ctx.stroke();ctx.beginPath();ctx.moveTo(bracketX-4,barYc+barHB);ctx.lineTo(bracketX+4,barYc+barHB);ctx.stroke();ctx.beginPath();ctx.moveTo(bracketX-4,barYt);ctx.lineTo(bracketX+4,barYt);ctx.stroke();ctx.fillStyle='#1a1a2e';ctx.font='700 .75rem Inter,sans-serif';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText('↓ '+(1-hr).toFixed(2)+' = '+(trimmed).toFixed(0)+'%',bracketX-10,(barYc+barHB+barYt)/2);ctx.restore()}};
+Chart.register(hrDimPlugin);
+const chartHR=new Chart(document.getElementById('chart-hr'),{type:'line',data:{labels:[],datasets:[{label:'Control',data:[],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'Treatment',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'HR=1',data:[],borderColor:'rgba(0,0,0,.12)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16,filter:i=>i.datasetIndex<2}}},zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},scales:{x:{type:'linear',min:0,max:6,title:{display:true,text:'Time (months)',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:1},grid:{color:'rgba(0,0,0,.04)'}},y:{min:0,max:1,title:{display:true,text:'Cumulative Events',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:.2,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(0,0,0,.04)'}}},interaction:{mode:'index',intersect:false}}});
+
+// Double-click any chart canvas to reset pan/zoom back to default view
+[chartARR, chartHR, chartQuiz, chartQuizNormal, chartQuizBar].forEach(c => {
+  c.canvas.addEventListener('dblclick', () => c.resetZoom());
+});
+function updateHR(){hrV=parseFloat(document.getElementById('hr-slider').value)/100;ctrlR=parseFloat(document.getElementById('rate-slider').value)/100;treatR=ctrlR*hrV;document.getElementById('hr-val').innerText=hrV.toFixed(2);document.getElementById('rate-val').innerText=ctrlR.toFixed(2);updateHRCard();const xv=[],cy=[],ty=[],hy=[];for(let t=0;t<=6;t+=.05){xv.push(t);cy.push(1-Math.exp(-ctrlR*t*2.5));ty.push(1-Math.exp(-treatR*t*2.5));hy.push(1-Math.exp(-ctrlR*t*2.5))}chartHR.data.labels=xv;chartHR.data.datasets[0].data=cy;chartHR.data.datasets[1].data=ty;chartHR.data.datasets[2].data=hy;chartHR.update()}
+function updateHRCard(){const pc=(1-hrV)*100;document.getElementById('cv-hr').innerText=hrV.toFixed(2);document.getElementById('cv-hr').className='val '+(hrV<1?'green':'red');document.getElementById('cv-ctrl').innerText=(ctrlR*100).toFixed(0)+'%';document.getElementById('cv-trt').innerText=(treatR*100).toFixed(0)+'%';document.getElementById('cv-red').innerHTML=pc.toFixed(0)+'% <span style="font-size:.5rem;color:#d1d5db;font-weight:400">(1.0−'+hrV.toFixed(2)+')</span>'}
+
+// ── JSON export/import ──
+function exportQuestions(){const b=new Blob([JSON.stringify(QUESTION_BANK,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='stats_questions.json';a.click();URL.revokeObjectURL(u)}
+function copyQuestionsJSON(){navigator.clipboard.writeText(JSON.stringify(QUESTION_BANK,null,2)).then(()=>{const b=event.target;const o=b.innerText;b.innerText='Copied!';setTimeout(()=>b.innerText=o,1200)})}
+function importQuestions(){document.getElementById('json-import-file').click()}
+function handleImportFile(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(ev){try{const d=JSON.parse(ev.target.result);if(!Array.isArray(d))throw new Error('Not an array');d.forEach((q,i)=>{if(!q.id||!q.stem||!Array.isArray(q.options)||q.options.length!==5)throw new Error('Q'+(i+1)+' invalid')});QUESTION_BANK.length=0;d.forEach(q=>QUESTION_BANK.push(q));qState={answers:{},score:0};currentQ=0;qAnswered=false;saveQS();renderQuestion();alert('Imported '+d.length+' questions.')}catch(err){alert('Invalid: '+err.message)}};r.readAsText(f);e.target.value=''}
+
+// Events
+document.getElementById('n-slider').oninput=updateARR;document.getElementById('diff-slider').oninput=updateARR;
+document.getElementById('n-slider').ondblclick=function(){this.value=65;updateARR()};document.getElementById('diff-slider').ondblclick=function(){this.value=2;updateARR()};
+document.getElementById('toggle-means').onchange=function(){chartARR.setDatasetVisibility(2,this.checked);chartARR.setDatasetVisibility(3,this.checked);chartARR.update()};
+document.getElementById('toggle-arr').onchange=function(){showArrOverlay=this.checked;chartARR.update()};
+document.getElementById('hr-slider').oninput=updateHR;document.getElementById('rate-slider').oninput=updateHR;
+document.getElementById('hr-slider').ondblclick=function(){this.value=60;updateHR()};document.getElementById('rate-slider').ondblclick=function(){this.value=30;updateHR()};
+document.getElementById('toggle-hr-ref').onchange=function(){chartHR.setDatasetVisibility(2,this.checked);chartHR.update()};
+
+// Init — wait for questions to load first
+loadQuestions().then(() => {
+  if (!questionsLoaded) {
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Inter,sans-serif;font-size:1rem;color:#9ca3af">Questions file not found. Drop a stats_questions.json next to this HTML file (or use the Import button).</div>';
+    return;
+  }
+  switchTab('quiz');
+  loadDsKey();
+  loadPivotManifest(); // preload in background
+});
+
+// ── Double-click collapse ──
+// Double-click question sidebar → collapse/expand question body
+// Double-click float card tabs → toggle active card body
+document.querySelectorAll('.float-card .card-tabs').forEach(tab => {
+  tab.addEventListener('dblclick', function(e) {
+    e.stopPropagation();
+    const card = this.closest('.float-card');
+    const tabId = activeCardTab;
+    const body = card.querySelector('#cbody-' + tabId);
+    if (!body) return;
+    if (body.style.display === 'none') {
+      body.style.display = '';
+      sharedCardH = null;
+    } else {
+      body.style.display = 'none';
+    }
+    autoFitCard();
+    saveSharedSize();
+  });
+});
+
+// ── Sidebar resize rail ──
+(function initSidebarResize() {
+  const SIDE_WIDTH_KEY = 'stats_viz_sidebar_widths';
+  let sideWidths = {};
+  try { sideWidths = JSON.parse(localStorage.getItem(SIDE_WIDTH_KEY)) || {}; } catch(e) {}
+
+  function getVisibleSidebar() {
+    return document.getElementById('sidebar-arr').style.display !== 'none' ? 'sidebar-arr'
+         : document.getElementById('sidebar-hr').style.display !== 'none' ? 'sidebar-hr'
+         : document.getElementById('sidebar-quiz').style.display !== 'none' ? 'sidebar-quiz'
+         : null;
+  }
+
+  // Apply saved widths on init
+  function applySideWidths() {
+    if (sideWidths['sidebar-arr']) document.getElementById('sidebar-arr').style.width = sideWidths['sidebar-arr'] + 'px';
+    if (sideWidths['sidebar-hr']) document.getElementById('sidebar-hr').style.width = sideWidths['sidebar-hr'] + 'px';
+    if (sideWidths['sidebar-quiz']) document.getElementById('sidebar-quiz').style.width = sideWidths['sidebar-quiz'] + 'px';
+  }
+  applySideWidths();
+
+  const rail = document.getElementById('side-resize-rail');
+  let dragging = false, startX = 0, startW = 0, activeSideId = null;
+
+  rail.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const sideId = getVisibleSidebar();
+    if (!sideId) return;
+    activeSideId = sideId;
+    const sidebar = document.getElementById(sideId);
+    dragging = true;
+    startX = e.clientX;
+    startW = sidebar.offsetWidth;
+    rail.classList.add('active');
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'col-resize';
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const newW = Math.max(200, startW + dx);
+    const sidebar = document.getElementById(activeSideId);
+    if (sidebar) sidebar.style.width = newW + 'px';
+    // Update all three sidebars to the same width so tab switching doesn't jump
+    document.querySelectorAll('.sidebar').forEach(function(s) { s.style.width = newW + 'px'; });
+  });
+
+  document.addEventListener('mouseup', function() {
+    if (!dragging) return;
+    dragging = false;
+    rail.classList.remove('active');
+    document.body.style.userSelect = '';
+    document.body.style.cursor = '';
+    // Save width for current sidebar type
+    if (activeSideId) {
+      const sidebar = document.getElementById(activeSideId);
+      if (sidebar) {
+        const w = sidebar.offsetWidth;
+        sideWidths[activeSideId] = w;
+        try { localStorage.setItem(SIDE_WIDTH_KEY, JSON.stringify(sideWidths)); } catch(e) {}
+      }
+    }
+    activeSideId = null;
+    // Force Chart.js to resize
+    window.dispatchEvent(new Event('resize'));
+  });
+
+  // Touch support
+  rail.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const sideId = getVisibleSidebar();
+    if (!sideId) return;
+    activeSideId = sideId;
+    const sidebar = document.getElementById(sideId);
+    dragging = true;
+    startX = e.touches[0].clientX;
+    startW = sidebar.offsetWidth;
+    rail.classList.add('active');
+  }, {passive: false});
+
+  document.addEventListener('touchmove', function(e) {
+    if (!dragging) return;
+    const dx = e.touches[0].clientX - startX;
+    const newW = Math.max(200, startW + dx);
+    const sidebar = document.getElementById(activeSideId);
+    if (sidebar) sidebar.style.width = newW + 'px';
+    document.querySelectorAll('.sidebar').forEach(function(s) { s.style.width = newW + 'px'; });
+  }, {passive: false});
+
+  document.addEventListener('touchend', function() {
+    if (!dragging) return;
+    dragging = false;
+    rail.classList.remove('active');
+    if (activeSideId) {
+      const sidebar = document.getElementById(activeSideId);
+      if (sidebar) {
+        const w = sidebar.offsetWidth;
+        sideWidths[activeSideId] = w;
+        try { localStorage.setItem(SIDE_WIDTH_KEY, JSON.stringify(sideWidths)); } catch(e) {}
+      }
+    }
+    activeSideId = null;
+    window.dispatchEvent(new Event('resize'));
+  });
+})();
+
+// ── Font scale ──
+const FONT_SCALE_KEY = 'stats_viz_font_scale';
+(function initFontScale() {
+  let scale = 1.15;
+  try {
+    const saved = localStorage.getItem(FONT_SCALE_KEY);
+    if (saved) scale = parseFloat(saved) || 1.15;
+  } catch(e) {}
+  document.documentElement.style.fontSize = (17 * scale) + 'px';
+  document.getElementById('font-scale-slider').value = Math.round(scale * 100);
+  document.getElementById('font-size-label').innerText = Math.round(scale * 100) + '%';
+  document.getElementById('font-scale-slider').oninput = function () {
+    const pct = parseInt(this.value);
+    scale = pct / 100;
+    document.documentElement.style.fontSize = (17 * scale) + 'px';
+    document.getElementById('font-size-label').innerText = pct + '%';
+  };
+  document.getElementById('font-scale-slider').onchange = function () {
+    localStorage.setItem(FONT_SCALE_KEY, scale);
+    resetAutoSave();
+  };
+  document.getElementById('font-scale-slider').ondblclick = function () {
+    this.value = 100;
+    scale = 1;
+    document.documentElement.style.fontSize = '17px';
+    document.getElementById('font-size-label').innerText = '100%';
+    localStorage.setItem(FONT_SCALE_KEY, 1);
+  };
+})();
+
+// ── DeepSeek Integration (wired from MeWorld pattern) ──
+
+// ── Voice input (MeWorld SpeechRecognition pattern) ──
+let voiceRec = null, voiceActive = false, lastAskState = null;
+
+function loadDsKey() {
+  const saved = localStorage.getItem('stats_viz_ds_key');
+  if (saved) {
+    document.getElementById('ds-api-key').value = saved;
+  } else {
+    // Preload from MeWorld .env — stored locally, never displayed
+    const embedded = 'sk-2fc4cc5ed6184f87be8837bc6ad7a3ff';
+    localStorage.setItem('stats_viz_ds_key', embedded);
+    document.getElementById('ds-api-key').value = embedded;
+  }
+}
+document.getElementById('ds-api-key').oninput = function () {
+  localStorage.setItem('stats_viz_ds_key', this.value.trim());
+};
+
+function getDsKey() {
+  return document.getElementById('ds-api-key').value.trim() || localStorage.getItem('stats_viz_ds_key') || '';
+}
+
+// ── Attending response cache — persists across sessions ──
+const ATTENDING_CACHE_KEY = 'stats_viz_attending';
+function loadAttendingCache() { try { const r = localStorage.getItem(ATTENDING_CACHE_KEY); return r ? JSON.parse(r) : {}; } catch(e) { return {}; } }
+function saveAttendingCache(obj) { localStorage.setItem(ATTENDING_CACHE_KEY, JSON.stringify(obj)); }
+
+// ── KaTeX math rendering — inline \(...\) and display $$...$$ ──
+function renderMath(html) {
+  let out = html;
+  // Bold **...**
+  out = out.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Display math $$...$$
+  out = out.replace(/\$\$(.+?)\$\$/gs, (_, tex) => {
+    try { return katex.renderToString(tex.trim(), {throwOnError:false, displayMode:true}); }
+    catch(e) { return '<code>$$'+tex+'$$</code>'; }
+  });
+  // Inline math \(...\)
+  out = out.replace(/\\\((.+?)\\\)/gs, (_, tex) => {
+    try { return katex.renderToString(tex.trim(), {throwOnError:false}); }
+    catch(e) { return '<code>\\('+tex+'\\)</code>'; }
+  });
+  return out;
+}
+
+// ── Chat state ──
+let chatHistory = []; // {role:'student'|'attending', text:string}[]
+const CHAT_KEY_PREFIX = 'stats_viz_chat_';
+
+function chatStorageKey(qId) { return CHAT_KEY_PREFIX + qId; }
+function loadChatHistory(qId) {
+  try { const r = localStorage.getItem(chatStorageKey(qId)); return r ? JSON.parse(r) : []; }
+  catch(e) { return []; }
+}
+function saveChatHistory(qId, history) {
+  try { localStorage.setItem(chatStorageKey(qId), JSON.stringify(history)); }
+  catch(e) { /* quota exceeded, ignore */ }
+}
+
+function renderChatHistoryHTML() {
+  if (!chatHistory.length) return '';
+  let html = '<div class="chat-history">';
+  chatHistory.forEach(m => {
+    const cls = m.role === 'student' ? 'chat-msg-student' : 'chat-msg-attending';
+    const label = m.role === 'student' ? 'You' : 'Immersa';
+    html += '<div class="'+cls+'"><span class="chat-role">'+label+'</span> '+renderMath(m.text)+'</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderChatPanel(qIdx) {
+  const q = QUESTION_BANK[qIdx];
+  chatHistory = loadChatHistory(q.id);
+  const optNote = currentPickedOpt >= 0
+    ? 'Discussing option '+q.options[currentPickedOpt].label+' — click another option to switch context.'
+    : 'Ask Immersa about this question. Click an option to tie chat to a specific scenario.';
+  const optIdx = currentPickedOpt >= 0 ? currentPickedOpt : 0;
+  document.getElementById('cbody-chat').innerHTML =
+    '<div class="chat-context">'+optNote+'</div>' +
+    renderChatHistoryHTML() +
+    '<div class="chat-input-row"><input type="text" id="chat-input" class="chat-input" placeholder="Ask Immersa anything about this question..." onkeydown="if(event.key===\'Enter\')submitChat('+qIdx+')"><button class="chat-send-btn" onclick="submitChat('+qIdx+')"><i class="ti ti-send" style="font-size:14px"></i></button></div>' +
+    '<div class="voice-row"><button class="mic-btn" id="mic-btn" onclick="toggleVoice()" title="Speak to Immersa"><i class="ti ti-microphone" style="font-size:16px"></i></button><span class="voice-preview" id="voice-preview"></span></div>' +
+    '<button class="ask-ai-btn" onclick="askDeepSeek('+qIdx+','+optIdx+')"><i class="ti ti-message"></i> '+(currentPickedOpt >= 0 ? 'Explain this option' : 'Start with Immersa')+'</button>' +
+    '<button class="ask-ai-btn" onclick="askDeepSeek('+qIdx+','+optIdx+',null,true)" style="margin-left:4px"><i class="ti ti-refresh"></i> Refresh</button>';
+  autoFitCard();
+}
+
+async function submitChat(qIdx) {
+  const inp = document.getElementById('chat-input');
+  if (!inp || !inp.value.trim()) return;
+  const text = inp.value.trim();
+  inp.value = '';
+  const q = QUESTION_BANK[qIdx];
+  chatHistory = loadChatHistory(q.id);
+  chatHistory.push({role:'student', text});
+  saveChatHistory(q.id, chatHistory);
+  renderChatPanel(qIdx);
+  const optIdx = currentPickedOpt >= 0 ? currentPickedOpt : 0;
+  switchCardTab('chat');
+  askDeepSeek(qIdx, optIdx, text, true);
+}
+
+async function askDeepSeek(qIdx, optIdx, followUpText, forceRefresh) {
+  const key = getDsKey();
+  if (!key) {
+    renderChatPanel(qIdx);
+    document.getElementById('cbody-chat').insertAdjacentHTML('afterbegin', '<div class="chat-context" style="color:#ef4444">Set your DeepSeek API key in Settings (gear icon) first.</div>');
+    switchCardTab('chat');
+    return;
+  }
+
+  const q = QUESTION_BANK[qIdx];
+  const opt = q.options[optIdx];
+  chatHistory = loadChatHistory(q.id);
+  const chatEl = document.getElementById('cbody-chat');
+  const cacheKey = q.id + ':' + optIdx;
+  const hr = opt.graph?.hr ?? q.baseGraph?.hr ?? 0.60;
+  const brate = opt.graph?.brate ?? q.baseGraph?.brate ?? 0.30;
+  const isFollowUp = !!(followUpText || forceRefresh);
+
+  if (!forceRefresh && !followUpText) {
+    const cached = loadAttendingCache();
+    if (cached[cacheKey]) {
+      chatHistory = loadChatHistory(q.id);
+      if (!chatHistory.length) chatHistory = [{role:'attending', text: cached[cacheKey]}];
+      saveChatHistory(q.id, chatHistory);
+      renderChatPanel(qIdx);
+      switchCardTab('chat');
+      autoFitCard();
+      lastAskState = { qIdx, optIdx, q, opt };
+      return;
+    }
+  }
+
+  lastAskState = { qIdx, optIdx, q, opt };
+  switchCardTab('chat');
+  if (!chatEl.querySelector('#chat-input')) renderChatPanel(qIdx);
+
+  let thinkDiv = null;
+  let chatHistoryEl = chatEl.querySelector('.chat-history');
+  if (!chatHistoryEl) {
+    chatHistoryEl = document.createElement('div');
+    chatHistoryEl.className = 'chat-history';
+    const inputRow = chatEl.querySelector('.chat-input-row');
+    if (inputRow) chatEl.insertBefore(chatHistoryEl, inputRow);
+    else chatEl.appendChild(chatHistoryEl);
+  }
+  thinkDiv = document.createElement('div');
+  thinkDiv.className = 'chat-msg-attending thinking-msg';
+  thinkDiv.innerHTML = '<span class="chat-role">Immersa</span> <i class="ti ti-loader" style="animation:spin 1s linear infinite;font-size:12px;display:inline-block"></i> thinking...';
+  chatHistoryEl.appendChild(thinkDiv);
+  chatEl.scrollTop = chatEl.scrollHeight;
+  autoFitCard();
+
+  const baseMsg = `Question: ${q.stem}
+
+Option the student clicked: "${opt.text}"
+Current graph parameters: Hazard Ratio = ${hr.toFixed(2)}, Baseline event rate = ${(brate*100).toFixed(0)}%
+Pre-written explanation: ${opt.desc}
+Correct answer index: ${q.correct} (this option is index ${optIdx})
+`;
+
+  let userMsg;
+  if (followUpText) {
+    const historyLines = chatHistory.slice(-6).map(m => (m.role==='student'?'Student':'Attending')+': '+m.text).join('\n');
+    userMsg = `${baseMsg}\n\nConversation so far:\n${historyLines}\n\nStudent's latest follow-up: "${followUpText}"\n\nRespond to the student's question directly. Be conversational. Stick to attending voice — mechanism-first, 3-5 sentences.`;
+  } else {
+    userMsg = `${baseMsg}Explain in attending voice why this specific option is ${optIdx===q.correct?'correct':'incorrect'}. Connect the hazard ratio concept to the graph. 3-5 sentences.`;
+  }
+
+  try {
+    const r = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        max_tokens: 400,
+        temperature: 0.35,
+        messages: [
+          { role: 'system', content: ATTENDING_SYSTEM },
+          { role: 'user', content: userMsg }
+        ]
+      })
+    });
+    if (!r.ok) {
+      const err = await r.text();
+      throw new Error(err || `DeepSeek error ${r.status}`);
+    }
+    const data = await r.json();
+    const reply = data.choices?.[0]?.message?.content?.trim() || 'No response.';
+
+    if (thinkDiv) thinkDiv.remove();
+    if (!followUpText && !forceRefresh) {
+      const cached = loadAttendingCache();
+      cached[cacheKey] = reply;
+      saveAttendingCache(cached);
+      chatHistory = [{role:'attending', text: reply}];
+    } else {
+      chatHistory.push({role:'attending', text: reply});
+    }
+    saveChatHistory(q.id, chatHistory);
+    renderChatPanel(qIdx);
+    switchCardTab('chat');
+    autoFitCard();
+  } catch (e) {
+    if (thinkDiv) thinkDiv.remove();
+    renderChatPanel(qIdx);
+    const errEl = document.createElement('div');
+    errEl.className = 'chat-msg-attending';
+    errEl.innerHTML = '<span class="chat-role">Immersa</span> <span style="color:#ef4444">Error: ' + e.message + '</span>';
+    const hist = document.getElementById('cbody-chat').querySelector('.chat-history');
+    if (hist) hist.appendChild(errEl);
+    switchCardTab('chat');
+  }
+}
+
+// ── Voice functions ──
+
+function speechSupported() {
+  return Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
+}
+
+function toggleVoice() {
+  if (voiceActive) { stopVoice(); return; }
+  if (!speechSupported()) {
+    document.getElementById('voice-preview').innerText = 'Speech needs Chrome/Edge';
+    return;
+  }
+  startVoice();
+}
+
+function startVoice() {
+  voiceActive = true;
+  const btn = document.getElementById('mic-btn');
+  if (btn) btn.innerHTML = '<i class="ti ti-microphone-filled" style="font-size:16px;color:#ef4444"></i>';
+  if (btn) btn.classList.add('recording');
+  const prev = document.getElementById('voice-preview');
+  if (prev) prev.innerText = 'Listening...';
+
+  const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
+  voiceRec = new Ctor();
+  voiceRec.continuous = true;
+  voiceRec.interimResults = true;
+  voiceRec.lang = 'en-US';
+
+  let lastFinal = '';
+  voiceRec.onresult = (event) => {
+    let interim = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const result = event.results[i];
+      const text = result[0]?.transcript || '';
+      if (result.isFinal) {
+        lastFinal += (lastFinal ? ' ' : '') + text;
+      } else {
+        interim += text;
+      }
+    }
+    const display = (lastFinal + (lastFinal && interim ? ' ' : '') + interim).trim();
+    if (prev) prev.innerText = display || 'Listening...';
+  };
+
+  voiceRec.onerror = (event) => {
+    if (event?.error === 'not-allowed') {
+      if (prev) prev.innerText = 'Mic denied — allow in browser settings';
+    } else if (event?.error === 'no-speech') {
+      if (prev) prev.innerText = 'No speech detected';
+    }
+  };
+
+  voiceRec.onend = () => {
+    if (!voiceActive) return;
+    if (lastFinal.trim() && lastAskState) {
+      if (prev) prev.innerText = 'Sending...';
+      chatHistory.push({role:'student', text: lastFinal.trim()});
+      saveChatHistory(lastAskState.q.id, chatHistory);
+      askDeepSeek(lastAskState.qIdx, lastAskState.optIdx, lastFinal.trim());
+    }
+    voiceActive = false;
+    if (btn) { btn.innerHTML = '<i class="ti ti-microphone" style="font-size:16px"></i>'; btn.classList.remove('recording'); }
+    voiceRec = null;
+  };
+
+  voiceRec.start();
+}
+
+function stopVoice() {
+  voiceActive = false;
+  const btn = document.getElementById('mic-btn');
+  if (btn) { btn.innerHTML = '<i class="ti ti-microphone" style="font-size:16px"></i>'; btn.classList.remove('recording'); }
+  if (voiceRec) {
+    try { voiceRec.stop(); } catch(e) {}
+    voiceRec = null;
+  }
+}
+// Card tab click handlers — listen on the card-quiz tabs
+document.querySelectorAll('#card-quiz .card-tab').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    switchCardTab(this.getAttribute('data-tab'));
+  });
+});
+</script>
+</body>
+</html>
