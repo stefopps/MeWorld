@@ -2347,12 +2347,25 @@ async function askDeepSeek(qIdx, optIdx, followUpText, forceRefresh) {
   chatEl.scrollTop = chatEl.scrollHeight;
   autoFitCard();
 
-  const baseMsg = `Question: ${q.stem}
+  const baseMsg = `Ad / scenario: ${q.ad || '(none)'}
 
-Option the student clicked: "${opt.text}"
-Current graph parameters: Hazard Ratio = ${hr.toFixed(2)}, Baseline event rate = ${(brate*100).toFixed(0)}%
-Pre-written explanation: ${opt.desc}
-Correct answer index: ${q.correct} (this option is index ${optIdx})
+Stem: ${q.stem}
+
+ALL OPTIONS:
+${q.options.map((o,i) => {
+  const hri = o.graph?.hr ?? q.baseGraph?.hr ?? 0.60;
+  const bri = o.graph?.brate ?? q.baseGraph?.brate ?? 0.30;
+  return `${o.label}. ${o.text} (HR=${hri.toFixed(2)}, base rate=${(bri*100).toFixed(0)}%${i===q.correct?' — CORRECT':''})`;
+}).join('\n')}
+
+Pre-written explanations for each option:
+${q.options.map((o,i) => `${o.label}: ${(o.desc||'').replace(/<[^>]*>/g,'')}`).join('\n')}
+
+Question-level explanation: ${(q.explanation||'').replace(/<[^>]*>/g,'')}
+Teaching trap: ${q.trap||''}
+
+Current student state: ${currentPickedOpt >= 0 ? `they clicked option ${q.options[currentPickedOpt].label} (${q.options[currentPickedOpt].text})` : 'no option selected yet'}
+Correct answer: option ${q.options[q.correct].label} (index ${q.correct})
 `;
 
   let userMsg;
