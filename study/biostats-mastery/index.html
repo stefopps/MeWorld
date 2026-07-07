@@ -207,8 +207,12 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 .chat-input:focus{border-color:#7c3aed;box-shadow:0 0 0 2px rgba(124,58,237,.1)}
 .chat-send-btn{width:32px;height:32px;border-radius:50%;border:1px solid #7c3aed;background:#7c3aed;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
 .chat-send-btn:hover{background:#6d28d9}
+.chat-copy-btn{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:4px;border:none;background:transparent;color:#9ca3af;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,color .12s}
+.chat-msg-attending:hover .chat-copy-btn,.chat-msg-student:hover .chat-copy-btn{opacity:1}
+.chat-copy-btn:hover{color:#2563eb;background:#f0f4ff}
+.chat-copy-btn.copied{color:#22c55e}
 .chat-history{display:flex;flex-direction:column;gap:6px;margin-top:10px;margin-bottom:8px}
-.chat-msg-student,.chat-msg-attending{font-size:.5625rem;line-height:1.45;padding:6px 10px;border-radius:6px;font-family:'Inter',sans-serif;flex-shrink:0}
+.chat-msg-student,.chat-msg-attending{position:relative;font-size:.5625rem;line-height:1.45;padding:6px 10px;border-radius:6px;font-family:'Inter',sans-serif;flex-shrink:0}
 .chat-msg-student{background:#f0f9ff;border:1px solid #bfdbfe;color:#1e40af;align-self:flex-end;max-width:90%}
 .chat-msg-attending{background:#faf8ff;border:1px solid #ddcefe;color:#374151;align-self:flex-start;max-width:90%}
 .chat-role{font-size:.4375rem;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:2px;color:#9ca3af}
@@ -2497,13 +2501,24 @@ function saveChatHistory(qId, history) {
   catch(e) { /* quota exceeded, ignore */ }
 }
 
+function copyMessage(msgId) {
+  const el = document.getElementById(msgId);
+  if (!el) return;
+  const copyText = el.textContent.replace(/^(You|Immersa)\s*/, '').trim();
+  navigator.clipboard.writeText(copyText).then(() => {
+    const btn = el.querySelector('.chat-copy-btn');
+    if (btn) { btn.classList.add('copied'); setTimeout(() => btn.classList.remove('copied'), 1500); }
+  }).catch(() => {});
+}
+
 function renderChatHistoryHTML() {
   if (!chatHistory.length) return '';
   let html = '<div class="chat-history">';
-  chatHistory.forEach(m => {
+  chatHistory.forEach((m, idx) => {
     const cls = m.role === 'student' ? 'chat-msg-student' : 'chat-msg-attending';
     const label = m.role === 'student' ? 'You' : 'Immersa';
-    html += '<div class="'+cls+'"><span class="chat-role">'+label+'</span> '+renderMath(m.text)+'</div>';
+    const msgId = 'chat-msg-'+idx+'-'+Date.now();
+    html += '<div class="'+cls+'" id="'+msgId+'"><span class="chat-role">'+label+'</span> '+renderMath(m.text)+'<button class="chat-copy-btn" onclick="copyMessage(\''+msgId+'\')" title="Copy"><i class="ti ti-copy" style="font-size:11px"></i></button></div>';
   });
   html += '</div>';
   return html;
