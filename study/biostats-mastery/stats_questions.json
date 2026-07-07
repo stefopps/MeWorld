@@ -938,7 +938,7 @@
         "text": "p < 0.001 means the 0.3 kg difference must be clinically important.",
         "graph": {
           "d": 0.10526315789473695,
-          "n": 500,
+          "n": 12000,
           "alpha": 0.05
         },
         "desc": "<strong>Statistical significance tells you the result is unlikely to be noise. It says nothing about whether the result matters.</strong> With 12,000 patients, even a 0.3 kg difference can be statistically detectable — because the standard error shrinks to almost nothing. The graph shows HR=0.95 — a razor-thin gap. The p-value screams 'real!' but the effect size whispers 'who cares?' Both can be true."
@@ -948,7 +948,7 @@
         "text": "The difference is statistically significant but likely clinically meaningless — large samples can make trivially small effects highly significant.",
         "graph": {
           "d": 0.10526315789473695,
-          "n": 500,
+          "n": 12000,
           "alpha": 0.05
         },
         "desc": "<strong>p = P(data | H0). With n = 12,000, the standard error is tiny — so even a 0.3 kg shift is many standard errors away from zero.</strong> The p-value detects departure from the null. It does not measure the size of the departure. The graph shows HR=0.95 — the visual separation is minimal — because the absolute effect IS minimal. Significance is a function of sample size. Effect size is a function of biology. Enormous samples can make biology irrelevant to the p-value."
@@ -958,7 +958,7 @@
         "text": "A sample size of 12,000 is too small to detect real effects, so p < 0.001 must be a Type I error.",
         "graph": {
           "d": 0,
-          "n": 500,
+          "n": 12000,
           "alpha": 0.05
         },
         "desc": "<strong>Type I error rate is fixed at alpha (0.05) regardless of sample size.</strong> A larger sample doesn't inflate false positives — it increases the power to detect true positives. p < 0.001 means a false positive is extremely unlikely. The graph shows HR=1.0 — what a Type I error would look like — but that's not what's happening. The result is real. The question is whether it's meaningful."
@@ -968,7 +968,7 @@
         "text": "The p-value is artificially low because large samples always produce small p-values.",
         "graph": {
           "d": 0.10526315789473695,
-          "n": 500,
+          "n": 12000,
           "alpha": 0.05
         },
         "desc": "<strong>Large samples only produce small p-values when a true effect exists.</strong> If MetaBoost had zero effect, a sample of 12,000 would still produce p > 0.05 about 95% of the time. The p-value isn't 'artificially low' — it's accurately low because 0.3 kg, though tiny, is a real effect detectable with enormous precision. The problem isn't the p-value. It's the clinical judgment that follows."
@@ -978,7 +978,7 @@
         "text": "The 0.3 kg difference is likely due to confounding because the trial wasn't randomized.",
         "graph": {
           "d": 0.10526315789473695,
-          "n": 500,
+          "n": 12000,
           "alpha": 0.05
         },
         "desc": "<strong>The ad says this was a randomized trial comparing MetaBoost to placebo.</strong> Randomization would balance confounders between groups. The 0.3 kg difference is likely real — that's what the p-value is correctly detecting. The issue isn't causation vs association. It's that a 0.3 kg difference — roughly the weight of a can of soda — isn't worth 6 months of treatment, regardless of how confidently we know it exists."
@@ -988,7 +988,7 @@
     "baseGraph": {
       "type": "normal",
       "d": 0.2,
-      "n": 500,
+      "n": 12000,
       "alpha": 0.05
     },
     "explanation": "p < 0.001 tells you the result is real. It does not tell you the result is important. With 12,000 patients, the standard error is so small that even a 0.3 kg difference becomes a strong signal against the null. The p-value answered its question correctly — the effect exists. It just didn't answer the question the patient actually cares about: does this matter?",

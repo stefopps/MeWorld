@@ -416,7 +416,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
           <!-- Normal / Gaussian controls -->
           <div id="qz-ctrls-normal" style="display:none">
             <div class="control-group"><label>Effect Size (d) <span class="value-display" id="qz-nd-val">0.80</span></label><input type="range" id="qz-nd-slider" min="0" max="250" value="80"><span class="unit-hint">Cohen's d — mean difference / SD</span><span class="reset-hint">double-click to reset</span></div>
-            <div class="control-group"><label>Sample Size (n) <span class="value-display" id="qz-nn-val">64</span></label><input type="range" id="qz-nn-slider" min="4" max="500" value="64"><span class="unit-hint">per group — shapes SE = SD/√n</span><span class="reset-hint">double-click to reset</span></div>
+            <div class="control-group"><label>Sample Size (n) <span class="value-display" id="qz-nn-val">64</span></label><input type="range" id="qz-nn-slider" min="0" max="1000" value="144"><span class="unit-hint">per group — shapes SE = SD/√n</span><span class="reset-hint">double-click to reset</span></div>
             <div class="control-group"><label>Alpha (α) <span class="value-display" id="qz-na-val">0.05</span></label><input type="range" id="qz-na-slider" min="1" max="20" value="5"><span class="unit-hint">significance threshold</span><span class="reset-hint">double-click to reset</span></div>
             <div class="toggle-group" style="margin-bottom:12px">
               <div class="toggle-row"><span class="toggle-label">One-tailed test</span><label class="toggle-switch"><input type="checkbox" id="qz-1tail-toggle" onchange="qzOneTail=this.checked;updateQuizGraph()"><span class="toggle-slider"></span></label></div>
@@ -881,10 +881,10 @@ function updateSlidersFromState() {
   document.getElementById('qz-rate-val').innerText = qzBRate.toFixed(2);
   // Normal
   document.getElementById('qz-nd-slider').value = Math.round(qzNormD*100);
-  document.getElementById('qz-nn-slider').value = qzNormN;
+  document.getElementById('qz-nn-slider').value = Math.round(1000 * Math.cbrt(Math.max(0, qzNormN - 4) / 19996));
   document.getElementById('qz-na-slider').value = Math.round(qzNormAlpha*100);
   document.getElementById('qz-nd-val').innerText = qzNormD.toFixed(2);
-  document.getElementById('qz-nn-val').innerText = qzNormN;
+  document.getElementById('qz-nn-val').innerText = qzNormN.toLocaleString();
   document.getElementById('qz-na-val').innerText = qzNormAlpha.toFixed(2);
   // Bar
   document.getElementById('qz-bc-slider').value = Math.round(qzBarC*100);
@@ -1860,8 +1860,8 @@ document.getElementById('qz-n-slider').ondblclick = function() { this.value = 40
 // Normal chart slider events
 document.getElementById('qz-nd-slider').oninput = function(){ qzNormD = parseFloat(this.value)/100; document.getElementById('qz-nd-val').innerText = qzNormD.toFixed(2); updateQuizGraph(); };
 document.getElementById('qz-nd-slider').ondblclick = function(){ this.value=80; qzNormD=0.80; document.getElementById('qz-nd-val').innerText='0.80'; updateQuizGraph(); };
-document.getElementById('qz-nn-slider').oninput = function(){ qzNormN = parseInt(this.value); document.getElementById('qz-nn-val').innerText = qzNormN; updateQuizGraph(); };
-document.getElementById('qz-nn-slider').ondblclick = function(){ this.value=64; qzNormN=64; document.getElementById('qz-nn-val').innerText='64'; updateQuizGraph(); };
+document.getElementById('qz-nn-slider').oninput = function(){ const rn=parseFloat(this.value); qzNormN = Math.max(4, Math.round(4 + Math.pow(rn/1000,3)*19996)); document.getElementById('qz-nn-val').innerText = qzNormN.toLocaleString(); updateQuizGraph(); };
+document.getElementById('qz-nn-slider').ondblclick = function(){ this.value=144; qzNormN=64; document.getElementById('qz-nn-val').innerText='64'; updateQuizGraph(); };
 document.getElementById('qz-na-slider').oninput = function(){ qzNormAlpha = parseFloat(this.value)/100; document.getElementById('qz-na-val').innerText = qzNormAlpha.toFixed(2); updateQuizGraph(); };
 document.getElementById('qz-na-slider').ondblclick = function(){ this.value=5; qzNormAlpha=0.05; document.getElementById('qz-na-val').innerText='0.05'; updateQuizGraph(); };
 
