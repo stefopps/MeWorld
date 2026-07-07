@@ -1004,7 +1004,8 @@
         "text": "Defend-2 detected a stronger treatment effect because HR = 0.75 represents a larger benefit in a bigger trial.",
         "graph": {
           "hr": 0.6,
-          "brate": 0.3
+          "brate": 0.3,
+          "n": 200
         },
         "desc": "<strong>HR = 0.75 means the same thing in both trials — a 25% reduction in hazard velocity.</strong> A larger sample doesn't make the point estimate more extreme. It makes the estimate more precise. The graph shows HR=0.60 — a stronger effect than either trial found. The point estimate didn't change with sample size. The certainty around it did."
       },
@@ -1013,7 +1014,8 @@
         "text": "Defend-2 was likely a better-designed trial, which explains the difference in statistical significance.",
         "graph": {
           "hr": 0.75,
-          "brate": 0.3
+          "brate": 0.3,
+          "n": 200
         },
         "desc": "<strong>Both trials had the same point estimate — same drug, same HR = 0.75.</strong> Design differences could change the point estimate, but they don't change what happens to the CI width and p-value at a given sample size. Assuming similar design, the sample size alone explains the precision gap. The graph shows HR=0.75 — nothing about the effect changed. Everything about the precision changed."
       },
@@ -1022,16 +1024,18 @@
         "text": "Larger sample size produces a narrower confidence interval — same point estimate, more precision, lower p-value.",
         "graph": {
           "hr": 0.75,
-          "brate": 0.3
+          "brate": 0.3,
+          "n": 200
         },
-        "desc": "<strong>Standard error shrinks as 1/√n. Defend-2's n is 10× larger, so SE is roughly 1/√10 ≈ 32% of Defend-1's.</strong> A narrower CI means if the true HR is 0.75, the lower bound is much less likely to cross 1.0. A CI that crosses 1.0 → p > 0.05. A CI entirely below 1.0 → p < 0.05. The graph shows HR=0.75 — the SAME drug effect. The difference between 'needs more study' and 'breakthrough' is 1,800 more patients, not a better molecule."
+        "desc": "<strong>Standard error shrinks as 1/√n. Defend-2's n is 10× larger, so SE is roughly 1/√10 ≈ 32% of Defend-1's.</strong> A narrower CI means if the true HR is 0.75, the lower bound is much less likely to cross 1.0. A CI that crosses 1.0 → p > 0.05. A CI entirely below 1.0 → p < 0.05. The shaded band around the Treatment curve IS that confidence interval — drag the N per arm slider from 200 up toward 2,000 and watch it visibly tighten around the same HR=0.75 line. The point estimate never moves. The difference between 'needs more study' and 'breakthrough' is 1,800 more patients, not a better molecule."
       },
       {
         "label": "D",
         "text": "Defend-1 must have used a different statistical test than Defend-2.",
         "graph": {
           "hr": 0.75,
-          "brate": 0.3
+          "brate": 0.3,
+          "n": 200
         },
         "desc": "<strong>Both trials report a hazard ratio from a Cox proportional hazards model — the same test.</strong> Changing the test wouldn't produce identical point estimates with different precision. The mechanics of why Defend-2 has a narrower CI are purely sample-size driven. The graph shows HR=0.75 — identical to the other options. The statistical method is the same. The sample size is not."
       },
@@ -1040,7 +1044,8 @@
         "text": "Publication bias — Defend-1 was never published because it wasn't significant.",
         "graph": {
           "hr": 0.75,
-          "brate": 0.3
+          "brate": 0.3,
+          "n": 200
         },
         "desc": "<strong>Publication bias determines whether we SEE a trial, not what the trial's p-value is.</strong> Defend-1's p = 0.06 is the result of its sample size and effect size, not a consequence of publication decisions. Publication bias would mean we never hear about Defend-1 at all — but here we do, which means it serves as a perfect illustration of the CI-width principle."
       }

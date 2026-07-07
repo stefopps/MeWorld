@@ -408,7 +408,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
           <div id="qz-ctrls-cumulative">
             <div class="control-group"><label>Hazard Ratio <span class="value-display" id="qz-hr-val">0.60</span></label><input type="range" id="qz-hr-slider" min="10" max="200" value="60"><span class="reset-hint">double-click to reset</span></div>
             <div class="control-group"><label>Base Rate <span class="value-display" id="qz-rate-val">0.30</span></label><input type="range" id="qz-rate-slider" min="5" max="100" value="30"><span class="reset-hint">double-click to reset</span></div>
-            <div class="control-group"><label>N per arm <span class="value-display" id="qz-n-val">40</span></label><input type="range" id="qz-n-slider" min="10" max="200" value="40"><span class="unit-hint">patients — lower = chunkier KM steps</span><span class="reset-hint">double-click to reset</span></div>
+            <div class="control-group"><label>N per arm <span class="value-display" id="qz-n-val">40</span></label><input type="range" id="qz-n-slider" min="10" max="2000" value="40"><span class="unit-hint">patients — shapes KM steps and the CI band width</span><span class="reset-hint">double-click to reset</span></div>
             <div class="toggle-group" style="margin-bottom:12px">
               <div class="toggle-row"><span class="toggle-label">Survival view</span><label class="toggle-switch"><input type="checkbox" id="qz-view-toggle" onchange="qzViewMode=this.checked?'survival':'cumulative';updateQuizGraph()"><span class="toggle-slider"></span></label></div>
             </div>
@@ -904,6 +904,9 @@ function updateSlidersFromState() {
   document.getElementById('qz-bt-slider').value = Math.round(qzBarT*100);
   document.getElementById('qz-bc-val').innerText = qzBarC.toFixed(2);
   document.getElementById('qz-bt-val').innerText = qzBarT.toFixed(2);
+  // KM n-per-arm
+  const ns2 = document.getElementById("qz-n-slider");
+  if (ns2) { ns2.value = qzNPerArm; document.getElementById("qz-n-val").innerText = qzNPerArm; }
 }
 
 function pickAnswer(i) {
@@ -940,7 +943,7 @@ function pickAnswer(i) {
   switchCardTab('answer');
 }
 
-function applyGraphPreset(hr, br, crossAt, hrEarly) { qzHR=hr; qzBRate=br; qzTreat=hr*br; qzCrossAt = crossAt || null; qzHrEarly = (hrEarly !== undefined) ? hrEarly : 2.0; }
+function applyGraphPreset(hr, br, crossAt, hrEarly, nPerArm) { qzHR=hr; qzBRate=br; qzTreat=hr*br; qzCrossAt = crossAt || null; qzHrEarly = (hrEarly !== undefined) ? hrEarly : 2.0; if (nPerArm !== undefined) qzNPerArm = nPerArm; }
 function applyNormalPreset(d, n, alpha) { qzNormD = d; qzNormN = n; qzNormAlpha = (alpha !== undefined) ? alpha : 0.05; }
 function applyBarPreset(c, t) { qzBarC = c; qzBarT = t; }
 
@@ -957,7 +960,8 @@ function applyGraphPresetByType(graph, baseGraph) {
       graph.hr ?? baseGraph.hr ?? 0.6,
       graph.brate ?? baseGraph.brate ?? 0.3,
       graph.crossAt ?? baseGraph.crossAt,
-      graph.hrEarly ?? baseGraph.hrEarly
+      graph.hrEarly ?? baseGraph.hrEarly,
+      graph.n ?? baseGraph.n
     );
   }
   // forestPlot, rocCurve, dotplot, ppvCurve, etc. — no interactive sliders
@@ -1130,13 +1134,20 @@ function updateCumulativeChart(q, bg) {
     chartQuiz.data.datasets[3].data = buildKMSteps(cRate, qzNPerArm, qIdSeed + 3, null, 1, trapRate, xMax);
     chartQuiz.data.datasets[4].data = buildKMSteps(bgCRate, qzNPerArm, qIdSeed + 4, null, 1, bgTRate, xMax);
     chartQuiz.data.datasets[5].data = buildKMSteps(bgCRate, qzNPerArm, qIdSeed + 5, null, 1, bgTRate, xMax);
+    chartQuiz.data.datasets[6].data = []; chartQuiz.data.datasets[7].data = []; // CI band: smooth-view feature only, for now
     chartQuiz.options.scales.y.title.text = "Progression-Free Survival";
     chartQuiz.data.datasets[0].label = "Control (Chemo)";
     chartQuiz.data.datasets[1].label = "Treatment (OncoMab)";
     [0,1,2,3,4,5].forEach(i => { chartQuiz.data.datasets[i].stepped = "after"; chartQuiz.data.datasets[i].tension = 0; });
   } else {
-    const xv=[],cy=[],ty=[],hy=[],trapY=[],baseCy=[],baseTy=[];
+    const xv=[],cy=[],ty=[],hy=[],trapY=[],baseCy=[],baseTy=[],ciUp=[],ciLo=[];
     const step = .05, tScale = 2.5;
+    // Confidence band around the Treatment curve: SE of log(HR) shrinks with sample size,
+    // calibrated against the Defend-1 (n=200, 95% CI 0.55-1.02) / Defend-2 (n=2000, 0.68-0.83)
+    // example so the band width at those two n values matches the real published intervals.
+    const seLogHR = 2.23 / Math.sqrt(Math.max(qzNPerArm, 4));
+    const hrHigh = qzHR * Math.exp(1.96 * seLogHR);
+    const hrLow = qzHR * Math.exp(-1.96 * seLogHR);
     for(let t=0;t<=xMax;t+=step){
       xv.push(t);
       cy.push(1-Math.exp(-qzBRate*t*tScale));
@@ -1148,14 +1159,18 @@ function updateCumulativeChart(q, bg) {
       trapY.push(1-Math.exp(-trapBRate*trapHR*t*tScale));
       baseCy.push(1-Math.exp(-bg.brate*t*tScale));
       baseTy.push(1-Math.exp(-bg.brate*bg.hr*t*tScale));
+      ciUp.push(1-Math.exp(-qzBRate*hrHigh*t*tScale));
+      ciLo.push(1-Math.exp(-qzBRate*hrLow*t*tScale));
     }
     chartQuiz.data.labels=xv;
     chartQuiz.data.datasets[0].data=cy;chartQuiz.data.datasets[1].data=ty;chartQuiz.data.datasets[2].data=hy;
     chartQuiz.data.datasets[3].data=trapY;chartQuiz.data.datasets[4].data=baseCy;chartQuiz.data.datasets[5].data=baseTy;
+    chartQuiz.data.datasets[6].data=ciUp;chartQuiz.data.datasets[7].data=ciLo;
     chartQuiz.options.scales.y.title.text = "Cumulative Events";
     chartQuiz.data.datasets[0].label = "Control";
     chartQuiz.data.datasets[1].label = "Treatment";
     [0,1,2,3,4,5].forEach(i => { chartQuiz.data.datasets[i].stepped = false; chartQuiz.data.datasets[i].tension = 0.15; });
+    [6,7].forEach(i => { chartQuiz.data.datasets[i].stepped = false; chartQuiz.data.datasets[i].tension = 0.15; });
   }
   chartQuiz.options.scales.y.ticks.callback = v => (v*100).toFixed(0)+"%";
   const tg = q.trapGraph;
@@ -1168,8 +1183,6 @@ function updateCumulativeChart(q, bg) {
   chartQuiz.options.scales.x.ticks.stepSize = (xMax > 10) ? 2 : 1;
   const vt = document.getElementById("qz-view-toggle");
   if (vt) vt.checked = (qzViewMode==="survival");
-  const ns2 = document.getElementById("qz-n-slider");
-  if (ns2) { ns2.value = qzNPerArm; document.getElementById("qz-n-val").innerText = qzNPerArm; }
   chartQuiz.update();
 }
 
@@ -1272,7 +1285,7 @@ const qzNormalLabelPlugin = {
   }
 };
 Chart.register(qzNormalLabelPlugin);
-const chartQuiz=new Chart(document.getElementById('chart-quiz-cumulative'),{type:'line',data:{labels:[],datasets:[{label:'Control',data:[],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'Treatment',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'HR=1',data:[],borderColor:'rgba(0,0,0,.12)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0},{label:'Trap curve',data:[],borderColor:'#f87171',backgroundColor:'rgba(248,113,113,.06)',borderWidth:2,borderDash:[3,5],fill:true,pointRadius:0,tension:.15,order:0,hidden:true},{label:'Baseline Control',data:[],borderColor:'rgba(99,102,241,.45)',borderWidth:2,borderDash:[2,6],pointRadius:0,fill:false,tension:.15,order:0,hidden:true},{label:'Baseline Treatment',data:[],borderColor:'rgba(99,102,241,.45)',borderWidth:2,borderDash:[8,4],pointRadius:0,fill:false,tension:.15,order:0,hidden:true}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16}}},zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},scales:{x:{type:'linear',min:0,max:6,title:{display:true,text:'Time (months)',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:1},grid:{color:'rgba(0,0,0,.04)'}},y:{min:0,max:1,title:{display:true,text:'Cumulative Events',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:.2,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(0,0,0,.04)'}}},interaction:{mode:'index',intersect:false}}});
+const chartQuiz=new Chart(document.getElementById('chart-quiz-cumulative'),{type:'line',data:{labels:[],datasets:[{label:'Control',data:[],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'Treatment',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'HR=1',data:[],borderColor:'rgba(0,0,0,.12)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0},{label:'Trap curve',data:[],borderColor:'#f87171',backgroundColor:'rgba(248,113,113,.06)',borderWidth:2,borderDash:[3,5],fill:true,pointRadius:0,tension:.15,order:0,hidden:true},{label:'Baseline Control',data:[],borderColor:'rgba(99,102,241,.45)',borderWidth:2,borderDash:[2,6],pointRadius:0,fill:false,tension:.15,order:0,hidden:true},{label:'Baseline Treatment',data:[],borderColor:'rgba(99,102,241,.45)',borderWidth:2,borderDash:[8,4],pointRadius:0,fill:false,tension:.15,order:0,hidden:true},{label:'CI Upper',data:[],borderColor:'rgba(37,99,235,0)',backgroundColor:'rgba(37,99,235,.10)',borderWidth:0,fill:'+1',pointRadius:0,tension:.15,order:0},{label:'CI Lower',data:[],borderColor:'rgba(37,99,235,0)',borderWidth:0,fill:false,pointRadius:0,tension:.15,order:0}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16}}},zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},scales:{x:{type:'linear',min:0,max:6,title:{display:true,text:'Time (months)',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:1},grid:{color:'rgba(0,0,0,.04)'}},y:{min:0,max:1,title:{display:true,text:'Cumulative Events',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:.2,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(0,0,0,.04)'}}},interaction:{mode:'index',intersect:false}}});
 
 // ── Normal / Gaussian distribution chart ──
 const chartQuizNormal = new Chart(document.getElementById('chart-quiz-normal'), {
@@ -1289,7 +1302,7 @@ const chartQuizNormal = new Chart(document.getElementById('chart-quiz-normal'), 
   },
   options: {
     responsive: true, maintainAspectRatio: false, animation: false,
-    plugins: { legend: {position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16,filter: i => i.datasetIndex <= 1}} },zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},
+    plugins: { legend: {position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16,filter: i => i.datasetIndex < 6}} },zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},
     scales: {
       x: { type:'linear', min:-5, max:5, title:{display:true,text:'Standardized Effect (z-score)',font:{family:'Inter',size:12},color:'#6b7280'}, ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:1}, grid:{color:'rgba(0,0,0,.04)'} },
       y: { min:0, max:0.5, title:{display:true,text:'Probability Density',font:{family:'Inter',size:12},color:'#6b7280'}, ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:.1, callback:v=>v.toFixed(1)}, grid:{color:'rgba(0,0,0,.04)'} }
