@@ -456,7 +456,7 @@
           "n": 64,
           "alpha": 0.05
         },
-        "desc": "<strong>Type I error is the false positive rate — claiming benefit when none exists.</strong> Increasing sample size doesn't change alpha. It stays at whatever you set it to (usually 0.05). What changes is your ability to detect a real effect when it's there. The graph shows HR=1.0 — curves lying on top of each other — because this option describes the scenario where you've made a Type I error: claiming a difference where none exists."
+        "desc": "<strong>Type I error is the false positive rate — claiming benefit when none exists.</strong> Increasing sample size doesn't change alpha. It stays at whatever you set it to (usually 0.05). What changes is your ability to detect a real effect when it's there. The graph shows d=0.00 — curves lying on top of each other — because this option describes the scenario where you've made a Type I error: claiming a difference where none exists."
       },
       {
         "label": "B",
@@ -476,7 +476,7 @@
           "n": 64,
           "alpha": 0.05
         },
-        "desc": "<strong>Power is the probability of detecting a true effect when one exists.</strong> It's 1 minus beta (the Type II error rate). Larger samples shrink the standard error — the curves get narrower and pull apart — making it easier to declare that two means come from different distributions. The graph shows a clean separation (HR=0.60) — exactly what increased power lets you see. More patients = more signal relative to noise."
+        "desc": "<strong>Power is the probability of detecting a true effect when one exists.</strong> It's 1 minus beta (the Type II error rate). Larger samples shrink the standard error — the curves get narrower and pull apart — making it easier to declare that two means come from different distributions. The graph shows a clean separation (d=1.33) — exactly what increased power lets you see. More patients = more signal relative to noise."
       },
       {
         "label": "D",
@@ -502,7 +502,7 @@
     "correct": 2,
     "baseGraph": {
       "type": "normal",
-      "d": 0.8,
+      "d": 1.3333333333333335,
       "n": 64,
       "alpha": 0.05
     },
@@ -668,7 +668,7 @@
           "n": 64,
           "alpha": 0.05
         },
-        "desc": "<strong>The p-value measures compatibility with the null — not the magnitude of the effect.</strong> A tiny p-value can come from a tiny effect with a huge sample, or a huge effect with a tiny sample. The graph here shows <strong>HR=0.40 — a 60% reduction</strong>. That's a statement about effect magnitude, not significance."
+        "desc": "<strong>The p-value measures compatibility with the null — not the magnitude of the effect.</strong> A tiny p-value can come from a tiny effect with a huge sample, or a huge effect with a tiny sample. The graph here shows <strong>d=3.00 — a 60% reduction</strong>. That's a statement about effect magnitude, not significance."
       },
       {
         "label": "D",
@@ -678,7 +678,7 @@
           "n": 64,
           "alpha": 0.05
         },
-        "desc": "<strong>Rejecting the null does not prove the alternative — it just says the null is a poor explanation of the data.</strong> The graph shows HR=1.0 — what the world looks like under the null. p < 0.01 means this flat-line world is very unlikely to generate the observed data. But 'unlikely under H0' is not the same as 'H1 is true.'"
+        "desc": "<strong>Rejecting the null does not prove the alternative — it just says the null is a poor explanation of the data.</strong> The graph shows d=0.00 — what the world looks like under the null. p < 0.01 means this flat-line world is very unlikely to generate the observed data. But 'unlikely under H0' is not the same as 'H1 is true.'"
       },
       {
         "label": "E",
@@ -694,7 +694,7 @@
     "correct": 1,
     "baseGraph": {
       "type": "normal",
-      "d": 0.8,
+      "d": 1.3333333333333335,
       "n": 64,
       "alpha": 0.05
     },
@@ -714,7 +714,7 @@
           "n": 64,
           "alpha": 0.05
         },
-        "desc": "<strong>A one-tailed test allocates all of alpha to one direction — it only asks 'is LipiClear better?' A two-tailed test splits alpha between both directions — it asks 'is LipiClear different — better OR worse?'</strong> The p-value from a one-tailed test is roughly half the two-tailed p-value because you've already decided the direction. Switching to two-tailed approximately doubles it. The graph shows a modest treatment gap (HR=0.85) — borderline and unlikely to survive the two-tailed threshold."
+        "desc": "<strong>A one-tailed test allocates all of alpha to one direction — it only asks 'is LipiClear better?' A two-tailed test splits alpha between both directions — it asks 'is LipiClear different — better OR worse?'</strong> The p-value from a one-tailed test is roughly half the two-tailed p-value because you've already decided the direction. Switching to two-tailed approximately doubles it. The graph shows a modest treatment gap (d=0.35) — borderline and unlikely to survive the two-tailed threshold."
       },
       {
         "label": "B",
@@ -734,7 +734,7 @@
           "n": 64,
           "alpha": 0.05
         },
-        "desc": "<strong>Two-tailed tests are more conservative, not less — they make it HARDER to reject the null, not easier.</strong> Switching from one-tailed to two-tailed approximately doubles the p-value, never halves it. The graph shows a stronger treatment effect (HR=0.60) — visually what 'p=0.02' would suggest, but that's not what happens when you switch tails."
+        "desc": "<strong>Two-tailed tests are more conservative, not less — they make it HARDER to reject the null, not easier.</strong> Switching from one-tailed to two-tailed approximately doubles the p-value, never halves it. The graph shows a stronger treatment effect (d=1.33) — visually what 'p=0.02' would suggest, but that's not what happens when you switch tails."
       },
       {
         "label": "D",
@@ -744,7 +744,7 @@
           "n": 64,
           "alpha": 0.05
         },
-        "desc": "<strong>One-tailed tests are acceptable when you have a strong directional hypothesis and you pre-specify it before data collection.</strong> They're controversial — but not automatically invalid. The problem in this ad is transparency: the company chose a one-tailed test to make their result cross the significance threshold, then didn't disclose it prominently. The graph shows HR=1.0 as an overcorrection — the trial isn't worthless, the reporting is misleading."
+        "desc": "<strong>One-tailed tests are acceptable when you have a strong directional hypothesis and you pre-specify it before data collection.</strong> They're controversial — but not automatically invalid. The problem in this ad is transparency: the company chose a one-tailed test to make their result cross the significance threshold, then didn't disclose it prominently. The graph shows d=0.00 as an overcorrection — the trial isn't worthless, the reporting is misleading."
       },
       {
         "label": "E",
@@ -754,13 +754,13 @@
           "n": 64,
           "alpha": 0.05
         },
-        "desc": "<strong>You don't divide the p-value by 2 — you multiply it.</strong> This option confuses the alpha allocation with the p-value itself. Alpha (0.05) gets split between tails. But the p-value — the area under the curve beyond your test statistic — approximately doubles when you count both tails instead of one. The graph shows the same data (HR=0.85). The math is: one-tailed p ≈ 0.04 → two-tailed p ≈ 0.08."
+        "desc": "<strong>You don't divide the p-value by 2 — you multiply it.</strong> This option confuses the alpha allocation with the p-value itself. Alpha (0.05) gets split between tails. But the p-value — the area under the curve beyond your test statistic — approximately doubles when you count both tails instead of one. The graph shows the same data (d=0.35). The math is: one-tailed p ≈ 0.04 → two-tailed p ≈ 0.08."
       }
     ],
     "correct": 1,
     "baseGraph": {
       "type": "normal",
-      "d": 0.8,
+      "d": 0.3529411764705883,
       "n": 64,
       "alpha": 0.05
     },
@@ -941,7 +941,7 @@
           "n": 12000,
           "alpha": 0.05
         },
-        "desc": "<strong>Statistical significance tells you the result is unlikely to be noise. It says nothing about whether the result matters.</strong> With 12,000 patients, even a 0.3 kg difference can be statistically detectable — because the standard error shrinks to almost nothing. The graph shows HR=0.95 — a razor-thin gap. The p-value screams 'real!' but the effect size whispers 'who cares?' Both can be true."
+        "desc": "<strong>Statistical significance tells you the result is unlikely to be noise. It says nothing about whether the result matters.</strong> With 12,000 patients, even a 0.3 kg difference can be statistically detectable — because the standard error shrinks to almost nothing. The graph shows d=0.11 — a razor-thin gap. The p-value screams 'real!' but the effect size whispers 'who cares?' Both can be true."
       },
       {
         "label": "B",
@@ -951,7 +951,7 @@
           "n": 12000,
           "alpha": 0.05
         },
-        "desc": "<strong>p = P(data | H0). With n = 12,000, the standard error is tiny — so even a 0.3 kg shift is many standard errors away from zero.</strong> The p-value detects departure from the null. It does not measure the size of the departure. The graph shows HR=0.95 — the visual separation is minimal — because the absolute effect IS minimal. Significance is a function of sample size. Effect size is a function of biology. Enormous samples can make biology irrelevant to the p-value."
+        "desc": "<strong>p = P(data | H0). With n = 12,000, the standard error is tiny — so even a 0.3 kg shift is many standard errors away from zero.</strong> The p-value detects departure from the null. It does not measure the size of the departure. The graph shows d=0.11 — the visual separation is minimal — because the absolute effect IS minimal. Significance is a function of sample size. Effect size is a function of biology. Enormous samples can make biology irrelevant to the p-value."
       },
       {
         "label": "C",
@@ -961,7 +961,7 @@
           "n": 12000,
           "alpha": 0.05
         },
-        "desc": "<strong>Type I error rate is fixed at alpha (0.05) regardless of sample size.</strong> A larger sample doesn't inflate false positives — it increases the power to detect true positives. p < 0.001 means a false positive is extremely unlikely. The graph shows HR=1.0 — what a Type I error would look like — but that's not what's happening. The result is real. The question is whether it's meaningful."
+        "desc": "<strong>Type I error rate is fixed at alpha (0.05) regardless of sample size.</strong> A larger sample doesn't inflate false positives — it increases the power to detect true positives. p < 0.001 means a false positive is extremely unlikely. The graph shows d=0.00 — what a Type I error would look like — but that's not what's happening. The result is real. The question is whether it's meaningful."
       },
       {
         "label": "D",
@@ -987,9 +987,10 @@
     "correct": 1,
     "baseGraph": {
       "type": "normal",
-      "d": 0.2,
+      "d": 0.10526315789473695,
       "n": 12000,
-      "alpha": 0.05
+      "alpha": 0.05,
+      "rawLabel": "MetaBoost 5.3kg vs Placebo 5.0kg (0.3kg diff)"
     },
     "explanation": "p < 0.001 tells you the result is real. It does not tell you the result is important. With 12,000 patients, the standard error is so small that even a 0.3 kg difference becomes a strong signal against the null. The p-value answered its question correctly — the effect exists. It just didn't answer the question the patient actually cares about: does this matter?",
     "trap": "When you see a tiny p-value, ask: 'How big is the effect?' Not 'How significant?' When you see a huge sample size, ask: 'Would I care about this difference if p were 0.50?' If the answer is no, it shouldn't suddenly matter because p < 0.001. The p-value shrinks with sample size. The effect size doesn't."
@@ -1132,13 +1133,13 @@
           "n": 30,
           "alpha": 0.05
         },
-        "desc": "<strong>The CLT applies to the sampling distribution of the mean, not the raw data.</strong> Even if individual migraine frequencies are skewed (some people have 1, some have 20), the MEAN of 30 differences approaches normality as n increases. The graph shows HR=1.0 — the null. But the normality assumption isn't about the raw data; it's about the sampling distribution."
+        "desc": "<strong>The CLT applies to the sampling distribution of the mean, not the raw data.</strong> Even if individual migraine frequencies are skewed (some people have 1, some have 20), the MEAN of 30 differences approaches normality as n increases. The graph shows d=0.00 — the null. But the normality assumption isn't about the raw data; it's about the sampling distribution."
       },
       {
         "label": "B",
         "text": "Yes. By the Central Limit Theorem, the sampling distribution of the mean difference becomes approximately normal at n = 30, regardless of the raw data distribution.",
         "graph": {
-          "d": 1.636363636363636,
+          "d": 1.8571428571428574,
           "n": 30,
           "alpha": 0.05
         },
@@ -1148,7 +1149,7 @@
         "label": "C",
         "text": "Yes, because paired tests don't require any normality assumptions.",
         "graph": {
-          "d": 1.636363636363636,
+          "d": 1.8571428571428574,
           "n": 30,
           "alpha": 0.05
         },
@@ -1162,13 +1163,13 @@
           "n": 30,
           "alpha": 0.05
         },
-        "desc": "<strong>Non-parametric tests are alternatives, not replacements.</strong> They're appropriate when the normality assumption is severely violated — extreme skew, tiny samples — and avoid distributional assumptions. But at n = 30, the t-test is robust to moderate non-normality. The graph shows HR=0.60 — but switching tests loses power and shouldn't be the default."
+        "desc": "<strong>Non-parametric tests are alternatives, not replacements.</strong> They're appropriate when the normality assumption is severely violated — extreme skew, tiny samples — and avoid distributional assumptions. But at n = 30, the t-test is robust to moderate non-normality. The graph shows d=1.33 — but switching tests loses power and shouldn't be the default."
       },
       {
         "label": "E",
         "text": "No. Crossover designs require at least 50 patients per arm for the CLT to apply.",
         "graph": {
-          "d": 1.636363636363636,
+          "d": 1.8571428571428574,
           "n": 30,
           "alpha": 0.05
         },
@@ -1178,9 +1179,10 @@
     "correct": 1,
     "baseGraph": {
       "type": "normal",
-      "d": 0.6,
+      "d": 1.8571428571428574,
       "n": 30,
-      "alpha": 0.05
+      "alpha": 0.05,
+      "rawLabel": "InferMigraine 3.2 vs Placebo 5.8 migraine days/mo (2.6 diff)"
     },
     "explanation": "The CLT guarantees that the sampling distribution of the mean approaches normality as sample size increases — even when the raw data is skewed. At n = 30, the distribution of the mean of differences is approximately normal. The paired t-test is valid. The assumption is about the differences, not the raw migraine counts.",
     "trap": "CLT = Central Limit Theorem. The key phrase: 'The distribution of the SAMPLE MEAN approaches normality as n increases — regardless of the shape of the POPULATION distribution.' The test cares about the sampling distribution, not the raw data. n = 30 is a guideline, not a law."
@@ -1194,7 +1196,7 @@
         "label": "A",
         "text": "The competing drug is less effective, so the p-value is appropriately higher.",
         "graph": {
-          "d": 1.636363636363636,
+          "d": 1.8571428571428574,
           "n": 12,
           "alpha": 0.05
         },
@@ -1204,7 +1206,7 @@
         "label": "B",
         "text": "The smaller sample size reduces power, so the same effect size fails to reach significance.",
         "graph": {
-          "d": 1.636363636363636,
+          "d": 1.8571428571428574,
           "n": 12,
           "alpha": 0.05
         },
@@ -1244,9 +1246,10 @@
     "correct": 1,
     "baseGraph": {
       "type": "normal",
-      "d": 0.8,
+      "d": 1.8571428571428574,
       "n": 12,
-      "alpha": 0.05
+      "alpha": 0.05,
+      "rawLabel": "Same 2.6-day diff, smaller trial (n=12 vs n=30)"
     },
     "explanation": "Power = the probability of detecting a real effect. It depends on sample size, effect size, and variability. Same drug, same effect, more variability in a smaller sample → SE increases → t-statistic shrinks → p-value rises. A nonsignificant result doesn't mean the drug doesn't work. It may mean the trial was underpowered to detect the effect that's there.",
     "trap": "A negative trial (p > 0.05) is not proof of no effect. It's absence of evidence, not evidence of absence. Before concluding the drug doesn't work, check: was the trial large enough to detect the expected effect size? If not, the negative result is a Type II error in waiting."

@@ -760,7 +760,8 @@ function renderFormulaForOption(q, opt, optIdx) {
       ? '<div class="formula-verdict correct">Correct answer</div>'
       : '<div class="formula-verdict wrong">Incorrect — why this option fails:</div>';
   }
-  return verdict + renderMath('<span class="math-line">'+mathLine+'</span><span class="body-text">'+renderMath(opt.desc)+'</span>');
+  return verdict + renderMath('<span class="math-line">'+mathLine+'</span><span class="body-text">'+renderMath(opt.desc)+'</span>') +
+    '<button class="ask-ai-btn" onclick="simplifyThis('+currentQ+','+optIdx+')" style="margin-top:8px"><i class="ti ti-messages"></i> Simplify this</button>';
 }
 
 function highlightExploredOption(i) {
@@ -1216,7 +1217,8 @@ function updateNormalChart(q, bg) {
   const power = 1 - beta;
   chartQuizNormal.options.scales.y.max = peakH * 1.15;
   chartQuizNormal.data.datasets[0].label = "Null (mu=0)";
-  chartQuizNormal.data.datasets[1].label = "True Effect (d="+d.toFixed(2)+")";
+  const rawSuffix = bg.rawLabel ? ' \u2014 ' + bg.rawLabel : '';
+  chartQuizNormal.data.datasets[1].label = "True Effect (d="+d.toFixed(2)+")"+rawSuffix;
   chartQuizNormal.data.datasets[3].label = "Type I error (a="+alpha.toFixed(2)+")";
   chartQuizNormal.data.datasets[4].label = "Type II error (b="+beta.toFixed(2)+")";
   chartQuizNormal.options.scales.x.min = xMin;
@@ -2487,6 +2489,24 @@ async function submitChat(qIdx) {
   const optIdx = currentPickedOpt >= 0 ? currentPickedOpt : 0;
   switchCardTab('chat');
   askDeepSeek(qIdx, optIdx, text, true);
+}
+
+async function simplifyThis(qIdx, optIdx) {
+  const q = QUESTION_BANK[qIdx];
+  const opt = q.options[optIdx];
+  const key = getDsKey();
+  if (!key) {
+    renderChatPanel(qIdx);
+    document.getElementById('cbody-chat').insertAdjacentHTML('afterbegin', '<div class="chat-context" style="color:#ef4444">Set your DeepSeek API key in Settings (gear icon) first.</div>');
+    switchCardTab('chat');
+    return;
+  }
+  window.lastAskState = { qIdx, optIdx, q, opt };
+  const prompt = 'Explain this concept in the simplest possible terms — as if to someone who just started learning statistics today. Use everyday analogies, avoid jargon, keep it to 3-4 sentences. The option says: ' + opt.desc.replace(/<[^>]*>/g, '');
+  chatHistory = loadChatHistory(q.id);
+  chatHistory.push({role: 'student', text: 'Simplify this for me'});
+  saveChatHistory(q.id, chatHistory);
+  askDeepSeek(qIdx, optIdx, prompt, true);
 }
 
 async function askDeepSeek(qIdx, optIdx, followUpText, forceRefresh) {
