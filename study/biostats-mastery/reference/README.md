@@ -6,8 +6,9 @@ Study PDFs synced with the repo (for use on any machine after `git pull`).
 
 | File / folder | Notes |
 |---------------|-------|
-| `reference-books/Understandable_statistics_KOS.pdf` | **Understandable Statistics** (~52 MB) |
-| `Practice Questions/` | Glaser high-yield, Scribd MCQ PDFs, notes |
+| `reference-books/Understandable_statistics_KOS.pdf` | **Understandable Statistics** by Brase & Brase (~52 MB) |
+| `reference-books/High-yield-Glaser-Anthony-N-Biostatistics-epidemiology-and-public-health-Wolters-Kluwer-2014.pdf` | **High-Yield Biostatistics, Epidemiology & Public Health** by Glaser (~7 MB) |
+| `Practice Questions/` | Scribd MCQ PDFs, notes — practice problem sets only |
 | `README.md` | This file |
 
 ## Local only (not in git)
