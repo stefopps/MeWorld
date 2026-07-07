@@ -1226,6 +1226,38 @@ let activeTab='quiz';
 // ═══ Chart plugins ═══
 const qzDimPlugin={id:'qzDim',afterDraw(chart){if(activeTab!=='quiz'||qzViewMode==='survival'||qzGraphType!=='cumulative')return;const{ctx,chartArea:{top,bottom,left,right},scales:{x,y}}=chart;const td=2.5,xd=x.getPixelForValue(td);const yc=y.getPixelForValue(1-Math.exp(-qzBRate*td*2.5));const yt=y.getPixelForValue(1-Math.exp(-qzTreat*td*2.5));const hr=qzHR,kept=hr*100,trimmed=(1-hr)*100;ctx.save();ctx.strokeStyle='rgba(0,0,0,.1)';ctx.lineWidth=1;ctx.setLineDash([2,4]);ctx.beginPath();ctx.moveTo(xd,top);ctx.lineTo(xd,bottom);ctx.stroke();ctx.setLineDash([]);[{yy:yc,c:'#ef4444',l:'Control '+(qzBRate*100).toFixed(0)+'%'},{yy:yt,c:'#2563eb',l:'Treatment '+(qzTreat*100).toFixed(0)+'%'}].forEach(p=>{ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(xd,p.yy,5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#374151';ctx.font='600 11px Inter,sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(p.l,xd+12,p.yy)});const bx=xd+100;ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=2;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(bx,yc);ctx.lineTo(bx,yt);ctx.stroke();[yc,yt].forEach(yy=>{ctx.beginPath();ctx.moveTo(bx-8,yy);ctx.lineTo(bx+8,yy);ctx.stroke()});ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.moveTo(bx,yt);ctx.lineTo(bx-5,yt+10);ctx.lineTo(bx+5,yt+10);ctx.fill();ctx.beginPath();ctx.moveTo(bx,yc);ctx.lineTo(bx-5,yc-10);ctx.lineTo(bx+5,yc-10);ctx.fill();const gm=(yc+yt)/2;ctx.fillStyle='#1a1a2e';ctx.font='700 13px Inter,sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText('↓ '+trimmed.toFixed(0)+'%',bx+16,gm-8);ctx.fillStyle='#6b7280';ctx.font='400 10px Inter,sans-serif';ctx.fillText('reduction in hazard',bx+16,gm+8);const barX=right-320,barW=290,barHB=16,barR=3,barGap=18,keptW=(kept/100)*barW,trimW=(trimmed/100)*barW;const barYc=bottom-68,barYt=bottom-34;ctx.fillStyle='#6b7280';ctx.font='500 .625rem Inter,sans-serif';ctx.textAlign='left';ctx.fillText('Hazard Velocity',barX,barYc-9);ctx.fillStyle='#e5e7eb';ctx.strokeStyle='#d1d5db';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(barX,barYc,barW,barHB,barR);ctx.fill();ctx.stroke();ctx.fillStyle='#374151';ctx.font='600 .625rem Inter,sans-serif';ctx.textAlign='right';ctx.fillText('Control 100%',barX+barW-8,barYc+barHB/2+1);if(keptW>1){ctx.fillStyle='#93c5fd';ctx.beginPath();ctx.roundRect(barX,barYt,keptW,barHB,{tl:barR,tr:0,bl:barR,br:0});ctx.fill();ctx.fillStyle='#1e40af';ctx.font='700 .625rem Inter,sans-serif';ctx.textAlign='center';ctx.fillText('Kept '+kept.toFixed(0)+'%',barX+keptW/2,barYt+barHB/2+1)}if(trimW>1){ctx.fillStyle='rgba(252,165,165,.2)';ctx.strokeStyle='#fca5a5';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.roundRect(barX+keptW,barYt,trimW,barHB,{tl:0,tr:barR,bl:0,br:barR});ctx.fill();ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#991b1b';ctx.font='700 .625rem Inter,sans-serif';ctx.textAlign='center';ctx.fillText(trimmed.toFixed(0)+'% prevented',barX+keptW+trimW/2,barYt+barHB/2+1)}ctx.fillStyle='#6b7280';ctx.font='500 .625rem Inter,sans-serif';ctx.textAlign='left';ctx.fillText('Tx',barX-28,barYt+barHB/2+1);const bracketX=barX-16;ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=1.5;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(bracketX,barYc+barHB);ctx.lineTo(bracketX,barYt);ctx.stroke();ctx.beginPath();ctx.moveTo(bracketX-4,barYc+barHB);ctx.lineTo(bracketX+4,barYc+barHB);ctx.stroke();ctx.beginPath();ctx.moveTo(bracketX-4,barYt);ctx.lineTo(bracketX+4,barYt);ctx.stroke();ctx.fillStyle='#1a1a2e';ctx.font='700 .75rem Inter,sans-serif';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText('↓ '+(1-hr).toFixed(2)+' = '+(trimmed).toFixed(0)+'%',bracketX-10,(barYc+barHB+barYt)/2);ctx.restore()}};
 Chart.register(qzDimPlugin);
+
+// Normal chart plugin — critical-value labels
+const qzNormalLabelPlugin = {
+  id: 'qzNormalLabels',
+  afterDraw(chart) {
+    if (activeTab !== 'quiz' || qzGraphType !== 'normal') return;
+    const { ctx, chartArea: { top, bottom, left, right }, scales: { x, y } } = chart;
+    const se = Math.sqrt(2 / qzNormN);
+    const zCrit = qzOneTail ? nQ(1 - qzNormAlpha) : nQ(1 - qzNormAlpha / 2);
+    const xCrit = zCrit * se;
+    const xPx = x.getPixelForValue(xCrit);
+    // Only draw if the line is within the chart area
+    if (xPx < left + 10 || xPx > right - 10) return;
+    const midY = (top + bottom) / 2;
+    ctx.save();
+    // Retain H₀ — left side
+    ctx.fillStyle = '#9ca3af'; ctx.font = '600 13px Inter, sans-serif';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText('Retain H\u2080', xPx - 14, midY - 10);
+    // Reject H₀ — right side
+    ctx.fillStyle = '#dc2626'; ctx.font = '700 13px Inter, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('Reject H\u2080', xPx + 14, midY + 10);
+    // Small arrows
+    ctx.fillStyle = '#9ca3af'; ctx.textAlign = 'right';
+    ctx.fillText('\u2190', xPx - 4, midY - 10);
+    ctx.fillStyle = '#dc2626'; ctx.textAlign = 'left';
+    ctx.fillText('\u2192', xPx + 4, midY + 10);
+    ctx.restore();
+  }
+};
+Chart.register(qzNormalLabelPlugin);
 const chartQuiz=new Chart(document.getElementById('chart-quiz-cumulative'),{type:'line',data:{labels:[],datasets:[{label:'Control',data:[],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'Treatment',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'HR=1',data:[],borderColor:'rgba(0,0,0,.12)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0},{label:'Trap curve',data:[],borderColor:'#f87171',backgroundColor:'rgba(248,113,113,.06)',borderWidth:2,borderDash:[3,5],fill:true,pointRadius:0,tension:.15,order:0,hidden:true},{label:'Baseline Control',data:[],borderColor:'rgba(99,102,241,.45)',borderWidth:2,borderDash:[2,6],pointRadius:0,fill:false,tension:.15,order:0,hidden:true},{label:'Baseline Treatment',data:[],borderColor:'rgba(99,102,241,.45)',borderWidth:2,borderDash:[8,4],pointRadius:0,fill:false,tension:.15,order:0,hidden:true}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16}}},zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},scales:{x:{type:'linear',min:0,max:6,title:{display:true,text:'Time (months)',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:1},grid:{color:'rgba(0,0,0,.04)'}},y:{min:0,max:1,title:{display:true,text:'Cumulative Events',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:.2,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(0,0,0,.04)'}}},interaction:{mode:'index',intersect:false}}});
 
 // ── Normal / Gaussian distribution chart ──
@@ -1236,7 +1268,7 @@ const chartQuizNormal = new Chart(document.getElementById('chart-quiz-normal'), 
     datasets: [
       {label:'Control (Null)',data:[],borderColor:'#6b7280',backgroundColor:'rgba(107,114,128,.08)',borderWidth:2,fill:true,pointRadius:0,tension:.3,order:2},
       {label:'Treatment (True Effect)',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.10)',borderWidth:2,fill:true,pointRadius:0,tension:.3,order:2},
-      {label:'Critical Value',data:[],borderColor:'rgba(239,68,68,.6)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0},
+      {label:'Critical Value',data:[],borderColor:'rgba(239,68,68,.6)',borderWidth:2.5,borderDash:[4,6],pointRadius:0,fill:false,order:3},
       {label:'Type I Error',data:[],borderColor:'transparent',backgroundColor:'rgba(239,68,68,.15)',borderWidth:0,fill:true,pointRadius:0,order:1},
       {label:'Type II Error (β)',data:[],borderColor:'transparent',backgroundColor:'rgba(251,191,36,.20)',borderWidth:0,fill:true,pointRadius:0,order:1}
     ]
