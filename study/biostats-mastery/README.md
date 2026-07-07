@@ -23,6 +23,17 @@ Open **http://localhost:8090** (or double-click `START-BIOSTATS-MASTERY.bat` on 
 | `rules.mdc` | Pivot / graph rules |
 | `START-BIOSTATS-MASTERY.bat` | One-click local server |
 
+## Reference PDFs (in repo)
+
+After `git pull`, open PDFs under `reference/`:
+
+| File | Notes |
+|------|-------|
+| `reference/reference-books/Understandable_statistics_KOS.pdf` | Understandable Statistics textbook |
+| `reference/Practice Questions/` | Glaser high-yield, Scribd MCQs |
+
+UWorld OCR PDF (~116 MB) and study videos are **local only** — see `reference/README.md`.
+
 ## Settings
 
 - Gear icon → slide-out panel: Export/Import, font size, **DeepSeek API key** for Immersa chat (stored in browser localStorage only — never committed).
