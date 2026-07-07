@@ -860,7 +860,7 @@ function renderQuestion() {
   if (qAnswered && inAM) {
     const corr = q.options[q.correct].label;
     document.getElementById('cbody-answer').innerHTML =
-      '<div class="answer-'+(qState.answers[q.id]?'correct':'wrong')+'"><strong>You picked: '+q.options[qState.picked].label+'</strong><br><strong>Correct: '+corr+'</strong><br><br>'+q.explanation+'<div class="trap-note">'+q.trap+'</div></div>';
+      '<div class="answer-'+(qState.answers[q.id]?'correct':'wrong')+'"><strong>You picked: '+q.options[qState.picked].label+'</strong><br><strong>Correct: '+corr+'</strong><br><br>'+renderRich(q.explanation)+'<div class="trap-note">'+renderRich(q.trap)+'</div></div>';
   } else {
     document.getElementById('cbody-answer').innerHTML = '<span class="empty">Switch to Answer Mode to submit</span>';
   }
@@ -2439,6 +2439,12 @@ function getDsKey() {
 const ATTENDING_CACHE_KEY = 'stats_viz_attending';
 function loadAttendingCache() { try { const r = localStorage.getItem(ATTENDING_CACHE_KEY); return r ? JSON.parse(r) : {}; } catch(e) { return {}; } }
 function saveAttendingCache(obj) { localStorage.setItem(ATTENDING_CACHE_KEY, JSON.stringify(obj)); }
+
+// ── General-purpose rich-text renderer (KaTeX + markdown) ──
+// Use this for ANY user-visible text that may contain math or formatting.
+// Do NOT inject q.explanation, q.trap, opt.desc, or AI responses
+// directly into innerHTML — always route through renderRich() or renderMath().
+function renderRich(text) { return renderMath(text, true); }
 
 // ── KaTeX math rendering — inline \(...\) and display $$...$$ ──
 function renderMath(html, wrapParagraphs = true) {
