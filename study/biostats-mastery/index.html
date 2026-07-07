@@ -135,9 +135,12 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 .float-card .rs-se{bottom:-4px;right:-4px;width:16px;height:16px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,#d1d5db 50%);border-radius:0 0 10px 0;opacity:.4;transition:opacity .15s}
 .float-card .rs-se:hover{opacity:.8}
 .float-card .rs-n:hover,.float-card .rs-s:hover,.float-card .rs-e:hover,.float-card .rs-w:hover,.float-card .rs-ne:hover,.float-card .rs-nw:hover,.float-card .rs-sw:hover{background:rgba(37,99,235,.12)}
-.float-card .card-body{padding:18px 20px 14px 20px;font-size:.6875rem;line-height:1.6;flex:1 1 auto;min-height:40px;overflow-y:auto;overflow-x:hidden}
+.float-card .card-body{padding:18px 20px 14px 20px;font-size:.6875rem;line-height:1.6;flex:1 1 auto;min-height:40px;overflow-y:auto;overflow-x:hidden;position:relative}
 #card-quiz{width:min(420px,38vw)}
 .chat-context{font-size:.5625rem;color:#6b7280;margin-bottom:8px;padding:6px 8px;background:#f9fafb;border-radius:6px;border:1px solid #f3f4f6}
+.chat-scroll-bottom{position:sticky;bottom:0;left:50%;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;border:1px solid #d1d5db;background:#fff;color:#6b7280;font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center;margin:8px auto 0 auto;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:10;transition:all .15s;flex-shrink:0}
+.chat-scroll-bottom:hover{background:#f0f4ff;border-color:#93c5fd;color:#2563eb}
+.chat-scroll-bottom.visible{display:flex}
 .card-hidden{display:none}
 
 /* ── Quiz sidebar ── */
@@ -2231,6 +2234,17 @@ loadQuestions().then(() => {
   switchTab('quiz');
   loadDsKey();
   loadPivotManifest(); // preload in background
+
+  // ── Chat scroll-to-bottom button ──
+  const chatBody = document.getElementById('cbody-chat');
+  if (chatBody) {
+    chatBody.addEventListener('scroll', function() {
+      const btn = document.getElementById('chat-scroll-btn');
+      if (!btn) return;
+      const dist = chatBody.scrollHeight - chatBody.scrollTop - chatBody.clientHeight;
+      btn.classList.toggle('visible', dist > 100);
+    });
+  }
 });
 
 // ── Double-click collapse ──
@@ -2495,6 +2509,7 @@ function renderChatPanel(qIdx) {
   document.getElementById('cbody-chat').innerHTML =
     '<div class="chat-context">'+optNote+'</div>' +
     renderChatHistoryHTML() +
+    '<button class="chat-scroll-bottom" id="chat-scroll-btn" onclick="document.getElementById(\'cbody-chat\').scrollTop=document.getElementById(\'cbody-chat\').scrollHeight" title="Scroll to bottom"><i class="ti ti-arrow-down"></i></button>' +
     '<div class="chat-input-row"><input type="text" id="chat-input" class="chat-input" placeholder="Ask Immersa anything about this question..." onkeydown="if(event.key===\'Enter\')submitChat('+qIdx+')"><button class="chat-send-btn" onclick="submitChat('+qIdx+')"><i class="ti ti-send" style="font-size:14px"></i></button></div>' +
     '<div class="voice-row"><button class="mic-btn" id="mic-btn" onclick="toggleVoice()" title="Speak to Immersa"><i class="ti ti-microphone" style="font-size:16px"></i></button><span class="voice-preview" id="voice-preview"></span></div>' +
     '<button class="ask-ai-btn" onclick="askDeepSeek('+qIdx+','+optIdx+')"><i class="ti ti-message"></i> '+(currentPickedOpt >= 0 ? 'Explain this option' : 'Start with Immersa')+'</button>' +
