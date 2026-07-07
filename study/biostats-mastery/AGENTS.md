@@ -155,6 +155,157 @@ Located in `reference/reference-books/`. See `reference/README.md` for the full 
 
 When authoring question explanations or verifying graph math, pull concepts from these books — don't invent terminology or formulas.
 
+## index.html — code map
+
+All logic lives in `index.html` (~2700 lines). Here's where to find everything by line number.
+
+### HTML structure
+
+| Lines | Section |
+|-------|---------|
+| 1–189 | `<head>` — CSS, Chart.js CDN, Tabler icons, KaTeX, Google Fonts |
+| 190–389 | Tab bar + chart panels (all `<canvas>` + `<div>` elements) |
+| 390–443 | Quiz card (formula, chat, answer, stats, controls tabs) |
+| 444–447 | Bottom-right card (draggable/resizable) |
+
+### State variables (lines 479–518)
+
+| Line | Variable | What it holds |
+|------|----------|---------------|
+| 479 | `QUESTION_BANK` | All 179 questions (loaded from JSON) |
+| 498 | `SK` | localStorage key: `"stats_viz_questions"` |
+| 499 | `qState` | `{ answers: {}, score: 0 }` — persisted |
+| 500 | `currentQ` | Current question index (0-based) |
+| 500 | `qAnswered` | Has the student answered yet? |
+| 500 | `qMode` | `"viz"` (explore) or `"answer"` (scoring) |
+| 501 | `qzHR`, `qzBRate` | Cumulative chart: hazard ratio, base rate |
+| 501 | `qzCrossAt` | Crossing-hazard time point (null when none) |
+| 502 | `qzViewMode` | `"cumulative"` or `"survival"` |
+| 503 | `qzNPerArm` | N per arm for CI band (cumulative chart) |
+| 504 | `qzGraphType` | Active question's chart type |
+| 506 | `qzNormD`, `qzNormN`, `qzNormAlpha` | Normal chart: Cohen's d, N, alpha |
+| 506 | `qzOneTail` | One-tailed vs two-tailed toggle |
+| 508 | `qzBarC`, `qzBarT` | Bar chart: control%, treatment% |
+| 513–518 | `pivotMode`, `pivotBank`... | Adaptive practice mode (concept-sorted) |
+
+### Core flow (lines 482–1036)
+
+| Line | Function | What it does |
+|------|----------|--------------|
+| 482 | `loadQuestions()` | Fetches `stats_questions.json`, populates `QUESTION_BANK` |
+| 706 | `loadQS()` / `saveQS()` | Persist `qState` (answers + score) to localStorage |
+| 717 | `setQMode(mode)` | Switch between `"viz"` and `"answer"` modes |
+| 730 | `switchCardTab(tab)` | Switch the active bottom card tab (formula/chat/answer/stats/controls) |
+| 741 | `renderFormulaForOption()` | Render math formula + explanation text for the picked option |
+| 789 | `renderQuestion()` | Full question render — stem, option buttons, graph, card tabs |
+| 885 | `syncViewModeToCrossAt()` | Auto-switch survival/cumulative view when crossAt data exists |
+| 891 | `updateSlidersFromState()` | Sync HTML sliders to current graph state values |
+| 913 | `pickAnswer(i)` | Option click handler — applies graph preset, updates chart, highlights UI |
+| 947 | `applyGraphPreset()` | Set cumulative chart state from option values |
+| 948 | `applyNormalPreset()` | Set normal chart state from option values |
+| 949 | `applyBarPreset()` | Set bar chart state from option values |
+| 951 | `applyGraphPresetByType()` | Dispatch to the right preset based on `baseGraph.type` |
+| 971 | `nextQuestion()` / `prevQuestion()` | Navigate questions, persist position |
+| 980 | `finishQuestionJump()` | Jump to a specific question from the list |
+| 990 | `toggleTrapCurve()` | Show/hide the trap curve on cumulative charts |
+| 998 | `toggleCompareCurves()` | Show baseline control/treatment for comparison |
+| 1009 | `hideAllQuizChartPanels()` | Hide all chart canvases/divs before showing the active one |
+| 1036 | `updateQuizVisualForOption()` | Show ad image (if present) for the selected option |
+| 1057 | `updateQuizGraph()` | Main dispatch — routes to the right chart renderer by `qzGraphType` |
+
+### Chart renderers (lines 1120–1892)
+
+| Line | Function | Graph type |
+|------|----------|------------|
+| 1120 | `updateCumulativeChart(q, bg)` | `cumulative` — KM steps or smooth HR curves, CI band, crossAt |
+| 1196 | `updateNormalChart(q, bg)` | `normal` — null + true effect PDFs, Type I/II error shading |
+| 1232 | `updateBarChart(q, bg)` | `bar` / `bar-multigroup` — side-by-side bars |
+| 1344 | `updatePPVCurveChart(q, bg)` | `ppvCurve` — PPV vs prevalence curve |
+| 1414 | `updateForestPlotChart(q, bg)` | `forestPlot` — SVG forest plot (NOT Chart.js) |
+| 1591 | `updateROCChart(q, bg)` | `rocCurve` — ROC curve |
+| 1633 | `updateDotplotChart(q, bg)` | `dotplot` — individual data points |
+| 1678 | `renderContingencyTable(q, bg)` | `contingencyTable` — 2×2 table |
+| 1725 | `renderBiasDiagram(q, bg)` | `biasDiagram` — bias type diagram (placeholder) |
+| 1785 | `renderStudyDesignGrid(q, bg)` | `studyDesignGrid` — study design comparison |
+| 1828 | `renderPhaseTimeline(q, bg)` | `phaseTimeline` — trial phases |
+| 1875 | `renderDAG(q, bg)` | `dag` — causal DAG |
+| 1892 | `renderDecisionTree(q, bg)` | `decisionTree` — decision tree diagram |
+
+### Math utilities (lines 1191–1194)
+
+| Line | Function | Purpose |
+|------|----------|---------|
+| 1191 | `pDF(x, m, s)` | Normal probability density function |
+| 1192 | `cDF(x, m, s)` | Normal cumulative distribution via `eRF` |
+| 1193 | `eRF(x)` | Error function approximation |
+| 1194 | `nQ(p)` | Inverse normal CDF (quantile function) |
+
+### Chart.js instances (lines 1290–2190)
+
+| Line | Variable | What |
+|------|----------|------|
+| 1290 | `chartQuiz` | Cumulative quiz chart (main — HR curves, CI bands, trap, compare) |
+| 1293 | `chartQuizNormal` | Normal distribution quiz chart |
+| 1317 | `chartQuizBar` | Bar chart quiz chart |
+| 1338 | `chartQuizPPV` | PPV curve chart (created dynamically) |
+| 1412 | `chartQuizForest` | Deprecated — forest plots now use SVG |
+| 1590 | `chartQuizROC` | ROC curve chart |
+| 1632 | `chartQuizDot` | Dotplot chart |
+| 2182 | `chartARR` | ARR / Two Spikes tab chart |
+| 2190 | `chartHR` | Hazard Ratio tab chart |
+
+### Chart plugins (lines 1256–1277)
+
+| Line | Plugin ID | Purpose |
+|------|-----------|---------|
+| 1256 | `qzDim` | HR velocity annotations (control/treatment dots) — only when `qzGraphType === 'cumulative'` |
+| 1260 | `qzNormalLabels` | "Retain H₀" / "Reject H₀" labels on normal chart |
+
+### ARR + HR tabs (lines 2179–2204)
+
+| Line | Function | Purpose |
+|------|----------|---------|
+| 2183 | `updateARR()` | Redraw ARR chart from N/diff sliders + cubic N scaling |
+| 2184 | `updateARRCard()` | Update ARR card values (SE, ARR, NNT, Z-score) |
+
+### Chat + voice (lines 2462–2708)
+
+| Line | Function | Purpose |
+|------|----------|---------|
+| 2462 | `renderChatPanel(qIdx)` | Render per-question chat history |
+| 2479 | `submitChat(qIdx)` | Free-text chat follow-up |
+| 2494 | `simplifyThis(qIdx, optIdx)` | Fire "explain this in simple terms" prompt |
+| 2516 | `askDeepSeek(qIdx, optIdx, followUpText?)` | Send full question context to DeepSeek API |
+| 2654 | `startVoice()` | Web Speech API — start dictation |
+| 2708 | `stopVoice()` | Web Speech API — stop dictation (only calls `.stop()`, lets `onend` send) |
+| ~2358 | `renderMath(text)` | Convert `\(...\)` and `$$...$$` to KaTeX |
+
+### Pivot mode (lines 520–680)
+
+Adaptive practice: sorts questions by concept level, tracks mastery.
+
+| Line | Function | Purpose |
+|------|----------|---------|
+| 520 | `loadPivotManifest()` | Load concept hierarchy from `pivot_manifest.json` |
+| 545 | `enterPivotMode()` | Activate pivot mode, reorder question bank |
+| 618 | `exitPivotMode()` | Restore original question order |
+| 646 | `updatePivotUI()` | Update pivot progress bar + layer indicator |
+
+### Tab switching (lines 1936–1951)
+
+| Line | Function | Purpose |
+|------|----------|---------|
+| 1936 | `switchTab(t)` | Switch between ARR, HR, Questions tabs (uses `data-tab` attribute) |
+
+### Draggable/resizable card (lines 1968–2177)
+
+| Line | Function | Purpose |
+|------|----------|---------|
+| 1968 | `CARD_STORAGE_KEY` | Persists card positions to localStorage |
+| 2015 | `applySharedSize()` | Apply saved card dimensions |
+| 2025 | `autoFitCard()` | Auto-size the card to fit content |
+| 2115 | `computeResize()` | Handle resize grips (right, bottom, corner)
+
 ## Test checklist
 
 - [ ] Open `index.html` in browser
