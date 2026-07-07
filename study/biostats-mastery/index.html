@@ -2496,12 +2496,9 @@ function startVoice() {
 }
 
 function stopVoice() {
-  voiceActive = false;
-  const btn = document.getElementById('mic-btn');
-  if (btn) { btn.innerHTML = '<i class="ti ti-microphone" style="font-size:16px"></i>'; btn.classList.remove('recording'); }
+  // Let onend fire and send the transcript — don't set voiceActive=false here
   if (voiceRec) {
     try { voiceRec.stop(); } catch(e) {}
-    voiceRec = null;
   }
 }
 // Card tab click handlers — listen on the card-quiz tabs
