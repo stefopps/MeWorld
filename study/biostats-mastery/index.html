@@ -213,6 +213,13 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 .katex{font-size:1.05em !important}
 .katex-display{margin:.5em 0;overflow-x:auto;overflow-y:hidden}
 .ai-reply .katex,.chat-history .katex,.body-text .katex{font-size:1em !important}
+/* Chat markdown formatting */
+.chat-msg-attending p{margin:0 0 .4em 0;line-height:1.5}
+.chat-msg-attending p:last-child{margin-bottom:0}
+.chat-msg-attending li{list-style:disc;margin-left:1.2em;margin-bottom:.2em;line-height:1.45}
+.chat-msg-attending .chat-heading{font-size:.65rem;font-weight:600;color:#1e1b4b;margin:.4em 0 .2em 0;line-height:1.3}
+.chat-msg-attending .inline-code{background:#ede9fe;color:#6d28d9;font-size:.5rem;padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono','Cascadia Code',monospace}
+.chat-msg-student p{margin:0;line-height:1.45}
 </style>
 </head>
 <body>
@@ -760,7 +767,7 @@ function renderFormulaForOption(q, opt, optIdx) {
       ? '<div class="formula-verdict correct">Correct answer</div>'
       : '<div class="formula-verdict wrong">Incorrect — why this option fails:</div>';
   }
-  return verdict + renderMath('<span class="math-line">'+mathLine+'</span><span class="body-text">'+renderMath(opt.desc)+'</span>') +
+  return verdict + renderMath('<span class="math-line">'+mathLine+'</span><span class="body-text">'+renderMath(opt.desc, false)+'</span>', false) +
     '<button class="ask-ai-btn" onclick="simplifyThis('+currentQ+','+optIdx+')" style="margin-top:8px"><i class="ti ti-messages"></i> Simplify this</button>';
 }
 
@@ -2416,11 +2423,9 @@ function loadAttendingCache() { try { const r = localStorage.getItem(ATTENDING_C
 function saveAttendingCache(obj) { localStorage.setItem(ATTENDING_CACHE_KEY, JSON.stringify(obj)); }
 
 // ── KaTeX math rendering — inline \(...\) and display $$...$$ ──
-function renderMath(html) {
+function renderMath(html, wrapParagraphs = true) {
   let out = html;
-  // Bold **...**
-  out = out.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  // Display math $$...$$
+  // Block math first (before we add <p> tags that break $$ spans)
   out = out.replace(/\$\$(.+?)\$\$/gs, (_, tex) => {
     try { return katex.renderToString(tex.trim(), {throwOnError:false, displayMode:true}); }
     catch(e) { return '<code>$$'+tex+'$$</code>'; }
@@ -2430,6 +2435,27 @@ function renderMath(html) {
     try { return katex.renderToString(tex.trim(), {throwOnError:false}); }
     catch(e) { return '<code>\\('+tex+'\\)</code>'; }
   });
+  // Bold **...**
+  out = out.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Italic *...* (but not **)
+  out = out.replace(/(?<!\*)\*([^*\n]+?)\*(?!\*)/g, '<em>$1</em>');
+  // Inline code `...`
+  out = out.replace(/`([^`\n]+?)`/g, '<code class="inline-code">$1</code>');
+  if (!wrapParagraphs) return out;
+  // Headings: ### ...
+  out = out.replace(/^### (.+)$/gm, '<h3 class="chat-heading">$1</h3>');
+  out = out.replace(/^## (.+)$/gm, '<h2 class="chat-heading">$1</h2>');
+  // Unordered lists: - item or * item
+  out = out.replace(/^(\s*)[-*] (.+)$/gm, '$1<li>$2</li>');
+  // Block-level: split on double newlines, wrap in <ul>/<p>/or leave headings alone
+  const blocks = out.split(/\n{2,}/);
+  out = blocks.map(block => {
+    if (/^\s*<li>/.test(block)) return '<ul>' + block.replace(/\n/g, '') + '</ul>';
+    if (/^\s*<h[23] /.test(block)) return block; // headings already tagged
+    return '<p>' + block.replace(/\n/g, '<br>') + '</p>';
+  }).join('');
+  // Clean up empty <p></p>
+  out = out.replace(/<p>\s*<\/p>/g, '');
   return out;
 }
 
