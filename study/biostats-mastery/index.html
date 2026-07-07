@@ -704,8 +704,8 @@ function buildKMSteps(rate, N, seed, crossAt, hrEarly, lateRate, maxTime) {
 }
 
 function loadQS() { try { const r = localStorage.getItem(SK); if (r) return JSON.parse(r); } catch(e){} return { answers:{}, score:0 }; }
-function saveQS() { localStorage.setItem(SK, JSON.stringify(qState)); updateScorePill(); }
-function resetQuestions() { if (!confirm('Reset all progress?')) return; qState = { answers:{}, score:0 }; saveQS(); renderQuestion(); }
+function saveQS() { qState._currentQ = currentQ; qState._pivotMode = pivotMode; localStorage.setItem(SK, JSON.stringify(qState)); updateScorePill(); }
+function resetQuestions() { if (!confirm('Reset all progress?')) return; currentQ = 0; qState = { answers:{}, score:0 }; saveQS(); renderQuestion(); }
 function updateScorePill() {
   const a = Object.values(qState.answers).filter(v=>v!==undefined).length;
   const c = Object.values(qState.answers).filter(v=>v===true).length;
@@ -946,8 +946,8 @@ function applyGraphPresetByType(graph, baseGraph) {
   }
 }
 
-function nextQuestion() { if (currentQ<QUESTION_BANK.length-1){currentQ++; if(pivotMode) pivotCurrentIdx=currentQ; qAnswered=false;showTrap=false;showCompare=false;renderQuestion(); updatePivotUI(); } }
-function prevQuestion() { if (currentQ>0){currentQ--; if(pivotMode) pivotCurrentIdx=currentQ; qAnswered=false;showTrap=false;showCompare=false;renderQuestion(); updatePivotUI(); } }
+function nextQuestion() { if (currentQ<QUESTION_BANK.length-1){currentQ++; if(pivotMode) pivotCurrentIdx=currentQ; qAnswered=false;showTrap=false;showCompare=false;saveQS();renderQuestion();updatePivotUI();} }
+function prevQuestion() { if (currentQ>0){currentQ--; if(pivotMode) pivotCurrentIdx=currentQ; qAnswered=false;showTrap=false;showCompare=false;saveQS();renderQuestion();updatePivotUI();} }
 function startQuestionJump(){
   const el = document.getElementById('q-progress');
   const current = QUESTION_BANK[currentQ].id;
@@ -962,7 +962,7 @@ function finishQuestionJump(){
   if (isNaN(val) || val < 1) { renderQuestion(); return; }
   const idx = QUESTION_BANK.findIndex(q => q.id === val);
   if (idx === -1) { renderQuestion(); return; }
-  currentQ = idx; if(pivotMode) pivotCurrentIdx=idx; qAnswered = false; showTrap = false; showCompare = false;
+  currentQ = idx; if(pivotMode) pivotCurrentIdx=idx; qAnswered = false; showTrap = false; showCompare = false; saveQS();
   renderQuestion(); updatePivotUI();
 }
 function toggleTrapCurve(){
@@ -2024,6 +2024,10 @@ loadQuestions().then(() => {
   if (!questionsLoaded) {
     document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Inter,sans-serif;font-size:1rem;color:#9ca3af">Questions file not found. Drop a stats_questions.json next to this HTML file (or use the Import button).</div>';
     return;
+  }
+  // Restore last question position from previous visit
+  if (typeof qState._currentQ === 'number' && qState._currentQ >= 0 && qState._currentQ < QUESTION_BANK.length) {
+    currentQ = qState._currentQ;
   }
   switchTab('quiz');
   loadDsKey();
