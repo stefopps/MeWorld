@@ -341,7 +341,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
         <canvas id="chart-quiz-normal" style="display:none"></canvas>
                 <canvas id="chart-quiz-bar" style="display:none"></canvas>
         <canvas id="chart-quiz-ppv" style="display:none"></canvas>
-        <canvas id="chart-quiz-forest" style="display:none"></canvas>
+        <div id="chart-quiz-forest" style="display:none;width:100%;height:100%;overflow:auto"></div>
         <canvas id="chart-quiz-roc" style="display:none"></canvas>
         <canvas id="chart-quiz-dot" style="display:none"></canvas>
         <div id="chart-quiz-html" style="display:none;width:100%;height:100%;overflow:auto;padding:16px"></div>
@@ -747,6 +747,9 @@ function renderFormulaForOption(q, opt, optIdx) {
     mathLine = '\\(d = '+g.d.toFixed(2)+',\\quad n = '+(g.n ?? 64)+'\\)';
   } else if ((gt === 'bar' || gt === 'bar-multigroup') && g.control != null) {
     mathLine = '\\(\\text{Control } = '+(g.control*100).toFixed(0)+'\\%,\\quad \\text{Treatment } = '+((g.treatment ?? g.control)*100).toFixed(0)+'\\%\\)';
+  } else if (gt === 'forestPlot' && q.baseGraph?.rows) {
+    const fr = q.baseGraph.rows.find(r => r.label === 'Overall trial') || q.baseGraph.rows[0];
+    mathLine = '\\(\\text{Forest plot · Overall HR = '+fr.estimate.toFixed(2)+' ['+fr.ciLow.toFixed(2)+'–'+fr.ciHigh.toFixed(2)+']}\\)';
   } else {
     mathLine = '\\(\\text{'+gt.replace(/-/g,' ')+' scenario — option '+opt.label+'}\\)';
   }
@@ -944,6 +947,7 @@ function applyGraphPresetByType(graph, baseGraph) {
       graph.hrEarly ?? baseGraph.hrEarly
     );
   }
+  // forestPlot, rocCurve, dotplot, ppvCurve, etc. — no interactive sliders
 }
 
 function nextQuestion() { if (currentQ<QUESTION_BANK.length-1){currentQ++; if(pivotMode) pivotCurrentIdx=currentQ; qAnswered=false;showTrap=false;showCompare=false;saveQS();renderQuestion();updatePivotUI();} }
@@ -1344,52 +1348,179 @@ function updatePPVCurveChart(q, bg) {
 // ═══════════════════════════════════════════════════════════
 // FOREST PLOT — Meta-analysis results
 // ═══════════════════════════════════════════════════════════
-let chartQuizForest = null;
+let chartQuizForest = null; // unused since forestPlot switch to SVG — kept for compat
+
 function updateForestPlotChart(q, bg) {
-  const canvas = document.getElementById('chart-quiz-forest');
-  if (!canvas) return;
-  if (chartQuizForest) { chartQuizForest.destroy(); chartQuizForest = null; }
-  canvas.style.display = '';
+  const container = document.getElementById('chart-quiz-forest');
+  if (!container) return;
+  container.style.display = '';
 
-  // Default meta-analysis data — can be overridden per question
-  const studies = bg.studies || [
-    {name:'Study A',or:0.8,ciLow:0.6,ciHigh:1.05,weight:0.2},
-    {name:'Study B',or:0.9,ciLow:0.7,ciHigh:1.15,weight:0.2},
-    {name:'Study C',or:0.5,ciLow:0.35,ciHigh:0.7,weight:0.15},
-    {name:'Study D',or:1.1,ciLow:0.85,ciHigh:1.4,weight:0.2},
-    {name:'Study E',or:0.6,ciLow:0.45,ciHigh:0.8,weight:0.25}
-  ];
+  const rows = bg.rows || [];
+  if (!rows.length) { container.innerHTML = '<div style="padding:32px;color:#9ca3af;font-family:Inter,sans-serif;font-size:.75rem;text-align:center">No forest plot data for this question.</div>'; return; }
 
-  // Build datasets: scatter points + error bars + pooled diamond
-  const orValues = [], ciLow = [], ciHigh = [], names = [];
-  studies.forEach(s => { orValues.push({x:s.or,y:s.name}); ciLow.push({x:s.ciLow,y:s.name}); ciHigh.push({x:s.ciHigh,y:s.name}); names.push(s.name); });
+  const nullLine = bg.nullLine ?? 1.0;
 
-  const pooled = bg.pooled || {or:0.78, ciLow:0.65, ciHigh:0.94};
+  // Compute log range with padding
+  const allVals = rows.flatMap(r => [r.estimate, r.ciLow, r.ciHigh]).concat(nullLine);
+  const dataMin = Math.min(...allVals);
+  const dataMax = Math.max(...allVals);
+  const logMin = Math.log(dataMin * 0.85);
+  const logMax = Math.log(dataMax * 1.15);
 
-  chartQuizForest = new Chart(canvas, {
-    type: 'bar',
-    data: {
-      labels: [...names, 'Pooled'],
-      datasets: [
-        {label:'OR',data:[...orValues.map(s=>s.x),pooled.or],backgroundColor:'#2563eb',borderColor:'#1d4ed8',borderWidth:1,borderRadius:2,barPercentage:.3,indexAxis:'y'},
-      ]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false, animation:false, indexAxis:'y',
-      plugins: {
-        legend: {display:false},
-        annotation: {
-          annotations: {
-            line1: {type:'line',xMin:1,xMax:1,borderColor:'#ef4444',borderWidth:2,borderDash:[6,4],label:{enabled:true,content:'OR=1 (null)',position:'start',font:{size:10,family:'Inter'},backgroundColor:'rgba(0,0,0,.65)',color:'#fff',padding:3}}
-          }
-        }
-      },
-      scales: {
-        x: {type:'logarithmic',min:0.2,max:2,title:{display:true,text:'Odds Ratio (log scale)',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af'},grid:{color:'rgba(0,0,0,.04)'}},
-        y: {ticks:{font:{family:'Inter',size:12,weight:'600'},color:'#374151'},grid:{display:false}}
-      }
-    }
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const leftPad = 155, rightPad = 135, topPad = 50, rowH = 44, botPad = 75;
+  const plotW = 800 - leftPad - rightPad;
+  const totalH = topPad + rows.length * rowH + botPad + 50; // +50 for FWER annotation
+
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', '0 0 800 ' + totalH);
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.style.fontFamily = 'Inter, sans-serif';
+  svg.style.display = 'block';
+
+  const plotLeft = leftPad;
+  const plotRight = 800 - rightPad;
+  function xPos(val) { return plotLeft + ((Math.log(val) - logMin) / (logMax - logMin)) * plotW; }
+
+  // Background
+  const bgR = document.createElementNS(svgNS, 'rect');
+  bgR.setAttribute('width', '100%'); bgR.setAttribute('height', '100%'); bgR.setAttribute('fill', '#fff');
+  svg.appendChild(bgR);
+
+  // Title
+  const title = document.createElementNS(svgNS, 'text');
+  title.setAttribute('x', plotLeft); title.setAttribute('y', 26);
+  title.setAttribute('font-size', '12'); title.setAttribute('font-weight', '700'); title.setAttribute('fill', '#1a1a2e');
+  title.textContent = bg.title || 'Subgroup Analysis — Hazard Ratio (95% CI)';
+  svg.appendChild(title);
+
+  const chartTop = topPad;
+
+  // Null reference line
+  const nullX = xPos(nullLine);
+  const nullL = document.createElementNS(svgNS, 'line');
+  nullL.setAttribute('x1', nullX); nullL.setAttribute('y1', chartTop);
+  nullL.setAttribute('x2', nullX); nullL.setAttribute('y2', chartTop + rows.length * rowH);
+  nullL.setAttribute('stroke', '#ef4444'); nullL.setAttribute('stroke-width', '1.5'); nullL.setAttribute('stroke-dasharray', '5,4');
+  svg.appendChild(nullL);
+
+  const nullT = document.createElementNS(svgNS, 'text');
+  nullT.setAttribute('x', nullX); nullT.setAttribute('y', chartTop - 8);
+  nullT.setAttribute('text-anchor', 'middle'); nullT.setAttribute('font-size', '9'); nullT.setAttribute('fill', '#dc2626');
+  nullT.textContent = 'HR = 1 (null)';
+  svg.appendChild(nullT);
+
+  // Favor / benefit region annotation
+  const favT = document.createElementNS(svgNS, 'text');
+  favT.setAttribute('x', plotLeft); favT.setAttribute('y', chartTop - 8);
+  favT.setAttribute('text-anchor', 'start'); favT.setAttribute('font-size', '9'); favT.setAttribute('fill', '#9ca3af');
+  favT.textContent = '\u2190 Favors treatment';
+  svg.appendChild(favT);
+
+  const harmT = document.createElementNS(svgNS, 'text');
+  harmT.setAttribute('x', plotRight); harmT.setAttribute('y', chartTop - 8);
+  harmT.setAttribute('text-anchor', 'end'); harmT.setAttribute('font-size', '9'); harmT.setAttribute('fill', '#9ca3af');
+  harmT.textContent = 'Favors control \u2192';
+  svg.appendChild(harmT);
+
+  // X-axis ticks (nice round values in log space)
+  const tickCands = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.5, 1.7, 2.0];
+  const axisY = chartTop + rows.length * rowH;
+  tickCands.forEach(v => {
+    if (v < dataMin * 0.85 || v > dataMax * 1.15) return;
+    const tx = xPos(v);
+    const tick = document.createElementNS(svgNS, 'line');
+    tick.setAttribute('x1', tx); tick.setAttribute('y1', axisY);
+    tick.setAttribute('x2', tx); tick.setAttribute('y2', axisY + 6);
+    tick.setAttribute('stroke', '#d1d5db'); tick.setAttribute('stroke-width', '1');
+    svg.appendChild(tick);
+    const tl = document.createElementNS(svgNS, 'text');
+    tl.setAttribute('x', tx); tl.setAttribute('y', axisY + 17);
+    tl.setAttribute('text-anchor', 'middle'); tl.setAttribute('font-size', '9'); tl.setAttribute('fill', '#6b7280');
+    tl.textContent = v.toFixed(v < 1 ? 2 : 1);
+    svg.appendChild(tl);
   });
+
+  // X-axis label
+  const xLab = document.createElementNS(svgNS, 'text');
+  xLab.setAttribute('x', plotLeft + plotW / 2); xLab.setAttribute('y', axisY + 33);
+  xLab.setAttribute('text-anchor', 'middle'); xLab.setAttribute('font-size', '10'); xLab.setAttribute('fill', '#374151');
+  xLab.textContent = 'Hazard Ratio (log scale)';
+  svg.appendChild(xLab);
+
+  // Rows
+  rows.forEach((row, i) => {
+    const y = chartTop + i * rowH + rowH / 2;
+    const crossesNull = (row.ciLow <= nullLine && row.ciHigh >= nullLine);
+    const color = crossesNull ? '#9ca3af' : '#2563eb';
+    const fill = crossesNull ? '#6b7280' : '#1d4ed8';
+
+    // Label
+    const label = document.createElementNS(svgNS, 'text');
+    label.setAttribute('x', plotLeft - 12); label.setAttribute('y', y + 4);
+    label.setAttribute('text-anchor', 'end'); label.setAttribute('font-size', '11'); label.setAttribute('font-weight', '600'); label.setAttribute('fill', '#374151');
+    label.textContent = row.label;
+    svg.appendChild(label);
+
+    // CI line
+    const ci = document.createElementNS(svgNS, 'line');
+    ci.setAttribute('x1', xPos(row.ciLow)); ci.setAttribute('y1', y);
+    ci.setAttribute('x2', xPos(row.ciHigh)); ci.setAttribute('y2', y);
+    ci.setAttribute('stroke', color); ci.setAttribute('stroke-width', '2'); ci.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(ci);
+
+    // Point
+    const pt = document.createElementNS(svgNS, 'rect');
+    const ptX = xPos(row.estimate);
+    const ptSz = crossesNull ? 6 : 8;
+    pt.setAttribute('x', ptX - ptSz / 2); pt.setAttribute('y', y - ptSz / 2);
+    pt.setAttribute('width', ptSz); pt.setAttribute('height', ptSz);
+    pt.setAttribute('fill', fill); pt.setAttribute('rx', '2');
+    svg.appendChild(pt);
+
+    // Estimate + CI text
+    const est = document.createElementNS(svgNS, 'text');
+    est.setAttribute('x', plotRight + 12); est.setAttribute('y', y - 5);
+    est.setAttribute('text-anchor', 'start'); est.setAttribute('font-size', '10'); est.setAttribute('font-weight', '600'); est.setAttribute('fill', fill);
+    est.textContent = row.estimate.toFixed(2) + ' [' + row.ciLow.toFixed(2) + '\u2013' + (row.ciHigh < 1 ? row.ciHigh.toFixed(2) : row.ciHigh.toFixed(2)) + ']';
+    svg.appendChild(est);
+
+    // P-value
+    const pEl = document.createElementNS(svgNS, 'text');
+    pEl.setAttribute('x', plotRight + 12); pEl.setAttribute('y', y + 12);
+    pEl.setAttribute('text-anchor', 'start'); pEl.setAttribute('font-size', '9');
+    pEl.setAttribute('fill', row.pValue < 0.05 ? '#dc2626' : '#9ca3af');
+    pEl.textContent = 'p = ' + (row.pValue < 0.01 ? row.pValue.toFixed(3) : row.pValue.toFixed(2));
+    svg.appendChild(pEl);
+
+    // Grid line
+    const grid = document.createElementNS(svgNS, 'line');
+    grid.setAttribute('x1', plotLeft); grid.setAttribute('y1', y - rowH / 2);
+    grid.setAttribute('x2', plotRight); grid.setAttribute('y2', y - rowH / 2);
+    grid.setAttribute('stroke', '#f3f4f6'); grid.setAttribute('stroke-width', '1');
+    if (i > 0) svg.appendChild(grid);
+  });
+
+  // FWER annotation (below rows, above axis)
+  const annotTop = chartTop + rows.length * rowH + 8;
+  const annotH = 36;
+  const annot = document.createElementNS(svgNS, 'rect');
+  annot.setAttribute('x', plotLeft); annot.setAttribute('y', annotTop);
+  annot.setAttribute('width', plotW); annot.setAttribute('height', annotH);
+  annot.setAttribute('fill', '#fefce8'); annot.setAttribute('rx', '4');
+  svg.appendChild(annot);
+
+  const k = rows.filter(r => r !== rows[0]).length; // exclude Overall
+  const fwer = 1 - Math.pow(0.95, k);
+  const aText = document.createElementNS(svgNS, 'text');
+  aText.setAttribute('x', plotLeft + plotW / 2); aText.setAttribute('y', annotTop + annotH / 2 + 4);
+  aText.setAttribute('text-anchor', 'middle'); aText.setAttribute('font-size', '10'); aText.setAttribute('font-weight', '600'); aText.setAttribute('fill', '#92400e');
+  aText.textContent = k + ' independent subgroup tests at \u03b1 = 0.05 \u2192 ' + (fwer * 100).toFixed(1) + '% familywise error rate (1\u22120.95' + (k > 1 ? '\u2074' : '') + ')';
+  svg.appendChild(aText);
+
+  container.innerHTML = '';
+  container.appendChild(svg);
 }
 
 // ═══════════════════════════════════════════════════════════

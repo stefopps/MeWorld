@@ -820,9 +820,46 @@
     ],
     "correct": 2,
     "baseGraph": {
-      "hr": 1,
-      "brate": 0.3,
-      "type": "cumulative"
+      "type": "forestPlot",
+      "title": "NovaStat Subgroup Analysis — Hazard Ratio (95% CI)",
+      "rows": [
+        {
+          "label": "Overall trial",
+          "estimate": 0.85,
+          "ciLow": 0.7,
+          "ciHigh": 1.03,
+          "pValue": 0.07
+        },
+        {
+          "label": "Women",
+          "estimate": 0.72,
+          "ciLow": 0.55,
+          "ciHigh": 0.94,
+          "pValue": 0.03
+        },
+        {
+          "label": "Diabetic patients",
+          "estimate": 0.7,
+          "ciLow": 0.51,
+          "ciHigh": 0.96,
+          "pValue": 0.04
+        },
+        {
+          "label": "Age > 65",
+          "estimate": 0.68,
+          "ciLow": 0.49,
+          "ciHigh": 0.93,
+          "pValue": 0.02
+        },
+        {
+          "label": "Prior TIA",
+          "estimate": 0.65,
+          "ciLow": 0.46,
+          "ciHigh": 0.9,
+          "pValue": 0.01
+        }
+      ],
+      "nullLine": 1
     },
     "explanation": "The more subgroups you test, the more chances you give randomness to produce a p < 0.05. With 20 subgroups, you expect one false positive on average. With four, there's a 19% chance at least one crosses the line. Subgroup analyses without multiplicity adjustment are exploratory, not confirmatory — no matter how many p-values land below 0.05.",
     "trap": "When an ad says 'look at this subgroup,' ask two questions: (1) Was the subgroup analysis pre-specified or post-hoc? (2) Did they adjust for multiple comparisons? If the answer to both is no — which it almost always is — the subgroup 'finding' is a fishing expedition, not evidence. The more subgroups they show you, the less you should believe any one of them."
