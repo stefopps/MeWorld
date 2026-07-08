@@ -142,6 +142,9 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 body.chat-docked .main {
   margin-right: var(--docked-width, 380px);
 }
+body.chat-docked .float-card:not(.docked) {
+  right: calc(var(--docked-width, 380px) + 16px) !important;
+}
 .float-card.docked {
   position: fixed !important;
   top: 0 !important;
