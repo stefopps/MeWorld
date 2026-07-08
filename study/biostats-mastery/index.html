@@ -946,6 +946,18 @@ function renderQuestion() {
     applyGraphPresetByType(q.baseGraph, q.baseGraph);
     syncViewModeToCrossAt();
     updateSlidersFromState();
+
+    // Auto-dock for forest plots, auto-undock for everything else
+    const card = document.getElementById('card-quiz');
+    const isForest = (q.baseGraph?.type === 'forestPlot');
+    if (card) {
+      if (isForest && !card.classList.contains('docked')) {
+        toggleDock('card-quiz');
+      } else if (!isForest && card.classList.contains('docked')) {
+        toggleDock('card-quiz');
+      }
+    }
+
     updateQuizGraph();
     updateQuizCard();
   }
