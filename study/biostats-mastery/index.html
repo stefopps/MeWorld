@@ -470,7 +470,7 @@ body.chat-docked .float-card:not(.docked) {
           <button class="card-tab" data-card="card-quiz" data-tab="stats" title="Stats"><i class="ti ti-chart-bar"></i></button>
           <button class="card-tab" data-card="card-quiz" data-tab="controls" title="Controls"><i class="ti ti-adjustments"></i></button>
           <button class="card-tab sp-tour-tab" data-card="card-quiz" data-tab="tour" title="Graph Tour"><i class="ti ti-map-route"></i></button>
-          <button class="dock-toggle-btn" onclick="this.classList.toggle('active'); toggleDock('card-quiz')" title="Dock to right"><i class="ti ti-layout-sidebar-right"></i></button>
+          <button class="dock-toggle-btn" onclick="this.classList.toggle('active'); _dockUserToggled=true; toggleDock('card-quiz')" title="Dock to right"><i class="ti ti-layout-sidebar-right"></i></button>
         </div>
         <div class="card-body" id="cbody-formula">
           <span class="empty">Click an option to see the formula for that scenario</span>
@@ -619,6 +619,7 @@ let qzNormD = 0.80, qzNormN = 64, qzNormAlpha = 0.05, qzOneTail = false;
 // Bar graph state
 let qzBarC = 0.35, qzBarT = 0.15;
 let activeCardTab = 'formula';
+let _dockUserToggled = false; // set to true only when user clicks dock button, not auto-dock
 let currentPickedOpt = -1;
 
 // ═══ PIVOT MODE ═══
@@ -1000,10 +1001,11 @@ function renderQuestion() {
     syncViewModeToCrossAt();
     updateSlidersFromState();
 
-    // Auto-dock for forest plots, auto-undock for everything else
+    // Auto-dock for forest plots on first visit; after user manually docks/undocks, respect their choice
     const card = document.getElementById('card-quiz');
     const isForest = (q.baseGraph?.type === 'forestPlot');
-    if (card) {
+    const manualDock = localStorage.getItem('stats_viz_dock_manual');
+    if (card && !manualDock) {
       if (isForest && !card.classList.contains('docked')) {
         toggleDock('card-quiz');
       } else if (!isForest && card.classList.contains('docked')) {
@@ -2820,6 +2822,10 @@ function toggleDock(cardId) {
     card.style.width = card.dataset.prevWidth || '';
     card.style.height = card.dataset.prevHeight || '';
     document.documentElement.style.setProperty('--docked-width', '');
+  }
+  // Only record user-initiated toggles (not auto-dock programmatic calls)
+  if (_dockUserToggled) {
+    localStorage.setItem('stats_viz_dock_manual', isDocked ? 'docked' : 'undocked');
   }
 
   setTimeout(() => {
