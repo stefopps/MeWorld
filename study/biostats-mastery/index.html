@@ -1084,6 +1084,11 @@ function hideAllQuizChartPanels() {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
+  // Reset forest proof toggle when switching away
+  const fc = document.getElementById('chart-quiz-forest');
+  if (fc) { delete fc.dataset.proof; delete fc._reroll; }
+  const tgl = document.getElementById('forest-proof-toggle');
+  if (tgl) tgl.style.display = 'none';
 }
 
 function renderOptionImage(q, opt) {
@@ -1699,6 +1704,7 @@ function updateForestPlotChart(q, bg) {
   svg.appendChild(aText);
 
   container.innerHTML = '';
+  delete container.dataset.proof; // always reset proof view on re-render
   container.appendChild(svg);
 
   let resetBtn = document.getElementById('forest-reset-btn');
@@ -1714,6 +1720,105 @@ function updateForestPlotChart(q, bg) {
     bg.rows = JSON.parse(JSON.stringify(forestPristine[q.id]));
     updateForestPlotChart(q, bg);
   };
+
+  // ── Toggle: forest plot ↔ 100-trial FWER simulation ──
+  let toggleBtn = document.getElementById('forest-proof-toggle');
+  if (!toggleBtn) {
+    toggleBtn = document.createElement('button');
+    toggleBtn.id = 'forest-proof-toggle';
+    toggleBtn.style.cssText = 'position:absolute;top:10px;right:170px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:5px 10px;font-family:Inter,sans-serif;font-size:.6875rem;font-weight:600;color:#059669;cursor:pointer;display:none;align-items:center;gap:4px;z-index:5';
+    toggleBtn.innerHTML = '<i class="ti ti-eye" style="font-size:12px"></i>show the proof';
+    container.style.position = 'relative';
+    container.appendChild(toggleBtn);
+  }
+  toggleBtn.style.display = 'flex';
+  toggleBtn.innerHTML = '<i class="ti ti-eye" style="font-size:12px"></i>show the proof';
+  toggleBtn.onclick = () => {
+    const showingProof = container.dataset.proof === '1';
+    if (showingProof) {
+      container.dataset.proof = '0';
+      toggleBtn.innerHTML = '<i class="ti ti-eye" style="font-size:12px"></i>show the proof';
+      updateForestPlotChart(q, bg);
+    } else {
+      container.dataset.proof = '1';
+      toggleBtn.innerHTML = '<i class="ti ti-chart-arrows" style="font-size:12px"></i>back to forest plot';
+      renderForestProofSimulation(container, rows);
+    }
+  };
+}
+
+// ── Forest proof simulation — 100 trials, null-is-true, count false positives ──
+let forestProofRNG = null;
+function forestProofSeed() { return Math.floor(Math.random() * 2147483647); }
+function forestProofMulberry32(seed) {
+  return function() {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function renderForestProofSimulation(container, rows) {
+  const k = rows.filter(r => r.label !== 'Overall trial').length; // subgroups only
+  let seed = forestProofSeed();
+  const rng = forestProofMulberry32(seed);
+
+  // Run 100 trials: each trial draws k independent uniform values, flags any < 0.05
+  const trials = [];
+  let flaggedCount = 0;
+  for (let t = 0; t < 100; t++) {
+    const subgroups = [];
+    for (let s = 0; s < k; s++) subgroups.push(rng() < 0.05);
+    trials.push(subgroups);
+    if (subgroups.some(Boolean)) flaggedCount++;
+  }
+
+  const theoretical = (1 - Math.pow(0.95, k)) * 100;
+
+  // Build inline HTML — self-contained simulation with re-roll
+  container.innerHTML = `
+    <div style="font-family:Inter,sans-serif;padding:20px 24px;height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:16px">
+      <div style="font-size:.75rem;font-weight:700;color:#1a1a2e">What if NovaStat does <span style="color:#92400e">nothing</span>?</div>
+      <div style="font-size:.6875rem;color:#6b7280;line-height:1.5">100 parallel worlds where NovaStat is a placebo. Every single dot is a trial where the drug has zero real effect — yet across ${k} subgroups, chance alone will "find" something.</div>
+
+      <div style="background:#fff7ed;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:.6875rem;color:#78350f;text-align:center;line-height:1.6">
+        <b>${k}</b> independent tests at &alpha; = 0.05 &rarr; formula predicts <b>${theoretical.toFixed(1)}%</b> familywise error rate
+        <div style="font-size:.625rem;color:#92400e;margin-top:4px">1&minus;(1&minus;0.05)<sup>${k}</sup> = ${theoretical.toFixed(1)}%</div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:.625rem;font-weight:700;text-transform:uppercase;color:#9ca3af">100 trials &middot; effect = zero in every one</span>
+          <button onclick="document.getElementById('chart-quiz-forest')._reroll?.()" style="font-size:.625rem;font-weight:600;color:#2563eb;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px"><i class="ti ti-refresh" style="font-size:11px"></i>run 100 new trials</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(10,1fr);gap:3px">${
+          trials.map((subgroups, idx) => {
+            const anyFlag = subgroups.some(Boolean);
+            const dots = subgroups.map(hit => '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:'+(hit?'#ef4444':'#cbd5e1')+';flex-shrink:0"></span>').join('');
+            return '<div style="aspect-ratio:1;border-radius:4px;background:'+(anyFlag?'rgba(239,68,68,.06)':'#f3f4f6')+';display:flex;align-items:center;justify-content:center;gap:1px;padding:3px">'+dots+'</div>';
+          }).join('')
+        }</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-top:14px;padding-top:14px;border-top:1px solid #e5e7eb">
+          <div style="text-align:center">
+            <div style="font-size:1.5rem;font-weight:800;color:#ef4444;line-height:1">${flaggedCount}</div>
+            <div style="font-size:.5625rem;color:#9ca3af;text-transform:uppercase">of 100 trials had at least one fluke</div>
+          </div>
+          <div style="width:1px;height:36px;background:#e5e7eb"></div>
+          <div style="text-align:center">
+            <div style="font-size:1.5rem;font-weight:800;color:#2563eb;line-height:1">${flaggedCount}%</div>
+            <div style="font-size:.5625rem;color:#9ca3af;text-transform:uppercase">simulated FWER</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:.625rem;color:#9ca3af;line-height:1.5;text-align:center">
+        Every dot above is one subgroup test where the real effect is exactly zero — 5% chance of false "significant" per test, run ${k} times per trial. The formula tells you where it converges. The grid shows you it actually doing it.
+      </div>
+    </div>`;
+
+  // Wire re-roll
+  container._reroll = () => renderForestProofSimulation(container, rows);
 }
 
 // ═══════════════════════════════════════════════════════════
