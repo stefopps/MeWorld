@@ -3160,6 +3160,13 @@ loadQuestions().then(() => {
 
   // ── Sync chat histories from server (disk persistence) ──
   syncBiostatsChatsFromServer();
+
+  // ── Left/Right arrow keys cycle questions ──
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevQuestion(); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); nextQuestion(); }
+  });
 });
 
 // ── Double-click collapse ──
