@@ -211,6 +211,11 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 .chat-msg-attending:hover .chat-copy-btn,.chat-msg-student:hover .chat-copy-btn{opacity:1}
 .chat-copy-btn:hover{color:#2563eb;background:#f0f4ff}
 .chat-copy-btn.copied{color:#22c55e}
+.chat-msg-btns{position:absolute;top:4px;right:4px;display:flex;gap:2px;opacity:0;transition:opacity .12s}
+.chat-msg-attending:hover .chat-msg-btns,.chat-msg-student:hover .chat-msg-btns{opacity:1}
+.chat-simplify-btn{width:22px;height:22px;border-radius:4px;border:none;background:transparent;color:#9ca3af;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.chat-simplify-btn:hover{color:#7c3aed;background:#f0eaff}
+.chat-simplify-btn.simplifying{color:#7c3aed;animation:spin 1s linear infinite;pointer-events:none}
 .chat-history{display:flex;flex-direction:column;gap:6px;margin-top:10px;margin-bottom:8px}
 .chat-msg-student,.chat-msg-attending{position:relative;font-size:.5625rem;line-height:1.45;padding:6px 10px;border-radius:6px;font-family:'Inter',sans-serif;flex-shrink:0}
 .chat-msg-student{background:#f0f9ff;border:1px solid #bfdbfe;color:#1e40af;align-self:flex-end;max-width:90%}
@@ -2253,6 +2258,9 @@ loadQuestions().then(() => {
       btn.classList.toggle('visible', dist > 100);
     });
   }
+
+  // ── Sync chat histories from server (disk persistence) ──
+  syncBiostatsChatsFromServer();
 });
 
 // ── Double-click collapse ──
@@ -2490,15 +2498,56 @@ function renderMath(html, wrapParagraphs = true) {
 // ── Chat state ──
 let chatHistory = []; // {role:'student'|'attending', text:string}[]
 const CHAT_KEY_PREFIX = 'stats_viz_chat_';
+const BIOSTATS_API = 'http://127.0.0.1:3001/api/biostats/chat/';
 
 function chatStorageKey(qId) { return CHAT_KEY_PREFIX + qId; }
+
+// Load from localStorage (fast, sync). Server sync happens at startup via syncBiostatsChatsFromServer().
 function loadChatHistory(qId) {
   try { const r = localStorage.getItem(chatStorageKey(qId)); return r ? JSON.parse(r) : []; }
   catch(e) { return []; }
 }
+
+// Save to localStorage immediately. Fire-and-forget to server for disk persistence.
 function saveChatHistory(qId, history) {
   try { localStorage.setItem(chatStorageKey(qId), JSON.stringify(history)); }
   catch(e) { /* quota exceeded, ignore */ }
+  fetch(BIOSTATS_API + qId, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chatHistory: history })
+  }).catch(() => { /* server not running */ });
+}
+
+// Called at startup: pull all known chat histories from server, merge into localStorage.
+async function syncBiostatsChatsFromServer() {
+  // Only pull question IDs we've actually chatted about locally
+  const localKeys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith(CHAT_KEY_PREFIX)) {
+      const qId = key.replace(CHAT_KEY_PREFIX, '');
+      localKeys.push(qId);
+    }
+  }
+  // Also pull current question
+  const currentQId = QUESTION_BANK[currentQ]?.id;
+  if (currentQId && !localKeys.includes(String(currentQId))) {
+    localKeys.push(String(currentQId));
+  }
+  for (const qId of localKeys) {
+    try {
+      const res = await fetch(BIOSTATS_API + qId);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.chatHistory) && data.chatHistory.length > 0) {
+          // Server's version wins (canonical)
+          localStorage.setItem(chatStorageKey(qId), JSON.stringify(data.chatHistory));
+          try { localStorage.removeItem(chatStorageKey(qId) + '_deleted'); } catch(e) {}
+        }
+      }
+    } catch(e) { /* server not running */ }
+  }
 }
 
 function copyMessage(msgId) {
@@ -2518,7 +2567,13 @@ function renderChatHistoryHTML() {
     const cls = m.role === 'student' ? 'chat-msg-student' : 'chat-msg-attending';
     const label = m.role === 'student' ? 'You' : 'Immersa';
     const msgId = 'chat-msg-'+idx+'-'+Date.now();
-    html += '<div class="'+cls+'" id="'+msgId+'"><span class="chat-role">'+label+'</span> '+renderMath(m.text)+'<button class="chat-copy-btn" onclick="copyMessage(\''+msgId+'\')" title="Copy"><i class="ti ti-copy" style="font-size:11px"></i></button></div>';
+    const btns = '<span class="chat-msg-btns">' +
+      '<button class="chat-copy-btn" onclick="copyMessage(\''+msgId+'\')" title="Copy"><i class="ti ti-copy" style="font-size:11px"></i></button>' +
+      (m.role === 'attending'
+        ? '<button class="chat-simplify-btn" onclick="simplifyThisMessage(\''+msgId+'\',\''+idx+'\')" title="Simplify this explanation"><i class="ti ti-arrow-back-up-double" style="font-size:11px"></i></button>'
+        : '') +
+      '</span>';
+    html += '<div class="'+cls+'" id="'+msgId+'"><span class="chat-role">'+label+'</span> '+renderMath(m.text)+btns+'</div>';
   });
   html += '</div>';
   return html;
@@ -2573,6 +2628,33 @@ async function simplifyThis(qIdx, optIdx) {
   chatHistory.push({role: 'student', text: 'Simplify this for me'});
   saveChatHistory(q.id, chatHistory);
   askDeepSeek(qIdx, optIdx, prompt, true);
+}
+
+async function simplifyThisMessage(msgId, idx) {
+  const el = document.getElementById(msgId);
+  if (!el) return;
+  const btn = el.querySelector('.chat-simplify-btn');
+  if (btn) { btn.classList.add('simplifying'); btn.disabled = true; }
+  // Grab the plain text of the message (strip the role label)
+  const plainText = el.textContent.replace(/^(Immersa|You)\s*/, '').trim();
+  if (!plainText) { if (btn) { btn.classList.remove('simplifying'); btn.disabled = false; } return; }
+  const q = QUESTION_BANK[currentQ];
+  const optIdx = currentPickedOpt >= 0 ? currentPickedOpt : 0;
+  const opt = q.options[optIdx];
+  const key = getDsKey();
+  if (!key) {
+    renderChatPanel(currentQ);
+    document.getElementById('cbody-chat').insertAdjacentHTML('afterbegin', '<div class="chat-context" style="color:#ef4444">Set your DeepSeek API key in Settings (gear icon) first.</div>');
+    switchCardTab('chat');
+    return;
+  }
+  window.lastAskState = { qIdx: currentQ, optIdx, q, opt };
+  const prompt = 'Explain this idea in even simpler terms — as if to a beginner. Use everyday analogies, avoid all jargon. Here is the explanation to simplify:\n\n' + plainText;
+  chatHistory = loadChatHistory(q.id);
+  chatHistory.push({role: 'student', text: 'Simplify this further'});
+  saveChatHistory(q.id, chatHistory);
+  await askDeepSeek(currentQ, optIdx, prompt, true);
+  if (btn) { btn.classList.remove('simplifying'); btn.disabled = false; }
 }
 
 async function askDeepSeek(qIdx, optIdx, followUpText, forceRefresh) {
