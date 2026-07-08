@@ -1221,7 +1221,7 @@ function updateQuizGraph(){
   qzGraphType = gt;
 
   hideAllQuizChartPanels();
-  showTourTab(gt === 'spaghettiPlot' || !!graphTours[currentQ]);
+  showTourTab(gt === 'spaghettiPlot' || !!gTourByQId(currentQ));
 
   // Show the right canvas/control for this type
   const chartTypes = ['cumulative','normal','bar','ppvCurve','forestPlot','rocCurve','dotplot',
@@ -2981,8 +2981,16 @@ const graphTours = {
   }
 };
 
-function startGraphTour(questionId) {
-  const q = QUESTION_BANK[questionId];
+// Helper: map array index → question id for graphTours lookup
+function gTourByQId(qIdx) {
+  const q = QUESTION_BANK[qIdx];
+  if (!q) return null;
+  const gt = q.baseGraph?.type || 'cumulative';
+  return graphTours[q.id] || graphTours['_' + gt] || null;
+}
+
+function startGraphTour(qIdx) {
+  const q = QUESTION_BANK[qIdx];
   if (!q) return;
 
   // Spaghetti plot uses its own tour system
@@ -2993,10 +3001,9 @@ function startGraphTour(questionId) {
   }
 
   // Look up tour by question id, or fall back to graph-type tour
-  let tour = graphTours[questionId] || graphTours['_' + gt];
+  let tour = gTourByQId(qIdx);
   if (!tour) return;
 
-  graphTourQId = questionId;
   graphTourStep = 0;
   const container = document.getElementById(tour.container);
   if (container) container.classList.add('tour-active');
@@ -3015,9 +3022,9 @@ function endGraphTour() {
 
   const q = QUESTION_BANK[currentQ];
   const gt = q?.baseGraph?.type || 'cumulative';
-  let tour;
   if (gt === 'spaghettiPlot') return;
-  tour = graphTours[currentQ] || graphTours['_' + gt];
+
+  let tour = gTourByQId(currentQ);
   if (!tour) return;
 
   const container = document.getElementById(tour.container);
@@ -3025,24 +3032,17 @@ function endGraphTour() {
     container.classList.remove('tour-active');
     container.querySelectorAll('.tour-focus').forEach(el => el.classList.remove('tour-focus'));
   }
-  graphTourQId = null;
 }
 
 function setGraphTourStep(n) {
-  const q = QUESTION_BANK[currentQ];
-  if (!q) return;
-  const gt = q.baseGraph?.type || 'cumulative';
-  let tour = graphTours[currentQ] || graphTours['_' + gt];
+  let tour = gTourByQId(currentQ);
   if (!tour) return;
   graphTourStep = Math.max(0, Math.min(n, tour.steps.length - 1));
   renderGraphTourStep(graphTourStep);
 }
 
 function renderGraphTourStep(stepIndex) {
-  const q = QUESTION_BANK[currentQ];
-  if (!q) return;
-  const gt = q.baseGraph?.type || 'cumulative';
-  let tour = graphTours[currentQ] || graphTours['_' + gt];
+  let tour = gTourByQId(currentQ);
   if (!tour) return;
 
   const step = tour.steps[stepIndex];
