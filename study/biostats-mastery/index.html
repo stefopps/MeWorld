@@ -2329,6 +2329,34 @@ function renderBiasDiagram(q, bg) {
       '<div style="flex:1;background:#eff6ff;border-radius:8px;padding:12px;font-size:.6875rem"><b>Known treatment</b><br/>"I think I see improvement"<br/>← Finds evidence</div>'+
       '<div style="flex:1;background:#f9fafb;border-radius:8px;padding:12px;font-size:.6875rem"><b>Known control</b><br/>"Nothing happening"<br/>← Overlooks changes</div>'+
       '</div><div style="font-size:.625rem;color:#9ca3af;margin-top:8px">Solution: Blinding the outcome assessor</div></div>';
+  } else if (concept.includes('carryover') || concept.includes('crossover')) {
+    diagram = '<div style="text-align:center;font-family:Inter">'+
+      '<div style="font-weight:700;color:#ef4444;margin-bottom:6px">Carryover Effect — Crossover Trial</div>'+
+      '<div style="font-size:.625rem;color:#6b7280;margin-bottom:12px;line-height:1.4">Each patient gets BOTH treatments in sequence — but if the washout is too short, the first drug\'s effect contaminates the second period.</div>'+
+      '<div style="display:flex;gap:12px;justify-content:center;margin-bottom:8px">'+
+      '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 12px;font-size:.625rem;text-align:center;min-width:100px">'+
+      '<div style="font-weight:700;color:#059669;margin-bottom:4px">Sequence A</div>'+
+      '<div style="background:#2563eb;color:#fff;border-radius:4px;padding:3px 6px;margin-bottom:4px;font-size:.5625rem">Period 1: <b>Drug</b></div>'+
+      '<div style="color:#9ca3af;font-size:.5rem;margin-bottom:4px">↓ 4-week washout ↓</div>'+
+      '<div style="background:#d1d5db;border-radius:4px;padding:3px 6px;font-size:.5625rem">Period 2: Placebo</div>'+
+      '</div>'+
+      '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:8px 12px;font-size:.625rem;text-align:center;min-width:100px">'+
+      '<div style="font-weight:700;color:#dc2626;margin-bottom:4px">The problem</div>'+
+      '<div style="font-size:.5625rem;color:#991b1b;line-height:1.4">Drug still active →<br/>placebo period starts<br/>with fewer migraines</div>'+
+      '<div style="margin-top:6px;padding:3px 6px;background:#fef9c3;border-radius:4px;font-size:.5rem;color:#92400e">Effect is <b>DILUTED</b></div>'+
+      '</div>'+
+      '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 12px;font-size:.625rem;text-align:center;min-width:100px">'+
+      '<div style="font-weight:700;color:#2563eb;margin-bottom:4px">Sequence B</div>'+
+      '<div style="background:#d1d5db;border-radius:4px;padding:3px 6px;margin-bottom:4px;font-size:.5625rem">Period 1: Placebo</div>'+
+      '<div style="color:#9ca3af;font-size:.5rem;margin-bottom:4px">↓ 4-week washout ↓</div>'+
+      '<div style="background:#2563eb;color:#fff;border-radius:4px;padding:3px 6px;font-size:.5625rem">Period 2: <b>Drug</b></div>'+
+      '</div>'+
+      '</div>'+
+      '<div style="font-size:.5625rem;color:#9ca3af;max-width:420px;margin:0 auto;line-height:1.4">'+
+      'In Sequence A, if the drug is still working during the placebo period, migraines stay low — making placebo look better than it truly is. '+
+      'The apparent drug effect <b>shrinks</b> because the control period is artificially improved.'+
+      '</div>'+
+      '<div style="margin-top:8px;font-size:.5rem;color:#d1d5db">Solution: longer washout, or test for carryover before analyzing</div></div>';
   } else if (concept.includes('selection')) {
     diagram = '<div style="text-align:center;font-family:Inter">'+
       '<div style="font-weight:700;color:#ef4444;margin-bottom:8px">Selection Bias</div>'+

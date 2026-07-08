@@ -1317,10 +1317,9 @@
       }
     ],
     "correct": 1,
+    "concept": "carryover",
     "baseGraph": {
-      "hr": 0.6,
-      "brate": 0.3,
-      "type": "cumulative"
+      "type": "biasDiagram"
     },
     "explanation": "Carryover effect is the Achilles heel of crossover trials. If the drug's effect outlasts the washout, the second period's measurements are contaminated — the placebo arm gets a free ride on the drug's lingering effect. The result: the drug looks LESS effective than it truly is because the control arm is artificially 'treated.'",
     "trap": "The washout period is not a formality — it's the crossover trial's most important design element. Always check: (1) Is the washout long enough for the drug's biological effect to clear? (2) Did they test for carryover? If the answer is no, the paired comparison is biased — direction depends on which treatment came first.",
