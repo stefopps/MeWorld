@@ -488,6 +488,23 @@ body.chat-docked .float-card:not(.docked) {
               <div style="font-size:.5625rem;color:#9ca3af;margin-bottom:6px">t = d ÷ SE, and SE = √(2/n) — drag the sample size slider above and watch where you sit on this curve</div>
               <svg id="t-vs-n-svg" viewBox="0 0 340 130" width="100%" height="130"></svg>
             </div>
+            <div id="qz-normal-stats" style="margin-top:10px;padding-top:10px;border-top:1px solid #f3f4f6;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+              <div style="background:#f8fafc;border-radius:6px;padding:6px 10px;text-align:center">
+                <div style="font-size:.5625rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">Critical value</div>
+                <div style="font-size:.8125rem;font-weight:600;color:#374151" id="qz-stat-zcrit">1.96</div>
+              </div>
+              <div style="background:#f8fafc;border-radius:6px;padding:6px 10px;text-align:center">
+                <div style="font-size:.5625rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">Observed t</div>
+                <div style="font-size:.8125rem;font-weight:600;color:#2563eb" id="qz-stat-tobs">1.02</div>
+              </div>
+              <div style="background:#f8fafc;border-radius:6px;padding:6px 10px;text-align:center">
+                <div style="font-size:.5625rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">p-value</div>
+                <div style="font-size:.8125rem;font-weight:600;color:#dc2626" id="qz-stat-pval">0.308</div>
+              </div>
+            </div>
+            <div style="margin-top:8px">
+              <svg id="qz-one-two-tail-svg" viewBox="0 0 340 80" width="100%" height="80" style="display:block"></svg>
+            </div>
           </div>
           <!-- Bar / rate controls -->
           <div id="qz-ctrls-bar" style="display:none">
@@ -1346,6 +1363,56 @@ function renderTvsNPanel(d, n, se) {
     '<text x="' + (padL + plotW) + '" y="' + (H - 2) + '" text-anchor="end" font-size="8" fill="#9ca3af">sample size (n, log scale)</text>';
 }
 
+function renderOneTwoTailSVG(alpha, oneTail, tStat, zCrit, d) {
+  const svg = document.getElementById('qz-one-two-tail-svg');
+  if (!svg) return;
+  const W = 340, H = 80, padL = 35, padR = 10, padT = 8, padB = 22;
+  const midX = W / 2;
+  const plotW = midX - padL - 8, plotH = H - padT - padB;
+  function xPos(px, panel) { return (panel === 'L' ? padL : midX + 4) + (px + 4) / 8 * plotW; }
+  function yPos(py) { return padT + plotH - (py / 0.45) * plotH; }
+
+  function curvePath(panel) { let d = ''; for (let i = 0; i <= 50; i++) { const xv = -4 + 8 * i / 50; const px = xPos(xv, panel), py = yPos(Math.exp(-0.5 * xv * xv) / Math.sqrt(2 * Math.PI)); d += (i === 0 ? 'M' : 'L') + px.toFixed(1) + ',' + py.toFixed(1) + ' '; } return d; }
+
+  // Rejection regions for one-tailed (right tail only) and two-tailed (both tails)
+  const zCritOne = nQ(1 - alpha), zCritTwo = nQ(1 - alpha / 2);
+  function tailShade(panel, side) {
+    const z = side === 'R' ? zCritOne : zCritTwo;
+    let d = '';
+    for (let i = 0; i <= 25; i++) {
+      const xv = (side === 'R' ? z : -z) + (side === 'R' ? (4 - z) : (z + 4)) * i / 25;
+      const px = xPos(xv, panel), py = yPos(Math.exp(-0.5 * xv * xv) / Math.sqrt(2 * Math.PI));
+      d += (i === 0 ? 'M' : 'L') + px.toFixed(1) + ',' + py.toFixed(1) + ' ';
+    }
+    d += 'L' + xPos(side === 'R' ? 4 : -4, panel) + ',' + yPos(0) + ' Z';
+    return d;
+  }
+
+  const curPanel = oneTail ? 'L' : 'R';
+  const op = p => oneTail ? '1' : '0.5';
+  const tXLeft = xPos(tStat, 'L'), tYLeft = yPos(Math.exp(-0.5 * tStat * tStat) / Math.sqrt(2 * Math.PI));
+
+  svg.innerHTML =
+    // Panel L: One-tailed
+    '<rect x="' + padL + '" y="' + padT + '" width="' + (midX - padL - 4) + '" height="' + (plotH) + '" fill="none" stroke="' + (oneTail ? '#2563eb' : '#e5e7eb') + '" stroke-width="' + (oneTail ? '1.5' : '1') + '" rx="4"></rect>' +
+    '<text x="' + (padL + (midX - padL - 4) / 2) + '" y="' + (padT - 2) + '" text-anchor="middle" font-size="8" font-weight="' + (oneTail ? '700' : '500') + '" fill="' + (oneTail ? '#2563eb' : '#9ca3af') + '">One-tailed</text>' +
+    '<path d="' + curvePath('L') + '" fill="none" stroke="#374151" stroke-width="1.2" opacity="' + op(true) + '"></path>' +
+    '<path d="' + tailShade('L', 'R') + '" fill="rgba(239,68,68,0.25)" opacity="' + (oneTail ? '1' : '0.4') + '"></path>' +
+    '<line x1="' + xPos(zCritOne, 'L') + '" y1="' + padT + '" x2="' + xPos(zCritOne, 'L') + '" y2="' + (padT + plotH) + '" stroke="#ef4444" stroke-width="1" stroke-dasharray="2,2" opacity="' + (oneTail ? '1' : '0.4') + '"></line>' +
+    '<text x="' + (padL + plotW - 6) + '" y="' + (padT + plotH + 6) + '" text-anchor="end" font-size="7" fill="#9ca3af">α all in right</text>' +
+    // Panel R: Two-tailed
+    '<rect x="' + (midX + 4) + '" y="' + padT + '" width="' + (W - padR - midX - 4) + '" height="' + (plotH) + '" fill="none" stroke="' + (oneTail ? '#e5e7eb' : '#2563eb') + '" stroke-width="' + (oneTail ? '1' : '1.5') + '" rx="4"></rect>' +
+    '<text x="' + (midX + 4 + (W - padR - midX - 4) / 2) + '" y="' + (padT - 2) + '" text-anchor="middle" font-size="8" font-weight="' + (oneTail ? '500' : '700') + '" fill="' + (oneTail ? '#9ca3af' : '#2563eb') + '">Two-tailed</text>' +
+    '<path d="' + curvePath('R') + '" fill="none" stroke="#374151" stroke-width="1.2" opacity="' + op(false) + '"></path>' +
+    '<path d="' + tailShade('R', 'L') + '" fill="rgba(239,68,68,0.25)" opacity="' + (oneTail ? '0.4' : '1') + '"></path>' +
+    '<path d="' + tailShade('R', 'R') + '" fill="rgba(239,68,68,0.25)" opacity="' + (oneTail ? '0.4' : '1') + '"></path>' +
+    '<line x1="' + xPos(zCritTwo, 'R') + '" y1="' + padT + '" x2="' + xPos(zCritTwo, 'R') + '" y2="' + (padT + plotH) + '" stroke="#ef4444" stroke-width="1" stroke-dasharray="2,2" opacity="' + (oneTail ? '0.4' : '1') + '"></line>' +
+    '<text x="' + (midX + 4 + (W - padR - midX - 4) / 2) + '" y="' + (padT + plotH + 6) + '" text-anchor="middle" font-size="7" fill="#9ca3af">α/2 each tail</text>' +
+    // t-marker in active panel
+    '<circle cx="' + tXLeft + '" cy="' + tYLeft + '" r="3" fill="#2563eb" opacity="0.9"></circle>' +
+    '<text x="' + tXLeft + '" y="' + (tYLeft - 6) + '" text-anchor="middle" font-size="7" font-weight="700" fill="#1a1a2e">t=' + tStat.toFixed(1) + '</text>';
+}
+
 function updateNormalChart(q, bg) {
   const d = qzNormD, n = qzNormN, alpha = qzNormAlpha;
   const se = Math.sqrt(2/n);
@@ -1379,6 +1446,14 @@ function updateNormalChart(q, bg) {
   chartQuizNormal.options.scales.x.max = xMax2;
   const tl = (qzOneTail?"One-tailed":"Two-tailed")+"  z_crit=+"+zCrit.toFixed(2)+"  n="+n+"  Power="+(power*100).toFixed(0)+"%";
   chartQuizNormal.options.scales.x.title.text = tl;
+  // Live stat cards + one/two-tail comparison
+  const tStat = d / se;
+  const pVal = qzOneTail ? (1 - cDF(tStat, 0, 1)) : 2 * (1 - cDF(Math.abs(tStat), 0, 1));
+  document.getElementById('qz-stat-zcrit').textContent = zCrit.toFixed(2);
+  document.getElementById('qz-stat-tobs').textContent = tStat.toFixed(2);
+  document.getElementById('qz-stat-pval').textContent = pVal < 0.001 ? pVal.toExponential(1) : pVal.toFixed(3);
+  document.getElementById('qz-stat-pval').style.color = pVal < 0.05 ? '#dc2626' : '#9ca3af';
+  renderOneTwoTailSVG(alpha, qzOneTail, tStat, zCrit, d);
   chartQuizNormal.update();
 }
 
@@ -1852,9 +1927,40 @@ function updateForestPlotChart(q, bg) {
   aText.textContent = k + ' independent subgroup tests at \u03b1 = 0.05 \u2192 ' + (fwer * 100).toFixed(1) + '% familywise error rate (1\u22120.95' + (k > 1 ? '\u2074' : '') + ')';
   svg.appendChild(aText);
 
+  // Crosshair line (hidden by default, shown on mousemove)
+  const crosshairLine = document.createElementNS(svgNS, 'line');
+  crosshairLine.setAttribute('id', 'forest-crosshair');
+  crosshairLine.setAttribute('x1', '0'); crosshairLine.setAttribute('y1', chartTop);
+  crosshairLine.setAttribute('x2', '0'); crosshairLine.setAttribute('y2', chartTop + rows.length * rowH);
+  crosshairLine.setAttribute('stroke', '#1a1a2e'); crosshairLine.setAttribute('stroke-width', '1');
+  crosshairLine.setAttribute('stroke-dasharray', '3,3'); crosshairLine.setAttribute('opacity', '0');
+  svg.appendChild(crosshairLine);
+
   container.innerHTML = '';
-  delete container.dataset.proof; // always reset proof view on re-render
+  delete container.dataset.proof;
   container.appendChild(svg);
+
+  // Crosshair readout
+  let readout = document.getElementById('forest-crosshair-readout');
+  if (!readout) {
+    readout = document.createElement('div');
+    readout.id = 'forest-crosshair-readout';
+    readout.style.cssText = 'position:absolute;top:4px;left:4px;font-family:Inter,sans-serif;font-size:.6875rem;font-weight:600;color:#1a1a2e;background:rgba(255,255,255,.92);border:1px solid #e5e7eb;border-radius:6px;padding:4px 10px;display:none;z-index:10;pointer-events:none';
+    container.appendChild(readout);
+  }
+
+  // Wire crosshair to container mousemove (after SVG is in DOM)
+  container.onmousemove = e => {
+    const svgRect = svg.getBoundingClientRect();
+    const sx = (e.clientX - svgRect.left) / svgRect.width * 800;
+    if (sx < plotLeft || sx > plotRight) { crosshairLine.setAttribute('opacity', '0'); readout.style.display = 'none'; return; }
+    const v = Math.exp(logMin + (sx - plotLeft) / plotW * (logMax - logMin));
+    crosshairLine.setAttribute('x1', sx); crosshairLine.setAttribute('x2', sx);
+    crosshairLine.setAttribute('opacity', '0.5');
+    readout.style.display = 'block';
+    readout.textContent = 'HR = ' + v.toFixed(3);
+  };
+  container.onmouseleave = () => { crosshairLine.setAttribute('opacity', '0'); readout.style.display = 'none'; };
 
   let resetBtn = document.getElementById('forest-reset-btn');
   if (!resetBtn) {
