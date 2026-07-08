@@ -12164,5 +12164,44 @@
       "type": "contingencyTable"
     },
     "correct": 0
+  },
+  {
+    "id": 180,
+    "stem": "The derivative — from secant to tangent",
+    "concept": "foundations",
+    "correct": 0,
+    "explanation": "",
+    "trap": "",
+    "baseGraph": {
+      "type": "secantTangent"
+    },
+    "options": [
+      {
+        "label": "A",
+        "text": "Explore",
+        "graph": {},
+        "desc": "Drag the pin"
+      }
+    ]
+  },
+  {
+    "id": 181,
+    "stem": "Hazard rate — derivative of cumulative incidence",
+    "concept": "foundations",
+    "correct": 0,
+    "explanation": "",
+    "trap": "",
+    "baseGraph": {
+      "type": "hazardSecant",
+      "brate": 0.3
+    },
+    "options": [
+      {
+        "label": "A",
+        "text": "Explore",
+        "graph": {},
+        "desc": "Drag to converge"
+      }
+    ]
   }
 ]

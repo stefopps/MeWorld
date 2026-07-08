@@ -932,6 +932,19 @@ function renderQuestion() {
     currentPickedOpt = -1;
     renderQuestion._lastQ = currentQ;
   }
+
+  // Foundation demos — skip scoring, show graph directly
+  if (q.concept === 'foundations') {
+    document.getElementById('q-preamble-block').style.display = 'none';
+    document.getElementById('q-stem').innerText = q.stem;
+    document.getElementById('q-options').innerHTML = '';
+    document.getElementById('cbody-formula').innerHTML = '<span class="empty">Interactive demo — drag the points to explore</span>';
+    document.getElementById('cbody-answer').innerHTML = '<span class="empty">' + (q.explanation || '') + '</span>';
+    document.getElementById('show-trap-btn').style.display = 'none';
+    switchCardTab('formula');
+    updateQuizGraph();
+    return;
+  }
   qAnswered = qState.answers[q.id] !== undefined;
   const m = pivotLayerMap[pivotCurrentIdx] || {};
   const roleAbbr = { primary: 'Pri', reinforce: 'Rein', advance: 'Adv' };
@@ -1226,7 +1239,8 @@ function updateQuizGraph(){
   // Show the right canvas/control for this type
   const chartTypes = ['cumulative','normal','bar','ppvCurve','forestPlot','rocCurve','dotplot',
     'contingencyTable','biasDiagram','studyDesignGrid','phaseTimeline','dag','decisionTree','bar-multigroup'];
-  const htmlTypes = ['contingencyTable','biasDiagram','studyDesignGrid','phaseTimeline','dag','decisionTree','spaghettiPlot'];
+  const htmlTypes = ['contingencyTable','biasDiagram','studyDesignGrid','phaseTimeline','dag','decisionTree','spaghettiPlot',
+    'secantTangent','hazardSecant'];
 
   if (gt === 'bar-multigroup') {
     document.getElementById('chart-quiz-bar').style.display = '';
@@ -1297,6 +1311,10 @@ function updateQuizGraph(){
   } else if (gt==='spaghettiPlot') {
     renderSpaghettiPlot(q, renderBg);
     setTimeout(() => startSpaghettiTour(), 100); // slight delay for DOM to settle
+  } else if (gt==='secantTangent') {
+    renderSecantTangent(q, renderBg);
+  } else if (gt==='hazardSecant') {
+    renderHazardSecant(q, renderBg);
   }
 }
 
@@ -2661,6 +2679,416 @@ function renderDecisionTree(q, bg) {
 // MODIFIED BAR CHART — supports bar and bar-multigroup
 // ═══════════════════════════════════════════════════════════
 // (updateBarChart already exists — we just need to handle multigroup in it)
+
+// ═══════════════════════════════════════════════════════════
+// SECANT-TO-TANGENT — Derivative intuition (f(x)=x², at x=−1)
+// ═══════════════════════════════════════════════════════════
+function renderSecantTangent(q, bg) {
+  const div = document.getElementById('chart-quiz-html');
+  if (!div) return;
+  div.style.display = '';
+
+  // ── State ──
+  const fx = (x) => x * x;
+  const canvasW = 600, canvasH = 380;
+  const plotL = 60, plotR = 30, plotT = 20, plotB = 40;
+  const plotW = canvasW - plotL - plotR, plotH = canvasH - plotT - plotB;
+  const xMin = -2.5, xMax = 1.5;
+  const yMin = -1, yMax = fx(xMin) + 1;
+  const xScale = (v) => plotL + ((v - xMin) / (xMax - xMin)) * plotW;
+  const yScale = (v) => plotT + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
+  const iscaleX = (px) => xMin + ((px - plotL) / plotW) * (xMax - xMin);
+
+  const fixedX = -1;
+  const fixedY = fx(fixedX); // 1
+  let dragX = -0.5; // starting position for draggable point
+
+  // ── Build SVG ──
+  let svg = '';
+  const svgNS = 'http://www.w3.org/2000/svg';
+
+  // Background
+  svg += '<rect width="'+canvasW+'" height="'+canvasH+'" fill="#fff"/>';
+
+  // Grid
+  for (let i = Math.ceil(xMin); i <= Math.floor(xMax); i++) {
+    svg += '<line x1="'+xScale(i)+'" y1="'+plotT+'" x2="'+xScale(i)+'" y2="'+(plotT+plotH)+'" stroke="#f3f4f6" stroke-width="1"/>';
+  }
+  for (let i = Math.ceil(yMin); i <= Math.floor(yMax); i++) {
+    svg += '<line x1="'+plotL+'" y1="'+yScale(i)+'" x2="'+(plotL+plotW)+'" y2="'+yScale(i)+'" stroke="#f3f4f6" stroke-width="1"/>';
+  }
+
+  // Axes
+  const axisY = yScale(0);
+  svg += '<line x1="'+plotL+'" y1="'+axisY+'" x2="'+(plotL+plotW)+'" y2="'+axisY+'" stroke="#d1d5db" stroke-width="1.5"/>';
+  const axisX = xScale(0);
+  svg += '<line x1="'+axisX+'" y1="'+plotT+'" x2="'+axisX+'" y2="'+(plotT+plotH)+'" stroke="#d1d5db" stroke-width="1.5"/>';
+
+  // Axis labels
+  for (let i = Math.ceil(xMin); i <= Math.floor(xMax); i++) {
+    if (i === 0) continue;
+    svg += '<text x="'+xScale(i)+'" y="'+(axisY+16)+'" text-anchor="middle" font-size="9" fill="#9ca3af">'+i+'</text>';
+  }
+  for (let i = 0; i <= Math.floor(yMax); i += 1) {
+    if (i === 0) continue;
+    svg += '<text x="'+(plotL-6)+'" y="'+(yScale(i)+3)+'" text-anchor="end" font-size="9" fill="#9ca3af">'+i+'</text>';
+  }
+  svg += '<text x="'+(plotL-6)+'" y="'+(axisY+3)+'" text-anchor="end" font-size="9" fill="#9ca3af">0</text>';
+
+  // Curve: f(x)=x²
+  let curveD = '';
+  const steps = 160;
+  for (let s = 0; s <= steps; s++) {
+    const x = xMin + (xMax - xMin) * (s / steps);
+    const y = fx(x);
+    if (y < yMin || y > yMax) continue;
+    curveD += (curveD === '' ? 'M' : 'L') + xScale(x).toFixed(1) + ',' + yScale(y).toFixed(1) + ' ';
+  }
+  svg += '<path d="'+curveD+'" fill="none" stroke="#2563eb" stroke-width="2.5"/>';
+
+  // Slope readout
+  svg += '<rect id="st-slope-box" x="'+(plotL+10)+'" y="'+(plotT+4)+'" width="200" height="26" rx="4" fill="#fefce8" stroke="#f59e0b" stroke-width="1"/>';
+  svg += '<text id="st-slope-text" x="'+(plotL+18)+'" y="'+(plotT+22)+'" font-size="12" font-weight="700" fill="#92400e">Drag the pin to see the secant slope</text>';
+
+  // Tangent line at fixed point (initially hidden, shown when h is very small)
+  svg += '<line id="st-tangent" x1="0" y1="0" x2="0" y2="0" stroke="#dc2626" stroke-width="2" stroke-dasharray="6,3" opacity="0"/>';
+
+  // Secant line
+  svg += '<line id="st-secant" x1="'+xScale(fixedX)+'" y1="'+yScale(fixedY)+'" x2="'+xScale(dragX)+'" y2="'+yScale(fx(dragX))+'" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,3"/>';
+
+  // Triangles showing rise/run
+  // rise (vertical segment at dragX, from fixedY to dragY)
+  const dragY = fx(dragX);
+  svg += '<line id="st-rise" x1="'+xScale(dragX)+'" y1="'+yScale(fixedY)+'" x2="'+xScale(dragX)+'" y2="'+yScale(dragY)+'" stroke="#059669" stroke-width="2" opacity="0.7"/>';
+  // run (horizontal segment at fixedY, from fixedX to dragX)
+  svg += '<line id="st-run" x1="'+xScale(fixedX)+'" y1="'+yScale(fixedY)+'" x2="'+xScale(dragX)+'" y2="'+yScale(fixedY)+'" stroke="#059669" stroke-width="2" opacity="0.7"/>';
+
+  // Rise label
+  svg += '<text id="st-rise-label" x="'+(xScale(dragX)+8)+'" y="'+(yScale((fixedY+dragY)/2)+4)+'" font-size="9" fill="#059669" font-weight="600">Δy</text>';
+  // Run label
+  svg += '<text id="st-run-label" x="'+((xScale(fixedX)+xScale(dragX))/2)+'" y="'+(yScale(fixedY)-6)+'" text-anchor="middle" font-size="9" fill="#059669" font-weight="600">Δx</text>';
+
+  // Fixed point marker — ti-circle-dot style
+  svg += '<circle id="st-fixed-point" cx="'+xScale(fixedX)+'" cy="'+yScale(fixedY)+'" r="5" fill="#2563eb" stroke="#fff" stroke-width="2"/>';
+
+  // Draggable point — ti-map-pin style (teardrop)
+  svg += '<circle id="st-drag-point" cx="'+xScale(dragX)+'" cy="'+yScale(dragY)+'" r="6" fill="#f59e0b" stroke="#fff" stroke-width="2" style="cursor:grab"/>';
+  // ti-map-pin drawn as SVG path (since Tabler icon is font-based, use inline path)
+  svg += '<path id="st-pin-icon" d="M'+xScale(dragX).toFixed(1)+' '+(yScale(dragY)-20).toFixed(1)+'l-3-3m0 3l3-3" stroke="#f59e0b" stroke-width="1.5" fill="none" opacity="0"/>';
+
+  // Drag affordance hint
+  svg += '<text id="st-hint" x="'+(xScale(-0.5)+30)+'" y="'+(yScale(fx(-0.5))-16)+'" font-size="8" fill="#9ca3af" text-anchor="start">← drag this point</text>';
+
+  svg += '</svg>';
+
+  // ── Info panel ──
+  let html = '<div style="position:relative;width:100%;height:100%;overflow:hidden;font-family:Inter,sans-serif">';
+  html += '<svg id="st-svg" viewBox="0 0 '+canvasW+' '+canvasH+'" style="width:100%;height:100%;display:block">';
+  html += svg + '</svg>';
+
+  // Legend / explanation below
+  html += '<div style="padding:12px 16px;font-size:.625rem;color:#374151;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-top:1px solid #f3f4f6">';
+  html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:2px;background:#2563eb;border-radius:1px;display:inline-block"></span> f(x)=x²</span>';
+  html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f59e0b;border-radius:1px;display:inline-block;border-style:dashed"></span> secant</span>';
+  html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#dc2626;border-radius:1px;display:inline-block;border-style:dashed"></span> tangent (limit)</span>';
+  html += '<span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2563eb"></span> fixed point (−1,1)</span>';
+  html += '<span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b"></span> draggable point</span>';
+  html += '</div>';
+
+  // Slope value display
+  html += '<div id="st-value-readout" style="padding:8px 16px;font-size:.75rem;font-weight:700;color:#1a1a2e;background:#fefce8;border-top:1px solid #fde68a;text-align:center">';
+  html += 'Slope of secant = ' + ((fx(dragX) - fixedY) / (dragX - fixedX)).toFixed(4);
+  html += ' <span style="font-weight:400;font-size:.5625rem;color:#6b7280">(h = ' + (dragX - fixedX).toFixed(3) + ')</span>';
+  html += ' <span style="font-weight:400;font-size:.5625rem;color:#dc2626">tangent: f\'('+fixedX+') = 2x = ' + (2*fixedX) + '</span>';
+  html += '</div>';
+  html += '</div>';
+
+  div.innerHTML = html;
+
+  // ── Drag interaction ──
+  const svgEl = div.querySelector('#st-svg');
+  let dragging = false;
+  let startClientX = 0;
+
+  function updateAll(nx) {
+    const ny = fx(nx);
+    const slope = (ny - fixedY) / (nx - fixedX);
+    const h = nx - fixedX;
+
+    // Update secant line
+    const sec = div.querySelector('#st-secant');
+    if (sec) { sec.setAttribute('x1', xScale(fixedX)); sec.setAttribute('y1', yScale(fixedY)); sec.setAttribute('x2', xScale(nx)); sec.setAttribute('y2', yScale(ny)); }
+
+    // Update rise/run
+    const rise = div.querySelector('#st-rise');
+    if (rise) { rise.setAttribute('x1', xScale(nx)); rise.setAttribute('y1', yScale(fixedY)); rise.setAttribute('x2', xScale(nx)); rise.setAttribute('y2', yScale(ny)); }
+
+    const run = div.querySelector('#st-run');
+    if (run) { run.setAttribute('x1', xScale(fixedX)); run.setAttribute('y1', yScale(fixedY)); run.setAttribute('x2', xScale(nx)); run.setAttribute('y2', yScale(fixedY)); }
+
+    // Rise label
+    const rl = div.querySelector('#st-rise-label');
+    if (rl) { rl.setAttribute('x', xScale(nx) + 8); rl.setAttribute('y', yScale((fixedY + ny) / 2) + 4); }
+
+    // Run label
+    const rul = div.querySelector('#st-run-label');
+    if (rul) rul.setAttribute('x', (xScale(fixedX) + xScale(nx)) / 2);
+
+    // Drag point
+    const dp = div.querySelector('#st-drag-point');
+    if (dp) { dp.setAttribute('cx', xScale(nx)); dp.setAttribute('cy', yScale(ny)); }
+
+    // Hint
+    const hint = div.querySelector('#st-hint');
+    if (hint && Math.abs(h) < 0.15) hint.style.display = 'none';
+    else if (hint) hint.style.display = '';
+    if (hint) { hint.setAttribute('x', xScale(nx) + 30); hint.setAttribute('y', yScale(ny) - 16); }
+
+    // Tangent line (visible when |h| < 0.35)
+    const tan = div.querySelector('#st-tangent');
+    if (tan) {
+      if (Math.abs(h) < 0.35) {
+        const mTan = 2 * fixedX; // derivative
+        const tanX1 = fixedX - 0.6;
+        const tanX2 = fixedX + 0.6;
+        const tanY1 = fixedY + mTan * (tanX1 - fixedX);
+        const tanY2 = fixedY + mTan * (tanX2 - fixedX);
+        tan.setAttribute('x1', xScale(tanX1));
+        tan.setAttribute('y1', yScale(tanY1));
+        tan.setAttribute('x2', xScale(tanX2));
+        tan.setAttribute('y2', yScale(tanY2));
+        tan.setAttribute('opacity', Math.max(0, 1 - Math.abs(h) / 0.35));
+      } else {
+        tan.setAttribute('opacity', '0');
+      }
+    }
+
+    // Slope box
+    const st = div.querySelector('#st-slope-text');
+    if (st) st.textContent = 'Slope ≈ ' + slope.toFixed(4) + '  (h = ' + h.toFixed(3) + ', limit → −2.0)';
+
+    // Value readout
+    const vr = div.querySelector('#st-value-readout');
+    if (vr) vr.innerHTML = 'Slope of secant = ' + slope.toFixed(4)
+      + ' <span style="font-weight:400;font-size:.5625rem;color:#6b7280">(h = ' + h.toFixed(3) + ')</span>'
+      + ' <span style="font-weight:400;font-size:.5625rem;color:#dc2626">tangent: f\'(' + fixedX + ') = 2x = ' + (2 * fixedX) + '</span>';
+  }
+
+  function handleMove(clientX) {
+    const rect = svgEl.getBoundingClientRect();
+    const scaleW = canvasW / rect.width;
+    const svgX = (clientX - rect.left) * scaleW;
+    const nx = iscaleX(svgX);
+    const clamped = Math.max(xMin + 0.05, Math.min(xMax - 0.05, nx));
+    // Don't let it hit the fixed point exactly
+    const safeX = Math.abs(clamped - fixedX) < 0.02 ? fixedX + 0.02 : clamped;
+    updateAll(safeX);
+  }
+
+  svgEl.addEventListener('mousedown', (e) => { dragging = true; startClientX = e.clientX; handleMove(e.clientX); e.preventDefault(); });
+  svgEl.addEventListener('touchstart', (e) => { dragging = true; handleMove(e.touches[0].clientX); e.preventDefault(); });
+  window.addEventListener('mousemove', (e) => { if (dragging) handleMove(e.clientX); });
+  window.addEventListener('touchmove', (e) => { if (dragging) handleMove(e.touches[0].clientX); });
+  window.addEventListener('mouseup', () => { dragging = false; });
+  window.addEventListener('touchend', () => { dragging = false; });
+}
+
+// ═══════════════════════════════════════════════════════════
+// HAZARD SECANT — Cumulative-incidence → instantaneous hazard
+// ═══════════════════════════════════════════════════════════
+function renderHazardSecant(q, bg) {
+  const div = document.getElementById('chart-quiz-html');
+  if (!div) return;
+  div.style.display = '';
+
+  const rate = bg.brate || 0.3;
+  const tScale = 2.5;
+  const F = (t) => 1 - Math.exp(-rate * t * tScale);
+  const fHazardDeriv = (t) => rate * tScale * Math.exp(-rate * t * tScale); // instantaneous hazard
+
+  const canvasW = 600, canvasH = 380;
+  const plotL = 60, plotR = 30, plotT = 20, plotB = 40;
+  const plotW = canvasW - plotL - plotR, plotH = canvasH - plotT - plotB;
+  const tMin = 0, tMax = 6;
+  const yMin = 0, yMax = 1;
+  const xScale = (v) => plotL + ((v - tMin) / (tMax - tMin)) * plotW;
+  const yScale = (v) => plotT + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
+  const iscaleX = (px) => tMin + ((px - plotL) / plotW) * (tMax - tMin);
+
+  const fixedT = 1.5;
+  const fixedF = F(fixedT);
+  let dragT = 3.0;
+
+  // ── Build SVG ──
+  let svg = '';
+  svg += '<rect width="'+canvasW+'" height="'+canvasH+'" fill="#fff"/>';
+
+  // Grid
+  for (let t = 0; t <= tMax; t++) {
+    svg += '<line x1="'+xScale(t)+'" y1="'+plotT+'" x2="'+xScale(t)+'" y2="'+(plotT+plotH)+'" stroke="#f3f4f6" stroke-width="1"/>';
+  }
+  for (let p = 0; p <= 1; p += 0.2) {
+    svg += '<line x1="'+plotL+'" y1="'+yScale(p)+'" x2="'+(plotL+plotW)+'" y2="'+yScale(p)+'" stroke="#f3f4f6" stroke-width="1"/>';
+  }
+
+  // Axes
+  svg += '<line x1="'+plotL+'" y1="'+(plotT+plotH)+'" x2="'+(plotL+plotW)+'" y2="'+(plotT+plotH)+'" stroke="#d1d5db" stroke-width="1.5"/>';
+  svg += '<line x1="'+plotL+'" y1="'+plotT+'" x2="'+plotL+'" y2="'+(plotT+plotH)+'" stroke="#d1d5db" stroke-width="1.5"/>';
+
+  // Axis labels
+  svg += '<text x="'+(plotL+plotW/2)+'" y="'+(plotT+plotH+26)+'" text-anchor="middle" font-size="10" fill="#374151">Time</text>';
+  svg += '<text x="12" y="'+(plotT+plotH/2)+'" text-anchor="middle" font-size="10" fill="#374151" transform="rotate(-90,12,'+(plotT+plotH/2)+')">Cumulative Events</text>';
+  for (let t = 0; t <= tMax; t += 1) {
+    svg += '<text x="'+xScale(t)+'" y="'+(plotT+plotH+14)+'" text-anchor="middle" font-size="9" fill="#9ca3af">'+t+'</text>';
+  }
+  for (let p = 0; p <= 1; p += 0.2) {
+    svg += '<text x="'+(plotL-6)+'" y="'+(yScale(p)+3)+'" text-anchor="end" font-size="9" fill="#9ca3af">'+(p*100).toFixed(0)+'%</text>';
+  }
+
+  // Curve: F(t) = 1 - e^(-rate·t·scale)
+  let curveD = '';
+  const steps = 160;
+  for (let s = 0; s <= steps; s++) {
+    const t = tMin + (tMax - tMin) * (s / steps);
+    const y = F(t);
+    curveD += (curveD === '' ? 'M' : 'L') + xScale(t).toFixed(1) + ',' + yScale(y).toFixed(1) + ' ';
+  }
+  svg += '<path d="'+curveD+'" fill="none" stroke="#2563eb" stroke-width="2.5"/>';
+
+  // Slope readout box
+  svg += '<rect id="hs-slope-box" x="'+(plotL+10)+'" y="'+(plotT+4)+'" width="260" height="26" rx="4" fill="#fefce8" stroke="#f59e0b" stroke-width="1"/>';
+  svg += '<text id="hs-slope-text" x="'+(plotL+18)+'" y="'+(plotT+22)+'" font-size="11" font-weight="700" fill="#92400e">Drag to see the secant hazard</text>';
+
+  // Tangent at fixed point
+  svg += '<line id="hs-tangent" x1="0" y1="0" x2="0" y2="0" stroke="#dc2626" stroke-width="2" stroke-dasharray="6,3" opacity="0"/>';
+
+  // Secant line
+  svg += '<line id="hs-secant" x1="'+xScale(fixedT)+'" y1="'+yScale(fixedF)+'" x2="'+xScale(dragT)+'" y2="'+yScale(F(dragT))+'" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,3"/>';
+
+  // Rise/run
+  const dragF = F(dragT);
+  svg += '<line id="hs-rise" x1="'+xScale(dragT)+'" y1="'+yScale(fixedF)+'" x2="'+xScale(dragT)+'" y2="'+yScale(dragF)+'" stroke="#059669" stroke-width="2" opacity="0.7"/>';
+  svg += '<line id="hs-run" x1="'+xScale(fixedT)+'" y1="'+yScale(fixedF)+'" x2="'+xScale(dragT)+'" y2="'+yScale(fixedF)+'" stroke="#059669" stroke-width="2" opacity="0.7"/>';
+
+  svg += '<text id="hs-rise-label" x="'+(xScale(dragT)+8)+'" y="'+yScale((fixedF+dragF)/2)+'" font-size="9" fill="#059669" font-weight="600">ΔF</text>';
+  svg += '<text id="hs-run-label" x="'+((xScale(fixedT)+xScale(dragT))/2)+'" y="'+(yScale(fixedF)-6)+'" text-anchor="middle" font-size="9" fill="#059669" font-weight="600">Δt</text>';
+
+  // Fixed point
+  svg += '<circle id="hs-fixed-point" cx="'+xScale(fixedT)+'" cy="'+yScale(fixedF)+'" r="5" fill="#2563eb" stroke="#fff" stroke-width="2"/>';
+  // Fixed point label
+  svg += '<text x="'+(xScale(fixedT)+10)+'" y="'+(yScale(fixedF)+14)+'" font-size="9" fill="#2563eb" font-weight="600">fixed t='+fixedT.toFixed(1)+'</text>';
+
+  // Draggable point
+  svg += '<circle id="hs-drag-point" cx="'+xScale(dragT)+'" cy="'+yScale(dragF)+'" r="6" fill="#f59e0b" stroke="#fff" stroke-width="2" style="cursor:grab"/>';
+
+  // Hint
+  svg += '<text id="hs-hint" x="'+(xScale(dragT)+30)+'" y="'+(yScale(dragF)-16)+'" font-size="8" fill="#9ca3af" text-anchor="start">← drag closer to t='+fixedT.toFixed(1)+'</text>';
+
+  svg += '</svg>';
+
+  // ── Info panel ──
+  let html = '<div style="position:relative;width:100%;height:100%;overflow:hidden;font-family:Inter,sans-serif">';
+  html += '<svg id="hs-svg" viewBox="0 0 '+canvasW+' '+canvasH+'" style="width:100%;height:100%;display:block">';
+  html += svg + '</svg>';
+
+  // Legend
+  html += '<div style="padding:12px 16px;font-size:.625rem;color:#374151;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-top:1px solid #f3f4f6">';
+  html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:2px;background:#2563eb;border-radius:1px;display:inline-block"></span> F(t) = 1−e<sup>−rate·t·2.5</sup></span>';
+  html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f59e0b;border-radius:1px;display:inline-block;border-style:dashed"></span> secant slope</span>';
+  html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#dc2626;border-radius:1px;display:inline-block;border-style:dashed"></span> instantaneous hazard</span>';
+  html += '<span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b"></span> drag me</span>';
+  html += '</div>';
+
+  // Current values
+  const secantSlope = (dragF - fixedF) / (dragT - fixedT);
+  const trueHazard = fHazardDeriv(fixedT);
+  html += '<div id="hs-value-readout" style="padding:8px 16px;font-size:.75rem;font-weight:700;color:#1a1a2e;background:#fefce8;border-top:1px solid #fde68a;text-align:center">';
+  html += 'Secant hazard ≈ ' + secantSlope.toFixed(4) + ' events/unit time';
+  html += ' <span style="font-weight:400;font-size:.5625rem;color:#6b7280">(Δt = ' + (dragT - fixedT).toFixed(2) + ')</span>';
+  html += ' <span style="font-weight:400;font-size:.5625rem;color:#dc2626">True instantaneous hazard at t='+fixedT.toFixed(1)+': ' + trueHazard.toFixed(4) + '</span>';
+  html += '</div>';
+  html += '</div>';
+
+  div.innerHTML = html;
+
+  // ── Drag ──
+  const svgEl = div.querySelector('#hs-svg');
+  let dragging = false;
+
+  function updateAll(nt_) {
+    const nf = F(nt_);
+    const slope = (nf - fixedF) / (nt_ - fixedT);
+    const dt = nt_ - fixedT;
+
+    // Secant
+    const sec = div.querySelector('#hs-secant');
+    if (sec) { sec.setAttribute('x1', xScale(fixedT)); sec.setAttribute('y1', yScale(fixedF)); sec.setAttribute('x2', xScale(nt_)); sec.setAttribute('y2', yScale(nf)); }
+
+    // Rise/run
+    const rise = div.querySelector('#hs-rise');
+    if (rise) { rise.setAttribute('x1', xScale(nt_)); rise.setAttribute('y1', yScale(fixedF)); rise.setAttribute('x2', xScale(nt_)); rise.setAttribute('y2', yScale(nf)); }
+    const run = div.querySelector('#hs-run');
+    if (run) { run.setAttribute('x1', xScale(fixedT)); run.setAttribute('y1', yScale(fixedF)); run.setAttribute('x2', xScale(nt_)); run.setAttribute('y2', yScale(fixedF)); }
+
+    const rl = div.querySelector('#hs-rise-label');
+    if (rl) { rl.setAttribute('x', xScale(nt_)+8); rl.setAttribute('y', yScale((fixedF+nf)/2)); }
+    const rul = div.querySelector('#hs-run-label');
+    if (rul) rul.setAttribute('x', (xScale(fixedT)+xScale(nt_))/2);
+
+    const dp = div.querySelector('#hs-drag-point');
+    if (dp) { dp.setAttribute('cx', xScale(nt_)); dp.setAttribute('cy', yScale(nf)); }
+
+    const hint = div.querySelector('#hs-hint');
+    if (hint) hint.setAttribute('x', xScale(nt_)+30);
+    if (hint) hint.setAttribute('y', yScale(nf)-16);
+
+    // Tangent
+    const tan = div.querySelector('#hs-tangent');
+    if (tan) {
+      if (Math.abs(dt) < 0.5) {
+        const mTan = trueHazard;
+        const bx1 = fixedT - 0.5;
+        const bx2 = fixedT + 0.5;
+        const by1 = fixedF + mTan * (bx1 - fixedT);
+        const by2 = fixedF + mTan * (bx2 - fixedT);
+        if (by1 >= yMin && by2 <= yMax) {
+          tan.setAttribute('x1', xScale(bx1));
+          tan.setAttribute('y1', yScale(by1));
+          tan.setAttribute('x2', xScale(bx2));
+          tan.setAttribute('y2', yScale(by2));
+          tan.setAttribute('opacity', Math.max(0, 1 - Math.abs(dt)/0.5));
+        }
+      } else {
+        tan.setAttribute('opacity', '0');
+      }
+    }
+
+    const st = div.querySelector('#hs-slope-text');
+    if (st) st.textContent = 'Secant hazard ≈ ' + slope.toFixed(4) + '  (Δt = ' + dt.toFixed(2) + ', limit → ' + trueHazard.toFixed(4) + ')';
+
+    const vr = div.querySelector('#hs-value-readout');
+    if (vr) vr.innerHTML = 'Secant hazard ≈ ' + slope.toFixed(4) + ' events/unit time'
+      + ' <span style="font-weight:400;font-size:.5625rem;color:#6b7280">(Δt = ' + dt.toFixed(2) + ')</span>'
+      + ' <span style="font-weight:400;font-size:.5625rem;color:#dc2626">True instantaneous hazard at t='+fixedT.toFixed(1)+': ' + trueHazard.toFixed(4) + '</span>';
+  }
+
+  function handleMove(clientX) {
+    const rect = svgEl.getBoundingClientRect();
+    const scaleW = canvasW / rect.width;
+    const svgX = (clientX - rect.left) * scaleW;
+    const nt = iscaleX(svgX);
+    const clamped = Math.max(tMin + 0.1, Math.min(tMax - 0.1, nt));
+    const safeT = Math.abs(clamped - fixedT) < 0.03 ? fixedT + 0.03 : clamped;
+    updateAll(safeT);
+  }
+
+  svgEl.addEventListener('mousedown', (e) => { dragging = true; handleMove(e.clientX); e.preventDefault(); });
+  svgEl.addEventListener('touchstart', (e) => { dragging = true; handleMove(e.touches[0].clientX); e.preventDefault(); });
+  window.addEventListener('mousemove', (e) => { if (dragging) handleMove(e.clientX); });
+  window.addEventListener('touchmove', (e) => { if (dragging) handleMove(e.touches[0].clientX); });
+  window.addEventListener('mouseup', () => { dragging = false; });
+  window.addEventListener('touchend', () => { dragging = false; });
+}
 
 // ═══════════════════════════════════════════════════════════
 // SPAGHETTI PLOT — Paired before/after for crossover/pre-post
