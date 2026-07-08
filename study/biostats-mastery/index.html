@@ -533,7 +533,10 @@ Voice rules:
 - Occasionally ask the learner a question back to check understanding.
 - No hedging, no grandstanding, no "8k" or "masterpiece" language.
 - Earn the insight — don't announce it. Let the logic do the work.
-- 3 to 5 sentences max. Make every one count.`;
+- 3 to 5 sentences max. Make every one count.
+
+Grounding rule:
+- Only assert study-design facts (randomization, blinding, allocation concealment, intention-to-treat, sample size, follow-up duration, etc.) that are actually stated in the ad or stem you were given. If a mechanism you want to invoke depends on a detail the question never states, say so plainly ("the question doesn't tell us whether this was randomized, but if it wasn't, confounding is back on the table") instead of asserting it as fact. A confident wrong assumption is worse than an honest "we're not told that."`;
 
 // ══════════════════════════════════════════════
 //  QUESTION BANK — loaded dynamically
@@ -1477,6 +1480,7 @@ function updatePPVCurveChart(q, bg) {
 // ═══════════════════════════════════════════════════════════
 let chartQuizForest = null; // unused since forestPlot switch to SVG — kept for compat
 
+let forestPristine = {}; // per-question snapshot of original row data, so dragging is always reversible
 function updateForestPlotChart(q, bg) {
   const container = document.getElementById('chart-quiz-forest');
   if (!container) return;
@@ -1484,6 +1488,8 @@ function updateForestPlotChart(q, bg) {
 
   const rows = bg.rows || [];
   if (!rows.length) { container.innerHTML = '<div style="padding:32px;color:#9ca3af;font-family:Inter,sans-serif;font-size:.75rem;text-align:center">No forest plot data for this question.</div>'; return; }
+
+  if (!forestPristine[q.id]) forestPristine[q.id] = JSON.parse(JSON.stringify(rows));
 
   const nullLine = bg.nullLine ?? 1.0;
 
@@ -1521,6 +1527,12 @@ function updateForestPlotChart(q, bg) {
   title.setAttribute('font-size', '12'); title.setAttribute('font-weight', '700'); title.setAttribute('fill', '#1a1a2e');
   title.textContent = bg.title || 'Subgroup Analysis — Hazard Ratio (95% CI)';
   svg.appendChild(title);
+
+  const hint = document.createElementNS(svgNS, 'text');
+  hint.setAttribute('x', plotRight); hint.setAttribute('y', 26);
+  hint.setAttribute('text-anchor', 'end'); hint.setAttribute('font-size', '9'); hint.setAttribute('fill', '#9ca3af');
+  hint.textContent = 'drag any square to test a different result \u2192';
+  svg.appendChild(hint);
 
   const chartTop = topPad;
 
@@ -1601,10 +1613,50 @@ function updateForestPlotChart(q, bg) {
     const pt = document.createElementNS(svgNS, 'rect');
     const ptX = xPos(row.estimate);
     const ptSz = crossesNull ? 6 : 8;
+    const hitSz = 22; // generous invisible hit-area so the small square is easy to grab
     pt.setAttribute('x', ptX - ptSz / 2); pt.setAttribute('y', y - ptSz / 2);
     pt.setAttribute('width', ptSz); pt.setAttribute('height', ptSz);
     pt.setAttribute('fill', fill); pt.setAttribute('rx', '2');
+    pt.style.cursor = 'grab';
     svg.appendChild(pt);
+
+    const hitArea = document.createElementNS(svgNS, 'rect');
+    hitArea.setAttribute('x', ptX - hitSz / 2); hitArea.setAttribute('y', y - hitSz / 2);
+    hitArea.setAttribute('width', hitSz); hitArea.setAttribute('height', hitSz);
+    hitArea.setAttribute('fill', 'transparent');
+    hitArea.style.cursor = 'grab';
+    svg.appendChild(hitArea);
+
+    function startForestDrag(clientX) {
+      const svgRect = svg.getBoundingClientRect();
+      const viewBoxW = 800;
+      let dragging = true;
+      hitArea.style.cursor = 'grabbing'; pt.style.cursor = 'grabbing';
+
+      function moveTo(cx) {
+        const svgX = (cx - svgRect.left) / svgRect.width * viewBoxW;
+        const newEstimate = Math.exp(logMin + ((svgX - plotLeft) / plotW) * (logMax - logMin));
+        const clamped = Math.max(dataMin * 0.5, Math.min(dataMax * 1.8, newEstimate));
+        // shift the whole CI window in log-space so the interval width (and thus precision) stays the same
+        const logShift = Math.log(clamped) - Math.log(row.estimate);
+        row.estimate = clamped;
+        row.ciLow = Math.exp(Math.log(row.ciLow) + logShift);
+        row.ciHigh = Math.exp(Math.log(row.ciHigh) + logShift);
+        // recompute p-value from the shifted CI, using the app's existing normal-CDF helper
+        const seLog = (Math.log(row.ciHigh) - Math.log(row.ciLow)) / (2 * 1.959964);
+        const z = Math.log(row.estimate) / seLog;
+        row.pValue = 2 * (1 - cDF(Math.abs(z), 0, 1));
+        updateForestPlotChart(q, bg);
+      }
+      function onMove(e) { if (dragging) moveTo(e.touches ? e.touches[0].clientX : e.clientX); }
+      function onUp() { dragging = false; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); window.removeEventListener('touchmove', onMove); window.removeEventListener('touchend', onUp); }
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+      window.addEventListener('touchmove', onMove, { passive: true });
+      window.addEventListener('touchend', onUp);
+    }
+    hitArea.addEventListener('mousedown', e => { startForestDrag(e.clientX); e.preventDefault(); e.stopPropagation(); });
+    hitArea.addEventListener('touchstart', e => { startForestDrag(e.touches[0].clientX); e.stopPropagation(); }, { passive: true });
 
     // Estimate + CI text
     const est = document.createElementNS(svgNS, 'text');
@@ -1648,6 +1700,20 @@ function updateForestPlotChart(q, bg) {
 
   container.innerHTML = '';
   container.appendChild(svg);
+
+  let resetBtn = document.getElementById('forest-reset-btn');
+  if (!resetBtn) {
+    resetBtn = document.createElement('button');
+    resetBtn.id = 'forest-reset-btn';
+    resetBtn.style.cssText = 'position:absolute;top:10px;right:10px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:5px 10px;font-family:Inter,sans-serif;font-size:.6875rem;font-weight:600;color:#2563eb;cursor:pointer;display:flex;align-items:center;gap:4px;z-index:5';
+    resetBtn.innerHTML = '<i class="ti ti-refresh" style="font-size:12px"></i>reset to actual data';
+    container.style.position = 'relative';
+    container.appendChild(resetBtn);
+  }
+  resetBtn.onclick = () => {
+    bg.rows = JSON.parse(JSON.stringify(forestPristine[q.id]));
+    updateForestPlotChart(q, bg);
+  };
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2716,7 +2782,7 @@ async function simplifyThis(qIdx, optIdx) {
     switchCardTab('chat');
     return;
   }
-  window.lastAskState = { qIdx, optIdx, q, opt };
+  lastAskState = { qIdx, optIdx, q, opt };
   const prompt = 'Explain this concept in the simplest possible terms — as if to someone who just started learning statistics today. Use everyday analogies, avoid jargon, keep it to 3-4 sentences. The option says: ' + opt.desc.replace(/<[^>]*>/g, '');
   chatHistory = loadChatHistory(q.id);
   chatHistory.push({role: 'student', text: 'Simplify this for me'});
@@ -2742,7 +2808,7 @@ async function simplifyThisMessage(msgId, idx) {
     switchCardTab('chat');
     return;
   }
-  window.lastAskState = { qIdx: currentQ, optIdx, q, opt };
+  lastAskState = { qIdx: currentQ, optIdx, q, opt };
   const prompt = 'Explain this idea in even simpler terms — as if to a beginner. Use everyday analogies, avoid all jargon. Here is the explanation to simplify:\n\n' + plainText;
   chatHistory = loadChatHistory(q.id);
   chatHistory.push({role: 'student', text: 'Simplify this further'});
