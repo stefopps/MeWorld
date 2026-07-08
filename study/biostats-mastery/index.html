@@ -483,6 +483,11 @@ body.chat-docked .float-card:not(.docked) {
             <div class="toggle-group" style="margin-bottom:12px">
               <div class="toggle-row"><span class="toggle-label">One-tailed test</span><label class="toggle-switch"><input type="checkbox" id="qz-1tail-toggle" onchange="qzOneTail=this.checked;updateQuizGraph()"><span class="toggle-slider"></span></label></div>
             </div>
+            <div id="qz-t-vs-n-panel" style="margin-top:2px;padding-top:12px;border-top:1px solid #f3f4f6">
+              <div style="font-size:.625rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">Same effect, shrinking SE → growing t</div>
+              <div style="font-size:.5625rem;color:#9ca3af;margin-bottom:6px">t = d ÷ SE, and SE = √(2/n) — drag the sample size slider above and watch where you sit on this curve</div>
+              <svg id="t-vs-n-svg" viewBox="0 0 340 130" width="100%" height="130"></svg>
+            </div>
           </div>
           <!-- Bar / rate controls -->
           <div id="qz-ctrls-bar" style="display:none">
@@ -1295,9 +1300,56 @@ function cDF(x,m,s){return.5*(1+eRF((x-m)/(s*Math.SQRT2)))}
 function eRF(x){const sgn=x>=0?1:-1;x=Math.abs(x);const a1=.254829592,a2=-.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=.3275911;const t=1/(1+p*x);return sgn*(1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x))}
 function nQ(p){if(p<=0||p>=1)return 0;const a=[-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00];const b=[-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,6.680131188771972e+01,-1.328068155288572e+01];const c=[-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,-2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00];const d=[7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,3.754408661907416e+00];const plow=0.02425,phigh=1-plow;let q,r;if(p<plow){q=Math.sqrt(-2*Math.log(p));return(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)}else if(phigh<p){q=Math.sqrt(-2*Math.log(1-p));return-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)}else{q=p-0.5;r=q*q;return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1)}}
 
+function renderTvsNPanel(d, n, se) {
+  const svg = document.getElementById('t-vs-n-svg');
+  if (!svg) return;
+  const W = 340, H = 130, padL = 34, padR = 12, padT = 10, padB = 24;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const nMin = 4, nMax = 20000;
+  const logNMin = Math.log(nMin), logNMax = Math.log(nMax);
+  const nToPx = nv => padL + (Math.log(nv) - logNMin) / (logNMax - logNMin) * plotW;
+  const tAt = nv => Math.abs(d) * Math.sqrt(nv / 2);
+  const tMaxOnCurve = Math.max(tAt(nMax), 2.5);
+  const tToPx = tv => padT + plotH - Math.min(tv, tMaxOnCurve) / tMaxOnCurve * plotH;
+
+  let curveD = '';
+  const steps = 60;
+  for (let s = 0; s <= steps; s++) {
+    const logN = logNMin + (logNMax - logNMin) * (s / steps);
+    const nv = Math.exp(logN);
+    const px = nToPx(nv), py = tToPx(tAt(nv));
+    curveD += (s === 0 ? 'M' : 'L') + px.toFixed(1) + ',' + py.toFixed(1) + ' ';
+  }
+
+  const critT = 1.959964;
+  const critPy = tToPx(critT);
+  const curT = Math.abs(d) / se;
+  const curPx = nToPx(n), curPy = tToPx(curT);
+
+  const nTicks = [4, 50, 500, 5000, 20000].filter(v => v <= nMax);
+  const tickEls = nTicks.map(v => {
+    const px = nToPx(v);
+    return '<line x1="' + px + '" y1="' + (padT + plotH) + '" x2="' + px + '" y2="' + (padT + plotH + 4) + '" stroke="#d1d5db" stroke-width="1"></line>' +
+           '<text x="' + px + '" y="' + (padT + plotH + 15) + '" text-anchor="middle" font-size="8" fill="#9ca3af">' + (v >= 1000 ? (v / 1000) + 'k' : v) + '</text>';
+  }).join('');
+
+  svg.innerHTML =
+    '<line x1="' + padL + '" y1="' + (padT + plotH) + '" x2="' + (padL + plotW) + '" y2="' + (padT + plotH) + '" stroke="#e5e7eb" stroke-width="1"></line>' +
+    tickEls +
+    '<line x1="' + padL + '" y1="' + critPy + '" x2="' + (padL + plotW) + '" y2="' + critPy + '" stroke="#ef4444" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"></line>' +
+    '<text x="' + (padL + plotW) + '" y="' + (critPy - 3) + '" text-anchor="end" font-size="8" fill="#dc2626">t = 1.96 (p≈0.05)</text>' +
+    '<path d="' + curveD + '" fill="none" stroke="#2563eb" stroke-width="1.75"></path>' +
+    '<line x1="' + curPx + '" y1="' + padT + '" x2="' + curPx + '" y2="' + (padT + plotH) + '" stroke="#9ca3af" stroke-width="1" stroke-dasharray="2,3"></line>' +
+    '<circle cx="' + curPx + '" cy="' + curPy + '" r="4" fill="#2563eb"></circle>' +
+    '<text x="' + curPx + '" y="' + (curPy - 9) + '" text-anchor="middle" font-size="9" font-weight="700" fill="#1a1a2e">t=' + curT.toFixed(1) + '</text>' +
+    '<text x="' + padL + '" y="10" font-size="8" fill="#9ca3af">t-statistic</text>' +
+    '<text x="' + (padL + plotW) + '" y="' + (H - 2) + '" text-anchor="end" font-size="8" fill="#9ca3af">sample size (n, log scale)</text>';
+}
+
 function updateNormalChart(q, bg) {
   const d = qzNormD, n = qzNormN, alpha = qzNormAlpha;
   const se = Math.sqrt(2/n);
+  renderTvsNPanel(d, n, se);
   const zCrit = qzOneTail ? nQ(1-alpha) : nQ(1-alpha/2);
   const xCrit = zCrit * se;
   const xMin = Math.min(-4, d - 4), xMax2 = Math.max(4, d + 4);
