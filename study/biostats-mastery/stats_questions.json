@@ -1056,10 +1056,22 @@
       "type": "forestPlot",
       "title": "Defend-1 vs Defend-2 — Same Point Estimate, Different Precision",
       "rows": [
-        {"label": "Defend-1 (n=200)", "estimate": 0.75, "ciLow": 0.55, "ciHigh": 1.02, "pValue": 0.06},
-        {"label": "Defend-2 (n=2,000)", "estimate": 0.75, "ciLow": 0.68, "ciHigh": 0.83, "pValue": 0.0001}
+        {
+          "label": "Defend-1 (n=200)",
+          "estimate": 0.75,
+          "ciLow": 0.55,
+          "ciHigh": 1.02,
+          "pValue": 0.06
+        },
+        {
+          "label": "Defend-2 (n=2,000)",
+          "estimate": 0.75,
+          "ciLow": 0.68,
+          "ciHigh": 0.83,
+          "pValue": 0.0001
+        }
       ],
-      "nullLine": 1.0
+      "nullLine": 1
     },
     "explanation": "SE ∝ 1/√n. When n jumps from 200 to 2,000, SE shrinks by roughly a factor of 3. The CI narrows — and when the lower bound no longer crosses 1.0, the p-value drops below 0.05. The point estimate is identical. The evidence is not. Precision is a function of sample size, not a property of the drug.",
     "trap": "Same point estimate, different p-values → the difference is sample size. Always look at the CI width to understand precision. A wide CI that crosses 1.0 doesn't mean the drug doesn't work — it means you don't have enough data to be confident. A narrow CI that barely excludes 1.0 doesn't mean the drug is great — it means you're very confident in a very small effect."
@@ -1122,7 +1134,7 @@
       "afterLabel": "InferMigraine",
       "n": 30,
       "beforeMean": 5.8,
-      "beforeSD": 2.0,
+      "beforeSD": 2,
       "afterMean": 3.2,
       "afterSD": 1.8,
       "diffMean": 2.6,
@@ -1380,10 +1392,15 @@
     "baseGraph": {
       "title": "HeartGuard Non-Inferiority Trial",
       "type": "forestPlot",
-      "nullLine": 1.0,
+      "nullLine": 1,
       "marginLine": 1.15,
       "rows": [
-        { "label": "HeartGuard vs Warfarin", "estimate": 1.08, "ciLow": 0.94, "ciHigh": 1.24 }
+        {
+          "label": "HeartGuard vs Warfarin",
+          "estimate": 1.08,
+          "ciLow": 0.94,
+          "ciHigh": 1.24
+        }
       ]
     },
     "explanation": "Non-inferiority is a one-sided hypothesis evaluated via the CI. The null is 'HeartGuard is worse by at least the margin (15%).' To reject the null, the ENTIRE CI must fall below the margin. Here, the upper CI bound (1.24) exceeds 1.15 — so we cannot reject the possibility that HeartGuard is meaningfully worse.",
@@ -1444,10 +1461,15 @@
     "baseGraph": {
       "title": "HeartGuard Non-Inferiority Trial",
       "type": "forestPlot",
-      "nullLine": 1.0,
+      "nullLine": 1,
       "marginLine": 1.15,
       "rows": [
-        { "label": "HeartGuard vs Warfarin", "estimate": 1.08, "ciLow": 0.94, "ciHigh": 1.24 }
+        {
+          "label": "HeartGuard vs Warfarin",
+          "estimate": 1.08,
+          "ciLow": 0.94,
+          "ciHigh": 1.24
+        }
       ]
     },
     "explanation": "Non-inferiority inverts the usual logic. In a superiority trial, you assume no difference and try to prove one. In non-inferiority, you assume the drug IS worse (by at least the margin) and try to disprove it. Failing to reject means the drug might be unacceptably worse. Rejecting means you're confident the drug is no worse than the margin.",
@@ -1566,9 +1588,18 @@
     ],
     "correct": 1,
     "baseGraph": {
-      "hr": 0.88,
-      "brate": 0.3,
-      "type": "cumulative"
+      "title": "HeartGuard — Hierarchical Testing",
+      "type": "forestPlot",
+      "nullLine": 1,
+      "marginLine": 1.15,
+      "rows": [
+        {
+          "label": "HeartGuard vs Warfarin",
+          "estimate": 0.88,
+          "ciLow": 0.81,
+          "ciHigh": 0.95
+        }
+      ]
     },
     "explanation": "Hierarchical testing: first test non-inferiority (CI entirely below margin → pass), then test superiority (CI entirely below 1.0 → pass). No alpha penalty because the tests are nested — superiority is a subset of non-inferiority. If you're not worse by 15%, and the CI doesn't cross 1.0, you've demonstrated you're actually better.",
     "trap": "Non-inferiority → superiority is a one-way street. If the CI is below the margin but crosses 1.0, you get non-inferiority only. If it's below 1.0, you get both. You can't go the other direction — a superiority trial can't retroactively claim non-inferiority unless the non-inferiority margin was pre-specified."
@@ -1582,8 +1613,8 @@
         "label": "A",
         "text": "Because chi-square is always more powerful than a t-test for any type of data.",
         "graph": {
-          "hr": 0.65,
-          "brate": 0.35
+          "control": 0.71,
+          "treatment": 0.83
         },
         "desc": "<strong>Chi-square and t-tests answer different questions about different types of data.</strong> A t-test compares means of continuous variables. Chi-square tests for association between two categorical variables. Power depends on the data type matching the test, not on which test is 'stronger.' The graph shows a treatment gap — but the choice of test is about data type, not about maximizing p-values."
       },
@@ -1591,8 +1622,8 @@
         "label": "B",
         "text": "Because the outcome is categorical (responder/non-responder), and chi-square tests for association between two categorical variables.",
         "graph": {
-          "hr": 0.7,
-          "brate": 0.35
+          "control": 0.71,
+          "treatment": 0.83
         },
         "desc": "<strong>The chi-square test compares observed counts in each cell of a 2×2 table to the counts expected under the null hypothesis of no association.</strong> Here: treatment (ImmunoBoost/placebo) × outcome (response/no response). The test asks: 'Is the distribution of responses different between arms?' The graph shows HR=0.70 — the visual gap between cumulative event curves approximates the chi-square comparison. A t-test would ask 'what's the mean response score?' — but response is yes/no, not a number on a scale."
       },
@@ -1600,8 +1631,8 @@
         "label": "C",
         "text": "Because the sample size is exactly equal between groups (n = 400 per arm).",
         "graph": {
-          "hr": 0.65,
-          "brate": 0.35
+          "control": 0.71,
+          "treatment": 0.83
         },
         "desc": "<strong>Equal group sizes are convenient but not required for either chi-square or t-tests.</strong> Both tests handle unequal n (though power is maximized at equal allocation). The graph shows the same treatment gap. The test choice is driven by the measurement scale of the outcome, not the balance of the design."
       },
@@ -1609,8 +1640,8 @@
         "label": "D",
         "text": "Because the p-value would be larger with a t-test, making the result less impressive.",
         "graph": {
-          "hr": 0.8,
-          "brate": 0.35
+          "control": 0.71,
+          "treatment": 0.83
         },
         "desc": "<strong>A t-test on binary data produces nonsense — not a larger p-value.</strong> If you code responses as 0/1 and run a t-test, the mean is the proportion, but the variance structure is all wrong. The graph shows a weaker effect. The issue isn't that chi-square gives 'better' p-values — it's that chi-square is the CORRECT test for the data structure."
       },
@@ -1618,17 +1649,18 @@
         "label": "E",
         "text": "Because the ACR20 response is a continuous scale from 0–100 that requires a distribution-free test.",
         "graph": {
-          "hr": 0.65,
-          "brate": 0.35
+          "control": 0.71,
+          "treatment": 0.83
         },
         "desc": "<strong>ACR20 is a binary endpoint: you either reached 20% improvement or you didn't.</strong> It's a threshold applied to a continuous measurement, but the reported outcome is 'proportion who crossed the threshold' — categorical. The graph shows a strong effect. If they reported the raw ACR scores as continuous values, a t-test would be appropriate. But they reported response rates."
       }
     ],
     "correct": 1,
     "baseGraph": {
-      "hr": 0.7,
-      "brate": 0.35,
-      "type": "cumulative"
+      "type": "bar",
+      "control": 0.71,
+      "treatment": 0.83,
+      "title": "ImmunoBoost — Response Rates"
     },
     "explanation": "Test selection follows data type. Continuous outcome → t-test, ANOVA, regression. Categorical outcome → chi-square, Fisher's exact, logistic regression. Time-to-event → log-rank test, Cox model. The measurement scale of your outcome determines the test family. Using the wrong test doesn't just change the p-value — it answers the wrong question.",
     "trap": "If the outcome is a count or a proportion (responded/didn't, survived/died, event/no event), you're in chi-square/Fisher/logistic regression territory. If it's a number on a scale (blood pressure, weight, pain score), you're in t-test/ANOVA/linear regression territory. The distinction is categorical vs continuous — not big vs small, or significant vs not."
@@ -1686,9 +1718,47 @@
     ],
     "correct": 1,
     "baseGraph": {
-      "hr": 1.17,
-      "brate": 0.3,
-      "type": "forestPlot"
+      "title": "ImmunoBoost Meta‑Analysis — I² = 0%",
+      "type": "forestPlot",
+      "nullLine": 1,
+      "rows": [
+        {
+          "label": "Trial 1 (n=620)",
+          "estimate": 1.22,
+          "ciLow": 0.91,
+          "ciHigh": 1.63
+        },
+        {
+          "label": "Trial 2 (n=840)",
+          "estimate": 1.14,
+          "ciLow": 0.88,
+          "ciHigh": 1.48
+        },
+        {
+          "label": "Trial 3 (n=720)",
+          "estimate": 1.09,
+          "ciLow": 0.82,
+          "ciHigh": 1.45
+        },
+        {
+          "label": "Trial 4 (n=910)",
+          "estimate": 1.19,
+          "ciLow": 0.95,
+          "ciHigh": 1.49
+        },
+        {
+          "label": "Trial 5 (n=710)",
+          "estimate": 1.25,
+          "ciLow": 0.97,
+          "ciHigh": 1.61
+        },
+        {
+          "label": "Pooled (fixed)",
+          "estimate": 1.17,
+          "ciLow": 1.05,
+          "ciHigh": 1.31
+        }
+      ]
     },
     "explanation": "I² = 0% means the studies are tapping into the same signal. The variation between them is what you'd expect from sampling error alone. This strengthens the meta-analysis: the pooled estimate represents a common effect, not an average of apples and oranges.",
     "trap": "I² tells you about consistency. Funnel plots tell you about publication bias. Don't use one to diagnose the other. I² = 0 is good news for meta-analysis validity. I² > 50% with a significant Q-test tells you to explore why the studies differ before pooling them.",
@@ -1721,7 +1791,7 @@
         "label": "C",
         "text": "Confounding — small studies have poorer methodological quality.",
         "graph": {
-          "hr": 0.9,
+          "hr": 1.17,
           "brate": 0.3
         },
         "desc": "<strong>Poor methodology can produce bias in either direction — it wouldn't selectively remove null studies.</strong> Small studies with methodological flaws MIGHT show inflated effects, but that doesn't explain why null results are preferentially missing from the literature. The graph shows a weaker effect. The asymmetry is in PUBLICATION, not in methodology."
@@ -1747,9 +1817,107 @@
     ],
     "correct": 1,
     "baseGraph": {
-      "hr": 1,
-      "brate": 0.3,
-      "type": "forestPlot"
+      "title": "ImmunoBoost Meta‑Analysis — 15 Published Trials",
+      "type": "forestPlot",
+      "nullLine": 1,
+      "rows": [
+        {
+          "label": "Small trial (n=80)",
+          "estimate": 1.62,
+          "ciLow": 0.98,
+          "ciHigh": 2.67
+        },
+        {
+          "label": "Small trial (n=110)",
+          "estimate": 1.55,
+          "ciLow": 1.02,
+          "ciHigh": 2.35
+        },
+        {
+          "label": "Small trial (n=90)",
+          "estimate": 1.48,
+          "ciLow": 0.91,
+          "ciHigh": 2.41
+        },
+        {
+          "label": "Small trial (n=140)",
+          "estimate": 1.41,
+          "ciLow": 0.95,
+          "ciHigh": 2.09
+        },
+        {
+          "label": "Small trial (n=75)",
+          "estimate": 1.69,
+          "ciLow": 1.01,
+          "ciHigh": 2.83
+        },
+        {
+          "label": "Medium trial (n=310)",
+          "estimate": 1.28,
+          "ciLow": 0.98,
+          "ciHigh": 1.67
+        },
+        {
+          "label": "Medium trial (n=380)",
+          "estimate": 1.22,
+          "ciLow": 0.96,
+          "ciHigh": 1.55
+        },
+        {
+          "label": "Medium trial (n=290)",
+          "estimate": 1.19,
+          "ciLow": 0.91,
+          "ciHigh": 1.56
+        },
+        {
+          "label": "Medium trial (n=340)",
+          "estimate": 1.15,
+          "ciLow": 0.89,
+          "ciHigh": 1.49
+        },
+        {
+          "label": "Medium trial (n=420)",
+          "estimate": 1.11,
+          "ciLow": 0.87,
+          "ciHigh": 1.42
+        },
+        {
+          "label": "Medium trial (n=360)",
+          "estimate": 1.09,
+          "ciLow": 0.84,
+          "ciHigh": 1.41
+        },
+        {
+          "label": "Large trial (n=820)",
+          "estimate": 1.03,
+          "ciLow": 0.87,
+          "ciHigh": 1.22
+        },
+        {
+          "label": "Large trial (n=950)",
+          "estimate": 1.01,
+          "ciLow": 0.88,
+          "ciHigh": 1.16
+        },
+        {
+          "label": "Large trial (n=1100)",
+          "estimate": 0.96,
+          "ciLow": 0.85,
+          "ciHigh": 1.09
+        },
+        {
+          "label": "Large trial (n=890)",
+          "estimate": 0.98,
+          "ciLow": 0.86,
+          "ciHigh": 1.12
+        },
+        {
+          "label": "Pooled (random)",
+          "estimate": 1.17,
+          "ciLow": 1.08,
+          "ciHigh": 1.27
+        }
+      ]
     },
     "explanation": "Funnel plot asymmetry is the signature of publication bias. Small studies that found no effect never made it to publication. Their absence inflates the pooled estimate — the surviving small studies are the ones that happened to show large effects. The pooled result overstates the truth because the literature is a biased sample of the evidence.",
     "trap": "Asymmetric funnel plot → publication bias (or small-study effects). Methods to address it: trim-and-fill (estimate missing studies), Egger's test (formal test of asymmetry), searching trial registries for unpublished data. I² tells you about consistency. Funnel plots tell you about completeness. A meta-analysis can be consistent and still be wrong if the literature is missing the negative studies.",
@@ -1764,8 +1932,7 @@
         "label": "A",
         "text": "Internal validity — the trial's randomization was compromised by narrow enrollment.",
         "graph": {
-          "hr": 0.7,
-          "brate": 0.35
+          "concept": "validity"
         },
         "desc": "<strong>Internal validity is about whether the trial's result is true for the patients IN the trial.</strong> Randomization, blinding, and ITT preserve internal validity. Narrow enrollment doesn't break randomization — it just limits who the trial applies TO. The graph shows the treatment effect WITHIN the enrolled population — that comparison is internally valid."
       },
@@ -1773,8 +1940,7 @@
         "label": "B",
         "text": "External validity (generalizability) — the trial's results may not apply to the typical RA patient.",
         "graph": {
-          "hr": 0.7,
-          "brate": 0.35
+          "concept": "validity"
         },
         "desc": "<strong>External validity asks: 'Does this result travel?'</strong> A trial of 47-year-old white patients without comorbidities tells you nothing about 62-year-olds with diabetes and hypertension. The drug might work the same. It might work worse. It might cause harm. The graph shows the effect in the trial population — but your patient doesn't look like the trial patients. The result isn't WRONG. It's IRRELEVANT to the patient in front of you."
       },
@@ -1782,8 +1948,7 @@
         "label": "C",
         "text": "Statistical conclusion validity — the narrow sample inflates the Type I error rate.",
         "graph": {
-          "hr": 1,
-          "brate": 0.35
+          "concept": "validity"
         },
         "desc": "<strong>A homogeneous sample REDUCES variability, which can increase power — it doesn't inflate Type I error.</strong> The p-value is actually more likely to be significant in a narrow, low-variance sample. The graph shows HR=1.0. The threat isn't that the statistical conclusion is wrong — it's that the statistical conclusion doesn't generalize."
       },
@@ -1791,8 +1956,7 @@
         "label": "D",
         "text": "Construct validity — the ACR20 response doesn't measure what rheumatoid arthritis patients actually care about.",
         "graph": {
-          "hr": 1,
-          "brate": 0.35
+          "concept": "validity"
         },
         "desc": "<strong>Construct validity is about whether the measurement captures the concept.</strong> ACR20 is a validated composite — it may or may not capture meaningful improvement, but that's an endpoint question. The enrollment criteria threat isn't about the measurement — it's about who was measured. The graph shows no effect — but the issue is population, not measurement."
       },
@@ -1800,20 +1964,19 @@
         "label": "E",
         "text": "No threat — Phase III trials are designed to test efficacy in an ideal population, and real-world effectiveness is tested later.",
         "graph": {
-          "hr": 0.7,
-          "brate": 0.35
+          "concept": "validity"
         },
         "desc": "<strong>Efficacy in ideal patients ≠ effectiveness in real patients.</strong> Phase III trials ARE designed for ideal populations — that's the point. But that fact IS the threat to external validity. The graph shows the ideal-population effect. You can't assume the same result transfers to sicker, older, more complex patients without evidence."
       }
     ],
     "correct": 1,
     "baseGraph": {
-      "hr": 0.7,
-      "brate": 0.35,
-      "type": "cumulative"
+      "type": "biasDiagram",
+      "concept": "validity"
     },
     "explanation": "Internal validity = is the result true for THESE patients? External validity = does the result apply to MY patient? A trial can be internally flawless — perfect randomization, blinding, ITT — and still be useless to the clinician if the enrolled patients share nothing with the patient in the exam room.",
-    "trap": "Efficacy (ideal conditions, narrow population) vs Effectiveness (real world, broad population). A drug that works in a 47-year-old with no other problems may do nothing in a 70-year-old on five other medications. Always check the inclusion/exclusion criteria against YOUR patient. If the trial excluded people like your patient, the result is an educated guess."
+    "trap": "Efficacy (ideal conditions, narrow population) vs Effectiveness (real world, broad population). A drug that works in a 47-year-old with no other problems may do nothing in a 70-year-old on five other medications. Always check the inclusion/exclusion criteria against YOUR patient. If the trial excluded people like your patient, the result is an educated guess.",
+    "concept": "validity"
   },
   {
     "id": 29,
@@ -1868,9 +2031,29 @@
     ],
     "correct": 1,
     "baseGraph": {
-      "hr": 1,
-      "brate": 0.3,
-      "type": "cumulative"
+      "title": "ImmunoBoost — Three Primary Endpoints (α=0.05 each)",
+      "type": "forestPlot",
+      "nullLine": 1,
+      "rows": [
+        {
+          "label": "ACR20 Response",
+          "estimate": 1.22,
+          "ciLow": 1.06,
+          "ciHigh": 1.4
+        },
+        {
+          "label": "DAS28 Remission",
+          "estimate": 1.18,
+          "ciLow": 1.01,
+          "ciHigh": 1.38
+        },
+        {
+          "label": "HAQ‑DI Improvement",
+          "estimate": 1.1,
+          "ciLow": 0.94,
+          "ciHigh": 1.28
+        }
+      ]
     },
     "explanation": "Familywise error rate = P(at least one Type I error across all tests). With k independent tests, FWER ≈ 1 − (1 − α)^k. At k = 3, FWER ≈ 14%. Bonferroni: test each endpoint at α/k. Holm: sequential Bonferroni, more powerful. Pre-specifying a single primary endpoint is the simplest solution.",
     "trap": "Multiple primary endpoints without multiplicity adjustment is like buying multiple lottery tickets and celebrating the winner. The FDA typically requires: (1) a single primary endpoint, OR (2) a gatekeeping/hierarchical testing strategy, OR (3) multiplicity adjustment. If an ad says 'significant on three endpoints' but doesn't mention adjustment, the familywise error rate isn't 5% — it's higher."
