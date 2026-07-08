@@ -110,6 +110,17 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 #chart-quiz-html.sp-tour-active .sp-group { opacity: 0.13; }
 #chart-quiz-html.sp-tour-active .sp-group.sp-tour-focus { opacity: 1; }
 
+/* ═══ Forest Plot Tour — highlight/dim rows ═══ */
+#chart-quiz-forest.tour-active .fp-row { transition: opacity 0.5s ease; opacity: 0.12; pointer-events: none; }
+#chart-quiz-forest.tour-active .fp-row.tour-focus { opacity: 1; pointer-events: auto; }
+#chart-quiz-forest.tour-active .fp-null { opacity: 0.3; }
+#chart-quiz-forest.tour-active .fp-null.tour-focus { opacity: 1; }
+
+/* ═══ Normal Chart Tour — highlight canvas regions ═══ */
+#chart-quiz-normal.tour-active { position: relative; }
+#chart-quiz-normal .tour-overlay { position: absolute; pointer-events: none; border: 2px solid transparent; border-radius: 6px; transition: border-color 0.4s, background 0.4s; }
+#chart-quiz-normal .tour-overlay.active { border-color: #3b82f6; background: rgba(59,130,246,0.06); }
+
 /* Tour card — step narrative */
 .sp-tour-step-title { font-size: .6875rem; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
 .sp-tour-step-body { font-size: .625rem; color: #4b5563; line-height: 1.55; margin-bottom: 12px; }
@@ -120,9 +131,9 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 .sp-tour-dots { display: flex; gap: 3px; margin-left: auto; }
 .sp-tour-dot { width: 7px; height: 7px; border-radius: 50%; background: #d1d5db; cursor: pointer; transition: background .2s; }
 .sp-tour-dot.active { background: #2563eb; }
+.tour-tab { display: none; }
+.tour-tab.visible { display: flex; }
 .sp-tour-auto-label { font-size: .5rem; color: #9ca3af; margin-left: 4px; }
-.sp-tour-tab { display: none; }
-.sp-tour-tab.visible { display: flex; }
 .option-image-badge{font-size:.5625rem;color:#7c3aed;background:#f5f3ff;padding:4px 10px;border-radius:4px;border:1px solid #ede9fe}
 
 /* ── Floating card — the command center ── */
@@ -469,7 +480,7 @@ body.chat-docked .float-card:not(.docked) {
           <button class="card-tab" data-card="card-quiz" data-tab="answer" title="Answer"><i class="ti ti-clipboard-check"></i></button>
           <button class="card-tab" data-card="card-quiz" data-tab="stats" title="Stats"><i class="ti ti-chart-bar"></i></button>
           <button class="card-tab" data-card="card-quiz" data-tab="controls" title="Controls"><i class="ti ti-adjustments"></i></button>
-          <button class="card-tab sp-tour-tab" data-card="card-quiz" data-tab="tour" title="Graph Tour"><i class="ti ti-map-route"></i></button>
+          <button class="card-tab tour-tab" data-card="card-quiz" data-tab="tour" title="Graph Tour" onclick="startGraphTour(currentQ)" style="display:none"><i class="ti ti-map-route"></i></button>
           <button class="dock-toggle-btn" onclick="this.classList.toggle('active'); _dockUserToggled=true; toggleDock('card-quiz')" title="Dock to right"><i class="ti ti-layout-sidebar-right"></i></button>
         </div>
         <div class="card-body" id="cbody-formula">
@@ -1210,7 +1221,7 @@ function updateQuizGraph(){
   qzGraphType = gt;
 
   hideAllQuizChartPanels();
-  showSpaghettiTourTab(gt === 'spaghettiPlot');
+  showTourTab(gt === 'spaghettiPlot' || !!graphTours[currentQ]);
 
   // Show the right canvas/control for this type
   const chartTypes = ['cumulative','normal','bar','ppvCurve','forestPlot','rocCurve','dotplot',
@@ -1782,12 +1793,14 @@ function updateForestPlotChart(q, bg) {
   // Null reference line
   const nullX = xPos(nullLine);
   const nullL = document.createElementNS(svgNS, 'line');
+  nullL.setAttribute('class', 'fp-null');
   nullL.setAttribute('x1', nullX); nullL.setAttribute('y1', chartTop);
   nullL.setAttribute('x2', nullX); nullL.setAttribute('y2', chartTop + rows.length * rowH);
   nullL.setAttribute('stroke', '#ef4444'); nullL.setAttribute('stroke-width', '1.5'); nullL.setAttribute('stroke-dasharray', '5,4');
   svg.appendChild(nullL);
 
   const nullT = document.createElementNS(svgNS, 'text');
+  nullT.setAttribute('class', 'fp-null');
   nullT.setAttribute('x', nullX); nullT.setAttribute('y', chartTop - 8);
   nullT.setAttribute('text-anchor', 'middle'); nullT.setAttribute('font-size', '9'); nullT.setAttribute('fill', '#dc2626');
   nullT.textContent = 'HR = 1 (null)';
@@ -1850,6 +1863,9 @@ function updateForestPlotChart(q, bg) {
 
   // Rows
   rows.forEach((row, i) => {
+    const rowGroup = document.createElementNS(svgNS, 'g');
+    rowGroup.setAttribute('class', 'fp-row');
+    rowGroup.setAttribute('data-row', i);
     const y = chartTop + i * rowH + rowH / 2;
     const crossesNull = (row.ciLow <= nullLine && row.ciHigh >= nullLine);
     const color = crossesNull ? '#9ca3af' : '#2563eb';
@@ -1878,21 +1894,21 @@ function updateForestPlotChart(q, bg) {
     curvePath.setAttribute('stroke', color);
     curvePath.setAttribute('stroke-width', '1.25');
     curvePath.setAttribute('opacity', '0.55');
-    svg.appendChild(curvePath);
+    rowGroup.appendChild(curvePath);
 
     // Label
     const label = document.createElementNS(svgNS, 'text');
     label.setAttribute('x', plotLeft - 12); label.setAttribute('y', y + 4);
     label.setAttribute('text-anchor', 'end'); label.setAttribute('font-size', '11'); label.setAttribute('font-weight', '600'); label.setAttribute('fill', '#374151');
     label.textContent = row.label;
-    svg.appendChild(label);
+    rowGroup.appendChild(label);
 
     // CI line
     const ci = document.createElementNS(svgNS, 'line');
     ci.setAttribute('x1', xPos(row.ciLow)); ci.setAttribute('y1', y);
     ci.setAttribute('x2', xPos(row.ciHigh)); ci.setAttribute('y2', y);
     ci.setAttribute('stroke', color); ci.setAttribute('stroke-width', '2'); ci.setAttribute('stroke-linecap', 'round');
-    svg.appendChild(ci);
+    rowGroup.appendChild(ci);
 
     // Point
     const pt = document.createElementNS(svgNS, 'rect');
@@ -1903,14 +1919,14 @@ function updateForestPlotChart(q, bg) {
     pt.setAttribute('width', ptSz); pt.setAttribute('height', ptSz);
     pt.setAttribute('fill', fill); pt.setAttribute('rx', '2');
     pt.style.cursor = 'grab';
-    svg.appendChild(pt);
+    rowGroup.appendChild(pt);
 
     // Full-row hover strip — hovering anywhere on this row's line/curve shows exact numbers
     const hoverStrip = document.createElementNS(svgNS, 'rect');
     hoverStrip.setAttribute('x', plotLeft); hoverStrip.setAttribute('y', y - rowH / 2);
     hoverStrip.setAttribute('width', plotW); hoverStrip.setAttribute('height', rowH);
     hoverStrip.setAttribute('fill', 'transparent');
-    svg.appendChild(hoverStrip);
+    rowGroup.appendChild(hoverStrip);
     hoverStrip.addEventListener('mouseenter', () => showForestTooltip(container, row, nullLine));
     hoverStrip.addEventListener('mousemove', e => positionForestTooltip(container, e));
     hoverStrip.addEventListener('mouseleave', () => hideForestTooltip(container));
@@ -1920,7 +1936,7 @@ function updateForestPlotChart(q, bg) {
     hitArea.setAttribute('width', hitSz); hitArea.setAttribute('height', hitSz);
     hitArea.setAttribute('fill', 'transparent');
     hitArea.style.cursor = 'grab';
-    svg.appendChild(hitArea);
+    rowGroup.appendChild(hitArea);
 
     function startForestDrag(clientX) {
       const svgRect = svg.getBoundingClientRect();
@@ -1958,7 +1974,7 @@ function updateForestPlotChart(q, bg) {
     est.setAttribute('x', plotRight + 12); est.setAttribute('y', y - 5);
     est.setAttribute('text-anchor', 'start'); est.setAttribute('font-size', '10'); est.setAttribute('font-weight', '600'); est.setAttribute('fill', fill);
     est.textContent = row.estimate.toFixed(2) + ' [' + row.ciLow.toFixed(2) + '\u2013' + (row.ciHigh < 1 ? row.ciHigh.toFixed(2) : row.ciHigh.toFixed(2)) + ']';
-    svg.appendChild(est);
+    rowGroup.appendChild(est);
 
     // P-value
     const pEl = document.createElementNS(svgNS, 'text');
@@ -1966,14 +1982,15 @@ function updateForestPlotChart(q, bg) {
     pEl.setAttribute('text-anchor', 'start'); pEl.setAttribute('font-size', '9');
     pEl.setAttribute('fill', row.pValue < 0.05 ? '#dc2626' : '#9ca3af');
     pEl.textContent = 'p = ' + (row.pValue < 0.01 ? row.pValue.toFixed(3) : row.pValue.toFixed(2));
-    svg.appendChild(pEl);
+    rowGroup.appendChild(pEl);
 
     // Grid line
     const grid = document.createElementNS(svgNS, 'line');
     grid.setAttribute('x1', plotLeft); grid.setAttribute('y1', y - rowH / 2);
     grid.setAttribute('x2', plotRight); grid.setAttribute('y2', y - rowH / 2);
     grid.setAttribute('stroke', '#f3f4f6'); grid.setAttribute('stroke-width', '1');
-    if (i > 0) svg.appendChild(grid);
+    if (i > 0) rowGroup.appendChild(grid);
+    svg.appendChild(rowGroup);
   });
 
   // FWER annotation (below rows, above axis)
@@ -2845,14 +2862,230 @@ function endSpaghettiTour() {
   }
 }
 
-function showSpaghettiTourTab(visible) {
-  const tab = document.querySelector('.sp-tour-tab');
+function showTourTab(visible) {
+  const tab = document.querySelector('.tour-tab');
   if (tab) tab.classList.toggle('visible', visible);
   if (!visible) {
-    endSpaghettiTour();
+    endGraphTour();
     // If currently on tour tab, switch back to formula
     if (activeCardTab === 'tour') switchCardTab('formula');
   }
+}
+
+// ═══════════════════════════════════════════════════════════
+// UNIVERSAL GRAPH TOUR ENGINE
+// ═══════════════════════════════════════════════════════════
+let graphTourStep = 0;
+let graphTourQId = null;
+
+const graphTours = {
+  // ── Q26: I² = 0% — heterogeneity proof ──
+  26: {
+    container: 'chart-quiz-forest',
+    steps: [
+      { title: 'Step 1 — What are you looking at?',
+        focusRows: [0,1,2,3,4],
+        body: 'This is a <b>forest plot</b> from a meta‑analysis of 5 clinical trials, each testing the same drug (ImmunoBoost). Each row is a separate trial result — the square is the point estimate (hazard ratio), and the horizontal line is its 95% confidence interval.' },
+      { title: 'Step 2 — See how the CIs overlap?',
+        focusRows: [0,1,2,3,4],
+        body: 'Every trial\'s confidence interval <b>overlaps with every other trial.</b> Trial 1 [0.92–1.54] overlaps Trial 3 [0.83–1.43] which overlaps Trial 4 [0.96–1.52]. This is textbook <b>high consistency.</b>' },
+      { title: 'Step 3 — The pooled estimate',
+        focusRows: [5],
+        focusNull: true,
+        body: 'The pooled estimate (1.17) weights all 5 trials together. But the point isn\'t the number — it\'s the <b>statistic I²</b> which measures how much of the variation between trials is <b>real</b> vs just random.' },
+      { title: 'Step 4 — I² = 0% explained',
+        focusRows: [0,1,2,3,4,5],
+        body: '<b>I² = 0%</b> means the variation you see between these trials is <b>no more than expected by chance alone.</b> If you re‑ran the same trial 5 times with different patients, you\'d see about the same amount of scatter. There is ZERO evidence of real heterogeneity.' },
+      { title: 'Step 5 — Compare: THIS is high I²',
+        focusRows: [0,1,2,3,4],
+        body: 'Now imagine the opposite — what high heterogeneity looks like. Trials with wildly different estimates, some showing benefit, others showing harm. THIS is what I² ≈ 80%+ looks like — real disagreement, not random scatter. The question\'s stem shows the <b>opposite</b> of this.' }
+    ]
+  },
+
+  // ── Q27: Funnel asymmetry → publication bias ──
+  27: {
+    container: 'chart-quiz-forest',
+    steps: [
+      { title: 'Step 1 — Scan the rows by size',
+        focusRows: [0,1,2,3,4],
+        body: 'Look at the top 4 rows — these are the <b>smallest trials</b> (n=45–70). Their estimates are all on the right (1.58–1.91), suggesting a large treatment benefit. Wide CIs, but consistently high.' },
+      { title: 'Step 2 — Now look at the bottom rows',
+        focusRows: [10,11,12,13,14],
+        body: 'Now the <b>largest trials</b> (n=720–1050). Their estimates cluster around 1.0 — essentially <b>no effect.</b> Narrow CIs, high precision, near the null.' },
+      { title: 'Step 3 — The pattern: funnel asymmetry',
+        focusRows: [0,1,2,3,4,10,11,12,13,14],
+        focusNull: true,
+        body: '<b>Smaller trials show systematically larger effects.</b> This is funnel asymmetry. If the scatter were random, you\'d see small trials on BOTH sides of the null — some positive, some negative. Instead, only positive small trials appear.' },
+      { title: 'Step 4 — Where are the missing studies?',
+        focusRows: [0,1,2,3,4],
+        focusNull: true,
+        body: 'Small trials that found <b>no effect or harm</b> (HR ≥ 1) were never published. They\'re the "missing" studies in the funnel plot — small, negative, never saw the light of day. That\'s <b>publication bias.</b>' },
+      { title: 'Step 5 — Why is this dangerous?',
+        focusRows: [14],
+        body: 'The pooled estimate (1.17) is <b>inflated</b> — pulled upward by the biased small trials. The true pooled effect, if all studies (published + unpublished) were included, would be closer to 1.0. Publication bias makes ineffective treatments look effective.' }
+    ]
+  },
+
+  // ── Q13: FWER — multiplicity inflation ──
+  13: {
+    container: 'chart-quiz-forest',
+    steps: [
+      { title: '1 endpoint → α = 0.05',
+        focusRows: [0],
+        focusNull: true,
+        body: 'With <b>one</b> endpoint tested at α=0.05, the chance of a false positive (spurious "significant" result when truth is null) is exactly <b>5%.</b> That\'s the α you chose.' },
+      { title: '2 endpoints → FWER ≈ 9.75%',
+        focusRows: [0,1],
+        body: 'Add a second endpoint, also at α=0.05. The chance of <b>at least one</b> false positive is now 1−(0.95)² = <b>9.75%.</b> Almost double the original rate — and you didn\'t change anything.' },
+      { title: '3 endpoints → FWER ≈ 14.3%',
+        focusRows: [0,1,2],
+        body: 'Three endpoints: 1−(0.95)³ = <b>14.3%.</b> This is the FWER. Each new endpoint is another roll of the dice — another chance for the null to randomly look "significant."' },
+      { title: '4 endpoints → FWER ≈ 18.5%',
+        focusRows: [0,1,2,3],
+        focusNull: true,
+        body: 'Four endpoints: 1−(0.95)⁴ = <b>18.5%.</b> Nearly a <b>1 in 5 chance</b> of claiming the drug works on AT LEAST one endpoint — even when it doesn\'t work on any. This is why methods like Bonferroni or Holm exist: to control the FWER back to 5%.' }
+    ]
+  },
+
+  // ── Q29: FWER with three arms ──
+  29: {
+    container: 'chart-quiz-forest',
+    steps: [
+      { title: '3 endpoints, each at α = 0.05',
+        focusRows: [0,1,2],
+        focusNull: true,
+        body: 'The trial has 3 primary endpoints — ACR20 Response, DAS28 Remission, and HAQ‑DI Improvement. Each is tested at α=0.05 with <b>no multiplicity correction.</b>' },
+      { title: 'FWER = 1 − (0.95)³ = 14.3%',
+        focusRows: [0,1,2],
+        body: 'The familywise error rate is <b>14.3%.</b> That means a 14% chance of a false positive somewhere among these three — not acceptable for a confirmatory trial.' },
+      { title: 'Bonferroni: test each at α/3 ≈ 0.017',
+        focusRows: [0,1,2],
+        focusNull: true,
+        body: 'The simplest fix: divide α by the number of tests. Test each endpoint at <b>0.05/3 ≈ 0.017.</b> This brings the FWER back to ≤5%. The tradeoff is that each individual test becomes stricter — you lose power on any single endpoint to protect the family.' }
+    ]
+  },
+
+  // ── Normal chart: z‑test walkthrough ──
+  _normal: {
+    container: 'chart-quiz-normal',
+    steps: [
+      { title: 'Step 1 — The null hypothesis',
+        body: 'The <b>blue curve on the left</b> is the null distribution — centered at d=0 (no treatment effect). This is the world where the drug does nothing. All the variability you see is just random sampling error.' },
+      { title: 'Step 2 — The treatment effect',
+        body: 'The <b>green curve on the right</b> is the alternative — centered at the observed effect size d. The distance between the peaks is the treatment effect. A larger gap = larger effect.' },
+      { title: 'Step 3 — The critical region',
+        body: 'The <b>red shaded area</b> is the rejection region — the right tail beyond z = 1.96 (for α=0.05, two‑tailed). If the null were true, you\'d only see a result this extreme <b>5% of the time.</b>' },
+      { title: 'Step 4 — The p‑value',
+        body: 'The p‑value is the <b>area under the null curve beyond your observed result.</b> Small p‑value = your result is far from what you\'d expect under the null. The slider lets you shift the treatment distribution — slide d to 0 and watch the p‑value grow.' }
+    ]
+  }
+};
+
+function startGraphTour(questionId) {
+  const q = QUESTION_BANK[questionId];
+  if (!q) return;
+
+  // Spaghetti plot uses its own tour system
+  const gt = q.baseGraph?.type || 'cumulative';
+  if (gt === 'spaghettiPlot') {
+    startSpaghettiTour();
+    return;
+  }
+
+  // Look up tour by question id, or fall back to graph-type tour
+  let tour = graphTours[questionId] || graphTours['_' + gt];
+  if (!tour) return;
+
+  graphTourQId = questionId;
+  graphTourStep = 0;
+  const container = document.getElementById(tour.container);
+  if (container) container.classList.add('tour-active');
+  renderGraphTourStep(0);
+  switchCardTab('tour');
+}
+
+function endGraphTour() {
+  // Clean up spaghetti tour too
+  const htmlContainer = document.getElementById('chart-quiz-html');
+  if (htmlContainer) {
+    htmlContainer.classList.remove('sp-tour-active');
+    htmlContainer.querySelectorAll('.sp-group.sp-tour-focus').forEach(el => el.classList.remove('sp-tour-focus'));
+    htmlContainer.querySelectorAll('.sp-se-box').forEach(el => el.style.opacity = '');
+  }
+
+  const q = QUESTION_BANK[currentQ];
+  const gt = q?.baseGraph?.type || 'cumulative';
+  let tour;
+  if (gt === 'spaghettiPlot') return;
+  tour = graphTours[currentQ] || graphTours['_' + gt];
+  if (!tour) return;
+
+  const container = document.getElementById(tour.container);
+  if (container) {
+    container.classList.remove('tour-active');
+    container.querySelectorAll('.tour-focus').forEach(el => el.classList.remove('tour-focus'));
+  }
+  graphTourQId = null;
+}
+
+function setGraphTourStep(n) {
+  const q = QUESTION_BANK[currentQ];
+  if (!q) return;
+  const gt = q.baseGraph?.type || 'cumulative';
+  let tour = graphTours[currentQ] || graphTours['_' + gt];
+  if (!tour) return;
+  graphTourStep = Math.max(0, Math.min(n, tour.steps.length - 1));
+  renderGraphTourStep(graphTourStep);
+}
+
+function renderGraphTourStep(stepIndex) {
+  const q = QUESTION_BANK[currentQ];
+  if (!q) return;
+  const gt = q.baseGraph?.type || 'cumulative';
+  let tour = graphTours[currentQ] || graphTours['_' + gt];
+  if (!tour) return;
+
+  const step = tour.steps[stepIndex];
+  if (!step) return;
+
+  // For SVG-based tours (forest plot): highlight rows
+  if (tour.container === 'chart-quiz-forest') {
+    const container = document.getElementById(tour.container);
+    if (container) {
+      // Remove all focus classes
+      container.querySelectorAll('.fp-row.tour-focus').forEach(el => el.classList.remove('tour-focus'));
+      container.querySelectorAll('.fp-null.tour-focus').forEach(el => el.classList.remove('tour-focus'));
+
+      // Focus specific rows
+      if (step.focusRows) {
+        step.focusRows.forEach(i => {
+          const row = container.querySelector('.fp-row[data-row="' + i + '"]');
+          if (row) row.classList.add('tour-focus');
+        });
+      }
+      // Focus null line
+      if (step.focusNull) {
+        container.querySelectorAll('.fp-null').forEach(el => el.classList.add('tour-focus'));
+      }
+    }
+  }
+
+  // Render step text in the tour panel
+  const body = document.getElementById('cbody-tour');
+  if (!body || !step.body) return;
+
+  let html = '<div class="sp-tour-step-title">' + step.title + '</div>';
+  html += '<div class="sp-tour-step-body">' + step.body + '</div>';
+  html += '<div class="sp-tour-nav">';
+  html += '<button class="sp-tour-nav-btn" onclick="setGraphTourStep(' + (stepIndex - 1) + ')" ' + (stepIndex === 0 ? 'disabled' : '') + '><i class="ti ti-chevron-left"></i> Back</button>';
+  html += '<div class="sp-tour-dots">';
+  for (let i = 0; i < tour.steps.length; i++) {
+    html += '<div class="sp-tour-dot' + (i === stepIndex ? ' active' : '') + '" onclick="setGraphTourStep(' + i + ')" title="Step ' + (i + 1) + '"></div>';
+  }
+  html += '</div>';
+  html += '<button class="sp-tour-nav-btn" onclick="setGraphTourStep(' + (stepIndex + 1) + ')" ' + (stepIndex >= tour.steps.length - 1 ? 'disabled' : '') + '>Next <i class="ti ti-chevron-right"></i></button>';
+  html += '</div>';
+  body.innerHTML = html;
 }
 
 
