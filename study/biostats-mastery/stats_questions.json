@@ -1028,7 +1028,7 @@
           "brate": 0.3,
           "n": 200
         },
-        "desc": "<strong>Standard error shrinks as 1/√n. Defend-2's n is 10× larger, so SE is roughly 1/√10 ≈ 32% of Defend-1's.</strong> A narrower CI means if the true HR is 0.75, the lower bound is much less likely to cross 1.0. A CI that crosses 1.0 → p > 0.05. A CI entirely below 1.0 → p < 0.05. The shaded band around the Treatment curve IS that confidence interval — drag the N per arm slider from 200 up toward 2,000 and watch it visibly tighten around the same HR=0.75 line. The point estimate never moves. The difference between 'needs more study' and 'breakthrough' is 1,800 more patients, not a better molecule."
+        "desc": "<strong>Standard error shrinks as 1/√n. Defend-2's n is 10× larger, so SE is roughly 1/√10 ≈ 32% of Defend-1's.</strong> A narrower CI means if the true HR is 0.75, the lower bound is much less likely to cross 1.0. A CI that crosses 1.0 → p > 0.05. A CI entirely below 1.0 → p < 0.05. Look at the forest plot: Defend-1's bar comfortably crosses the null line (HR=0.75, 95% CI 0.55–1.02, p=0.06); Defend-2's narrower bar sits entirely inside 'benefit' territory (HR=0.75, 95% CI 0.68–0.83, p<0.001). Same point estimate. Same drug. The difference between 'needs more study' and 'breakthrough' is 1,800 more patients, not a better molecule."
       },
       {
         "label": "D",
@@ -1053,9 +1053,13 @@
     ],
     "correct": 2,
     "baseGraph": {
-      "hr": 0.75,
-      "brate": 0.3,
-      "type": "cumulative"
+      "type": "forestPlot",
+      "title": "Defend-1 vs Defend-2 — Same Point Estimate, Different Precision",
+      "rows": [
+        {"label": "Defend-1 (n=200)", "estimate": 0.75, "ciLow": 0.55, "ciHigh": 1.02, "pValue": 0.06},
+        {"label": "Defend-2 (n=2,000)", "estimate": 0.75, "ciLow": 0.68, "ciHigh": 0.83, "pValue": 0.0001}
+      ],
+      "nullLine": 1.0
     },
     "explanation": "SE ∝ 1/√n. When n jumps from 200 to 2,000, SE shrinks by roughly a factor of 3. The CI narrows — and when the lower bound no longer crosses 1.0, the p-value drops below 0.05. The point estimate is identical. The evidence is not. Precision is a function of sample size, not a property of the drug.",
     "trap": "Same point estimate, different p-values → the difference is sample size. Always look at the CI width to understand precision. A wide CI that crosses 1.0 doesn't mean the drug doesn't work — it means you don't have enough data to be confident. A narrow CI that barely excludes 1.0 doesn't mean the drug is great — it means you're very confident in a very small effect."

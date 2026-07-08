@@ -814,8 +814,14 @@ function renderFormulaForOption(q, opt, optIdx) {
   } else if ((gt === 'bar' || gt === 'bar-multigroup') && g.control != null) {
     mathLine = '\\text{Control } = '+(g.control*100).toFixed(0)+'\\%,\\quad \\text{Treatment } = '+((g.treatment ?? g.control)*100).toFixed(0)+'\\%';
   } else if (gt === 'forestPlot' && q.baseGraph?.rows) {
-    const fr = q.baseGraph.rows.find(r => r.label === 'Overall trial') || q.baseGraph.rows[0];
-    mathLine = '\\text{Forest plot · Overall HR = '+fr.estimate.toFixed(2)+' ['+fr.ciLow.toFixed(2)+'–'+fr.ciHigh.toFixed(2)+']}';
+    const rows = q.baseGraph.rows;
+    if (rows.length === 2 || rows.length === 3) {
+      // Two-row comparison — show both for side-by-side pattern (e.g. Q16 Defend-1 vs Defend-2)
+      mathLine = rows.map(r => '\\text{' + r.label + ' HR = ' + r.estimate.toFixed(2) + ' [' + r.ciLow.toFixed(2) + '–' + r.ciHigh.toFixed(2) + ']}').join('\\quad');
+    } else {
+      const fr = rows.find(r => r.label === 'Overall trial') || rows[0];
+      mathLine = '\\text{Forest plot · Overall HR = ' + fr.estimate.toFixed(2) + ' [' + fr.ciLow.toFixed(2) + '–' + fr.ciHigh.toFixed(2) + ']}';
+    }
   } else {
     mathLine = '\\text{'+gt.replace(/-/g,' ')+' scenario — option '+opt.label+'}';
   }
