@@ -136,10 +136,13 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 .float-card .rs-se:hover{opacity:.8}
 .float-card .rs-n:hover,.float-card .rs-s:hover,.float-card .rs-e:hover,.float-card .rs-w:hover,.float-card .rs-ne:hover,.float-card .rs-nw:hover,.float-card .rs-sw:hover{background:rgba(37,99,235,.12)}
 /* Dock-to-right mode */
-.main {
+.main, .top-bar, .tab-bar, .pivot-info-bar {
   transition: margin-right .2s ease;
 }
-body.chat-docked .main {
+body.chat-docked .main,
+body.chat-docked .top-bar,
+body.chat-docked .tab-bar,
+body.chat-docked .pivot-info-bar {
   margin-right: var(--docked-width, 380px);
 }
 body.chat-docked .float-card:not(.docked) {
