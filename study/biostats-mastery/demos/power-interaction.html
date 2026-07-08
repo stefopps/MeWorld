@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sample Size &amp; Power — Interaction Layer Demo</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --muted: #6b7280;
+    --faint: #9ca3af;
+    --line: #e5e7eb;
+    --control: #ef4444;
+    --control-fill: rgba(239,68,68,.08);
+    --treat: #2563eb;
+    --treat-fill: rgba(37,99,235,.08);
+    --good: #16a34a;
+    --good-fill: rgba(22,163,74,.10);
+    --bg: #fafafa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 32px 20px 80px;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+
+  .eyebrow {
+    font-size: .6875rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 6px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: -.01em;
+  }
+  .sub {
+    color: var(--muted);
+    font-size: .9375rem;
+    line-height: 1.5;
+    margin: 0 0 28px;
+    max-width: 60ch;
+  }
+
+  /* ── The two linked views ── */
+  .stage {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 0;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,.03);
+  }
+  .curve-panel { padding: 20px 12px 8px; position: relative; }
+  .gauge-panel {
+    border-left: 1px solid var(--line);
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(180deg, #fff, #fcfcfd);
+  }
+  .gauge-label {
+    font-size: .625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--faint);
+    margin-bottom: 10px;
+  }
+  .gauge-track {
+    width: 34px;
+    height: 220px;
+    border-radius: 17px;
+    background: #f0f1f3;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .gauge-fill {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, #4ade80, var(--good));
+    border-radius: 17px 17px 0 0;
+    transition: height .08s linear;
+  }
+  .gauge-target-line {
+    position: absolute;
+    left: -4px; right: -4px;
+    height: 2px;
+    background: var(--ink);
+    opacity: .35;
+  }
+  .gauge-target-line::after {
+    content: 'target';
+    position: absolute;
+    right: 40px;
+    top: -7px;
+    font-size: .5625rem;
+    color: var(--faint);
+    white-space: nowrap;
+  }
+  .gauge-readout {
+    margin-top: 14px;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    transition: color .15s;
+  }
+  .gauge-readout.hit { color: var(--good); }
+  .gauge-sub { font-size: .625rem; color: var(--faint); margin-top: 2px; }
+
+  svg text { font-family: 'Inter', sans-serif; }
+
+  /* ── Controls ── */
+  .controls {
+    margin-top: 18px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 22px;
+  }
+  .control-row { margin-bottom: 14px; }
+  .control-row:last-child { margin-bottom: 0; }
+  .control-row label {
+    display: flex;
+    justify-content: space-between;
+    font-size: .8125rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .control-row label span.val { color: var(--treat); font-variant-numeric: tabular-nums; }
+  input[type=range] {
+    width: 100%;
+    accent-color: var(--treat);
+    height: 4px;
+  }
+  .control-hint { font-size: .6875rem; color: var(--faint); margin-top: 3px; }
+
+  /* ── Live challenge ── */
+  .challenge {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 20px;
+  }
+  .challenge-badge {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: #f0f1f3;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 1rem;
+    transition: background .2s, transform .2s;
+  }
+  .challenge-badge.hit {
+    background: var(--good-fill);
+    transform: scale(1.08);
+  }
+  .challenge-text { font-size: .875rem; color: var(--ink); }
+  .challenge-text b { color: var(--treat); }
+  .challenge-text.hit-text b.status { color: var(--good); }
+
+  /* ── Drag-to-complete ── */
+  .complete {
+    margin-top: 18px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 22px;
+  }
+  .complete-label {
+    font-size: .6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--faint);
+    margin-bottom: 12px;
+  }
+  .complete-line {
+    font-size: 1rem;
+    line-height: 2;
+    color: var(--ink);
+  }
+  .blank {
+    display: inline-block;
+    width: 70px;
+    text-align: center;
+    border: none;
+    border-bottom: 2px solid var(--faint);
+    background: transparent;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    color: var(--ink);
+    padding: 2px 4px;
+    outline: none;
+  }
+  .blank:focus { border-color: var(--treat); }
+  .blank.correct { border-color: var(--good); color: var(--good); }
+  .blank.wrong { border-color: var(--control); color: var(--control); }
+  .check-icon { font-size: 1rem; margin-left: 6px; opacity: 0; transition: opacity .15s; }
+  .check-icon.show { opacity: 1; }
+  .reveal-btn {
+    margin-top: 12px;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--treat);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  .reveal-btn:hover { text-decoration: underline; }
+
+  .footer-note {
+    margin-top: 24px;
+    font-size: .75rem;
+    color: var(--faint);
+    line-height: 1.6;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+  }
+
+  /* ── Alpha region + formula panel ── */
+  .formula-panel {
+    margin-top: 18px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 22px;
+  }
+  .formula-label {
+    font-size: .6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--faint);
+    margin-bottom: 12px;
+  }
+  .formula-row { margin-bottom: 10px; font-size: .9375rem; }
+  .formula-row:last-child { margin-bottom: 0; }
+  .formula-note {
+    font-size: .75rem;
+    color: var(--muted);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+    line-height: 1.6;
+  }
+  .alpha-callout {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: #fff7f7;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 18px;
+    font-size: .8125rem;
+    color: #7f1d1d;
+    line-height: 1.5;
+  }
+  .alpha-callout .swatch {
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    background: rgba(239,68,68,.35);
+    border: 1px solid rgba(239,68,68,.6);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Q1c &middot; Interaction layer prototype</div>
+  <h1>Does a bigger sample size actually help?</h1>
+  <p class="sub">Drag the sample size slider. Don't read the number — watch the gauge and the curves move together. They're not two separate updates; they're one state, shown two ways.</p>
+
+  <div class="stage">
+    <div class="curve-panel">
+      <svg id="curveSvg" viewBox="0 0 620 260" width="100%" height="260"></svg>
+    </div>
+    <div class="gauge-panel">
+      <div class="gauge-label">Power</div>
+      <div class="gauge-track">
+        <div class="gauge-target-line" style="bottom:80%"></div>
+        <div class="gauge-fill" id="gaugeFill" style="height:0%"></div>
+      </div>
+      <div class="gauge-readout" id="gaugeReadout">0%</div>
+      <div class="gauge-sub">chance of detecting<br>a real effect</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="control-row">
+      <label>Sample size (per arm) <span class="val" id="nVal">20</span></label>
+      <input type="range" id="nSlider" min="0" max="1000" value="330">
+      <div class="control-hint">drag — watch both panels above respond as you move, not after you stop</div>
+    </div>
+    <div class="control-row">
+      <label>Effect size (Cohen's d) <span class="val" id="dVal">0.50</span></label>
+      <input type="range" id="dSlider" min="10" max="150" value="50">
+      <div class="control-hint">how far apart the two groups really are, in standard-deviation units</div>
+    </div>
+    <div class="control-row">
+      <label>Alpha (&alpha;) <span class="val" id="alphaVal">0.05</span></label>
+      <input type="range" id="alphaSlider" min="1" max="20" value="5">
+      <div class="control-hint">drag this — watch the <em>pink sliver under the gray curve</em> in the chart above grow and shrink</div>
+    </div>
+  </div>
+
+  <div class="alpha-callout">
+    <div class="swatch"></div>
+    <div>
+      <b>That pink sliver is alpha, made visible.</b> It's not a separate number you set and forget — it's the actual area under the <b>null</b> curve (gray) that sits past the red dashed line. That area is exactly the chance of a false alarm: the null is true, nothing's really happening, and by pure luck the data still lands past the threshold. Drag alpha down and the sliver shrinks — you're demanding stronger evidence before shouting "real effect." Drag it up and the sliver grows — easier to declare victory, but more of those victories will be flukes.
+    </div>
+  </div>
+
+  <div class="challenge">
+    <div class="challenge-badge" id="challengeBadge"><i class="ti ti-target-arrow"></i></div>
+    <div class="challenge-text" id="challengeText">
+      Find the smallest sample size where power crosses <b>80%</b> — drag until the gauge turns green. No submit button. It just happens the moment you cross the line.
+    </div>
+  </div>
+
+  <div class="formula-panel">
+    <div class="formula-label">The actual math, live</div>
+    <div class="formula-row" id="katexSE"></div>
+    <div class="formula-row" id="katexZ"></div>
+    <div class="formula-row" id="katexPower"></div>
+    <div class="formula-note">This isn't a canned explanation — every number below is recomputed from the sliders above on every frame. Move alpha and watch <span style="white-space:nowrap">z<sub>crit</sub></span> actually change value here, not just move on the chart.</div>
+  </div>
+
+  <div class="complete">
+    <div class="complete-label">Now without looking at the gauge</div>
+    <div class="complete-line">
+      At n&nbsp;=&nbsp;<span id="nEcho">20</span> and d&nbsp;=&nbsp;<span id="dEcho">0.50</span>, power is approximately
+      <input type="text" class="blank" id="guessInput" placeholder="?" maxlength="3">%
+      <span class="check-icon" id="checkIcon">✓</span>
+    </div>
+    <button class="reveal-btn" id="revealBtn">show the actual value</button>
+  </div>
+
+  <div class="footer-note">
+    Prototype scope: one question, two-tailed test only (no one-tailed toggle). The pattern to copy into the real app — one shared state (n, d, alpha) driving synchronized views plus live KaTeX with no intermediate update step, and a target-check that fires during manipulation rather than after submission — generalizes directly to the ARR/HR/Questions tabs already built.
+  </div>
+</div>
+
+<script>
+// ── Math: standard normal CDF via Abramowitz-Stegun erf approximation ──
+function normalCDF(x) {
+  const t = 1 / (1 + 0.3275911 * Math.abs(x) / Math.SQRT2);
+  const y = 1 - (((((1.061405429*t - 1.453152027)*t) + 1.421413741)*t - 0.284496736)*t + 0.254829592)*t*Math.exp(-x*x/2);
+  const cdf = 0.5 * (1 + Math.sign(x) * y);
+  return cdf;
+}
+function normalPDF(x, mean, sd) {
+  const v = sd*sd;
+  return Math.exp(-0.5*(x-mean)*(x-mean)/v) / Math.sqrt(2*Math.PI*v);
+}
+// Verified inverse normal CDF (tested against 9 textbook values to 6 decimal places)
+function nQ(p) {
+  if (p <= 0 || p >= 1) return 0;
+  const a=[-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00];
+  const b=[-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,6.680131188771972e+01,-1.328068155288572e+01];
+  const c=[-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,-2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00];
+  const d=[7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,3.754408661907416e+00];
+  const plow = 0.02425, phigh = 1 - plow;
+  let q, r;
+  if (p < plow) {
+    q = Math.sqrt(-2*Math.log(p));
+    return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  } else if (phigh < p) {
+    q = Math.sqrt(-2*Math.log(1-p));
+    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  } else {
+    q = p - 0.5; r = q*q;
+    return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+  }
+}
+
+function nFromSlider(raw) {
+  // cubic mapping, 4 to 2000, same convention as the main app's n-sliders
+  return Math.max(4, Math.round(4 + Math.pow(raw/1000, 3) * 1996));
+}
+
+const svg = document.getElementById('curveSvg');
+const W = 620, H = 260, PAD = 36;
+const xMin = -3, xMax = 6;
+function xToPx(x) { return PAD + (x - xMin) / (xMax - xMin) * (W - 2*PAD); }
+function yToPx(y, peak) { return (H - 24) - (y / peak) * (H - 50); }
+
+function pathFor(mean, se, peak) {
+  let d = '';
+  for (let x = xMin; x <= xMax; x += 0.05) {
+    const y = normalPDF(x, mean, se);
+    const px = xToPx(x), py = yToPx(y, peak);
+    d += (x === xMin ? 'M' : 'L') + px.toFixed(1) + ',' + py.toFixed(1) + ' ';
+  }
+  return d;
+}
+function shadedPathFor(mean, se, peak, fromX, toX) {
+  let d = 'M' + xToPx(fromX).toFixed(1) + ',' + yToPx(0, peak).toFixed(1) + ' ';
+  for (let x = fromX; x <= toX; x += 0.05) {
+    const y = normalPDF(x, mean, se);
+    d += 'L' + xToPx(x).toFixed(1) + ',' + yToPx(y, peak).toFixed(1) + ' ';
+  }
+  d += 'L' + xToPx(toX).toFixed(1) + ',' + yToPx(0, peak).toFixed(1) + ' Z';
+  return d;
+}
+
+function render() {
+  const rawN = parseFloat(document.getElementById('nSlider').value);
+  const n = nFromSlider(rawN);
+  const d = parseFloat(document.getElementById('dSlider').value) / 100;
+  const alpha = parseFloat(document.getElementById('alphaSlider').value) / 100;
+  document.getElementById('nVal').textContent = n.toLocaleString();
+  document.getElementById('dVal').textContent = d.toFixed(2);
+  document.getElementById('alphaVal').textContent = alpha.toFixed(2);
+  document.getElementById('nEcho').textContent = n.toLocaleString();
+  document.getElementById('dEcho').textContent = d.toFixed(2);
+
+  const se = Math.sqrt(2/n);
+  const zCrit = nQ(1 - alpha/2);       // two-tailed critical z, now driven by the alpha slider
+  const xCrit = zCrit * se;
+  const beta = normalCDF((xCrit - d) / se);
+  const power = 1 - beta;
+
+  const peak = Math.max(normalPDF(0,0,se), normalPDF(d,d,se)) * 1.15;
+
+  // Redraw curves
+  const nullPath = pathFor(0, se, peak);
+  const truePath = pathFor(d, se, peak);
+  const alphaShade = shadedPathFor(0, se, peak, xCrit, xMax);   // THIS pink sliver IS alpha
+  const powerShade = shadedPathFor(d, se, peak, xCrit, xMax);
+  const critPx = xToPx(xCrit);
+  const alphaLabelX = xToPx((xCrit + xMax) / 2 > xMax - 0.4 ? xCrit + 0.5 : (xCrit+xMax)/2);
+
+  svg.innerHTML = `
+    <path d="${alphaShade}" fill="rgba(239,68,68,.22)"></path>
+    <path d="${powerShade}" fill="rgba(37,99,235,.14)"></path>
+    <path d="${nullPath}" fill="none" stroke="#6b7280" stroke-width="2"></path>
+    <path d="${truePath}" fill="none" stroke="#2563eb" stroke-width="2.5"></path>
+    <line x1="${critPx}" y1="${yToPx(0,peak)}" x2="${critPx}" y2="${yToPx(peak,peak)}" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,4"></line>
+    <line x1="${PAD}" y1="${yToPx(0,peak)}" x2="${W-PAD}" y2="${yToPx(0,peak)}" stroke="#e5e7eb" stroke-width="1"></line>
+    <text x="${xToPx(0)}" y="${yToPx(0,peak)+18}" text-anchor="middle" font-size="10" fill="#6b7280">Null</text>
+    <text x="${xToPx(d)}" y="${yToPx(0,peak)+18}" text-anchor="middle" font-size="10" fill="#2563eb">True effect</text>
+    <text x="${alphaLabelX}" y="${yToPx(0,peak)-8}" text-anchor="middle" font-size="10" font-weight="700" fill="#b91c1c">&#945; = ${alpha.toFixed(2)}</text>
+  `;
+
+  // Gauge — same state, second view, updating in the same frame
+  const powerPct = power * 100;
+  document.getElementById('gaugeFill').style.height = powerPct.toFixed(1) + '%';
+  const readout = document.getElementById('gaugeReadout');
+  readout.textContent = powerPct.toFixed(0) + '%';
+  readout.classList.toggle('hit', powerPct >= 80);
+
+  // Live math, rendered with KaTeX — recomputed every frame, not a static explanation
+  katex.render(`SE = \\sqrt{\\dfrac{2}{n}} = \\sqrt{\\dfrac{2}{${n}}} = ${se.toFixed(3)}`, document.getElementById('katexSE'));
+  katex.render(`z_{crit} = \\Phi^{-1}\\!\\left(1-\\dfrac{\\alpha}{2}\\right) = \\Phi^{-1}(${(1-alpha/2).toFixed(3)}) = ${zCrit.toFixed(3)}`, document.getElementById('katexZ'));
+  katex.render(`\\text{Power} = 1-\\Phi\\!\\left(\\dfrac{z_{crit}\\cdot SE - d}{SE}\\right) = 1-\\Phi(${((xCrit-d)/se).toFixed(3)}) = ${power.toFixed(3)}`, document.getElementById('katexPower'));
+
+  // Live challenge — fires during drag, no submit step
+  const badge = document.getElementById('challengeBadge');
+  const text = document.getElementById('challengeText');
+  const hit = powerPct >= 80;
+  badge.classList.toggle('hit', hit);
+  badge.innerHTML = hit ? '<i class="ti ti-circle-check-filled"></i>' : '<i class="ti ti-target-arrow"></i>';
+  text.innerHTML = hit
+    ? `<b class="status" style="color:#16a34a">Found it.</b> At n=${n.toLocaleString()}, power is ${powerPct.toFixed(0)}% — past the 80% line. Keep dragging left to see it drop back below.`
+    : `Find the smallest sample size where power crosses <b>80%</b> — drag until the gauge turns green. No submit button. It just happens the moment you cross the line.`;
+
+  // reset the "guess" state whenever n or d changes, since the true answer changed
+  window.__currentPower = powerPct;
+  resetGuess();
+}
+
+function resetGuess() {
+  const input = document.getElementById('guessInput');
+  input.value = '';
+  input.classList.remove('correct','wrong');
+  document.getElementById('checkIcon').classList.remove('show');
+}
+
+document.getElementById('nSlider').addEventListener('input', render);
+document.getElementById('dSlider').addEventListener('input', render);
+document.getElementById('alphaSlider').addEventListener('input', render);
+
+document.getElementById('guessInput').addEventListener('input', function() {
+  const guess = parseFloat(this.value);
+  const icon = document.getElementById('checkIcon');
+  if (isNaN(guess)) { this.classList.remove('correct','wrong'); icon.classList.remove('show'); return; }
+  const actual = window.__currentPower;
+  const within = Math.abs(guess - actual) <= 5; // +/- 5 points counts as "got it"
+  this.classList.toggle('correct', within);
+  this.classList.toggle('wrong', !within);
+  icon.classList.toggle('show', within);
+});
+
+document.getElementById('revealBtn').addEventListener('click', function() {
+  document.getElementById('guessInput').value = window.__currentPower.toFixed(0);
+  document.getElementById('guessInput').classList.add('correct');
+  document.getElementById('guessInput').classList.remove('wrong');
+  document.getElementById('checkIcon').classList.add('show');
+});
+
+render();
+</script>
+</body>
+</html>

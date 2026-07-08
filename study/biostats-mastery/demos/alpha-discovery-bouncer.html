@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>What Alpha Actually Is — Discovery Demo</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --muted: #6b7280;
+    --faint: #9ca3af;
+    --line: #e5e7eb;
+    --bg: #fafafa;
+    --dot: #cbd5e1;
+    --dot-flag: #ef4444;
+    --good: #16a34a;
+    --good-fill: rgba(22,163,74,.10);
+    --accent: #2563eb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 32px 20px 80px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+
+  .eyebrow {
+    font-size: .6875rem; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--faint); margin-bottom: 6px;
+  }
+  h1 { font-size: 1.5rem; font-weight: 700; margin: 0 0 6px; letter-spacing: -.01em; }
+  .sub { color: var(--muted); font-size: .9375rem; line-height: 1.5; margin: 0 0 24px; max-width: 66ch; }
+
+  /* ── Bouncer framing ── */
+  .bouncer {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+  }
+  .bouncer .icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    background: #f3f4f6;
+    border-radius: 50%;
+  }
+  .bouncer p { margin: 0; font-size: .875rem; line-height: 1.55; color: var(--ink); }
+  .bouncer b { color: var(--accent); }
+
+  /* ── Stage ── */
+  .stage {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px 20px 16px;
+    position: relative;
+  }
+  .stage-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .stage-title { font-size: .75rem; font-weight: 700; color: var(--faint); text-transform: uppercase; letter-spacing: .05em; }
+  .reroll-btn {
+    font-size: .75rem; font-weight: 600; color: var(--accent);
+    background: none; border: none; cursor: pointer; padding: 4px 0;
+  }
+  .reroll-btn:hover { text-decoration: underline; }
+
+  svg { display: block; width: 100%; touch-action: none; }
+  .thresh-line { cursor: ew-resize; }
+  .thresh-handle { cursor: ew-resize; }
+
+  .counter-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    margin-top: 6px;
+    padding: 16px 0 8px;
+  }
+  .counter {
+    text-align: center;
+  }
+  .counter .big {
+    font-size: 2rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--dot-flag);
+    line-height: 1;
+    transition: color .15s;
+  }
+  .counter .big.hit { color: var(--good); }
+  .counter .small { font-size: .6875rem; color: var(--faint); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; }
+  .counter-divider { width: 1px; height: 40px; background: var(--line); }
+
+  /* ── Target / discovery ── */
+  .target {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 20px;
+  }
+  .target-badge {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #f0f1f3; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 1rem; transition: background .2s, transform .2s;
+  }
+  .target-badge.hit { background: var(--good-fill); transform: scale(1.08); }
+  .target-text { font-size: .875rem; color: var(--ink); line-height: 1.5; }
+  .target-text b { color: var(--accent); }
+  .reveal {
+    display: none;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+    font-size: .8125rem;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  .reveal.show { display: block; }
+  .reveal b { color: var(--good); }
+
+  /* ── Bridge to the curve ── */
+  .bridge {
+    margin-top: 18px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 20px;
+  }
+  .bridge-label {
+    font-size: .6875rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--faint); margin-bottom: 10px;
+  }
+  .bridge-toggle {
+    display: flex; align-items: center; gap: 10px;
+    font-size: .8125rem; color: var(--ink); cursor: pointer; user-select: none;
+    margin-bottom: 8px;
+  }
+  .bridge-toggle input { accent-color: var(--accent); }
+  .bridge-note { font-size: .8125rem; color: var(--muted); line-height: 1.55; }
+
+  .footer-note {
+    margin-top: 24px; font-size: .75rem; color: var(--faint); line-height: 1.6;
+    border-top: 1px solid var(--line); padding-top: 16px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Alpha, discovered not defined</div>
+  <h1>Before the curve, the bouncer</h1>
+  <p class="sub">Forget the bell curve for a second. Here are 100 separate, independent trials — in every single one, the drug does <b>absolutely nothing</b>. The null hypothesis is actually, truly true. Drag the line. Find out how strict a bouncer you want to be.</p>
+
+  <div class="bouncer">
+    <div class="icon"><i class="ti ti-door"></i></div>
+    <p>Think of the threshold like a bouncer at a club checking IDs. A <b>strict</b> bouncer (line far to the right) almost never lets a fake ID through — but turns away more real regulars by mistake too. A <b>loose</b> bouncer (line closer to the middle) lets more real people in, but more fakes slip past. Every one of the 100 dots below is a "regular" — nothing fake about any of them. Any dot that gets flagged by your line is a false alarm, full stop.</p>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header">
+      <span class="stage-title">100 trials &middot; null hypothesis true in every one</span>
+      <button class="reroll-btn" id="rerollBtn">run 100 new trials ↻</button>
+    </div>
+    <svg id="dotSvg" viewBox="0 0 800 180"></svg>
+    <div class="counter-row">
+      <div class="counter">
+        <div class="big" id="flagCount">0</div>
+        <div class="small">flagged past the line</div>
+      </div>
+      <div class="counter-divider"></div>
+      <div class="counter">
+        <div class="big" id="alphaCount">0.00</div>
+        <div class="small">that's your alpha</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="target">
+    <div class="target-badge" id="targetBadge"><i class="ti ti-target-arrow"></i></div>
+    <div class="target-text" id="targetText">
+      Drag the line until exactly <b>5</b> dots get flagged. That's the bouncer setting the whole field calls "standard."
+    </div>
+  </div>
+  <div class="reveal" id="revealBox">
+    You just found it yourself: <b>&alpha; = 0.05</b> — a 5% false-alarm rate — isn't a rule handed down from anywhere. It's just "how strict does the line need to be so that, out of 100 truly-null trials, about 5 slip past by chance." Drag further right (stricter) and re-roll a few times — notice the flagged count won't always land on exactly 5 even at the same line position. That's sampling variability, the same reason two trials with the identical true effect can still land on different sides of "significant."
+  </div>
+
+  <div class="bridge">
+    <div class="bridge-label">Now zoom out</div>
+    <label class="bridge-toggle">
+      <input type="checkbox" id="curveToggle">
+      Show what this looks like with 100,000 trials instead of 100
+    </label>
+    <div class="bridge-note">The smooth bell curve you've seen everywhere else isn't a different idea from these dots — it's what this exact same picture looks like once you stop being able to count individual trials. The shaded region under the curve is just this dot-counting exercise, run so many times it blurs into a shape.</div>
+  </div>
+
+  <div class="footer-note">
+    Pattern demonstrated here: discrete, countable trials before continuous abstraction; discovery of the threshold before the formal name is attached to it; a concrete metaphor (bouncer) with zero Greek letters before any notation appears. This is a companion to the curve-based power demo — the two are meant to be encountered in this order, dots first.
+  </div>
+</div>
+
+<script>
+// ── Seeded RNG so "100 trials" is reproducible until the student re-rolls ──
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function randNormal(rng) {
+  // Box-Muller
+  const u1 = Math.max(rng(), 1e-9), u2 = rng();
+  return Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2);
+}
+
+const W = 800, H = 180, PAD = 30;
+const xMin = -3.5, xMax = 3.5;
+function xToPx(x) { return PAD + (x - xMin) / (xMax - xMin) * (W - 2*PAD); }
+
+let dots = [];
+let seedCounter = 1;
+
+function rollTrials() {
+  const rng = mulberry32(seedCounter++);
+  dots = [];
+  for (let i = 0; i < 100; i++) {
+    const z = randNormal(rng);
+    // jitter rows so dots don't perfectly overlap — purely visual, not data
+    dots.push({ z: Math.max(xMin+0.05, Math.min(xMax-0.05, z)), row: i % 10 });
+  }
+}
+
+let thresholdX = 1.645; // one-tailed starting point, draggable
+
+function render() {
+  const svg = document.getElementById('dotSvg');
+  const threshPx = xToPx(thresholdX);
+  let flagged = 0;
+
+  const dotEls = dots.map(dot => {
+    const px = xToPx(dot.z);
+    const py = 24 + dot.row * 13;
+    const isFlagged = dot.z >= thresholdX;
+    if (isFlagged) flagged++;
+    return `<circle cx="${px.toFixed(1)}" cy="${py}" r="4.5" fill="${isFlagged ? '#ef4444' : '#cbd5e1'}" opacity="${isFlagged ? '0.95' : '0.8'}"></circle>`;
+  }).join('');
+
+  svg.innerHTML = `
+    <line x1="${PAD}" y1="${H-20}" x2="${W-PAD}" y2="${H-20}" stroke="#e5e7eb" stroke-width="1"></line>
+    <rect x="${threshPx}" y="10" width="${(W-PAD)-threshPx}" height="${H-30}" fill="rgba(239,68,68,.06)"></rect>
+    ${dotEls}
+    <line class="thresh-line" x1="${threshPx}" y1="8" x2="${threshPx}" y2="${H-22}" stroke="#1a1a2e" stroke-width="2"></line>
+    <polygon class="thresh-handle" points="${threshPx-7},2 ${threshPx+7},2 ${threshPx},14" fill="#1a1a2e"></polygon>
+    <text x="${threshPx}" y="${H-6}" text-anchor="middle" font-size="10" font-weight="700" fill="#1a1a2e">line</text>
+  `;
+
+  document.getElementById('flagCount').textContent = flagged;
+  const alpha = flagged / 100;
+  document.getElementById('alphaCount').textContent = alpha.toFixed(2);
+  const hit = flagged === 5;
+  document.getElementById('flagCount').classList.toggle('hit', hit);
+  document.getElementById('alphaCount').classList.toggle('hit', hit);
+
+  const badge = document.getElementById('targetBadge');
+  const text = document.getElementById('targetText');
+  const reveal = document.getElementById('revealBox');
+  badge.classList.toggle('hit', hit);
+  badge.innerHTML = hit ? '<i class="ti ti-circle-check-filled"></i>' : '<i class="ti ti-target-arrow"></i>';
+  reveal.classList.toggle('show', hit);
+  if (!hit) {
+    text.innerHTML = flagged > 5
+      ? `Currently <b>${flagged}</b> flagged — too loose a bouncer. Drag the line right to tighten it up.`
+      : flagged < 5
+        ? `Currently <b>${flagged}</b> flagged — too strict a bouncer. Drag the line left to loosen it.`
+        : `Drag the line until exactly <b>5</b> dots get flagged. That's the bouncer setting the whole field calls "standard."`;
+  } else {
+    text.innerHTML = `Exactly <b>5</b> flagged out of 100. Hold here.`;
+  }
+}
+
+// ── Drag handling ──
+let dragging = false;
+const svgEl = document.getElementById('dotSvg');
+function pxToX(clientX) {
+  const rect = svgEl.getBoundingClientRect();
+  const svgX = (clientX - rect.left) / rect.width * W;
+  return xMin + (svgX - PAD) / (W - 2*PAD) * (xMax - xMin);
+}
+function startDrag(clientX) { dragging = true; thresholdX = Math.max(xMin, Math.min(xMax, pxToX(clientX))); render(); }
+function moveDrag(clientX) { if (!dragging) return; thresholdX = Math.max(xMin, Math.min(xMax, pxToX(clientX))); render(); }
+function endDrag() { dragging = false; }
+
+svgEl.addEventListener('mousedown', e => startDrag(e.clientX));
+window.addEventListener('mousemove', e => moveDrag(e.clientX));
+window.addEventListener('mouseup', endDrag);
+svgEl.addEventListener('touchstart', e => { startDrag(e.touches[0].clientX); e.preventDefault(); }, {passive:false});
+svgEl.addEventListener('touchmove', e => { moveDrag(e.touches[0].clientX); e.preventDefault(); }, {passive:false});
+svgEl.addEventListener('touchend', endDrag);
+
+document.getElementById('rerollBtn').addEventListener('click', () => { rollTrials(); render(); });
+
+document.getElementById('curveToggle').addEventListener('change', function() {
+  const note = document.querySelector('.bridge-note');
+  if (this.checked) {
+    note.innerHTML = `At 100,000 trials, the histogram of these same z-scores is indistinguishable from a smooth curve — and the fraction flagged past any given line converges to a fixed number no matter how many times you re-roll. That fixed number, for line = 1.645, is exactly 5%. The dots and the curve were always describing the same thing; 100 trials was just few enough to see the counting happen.`;
+  } else {
+    note.innerHTML = `The smooth bell curve you've seen everywhere else isn't a different idea from these dots — it's what this exact same picture looks like once you stop being able to count individual trials. The shaded region under the curve is just this dot-counting exercise, run so many times it blurs into a shape.`;
+  }
+});
+
+rollTrials();
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Four Ways to Show Alpha</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --ink:#1a1a2e; --muted:#6b7280; --faint:#9ca3af; --line:#e5e7eb; --bg:#fafafa;
+    --flag:#ef4444; --safe:#cbd5e1; --good:#16a34a; --good-fill:rgba(22,163,74,.10); --accent:#2563eb;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--ink); padding:32px 20px 80px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  .eyebrow { font-size:.6875rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); margin-bottom:6px; }
+  h1 { font-size:1.5rem; font-weight:700; margin:0 0 6px; letter-spacing:-.01em; }
+  .sub { color:var(--muted); font-size:.9375rem; line-height:1.5; margin:0 0 20px; max-width:66ch; }
+
+  .tabs { display:flex; gap:6px; border-bottom:1px solid var(--line); margin-bottom:20px; }
+  .tab-btn {
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:12px 8px; background:none; border:none; cursor:pointer;
+    font-family:inherit; font-size:.75rem; font-weight:600; color:var(--faint);
+    border-bottom:2px solid transparent; transition:color .15s, border-color .15s;
+  }
+  .tab-btn i { font-size:1.25rem; }
+  .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-btn:hover:not(.active) { color:var(--ink); }
+
+  .frame {
+    background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:18px 20px 16px;
+  }
+  .frame-note { font-size:.8125rem; color:var(--muted); line-height:1.55; margin-bottom:14px; }
+  .frame-note b { color:var(--ink); }
+
+  svg { display:block; width:100%; touch-action:none; }
+  .stage { position:relative; }
+
+  .counter-row { display:flex; align-items:center; justify-content:center; gap:28px; margin-top:6px; padding:14px 0 4px; }
+  .counter { text-align:center; }
+  .counter .big { font-size:1.75rem; font-weight:800; font-variant-numeric:tabular-nums; color:var(--flag); line-height:1; transition:color .15s; }
+  .counter .big.hit { color:var(--good); }
+  .counter .small { font-size:.625rem; color:var(--faint); margin-top:4px; text-transform:uppercase; letter-spacing:.04em; }
+  .counter-divider { width:1px; height:36px; background:var(--line); }
+
+  .target { margin-top:16px; display:flex; align-items:center; gap:14px; background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 18px; }
+  .target-badge { width:32px; height:32px; border-radius:50%; background:#f0f1f3; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.9375rem; transition:background .2s, transform .2s; }
+  .target-badge.hit { background:var(--good-fill); transform:scale(1.08); }
+  .target-text { font-size:.8125rem; color:var(--ink); line-height:1.5; }
+  .target-text b { color:var(--accent); }
+
+  .reroll-row { display:flex; justify-content:flex-end; margin-bottom:6px; }
+  .reroll-btn { font-size:.75rem; font-weight:600; color:var(--accent); background:none; border:none; cursor:pointer; display:flex; align-items:center; gap:4px; }
+  .reroll-btn:hover { text-decoration:underline; }
+
+  .footer-note { margin-top:24px; font-size:.75rem; color:var(--faint); line-height:1.6; border-top:1px solid var(--line); padding-top:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Four takes on the same idea</div>
+  <h1>Same 100 trials. Four different pictures.</h1>
+  <p class="sub">Every tab below uses the exact same underlying data and the exact same rule — drag until 5 out of 100 get flagged, and that's &alpha; = 0.05. Only the visual metaphor changes. Switch between them and notice which one makes the concept click fastest for you.</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-mode="line"><i class="ti ti-door"></i>Bouncer at a door</button>
+    <button class="tab-btn" data-mode="grid"><i class="ti ti-users-group"></i>Jury of 100</button>
+    <button class="tab-btn" data-mode="radial"><i class="ti ti-target"></i>Archer's target</button>
+    <button class="tab-btn" data-mode="jar"><i class="ti ti-flask"></i>Jar of marbles</button>
+  </div>
+
+  <div class="reroll-row">
+    <button class="reroll-btn" id="rerollBtn"><i class="ti ti-refresh"></i>run 100 new trials</button>
+  </div>
+
+  <div class="frame">
+    <div class="frame-note" id="frameNote"></div>
+    <div class="stage">
+      <svg id="stageSvg" viewBox="0 0 800 320"></svg>
+    </div>
+    <div class="counter-row">
+      <div class="counter">
+        <div class="big" id="flagCount">0</div>
+        <div class="small">flagged</div>
+      </div>
+      <div class="counter-divider"></div>
+      <div class="counter">
+        <div class="big" id="alphaCount">0.00</div>
+        <div class="small">that's your alpha</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="target">
+    <div class="target-badge" id="targetBadge"><i class="ti ti-target-arrow"></i></div>
+    <div class="target-text" id="targetText">Drag until exactly <b>5</b> get flagged.</div>
+  </div>
+
+  <div class="footer-note">
+    All four tabs share one 100-value dataset (seeded, re-rollable) and one flagging rule. What differs is purely spatial: a 1-D line you drag along, a ranked grid, a 2-D radius from a center point, and a sorted vertical stack. Worth noticing which geometry made "5 out of 100" feel most physically obvious rather than just numerically true.
+  </div>
+</div>
+
+<script>
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function randNormal(rng) {
+  const u1 = Math.max(rng(), 1e-9), u2 = rng();
+  return Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2);
+}
+
+let seedCounter = 1;
+let values = [];
+function rollTrials() {
+  const rng = mulberry32(seedCounter++);
+  values = [];
+  for (let i = 0; i < 100; i++) values.push(randNormal(rng));
+}
+
+let mode = 'line';
+let threshLine = 1.645;   // z-units, used by line/grid/jar
+let threshRadius = 0.55;  // 0..1 fraction, used by radial
+
+const NOTES = {
+  line: 'A bouncer checking IDs at a door. Every one of these 100 people is a real regular &mdash; nothing fake about any of them. Drag the line. Anyone past it gets flagged as suspicious, wrongly.',
+  grid: 'A jury deciding 100 cases. Every single defendant here is actually innocent. The slider sets how much evidence counts as "enough to convict." Drag it and watch how many innocent people get wrongly convicted.',
+  radial: 'An archer with no real skill, taking 100 shots at a target. Drag the ring size. Any shot landing outside the ring gets called "clearly not a fluke" &mdash; even though every shot here was pure chance.',
+  jar: 'A jar of 100 marbles, sorted bottom to top by how extreme each one is. Drag the fill line. Anything above the line spills out and gets flagged.'
+};
+
+const W = 800, H = 320;
+
+function computeFlags(threshold) {
+  return values.map(z => z >= threshold);
+}
+
+function renderLine() {
+  const PAD = 30, xMin=-3.5, xMax=3.5;
+  const xToPx = x => PAD + (x-xMin)/(xMax-xMin)*(W-2*PAD);
+  const threshPx = xToPx(threshLine);
+  const flags = computeFlags(threshLine);
+  const dotEls = values.map((z,i) => {
+    const px = xToPx(Math.max(xMin+0.05,Math.min(xMax-0.05,z)));
+    const py = 40 + (i%10)*20;
+    return `<circle cx="${px.toFixed(1)}" cy="${py}" r="6" fill="${flags[i]?'var(--flag)':'var(--safe)'}"></circle>`;
+  }).join('');
+  document.getElementById('stageSvg').innerHTML = `
+    <rect x="${threshPx}" y="10" width="${(W-PAD)-threshPx}" height="260" fill="rgba(239,68,68,.06)"></rect>
+    ${dotEls}
+    <line x1="${threshPx}" y1="10" x2="${threshPx}" y2="270" stroke="#1a1a2e" stroke-width="2" class="drag-target"></line>
+    <polygon points="${threshPx-8},2 ${threshPx+8},2 ${threshPx},16" fill="#1a1a2e" class="drag-target"></polygon>
+  `;
+  return flags.filter(Boolean).length;
+}
+
+function renderGrid() {
+  const sorted = values.map((z,i)=>({z,i})).sort((a,b)=>a.z-b.z);
+  const cellW = 68, cellH = 26, cols = 10, startX = 40, startY = 30;
+  const rankThresh = threshLine; // reuse same z-space threshold
+  let cells = '';
+  sorted.forEach((v, rank) => {
+    const col = rank % cols, row = Math.floor(rank/cols);
+    const cx = startX + col*cellW, cy = startY + row*cellH;
+    const flagged = v.z >= rankThresh;
+    cells += `<g transform="translate(${cx},${cy})">
+      <circle cx="10" cy="10" r="9" fill="${flagged?'var(--flag)':'#e5e7eb'}"></circle>
+      <text x="10" y="14" text-anchor="middle" font-size="10" fill="${flagged?'#fff':'#9ca3af'}" font-family="Inter,sans-serif"><tspan style="font-weight:700">i</tspan></text>
+    </g>`;
+  });
+  document.getElementById('stageSvg').innerHTML = `
+    ${cells}
+    <text x="${startX}" y="300" font-size="11" fill="#9ca3af" font-family="Inter,sans-serif">sorted left-to-right, top-to-bottom by strength of evidence &mdash; drag the slider below</text>
+  `;
+  return sorted.filter(v => v.z >= rankThresh).length;
+}
+
+function renderRadial() {
+  const cx = W/2, cy = 150, maxR = 130;
+  const ringR = threshRadius * maxR;
+  const points = values.map((z,i) => {
+    const rng = mulberry32(9000+i)(); // fixed angle per index, stable across re-renders
+    const angle = rng * Math.PI * 2;
+    const r = Math.min(maxR-4, Math.abs(z) / 3.2 * maxR);
+    return { x: cx + r*Math.cos(angle), y: cy + r*Math.sin(angle), r };
+  });
+  const dotEls = points.map(p => {
+    const flagged = p.r >= ringR;
+    return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="6" fill="${flagged?'var(--flag)':'var(--safe)'}"></circle>`;
+  }).join('');
+  let rings = '';
+  for (let rr = maxR/3; rr <= maxR; rr += maxR/3) {
+    rings += `<circle cx="${cx}" cy="${cy}" r="${rr}" fill="none" stroke="#f0f1f3" stroke-width="1"></circle>`;
+  }
+  document.getElementById('stageSvg').innerHTML = `
+    ${rings}
+    <circle cx="${cx}" cy="${cy}" r="3" fill="#1a1a2e"></circle>
+    ${dotEls}
+    <circle cx="${cx}" cy="${cy}" r="${ringR}" fill="none" stroke="#1a1a2e" stroke-width="2" stroke-dasharray="5,4" class="drag-target"></circle>
+  `;
+  return points.filter(p => p.r >= ringR).length;
+}
+
+function renderJar() {
+  const sorted = values.map((z,i)=>({z,i})).sort((a,b)=>a.z-b.z);
+  const jarLeft = 260, jarRight = 540, jarBottom = 290, jarTop = 40;
+  const cols = 10, rows = 10;
+  const cellW = (jarRight-jarLeft)/cols, cellH = (jarBottom-jarTop)/rows;
+  const fillFrac = 1 - Math.min(1, Math.max(0, (threshLine - (-3.2)) / 6.4)); // higher threshold = lower fill line
+  const lineY = jarTop + fillFrac*(jarBottom-jarTop);
+  let marbles = '';
+  sorted.forEach((v, rank) => {
+    const col = rank % cols, row = rows - 1 - Math.floor(rank/cols);
+    const cx = jarLeft + col*cellW + cellW/2, cy = jarTop + row*cellH + cellH/2;
+    const flagged = cy < lineY;
+    marbles += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="9" fill="${flagged?'var(--flag)':'#93c5fd'}"></circle>`;
+  });
+  document.getElementById('stageSvg').innerHTML = `
+    <path d="M${jarLeft-14},${jarTop} L${jarLeft-14},${jarBottom+10} Q${jarLeft-14},${jarBottom+26} ${jarLeft+2},${jarBottom+26} L${jarRight-2},${jarBottom+26} Q${jarRight+14},${jarBottom+26} ${jarRight+14},${jarBottom+10} L${jarRight+14},${jarTop}" fill="none" stroke="#d1d5db" stroke-width="3"></path>
+    ${marbles}
+    <line x1="${jarLeft-24}" y1="${lineY}" x2="${jarRight+24}" y2="${lineY}" stroke="#1a1a2e" stroke-width="2" stroke-dasharray="5,4" class="drag-target"></line>
+  `;
+  return sorted.filter(v => {
+    const rank = sorted.indexOf(v);
+    const row = rows - 1 - Math.floor(rank/cols);
+    const cy = jarTop + row*cellH + cellH/2;
+    return cy < lineY;
+  }).length;
+}
+
+function render() {
+  document.getElementById('frameNote').innerHTML = NOTES[mode];
+  let flagged;
+  if (mode === 'line') flagged = renderLine();
+  else if (mode === 'grid') flagged = renderGrid();
+  else if (mode === 'radial') flagged = renderRadial();
+  else flagged = renderJar();
+
+  document.getElementById('flagCount').textContent = flagged;
+  document.getElementById('alphaCount').textContent = (flagged/100).toFixed(2);
+  const hit = flagged === 5;
+  document.getElementById('flagCount').classList.toggle('hit', hit);
+  document.getElementById('alphaCount').classList.toggle('hit', hit);
+  const badge = document.getElementById('targetBadge');
+  const text = document.getElementById('targetText');
+  badge.classList.toggle('hit', hit);
+  badge.innerHTML = hit ? '<i class="ti ti-circle-check-filled"></i>' : '<i class="ti ti-target-arrow"></i>';
+  text.innerHTML = hit
+    ? `Exactly <b>5</b> flagged &mdash; that's &alpha; = 0.05.`
+    : flagged > 5 ? `<b>${flagged}</b> flagged &mdash; too loose, tighten it up.` : `<b>${flagged}</b> flagged &mdash; too strict, loosen it.`;
+}
+
+// ── Drag handling, generalized across the 3 spatial modes; grid uses a slider instead ──
+const svgEl = document.getElementById('stageSvg');
+let dragging = false;
+function svgPoint(clientX, clientY) {
+  const rect = svgEl.getBoundingClientRect();
+  return {
+    x: (clientX-rect.left)/rect.width*W,
+    y: (clientY-rect.top)/rect.height*320
+  };
+}
+function applyDrag(clientX, clientY) {
+  const p = svgPoint(clientX, clientY);
+  if (mode === 'line') {
+    const PAD=30, xMin=-3.5, xMax=3.5;
+    threshLine = Math.max(xMin, Math.min(xMax, xMin + (p.x-PAD)/(W-2*PAD)*(xMax-xMin)));
+  } else if (mode === 'grid') {
+    const startX=40, cellW=68, xMin=-3.5, xMax=3.5;
+    const frac = Math.max(0, Math.min(1, (p.x-startX)/(cellW*10)));
+    threshLine = xMin + frac*(xMax-xMin);
+  } else if (mode === 'radial') {
+    const cx=W/2, cy=150, maxR=130;
+    const dist = Math.sqrt((p.x-cx)**2 + (p.y-cy)**2);
+    threshRadius = Math.max(0, Math.min(1, dist/maxR));
+  } else if (mode === 'jar') {
+    const jarTop=40, jarBottom=290;
+    const frac = 1 - Math.max(0, Math.min(1, (p.y-jarTop)/(jarBottom-jarTop)));
+    threshLine = -3.2 + frac*6.4;
+  }
+  render();
+}
+svgEl.addEventListener('mousedown', e => { dragging=true; applyDrag(e.clientX, e.clientY); });
+window.addEventListener('mousemove', e => { if(dragging) applyDrag(e.clientX, e.clientY); });
+window.addEventListener('mouseup', () => dragging=false);
+svgEl.addEventListener('touchstart', e => { dragging=true; applyDrag(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, {passive:false});
+svgEl.addEventListener('touchmove', e => { if(dragging) applyDrag(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, {passive:false});
+svgEl.addEventListener('touchend', () => dragging=false);
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    mode = this.dataset.mode;
+    render();
+  });
+});
+document.getElementById('rerollBtn').addEventListener('click', () => { rollTrials(); render(); });
+
+rollTrials();
+render();
+</script>
+</body>
+</html>

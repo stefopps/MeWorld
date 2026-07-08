@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NovaStat — Watch the Multiple-Comparisons Trap Happen</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --ink:#1a1a2e; --muted:#6b7280; --faint:#9ca3af; --line:#e5e7eb; --bg:#fafafa;
+    --flag:#ef4444; --flag-fill:rgba(239,68,68,.06); --safe:#cbd5e1; --good:#16a34a;
+    --good-fill:rgba(22,163,74,.10); --accent:#2563eb;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--ink); padding:32px 20px 80px; }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  .eyebrow { font-size:.6875rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); margin-bottom:6px; }
+  h1 { font-size:1.5rem; font-weight:700; margin:0 0 6px; letter-spacing:-.01em; }
+  .sub { color:var(--muted); font-size:.9375rem; line-height:1.55; margin:0 0 20px; max-width:70ch; }
+  .sub b { color: var(--ink); }
+
+  .frame { background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px 20px 16px; margin-bottom:16px; }
+  .frame-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .frame-title { font-size:.75rem; font-weight:700; color:var(--faint); text-transform:uppercase; letter-spacing:.05em; }
+  .reroll-btn { font-size:.75rem; font-weight:600; color:var(--accent); background:none; border:none; cursor:pointer; display:flex; align-items:center; gap:4px; }
+  .reroll-btn:hover { text-decoration:underline; }
+
+  /* 100-trial grid, each trial = a row of k dots */
+  .trial-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 3px;
+  }
+  .trial-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    padding: 3px;
+    transition: background .15s;
+    cursor: pointer;
+  }
+  .trial-cell.flagged { background: var(--flag-fill); }
+  .trial-cell .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--safe); flex-shrink:0; }
+  .trial-cell .dot.hit { background: var(--flag); }
+
+  .tally-row { display:flex; align-items:center; justify-content:center; gap:32px; margin-top:18px; padding-top:16px; border-top:1px solid var(--line); }
+  .tally { text-align:center; }
+  .tally .big { font-size:2rem; font-weight:800; font-variant-numeric:tabular-nums; color:var(--flag); line-height:1; }
+  .tally .small { font-size:.6875rem; color:var(--faint); margin-top:4px; text-transform:uppercase; letter-spacing:.04em; max-width:160px; }
+  .tally-divider { width:1px; height:44px; background:var(--line); }
+
+  .controls { background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px 22px; margin-bottom:16px; }
+  .control-row label { display:flex; justify-content:space-between; font-size:.8125rem; font-weight:600; margin-bottom:6px; }
+  .control-row label span.val { color:var(--accent); font-variant-numeric:tabular-nums; }
+  input[type=range] { width:100%; accent-color:var(--accent); height:4px; }
+  .control-hint { font-size:.6875rem; color:var(--faint); margin-top:4px; }
+
+  .formula-panel { background:#fff7ed; border:1px solid #fde68a; border-radius:14px; padding:16px 20px; margin-bottom:16px; font-size:.875rem; color:#78350f; line-height:1.6; text-align:center; }
+  .formula-panel b { font-variant-numeric: tabular-nums; }
+  .formula-panel .match { display:block; margin-top:6px; font-size:.75rem; color:#92400e; }
+
+  .zoom-note { display:flex; align-items:center; gap:8px; font-size:.75rem; color:var(--faint); margin-top:10px; }
+
+  .detail {
+    background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:16px;
+    display: none;
+  }
+  .detail.show { display:block; }
+  .detail-title { font-size:.8125rem; font-weight:700; margin-bottom:10px; }
+  .detail-row { display:flex; align-items:center; gap:10px; font-size:.8125rem; padding:5px 0; }
+  .detail-row .lbl { width:110px; color:var(--muted); flex-shrink:0; }
+  .detail-row .bar-track { flex:1; height:6px; background:#f3f4f6; border-radius:3px; position:relative; }
+  .detail-row .bar-fill { position:absolute; top:0; bottom:0; left:0; border-radius:3px; background:var(--safe); }
+  .detail-row .bar-fill.hit { background: var(--flag); }
+  .detail-row .p { width:70px; text-align:right; font-variant-numeric:tabular-nums; flex-shrink:0; }
+  .detail-row .p.hit { color:var(--flag); font-weight:700; }
+
+  .footer-note { margin-top:8px; font-size:.75rem; color:var(--faint); line-height:1.6; border-top:1px solid var(--line); padding-top:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Q13 &middot; NovaStat &middot; make the callout box provable</div>
+  <h1>What if NovaStat does <i>nothing</i>?</h1>
+  <p class="sub">The forest plot showed 4 "significant" subgroups. The yellow box says that happens <b>18.5% of the time by pure chance</b>, even with zero real effect anywhere. Don't take that formula's word for it — below are 100 parallel worlds where NovaStat is a placebo with a fancy label, tested on the same 4 subgroups every time. Watch how many of those worlds still produce a headline.</p>
+
+  <div class="controls">
+    <div class="control-row">
+      <label>Subgroups tested per trial <span class="val" id="kVal">4</span></label>
+      <input type="range" id="kSlider" min="1" max="10" value="4">
+      <div class="control-hint">NovaStat's ad tested 4 (women, diabetics, age&gt;65, prior TIA) &mdash; drag to see what happens if they'd sliced the data further</div>
+    </div>
+  </div>
+
+  <div class="formula-panel" id="formulaPanel"></div>
+
+  <div class="frame">
+    <div class="frame-header">
+      <span class="frame-title">100 trials &middot; true effect is zero in every single one</span>
+      <button class="reroll-btn" id="rerollBtn"><i class="ti ti-refresh"></i>run 100 new trials</button>
+    </div>
+    <div class="trial-grid" id="trialGrid"></div>
+    <div class="zoom-note"><i class="ti ti-hand-click"></i>click any square to see that trial's 4 subgroups laid out like the forest plot</div>
+    <div class="tally-row">
+      <div class="tally">
+        <div class="big" id="flaggedTally">0</div>
+        <div class="small">of 100 trials had at least one fluke "significant" subgroup</div>
+      </div>
+      <div class="tally-divider"></div>
+      <div class="tally">
+        <div class="big" id="pctTally" style="color:var(--accent)">0%</div>
+        <div class="small">simulated familywise error rate</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail" id="detailPanel">
+    <div class="detail-title" id="detailTitle"></div>
+    <div id="detailRows"></div>
+  </div>
+
+  <div class="footer-note">
+    Every dot above is one subgroup test where the real effect is exactly zero, given a 5% chance of a false "significant" reading &mdash; the same rule as the bouncer/jury/target demos, just run 4 times per trial instead of once, then asking "did <i>any</i> of the 4 slip through." The formula 1&minus;(1&minus;0.05)^k tells you where this should converge; the grid above shows you it actually doing it, 100 independent times, re-rollable.
+  </div>
+</div>
+
+<script>
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const SUBGROUP_NAMES = ['Women','Diabetic patients','Age > 65','Prior TIA','Smokers','Renal impairment','Prior MI','Obese (BMI>30)','Age < 50','Non-smokers'];
+
+let seedCounter = 1;
+let trials = []; // each trial: array of booleans, length k, true = "false positive this run"
+
+function rollTrials(k) {
+  const rng = mulberry32(seedCounter++);
+  trials = [];
+  for (let t = 0; t < 100; t++) {
+    const subgroups = [];
+    for (let s = 0; s < k; s++) subgroups.push(rng() < 0.05);
+    trials.push(subgroups);
+  }
+}
+
+function render() {
+  const k = parseInt(document.getElementById('kSlider').value);
+  document.getElementById('kVal').textContent = k;
+
+  const grid = document.getElementById('trialGrid');
+  let flaggedCount = 0;
+  grid.innerHTML = trials.map((subgroups, idx) => {
+    const anyFlag = subgroups.some(Boolean);
+    if (anyFlag) flaggedCount++;
+    const dots = subgroups.map(hit => `<span class="dot${hit?' hit':''}"></span>`).join('');
+    return `<div class="trial-cell${anyFlag?' flagged':''}" data-idx="${idx}">${dots}</div>`;
+  }).join('');
+
+  document.getElementById('flaggedTally').textContent = flaggedCount;
+  document.getElementById('pctTally').textContent = flaggedCount + '%';
+
+  const theoretical = (1 - Math.pow(0.95, k)) * 100;
+  document.getElementById('formulaPanel').innerHTML =
+    `<b>${k}</b> independent tests at &alpha; = 0.05 &rarr; formula predicts <b>${theoretical.toFixed(1)}%</b> familywise error rate
+     <span class="match">1 &minus; (1&minus;0.05)<sup>${k}</sup> = ${theoretical.toFixed(1)}% &mdash; the simulation above landed on <b>${flaggedCount}%</b> this run. Re-roll a few times and watch it hover around the formula's number without ever pinning it exactly.</span>`;
+
+  grid.querySelectorAll('.trial-cell').forEach(cell => {
+    cell.addEventListener('click', () => showDetail(parseInt(cell.dataset.idx), k));
+  });
+
+  document.getElementById('detailPanel').classList.remove('show');
+}
+
+function showDetail(idx, k) {
+  const subgroups = trials[idx];
+  const panel = document.getElementById('detailPanel');
+  const anyFlag = subgroups.some(Boolean);
+  document.getElementById('detailTitle').innerHTML =
+    `Trial #${idx+1} of 100 &mdash; ${anyFlag ? '<span style="color:var(--flag)">this is one that would have made the ad</span>' : '<span style="color:var(--good)">nothing crossed the line here</span>'}`;
+  document.getElementById('detailRows').innerHTML = subgroups.map((hit, i) => {
+    const name = SUBGROUP_NAMES[i] || ('Subgroup ' + (i+1));
+    const width = hit ? (85 + Math.random()*10) : (15 + Math.random()*55);
+    const pVal = hit ? (0.005 + Math.random()*0.045) : (0.06 + Math.random()*0.9);
+    return `<div class="detail-row">
+      <div class="lbl">${name}</div>
+      <div class="bar-track"><div class="bar-fill${hit?' hit':''}" style="width:${width}%"></div></div>
+      <div class="p${hit?' hit':''}">p = ${pVal.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+  panel.classList.add('show');
+  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+document.getElementById('kSlider').addEventListener('input', () => { rollTrials(parseInt(document.getElementById('kSlider').value)); render(); });
+document.getElementById('rerollBtn').addEventListener('click', () => { rollTrials(parseInt(document.getElementById('kSlider').value)); render(); });
+
+rollTrials(4);
+render();
+</script>
+</body>
+</html>
