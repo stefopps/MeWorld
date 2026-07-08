@@ -1674,8 +1674,45 @@
         "label": "A",
         "text": "The results are unreliable because there is too much variation between studies.",
         "graph": {
-          "hr": 1.17,
-          "brate": 0.3
+          "rows": [
+            {
+              "label": "Trial 1 (n=620)",
+              "estimate": 1.55,
+              "ciLow": 1.21,
+              "ciHigh": 1.99
+            },
+            {
+              "label": "Trial 2 (n=840)",
+              "estimate": 0.72,
+              "ciLow": 0.52,
+              "ciHigh": 0.99
+            },
+            {
+              "label": "Trial 3 (n=720)",
+              "estimate": 1.41,
+              "ciLow": 1.08,
+              "ciHigh": 1.85
+            },
+            {
+              "label": "Trial 4 (n=910)",
+              "estimate": 0.68,
+              "ciLow": 0.49,
+              "ciHigh": 0.94
+            },
+            {
+              "label": "Trial 5 (n=710)",
+              "estimate": 1.32,
+              "ciLow": 0.98,
+              "ciHigh": 1.78
+            },
+            {
+              "label": "Pooled — I² ≈ 82%",
+              "estimate": 1.1,
+              "ciLow": 0.82,
+              "ciHigh": 1.48
+            }
+          ],
+          "annotation": "Large I² — too much variation. This is what the stem does NOT show."
         },
         "desc": "<strong>I² = 0% means there is NO detected heterogeneity — the studies are remarkably consistent.</strong> An I² above 50% or a significant Q-test would signal worrisome between-study variation. The graph shows the pooled effect. I² = 0 is ideal — it means the studies are measuring the same underlying effect, and the pooling is appropriate."
       },
@@ -1683,8 +1720,45 @@
         "label": "B",
         "text": "The studies are highly consistent — the variation in results is no more than expected by chance alone, supporting the pooled estimate.",
         "graph": {
-          "hr": 1.17,
-          "brate": 0.3
+          "rows": [
+            {
+              "label": "Trial 1 (n=620)",
+              "estimate": 1.22,
+              "ciLow": 0.91,
+              "ciHigh": 1.63
+            },
+            {
+              "label": "Trial 2 (n=840)",
+              "estimate": 1.14,
+              "ciLow": 0.88,
+              "ciHigh": 1.48
+            },
+            {
+              "label": "Trial 3 (n=720)",
+              "estimate": 1.09,
+              "ciLow": 0.82,
+              "ciHigh": 1.45
+            },
+            {
+              "label": "Trial 4 (n=910)",
+              "estimate": 1.19,
+              "ciLow": 0.95,
+              "ciHigh": 1.49
+            },
+            {
+              "label": "Trial 5 (n=710)",
+              "estimate": 1.25,
+              "ciLow": 0.97,
+              "ciHigh": 1.61
+            },
+            {
+              "label": "Pooled (I²=0%)",
+              "estimate": 1.17,
+              "ciLow": 1.05,
+              "ciHigh": 1.31
+            }
+          ],
+          "annotation": "I² = 0% — variation is no more than expected by chance alone."
         },
         "desc": "<strong>I² quantifies the proportion of total variation that is due to heterogeneity rather than chance.</strong> I² = 0% means all the variation between studies can be explained by random sampling error — the studies are tapping into the same true effect. The forest plot would show overlapping CIs for every study. The graph shows the pooled HR=1.17. When I² = 0, a fixed-effect and random-effects model give nearly identical results."
       },
@@ -1692,8 +1766,64 @@
         "label": "C",
         "text": "I² = 0% indicates publication bias — small negative studies are missing.",
         "graph": {
-          "hr": 0.9,
-          "brate": 0.3
+          "title": "Funnel Plot Asymmetry — Publication Bias",
+          "rows": [
+            {
+              "label": "Small trial (n=80)",
+              "estimate": 1.89,
+              "ciLow": 1.22,
+              "ciHigh": 2.93
+            },
+            {
+              "label": "Small trial (n=110)",
+              "estimate": 1.72,
+              "ciLow": 1.15,
+              "ciHigh": 2.57
+            },
+            {
+              "label": "Small trial (n=90)",
+              "estimate": 2.05,
+              "ciLow": 1.35,
+              "ciHigh": 3.11
+            },
+            {
+              "label": "Medium trial (n=310)",
+              "estimate": 1.28,
+              "ciLow": 0.98,
+              "ciHigh": 1.67
+            },
+            {
+              "label": "Medium trial (n=380)",
+              "estimate": 1.15,
+              "ciLow": 0.89,
+              "ciHigh": 1.49
+            },
+            {
+              "label": "Medium trial (n=420)",
+              "estimate": 1.09,
+              "ciLow": 0.85,
+              "ciHigh": 1.4
+            },
+            {
+              "label": "Large trial (n=820)",
+              "estimate": 0.96,
+              "ciLow": 0.84,
+              "ciHigh": 1.1
+            },
+            {
+              "label": "Large trial (n=1100)",
+              "estimate": 0.99,
+              "ciLow": 0.88,
+              "ciHigh": 1.11
+            },
+            {
+              "label": "Pooled",
+              "estimate": 1.17,
+              "ciLow": 1.08,
+              "ciHigh": 1.27
+            }
+          ],
+          "annotation": "Publication bias — small trials show larger effects (funnel asymmetry). But I²=0% measures heterogeneity, not bias."
         },
         "desc": "<strong>Publication bias is detected through funnel plot asymmetry, not I².</strong> I² measures heterogeneity. A symmetric funnel plot with I² = 0% would indicate both consistent results AND no evidence of missing studies. The graph shows a weaker effect — what a biased meta-analysis MIGHT produce if negative studies were suppressed. But I² can't tell you that."
       },
@@ -1701,8 +1831,45 @@
         "label": "D",
         "text": "The non-significant Q-test (p = 0.92) means the individual studies were underpowered.",
         "graph": {
-          "hr": 0.85,
-          "brate": 0.3
+          "rows": [
+            {
+              "label": "Trial 1 (n=40)",
+              "estimate": 1.18,
+              "ciLow": 0.64,
+              "ciHigh": 2.17
+            },
+            {
+              "label": "Trial 2 (n=50)",
+              "estimate": 1.15,
+              "ciLow": 0.66,
+              "ciHigh": 2.01
+            },
+            {
+              "label": "Trial 3 (n=35)",
+              "estimate": 1.1,
+              "ciLow": 0.54,
+              "ciHigh": 2.24
+            },
+            {
+              "label": "Trial 4 (n=55)",
+              "estimate": 1.21,
+              "ciLow": 0.72,
+              "ciHigh": 2.04
+            },
+            {
+              "label": "Trial 5 (n=45)",
+              "estimate": 1.24,
+              "ciLow": 0.68,
+              "ciHigh": 2.26
+            },
+            {
+              "label": "Pooled (I²=0%)",
+              "estimate": 1.17,
+              "ciLow": 0.99,
+              "ciHigh": 1.38
+            }
+          ],
+          "annotation": "Wide CIs = underpowered individually. But I²=0% means they agree — power ≠ heterogeneity."
         },
         "desc": "<strong>A non-significant Q-test (the formal test of heterogeneity) means you FAIL to reject the null of homogeneity.</strong> This is exactly the test you WANT to be non-significant — it means the studies are consistent. The graph shows a weaker effect — but underpowered individual studies actually increase heterogeneity, not decrease it. The Q-test p = 0.92 tells you the studies are consistent, not weak."
       },
@@ -1710,55 +1877,99 @@
         "label": "E",
         "text": "The pooled estimate must use a random-effects model because I² < 25%.",
         "graph": {
-          "hr": 1.17,
-          "brate": 0.3
+          "rows": [
+            {
+              "label": "Trial 1 (n=620)",
+              "estimate": 1.22,
+              "ciLow": 0.91,
+              "ciHigh": 1.63
+            },
+            {
+              "label": "Trial 2 (n=840)",
+              "estimate": 1.14,
+              "ciLow": 0.88,
+              "ciHigh": 1.48
+            },
+            {
+              "label": "Trial 3 (n=720)",
+              "estimate": 1.09,
+              "ciLow": 0.82,
+              "ciHigh": 1.45
+            },
+            {
+              "label": "Trial 4 (n=910)",
+              "estimate": 1.19,
+              "ciLow": 0.95,
+              "ciHigh": 1.49
+            },
+            {
+              "label": "Trial 5 (n=710)",
+              "estimate": 1.25,
+              "ciLow": 0.97,
+              "ciHigh": 1.61
+            },
+            {
+              "label": "Fixed effect",
+              "estimate": 1.17,
+              "ciLow": 1.05,
+              "ciHigh": 1.31
+            },
+            {
+              "label": "Random effects",
+              "estimate": 1.17,
+              "ciLow": 1.05,
+              "ciHigh": 1.31
+            }
+          ],
+          "annotation": "Fixed = Random when I²=0%. DerSimonian-Laird τ² ≈ 0 — random effects collapses to fixed."
         },
         "desc": "<strong>Fixed-effect models assume one true effect. Random-effects models allow the true effect to vary across studies.</strong> When I² = 0%, fixed and random effects converge to the same answer. I² = 0 doesn't FORCE a random-effects model — it just makes the choice irrelevant. The graph shows the same pooled effect under either model."
       }
     ],
     "correct": 1,
     "baseGraph": {
-      "title": "ImmunoBoost Meta‑Analysis — I² = 0%",
+      "title": "ImmunoBoost Meta‑Analysis — I² = 0%, Q = 1.24, p = 0.92",
       "type": "forestPlot",
       "nullLine": 1,
       "rows": [
         {
           "label": "Trial 1 (n=620)",
-          "estimate": 1.22,
-          "ciLow": 0.91,
-          "ciHigh": 1.63
+          "estimate": 1.19,
+          "ciLow": 0.92,
+          "ciHigh": 1.54
         },
         {
           "label": "Trial 2 (n=840)",
           "estimate": 1.14,
-          "ciLow": 0.88,
-          "ciHigh": 1.48
+          "ciLow": 0.89,
+          "ciHigh": 1.46
         },
         {
           "label": "Trial 3 (n=720)",
           "estimate": 1.09,
-          "ciLow": 0.82,
-          "ciHigh": 1.45
+          "ciLow": 0.83,
+          "ciHigh": 1.43
         },
         {
           "label": "Trial 4 (n=910)",
-          "estimate": 1.19,
-          "ciLow": 0.95,
-          "ciHigh": 1.49
+          "estimate": 1.21,
+          "ciLow": 0.96,
+          "ciHigh": 1.52
         },
         {
           "label": "Trial 5 (n=710)",
           "estimate": 1.25,
-          "ciLow": 0.97,
-          "ciHigh": 1.61
+          "ciLow": 0.98,
+          "ciHigh": 1.59
         },
         {
-          "label": "Pooled (fixed)",
+          "label": "Pooled (fixed effect)",
           "estimate": 1.17,
           "ciLow": 1.05,
           "ciHigh": 1.31
         }
-      ]
+      ],
+      "annotation": "I² = 0% → consistent results across all trials"
     },
     "explanation": "I² = 0% means the studies are tapping into the same signal. The variation between them is what you'd expect from sampling error alone. This strengthens the meta-analysis: the pooled estimate represents a common effect, not an average of apples and oranges.",
     "trap": "I² tells you about consistency. Funnel plots tell you about publication bias. Don't use one to diagnose the other. I² = 0 is good news for meta-analysis validity. I² > 50% with a significant Q-test tells you to explore why the studies differ before pooling them.",
@@ -1773,8 +1984,64 @@
         "label": "A",
         "text": "Heterogeneity — the true treatment effect varies across populations.",
         "graph": {
-          "hr": 1.17,
-          "brate": 0.3
+          "rows": [
+            {
+              "label": "Trial A (n=340)",
+              "estimate": 1.62,
+              "ciLow": 1.28,
+              "ciHigh": 2.05
+            },
+            {
+              "label": "Trial B (n=290)",
+              "estimate": 0.85,
+              "ciLow": 0.63,
+              "ciHigh": 1.15
+            },
+            {
+              "label": "Trial C (n=410)",
+              "estimate": 1.44,
+              "ciLow": 1.18,
+              "ciHigh": 1.76
+            },
+            {
+              "label": "Trial D (n=360)",
+              "estimate": 0.72,
+              "ciLow": 0.55,
+              "ciHigh": 0.94
+            },
+            {
+              "label": "Trial E (n=500)",
+              "estimate": 1.28,
+              "ciLow": 1.05,
+              "ciHigh": 1.56
+            },
+            {
+              "label": "Trial F (n=320)",
+              "estimate": 0.98,
+              "ciLow": 0.74,
+              "ciHigh": 1.3
+            },
+            {
+              "label": "Trial G (n=280)",
+              "estimate": 1.55,
+              "ciLow": 1.18,
+              "ciHigh": 2.04
+            },
+            {
+              "label": "Trial H (n=450)",
+              "estimate": 0.68,
+              "ciLow": 0.52,
+              "ciHigh": 0.89
+            },
+            {
+              "label": "Pooled (I²=88%)",
+              "estimate": 1.12,
+              "ciLow": 0.86,
+              "ciHigh": 1.46
+            }
+          ],
+          "title": "True Heterogeneity — I² = 88%",
+          "annotation": "Heterogeneity: estimates genuinely differ across populations. Funnel asymmetry: small studies are systematically different."
         },
         "desc": "<strong>Heterogeneity would scatter points evenly around the pooled estimate, regardless of study size.</strong> Funnel plot asymmetry — specifically, missing small studies on the null side — points to a systematic absence, not random variation. The graph shows the pooled effect. Heterogeneity creates dispersion. Publication bias creates a gap."
       },
@@ -1782,8 +2049,106 @@
         "label": "B",
         "text": "Publication bias — small negative or null trials were not published, inflating the apparent pooled effect.",
         "graph": {
-          "hr": 1,
-          "brate": 0.3
+          "rows": [
+            {
+              "label": "Small (n=45)",
+              "estimate": 1.85,
+              "ciLow": 1.15,
+              "ciHigh": 2.97
+            },
+            {
+              "label": "Small (n=60)",
+              "estimate": 1.62,
+              "ciLow": 1.05,
+              "ciHigh": 2.5
+            },
+            {
+              "label": "Small (n=55)",
+              "estimate": 1.74,
+              "ciLow": 1.12,
+              "ciHigh": 2.7
+            },
+            {
+              "label": "Small (n=70)",
+              "estimate": 1.58,
+              "ciLow": 1.02,
+              "ciHigh": 2.45
+            },
+            {
+              "label": "Small (n=50)",
+              "estimate": 1.91,
+              "ciLow": 1.2,
+              "ciHigh": 3.04
+            },
+            {
+              "label": "Medium (n=280)",
+              "estimate": 1.32,
+              "ciLow": 0.98,
+              "ciHigh": 1.78
+            },
+            {
+              "label": "Medium (n=340)",
+              "estimate": 1.25,
+              "ciLow": 0.96,
+              "ciHigh": 1.63
+            },
+            {
+              "label": "Medium (n=310)",
+              "estimate": 1.18,
+              "ciLow": 0.9,
+              "ciHigh": 1.55
+            },
+            {
+              "label": "Medium (n=260)",
+              "estimate": 1.28,
+              "ciLow": 0.95,
+              "ciHigh": 1.72
+            },
+            {
+              "label": "Medium (n=390)",
+              "estimate": 1.15,
+              "ciLow": 0.89,
+              "ciHigh": 1.49
+            },
+            {
+              "label": "Large (n=720)",
+              "estimate": 1.08,
+              "ciLow": 0.91,
+              "ciHigh": 1.28
+            },
+            {
+              "label": "Large (n=880)",
+              "estimate": 0.99,
+              "ciLow": 0.85,
+              "ciHigh": 1.15
+            },
+            {
+              "label": "Large (n=950)",
+              "estimate": 1.02,
+              "ciLow": 0.88,
+              "ciHigh": 1.18
+            },
+            {
+              "label": "Large (n=1050)",
+              "estimate": 1,
+              "ciLow": 0.87,
+              "ciHigh": 1.15
+            },
+            {
+              "label": "Large (n=820)",
+              "estimate": 0.96,
+              "ciLow": 0.83,
+              "ciHigh": 1.11
+            },
+            {
+              "label": "Pooled",
+              "estimate": 1.17,
+              "ciLow": 1.09,
+              "ciHigh": 1.26
+            }
+          ],
+          "title": "Funnel Plot Asymmetry → Publication Bias",
+          "annotation": "Small negative/null trials never published → pooled estimate inflated upward."
         },
         "desc": "<strong>Small studies have wide standard errors and scatter widely. If publication is selective — only the 'positive' small studies see print — the funnel plot develops a hole on the left (null/negative) side.</strong> The pooled estimate is pulled toward the exaggerated small-study effects. The graph shows HR=1.0 — what the unbiased pooled effect MIGHT be — because the published literature overrepresents positive findings. Trim-and-fill analysis would estimate the number of missing studies."
       },
@@ -1791,8 +2156,64 @@
         "label": "C",
         "text": "Confounding — small studies have poorer methodological quality.",
         "graph": {
-          "hr": 1.17,
-          "brate": 0.3
+          "rows": [
+            {
+              "label": "Trial A (n=340)",
+              "estimate": 1.62,
+              "ciLow": 1.28,
+              "ciHigh": 2.05
+            },
+            {
+              "label": "Trial B (n=290)",
+              "estimate": 0.85,
+              "ciLow": 0.63,
+              "ciHigh": 1.15
+            },
+            {
+              "label": "Trial C (n=410)",
+              "estimate": 1.44,
+              "ciLow": 1.18,
+              "ciHigh": 1.76
+            },
+            {
+              "label": "Trial D (n=360)",
+              "estimate": 0.72,
+              "ciLow": 0.55,
+              "ciHigh": 0.94
+            },
+            {
+              "label": "Trial E (n=500)",
+              "estimate": 1.28,
+              "ciLow": 1.05,
+              "ciHigh": 1.56
+            },
+            {
+              "label": "Trial F (n=320)",
+              "estimate": 0.98,
+              "ciLow": 0.74,
+              "ciHigh": 1.3
+            },
+            {
+              "label": "Trial G (n=280)",
+              "estimate": 1.55,
+              "ciLow": 1.18,
+              "ciHigh": 2.04
+            },
+            {
+              "label": "Trial H (n=450)",
+              "estimate": 0.68,
+              "ciLow": 0.52,
+              "ciHigh": 0.89
+            },
+            {
+              "label": "Pooled — confounding? (I²=88%)",
+              "estimate": 1.12,
+              "ciLow": 0.86,
+              "ciHigh": 1.46
+            }
+          ],
+          "title": "Could Confounding Explain This?",
+          "annotation": "Confounding is within-study bias; funnel asymmetry is across-study pattern."
         },
         "desc": "<strong>Poor methodology can produce bias in either direction — it wouldn't selectively remove null studies.</strong> Small studies with methodological flaws MIGHT show inflated effects, but that doesn't explain why null results are preferentially missing from the literature. The graph shows a weaker effect. The asymmetry is in PUBLICATION, not in methodology."
       },
@@ -1800,8 +2221,64 @@
         "label": "D",
         "text": "Random error — small studies have wider CIs, so they naturally scatter asymmetrically.",
         "graph": {
-          "hr": 1.17,
-          "brate": 0.3
+          "rows": [
+            {
+              "label": "Trial 1 (n=310)",
+              "estimate": 1.41,
+              "ciLow": 1.08,
+              "ciHigh": 1.84
+            },
+            {
+              "label": "Trial 2 (n=280)",
+              "estimate": 0.78,
+              "ciLow": 0.58,
+              "ciHigh": 1.05
+            },
+            {
+              "label": "Trial 3 (n=350)",
+              "estimate": 1.35,
+              "ciLow": 1.02,
+              "ciHigh": 1.79
+            },
+            {
+              "label": "Trial 4 (n=290)",
+              "estimate": 0.85,
+              "ciLow": 0.64,
+              "ciHigh": 1.13
+            },
+            {
+              "label": "Trial 5 (n=420)",
+              "estimate": 1.48,
+              "ciLow": 1.15,
+              "ciHigh": 1.91
+            },
+            {
+              "label": "Trial 6 (n=330)",
+              "estimate": 0.71,
+              "ciLow": 0.53,
+              "ciHigh": 0.95
+            },
+            {
+              "label": "Trial 7 (n=370)",
+              "estimate": 1.26,
+              "ciLow": 0.96,
+              "ciHigh": 1.66
+            },
+            {
+              "label": "Trial 8 (n=300)",
+              "estimate": 0.92,
+              "ciLow": 0.68,
+              "ciHigh": 1.24
+            },
+            {
+              "label": "Pooled",
+              "estimate": 1.05,
+              "ciLow": 0.88,
+              "ciHigh": 1.25
+            }
+          ],
+          "title": "Random Error — Symmetric Scatter",
+          "annotation": "Random error scatters symmetrically. True asymmetry is directional — small studies trend the same way."
         },
         "desc": "<strong>Wide CIs produce SCATTER — symmetric scatter, around the pooled mean.</strong> The funnel plot should look like an inverted funnel, symmetric if no bias. Asymmetry means one side is missing — and random error doesn't remove one side preferentially. The graph shows the pooled effect. Random error is symmetric."
       },
@@ -1809,115 +2286,214 @@
         "label": "E",
         "text": "The meta-analysis should be re-run using a random-effects model.",
         "graph": {
-          "hr": 1.17,
-          "brate": 0.3
+          "rows": [
+            {
+              "label": "Small (n=45)",
+              "estimate": 1.85,
+              "ciLow": 1.15,
+              "ciHigh": 2.97
+            },
+            {
+              "label": "Small (n=60)",
+              "estimate": 1.62,
+              "ciLow": 1.05,
+              "ciHigh": 2.5
+            },
+            {
+              "label": "Small (n=55)",
+              "estimate": 1.74,
+              "ciLow": 1.12,
+              "ciHigh": 2.7
+            },
+            {
+              "label": "Small (n=70)",
+              "estimate": 1.58,
+              "ciLow": 1.02,
+              "ciHigh": 2.45
+            },
+            {
+              "label": "Small (n=50)",
+              "estimate": 1.91,
+              "ciLow": 1.2,
+              "ciHigh": 3.04
+            },
+            {
+              "label": "Medium (n=280)",
+              "estimate": 1.32,
+              "ciLow": 0.98,
+              "ciHigh": 1.78
+            },
+            {
+              "label": "Medium (n=340)",
+              "estimate": 1.25,
+              "ciLow": 0.96,
+              "ciHigh": 1.63
+            },
+            {
+              "label": "Medium (n=310)",
+              "estimate": 1.18,
+              "ciLow": 0.9,
+              "ciHigh": 1.55
+            },
+            {
+              "label": "Medium (n=260)",
+              "estimate": 1.28,
+              "ciLow": 0.95,
+              "ciHigh": 1.72
+            },
+            {
+              "label": "Medium (n=390)",
+              "estimate": 1.15,
+              "ciLow": 0.89,
+              "ciHigh": 1.49
+            },
+            {
+              "label": "Large (n=720)",
+              "estimate": 1.08,
+              "ciLow": 0.91,
+              "ciHigh": 1.28
+            },
+            {
+              "label": "Large (n=880)",
+              "estimate": 0.99,
+              "ciLow": 0.85,
+              "ciHigh": 1.15
+            },
+            {
+              "label": "Large (n=950)",
+              "estimate": 1.02,
+              "ciLow": 0.88,
+              "ciHigh": 1.18
+            },
+            {
+              "label": "Large (n=1050)",
+              "estimate": 1,
+              "ciLow": 0.87,
+              "ciHigh": 1.15
+            },
+            {
+              "label": "Large (n=820)",
+              "estimate": 0.96,
+              "ciLow": 0.83,
+              "ciHigh": 1.11
+            },
+            {
+              "label": "Random effects pooled",
+              "estimate": 1.11,
+              "ciLow": 0.98,
+              "ciHigh": 1.26
+            }
+          ],
+          "title": "Random Effects Model — Still Biased",
+          "annotation": "Random effects adjusts for heterogeneity, NOT for missing studies. Trim-and-fill is needed."
         },
         "desc": "<strong>Random-effects models handle heterogeneity — they don't fix publication bias.</strong> Changing the model doesn't restore the missing studies. The graph shows the same pooled estimate. Publication bias is a DATA problem (missing studies), not a MODEL problem (wrong assumptions). You fix it by searching for unpublished trials, not by changing the pooling method."
       }
     ],
     "correct": 1,
     "baseGraph": {
-      "title": "ImmunoBoost Meta‑Analysis — 15 Published Trials",
+      "title": "ImmunoBoost — 15 Published Trials (Funnel Asymmetry)",
       "type": "forestPlot",
       "nullLine": 1,
       "rows": [
         {
-          "label": "Small trial (n=80)",
+          "label": "Small (n=45)",
+          "estimate": 1.85,
+          "ciLow": 1.15,
+          "ciHigh": 2.97
+        },
+        {
+          "label": "Small (n=60)",
           "estimate": 1.62,
-          "ciLow": 0.98,
-          "ciHigh": 2.67
+          "ciLow": 1.05,
+          "ciHigh": 2.5
         },
         {
-          "label": "Small trial (n=110)",
-          "estimate": 1.55,
+          "label": "Small (n=55)",
+          "estimate": 1.74,
+          "ciLow": 1.12,
+          "ciHigh": 2.7
+        },
+        {
+          "label": "Small (n=70)",
+          "estimate": 1.58,
           "ciLow": 1.02,
-          "ciHigh": 2.35
+          "ciHigh": 2.45
         },
         {
-          "label": "Small trial (n=90)",
-          "estimate": 1.48,
-          "ciLow": 0.91,
-          "ciHigh": 2.41
+          "label": "Small (n=50)",
+          "estimate": 1.91,
+          "ciLow": 1.2,
+          "ciHigh": 3.04
         },
         {
-          "label": "Small trial (n=140)",
-          "estimate": 1.41,
-          "ciLow": 0.95,
-          "ciHigh": 2.09
-        },
-        {
-          "label": "Small trial (n=75)",
-          "estimate": 1.69,
-          "ciLow": 1.01,
-          "ciHigh": 2.83
-        },
-        {
-          "label": "Medium trial (n=310)",
-          "estimate": 1.28,
+          "label": "Medium (n=280)",
+          "estimate": 1.32,
           "ciLow": 0.98,
-          "ciHigh": 1.67
+          "ciHigh": 1.78
         },
         {
-          "label": "Medium trial (n=380)",
-          "estimate": 1.22,
+          "label": "Medium (n=340)",
+          "estimate": 1.25,
           "ciLow": 0.96,
+          "ciHigh": 1.63
+        },
+        {
+          "label": "Medium (n=310)",
+          "estimate": 1.18,
+          "ciLow": 0.9,
           "ciHigh": 1.55
         },
         {
-          "label": "Medium trial (n=290)",
-          "estimate": 1.19,
-          "ciLow": 0.91,
-          "ciHigh": 1.56
+          "label": "Medium (n=260)",
+          "estimate": 1.28,
+          "ciLow": 0.95,
+          "ciHigh": 1.72
         },
         {
-          "label": "Medium trial (n=340)",
+          "label": "Medium (n=390)",
           "estimate": 1.15,
           "ciLow": 0.89,
           "ciHigh": 1.49
         },
         {
-          "label": "Medium trial (n=420)",
-          "estimate": 1.11,
-          "ciLow": 0.87,
-          "ciHigh": 1.42
+          "label": "Large (n=720)",
+          "estimate": 1.08,
+          "ciLow": 0.91,
+          "ciHigh": 1.28
         },
         {
-          "label": "Medium trial (n=360)",
-          "estimate": 1.09,
-          "ciLow": 0.84,
-          "ciHigh": 1.41
-        },
-        {
-          "label": "Large trial (n=820)",
-          "estimate": 1.03,
-          "ciLow": 0.87,
-          "ciHigh": 1.22
-        },
-        {
-          "label": "Large trial (n=950)",
-          "estimate": 1.01,
-          "ciLow": 0.88,
-          "ciHigh": 1.16
-        },
-        {
-          "label": "Large trial (n=1100)",
-          "estimate": 0.96,
+          "label": "Large (n=880)",
+          "estimate": 0.99,
           "ciLow": 0.85,
-          "ciHigh": 1.09
+          "ciHigh": 1.15
         },
         {
-          "label": "Large trial (n=890)",
-          "estimate": 0.98,
-          "ciLow": 0.86,
-          "ciHigh": 1.12
+          "label": "Large (n=950)",
+          "estimate": 1.02,
+          "ciLow": 0.88,
+          "ciHigh": 1.18
         },
         {
-          "label": "Pooled (random)",
+          "label": "Large (n=1050)",
+          "estimate": 1,
+          "ciLow": 0.87,
+          "ciHigh": 1.15
+        },
+        {
+          "label": "Large (n=820)",
+          "estimate": 0.96,
+          "ciLow": 0.83,
+          "ciHigh": 1.11
+        },
+        {
+          "label": "Pooled",
           "estimate": 1.17,
-          "ciLow": 1.08,
-          "ciHigh": 1.27
+          "ciLow": 1.09,
+          "ciHigh": 1.26
         }
-      ]
+      ],
+      "annotation": "Small trials show larger effects → funnel plot asymmetry → likely publication bias"
     },
     "explanation": "Funnel plot asymmetry is the signature of publication bias. Small studies that found no effect never made it to publication. Their absence inflates the pooled estimate — the surviving small studies are the ones that happened to show large effects. The pooled result overstates the truth because the literature is a biased sample of the evidence.",
     "trap": "Asymmetric funnel plot → publication bias (or small-study effects). Methods to address it: trim-and-fill (estimate missing studies), Egger's test (formal test of asymmetry), searching trial registries for unpublished data. I² tells you about consistency. Funnel plots tell you about completeness. A meta-analysis can be consistent and still be wrong if the literature is missing the negative studies.",
@@ -1987,8 +2563,28 @@
         "label": "A",
         "text": "Type II error — the probability of missing a true effect increases with each endpoint.",
         "graph": {
-          "hr": 0.5,
-          "brate": 0.3
+          "rows": [
+            {
+              "label": "ACR20 (β≈0.20)",
+              "estimate": 1.22,
+              "ciLow": 1.06,
+              "ciHigh": 1.4
+            },
+            {
+              "label": "DAS28 (β≈0.20)",
+              "estimate": 1.18,
+              "ciLow": 1.01,
+              "ciHigh": 1.38
+            },
+            {
+              "label": "HAQ (β≈0.20)",
+              "estimate": 1.1,
+              "ciLow": 0.94,
+              "ciHigh": 1.28
+            }
+          ],
+          "title": "Type II Error (β) is About POWER",
+          "annotation": "Type II error = missing a true effect. Multiple endpoints don't change power for ANY single test."
         },
         "desc": "<strong>Type II error (beta) is the probability of missing a TRUE effect.</strong> Adding endpoints makes it EASIER to find significance somewhere — Type II error decreases, not increases. The graph shows a strong treatment effect — in the multiplicity setting, finding significance is not the problem. The problem is that you're too likely to find it by accident."
       },
@@ -1996,8 +2592,28 @@
         "label": "B",
         "text": "The familywise Type I error rate — the probability of at least one false positive across all three tests is approximately 1 − (0.95)³ ≈ 14%.",
         "graph": {
-          "hr": 1,
-          "brate": 0.3
+          "rows": [
+            {
+              "label": "ACR20 Response",
+              "estimate": 1.22,
+              "ciLow": 1.06,
+              "ciHigh": 1.4
+            },
+            {
+              "label": "DAS28 Remission",
+              "estimate": 1.18,
+              "ciLow": 1.01,
+              "ciHigh": 1.38
+            },
+            {
+              "label": "HAQ‑DI Improvement",
+              "estimate": 1.1,
+              "ciLow": 0.94,
+              "ciHigh": 1.28
+            }
+          ],
+          "title": "FWER ≈ 14.3% — Familywise Type I Error Inflated",
+          "annotation": "Each endpoint α=0.05 → probability of ≥1 false positive = 1−(0.95)³ ≈ 14%. Bonferroni: test each at α/3 ≈ 0.017."
         },
         "desc": "<strong>Each endpoint tested at α = 0.05 has a 5% chance of a false positive if the drug does nothing.</strong> With three independent endpoints, the familywise error rate is roughly 14% — nearly triple the per-test rate. The graph shows HR=1.0 — the drug doing nothing on all endpoints — because some or all of those 'significant' findings could be noise. A Bonferroni correction would require α/3 = 0.0167 per endpoint. Without it, the company is running three lottery tickets and celebrating whichever one hits."
       },
@@ -2005,8 +2621,28 @@
         "label": "C",
         "text": "Confidence interval width — more endpoints narrow the CIs, creating false precision.",
         "graph": {
-          "hr": 0.7,
-          "brate": 0.3
+          "rows": [
+            {
+              "label": "ACR20 (unadjusted CI)",
+              "estimate": 1.22,
+              "ciLow": 1.06,
+              "ciHigh": 1.4
+            },
+            {
+              "label": "DAS28 (unadjusted CI)",
+              "estimate": 1.18,
+              "ciLow": 1.01,
+              "ciHigh": 1.38
+            },
+            {
+              "label": "HAQ‑DI (unadjusted CI)",
+              "estimate": 1.1,
+              "ciLow": 0.94,
+              "ciHigh": 1.28
+            }
+          ],
+          "title": "CI Width Is Independent of Multiplicity",
+          "annotation": "CI width depends on sample size and variance — NOT on how many endpoints you test. Multiplicity inflates error rates, not precision."
         },
         "desc": "<strong>Multiple endpoints don't change the CI for any single endpoint.</strong> The precision of each estimate depends on that endpoint's sample size and variability. The problem is that with three rolls of the significance dice, you're more likely to see at least one come up 'significant' by chance. The graph shows a treatment effect — but the width of each CI is unaffected by how many endpoints you tested."
       },
@@ -2014,8 +2650,28 @@
         "label": "D",
         "text": "The false discovery rate — making it harder to detect true effects across all endpoints.",
         "graph": {
-          "hr": 0.5,
-          "brate": 0.3
+          "rows": [
+            {
+              "label": "ACR20 Response (FDR)",
+              "estimate": 1.22,
+              "ciLow": 1.06,
+              "ciHigh": 1.4
+            },
+            {
+              "label": "DAS28 Remission (FDR)",
+              "estimate": 1.18,
+              "ciLow": 1.01,
+              "ciHigh": 1.38
+            },
+            {
+              "label": "HAQ‑DI Improvement (FDR)",
+              "estimate": 1.1,
+              "ciLow": 0.94,
+              "ciHigh": 1.28
+            }
+          ],
+          "title": "FDR — Proportion of Rejections That Are False",
+          "annotation": "FDR controls the proportion of false positives among ALL discoveries. Unadjusted α inflates FWER (one or more), not FDR (proportion)."
         },
         "desc": "<strong>False discovery rate (FDR) is the expected proportion of false positives among the rejected hypotheses.</strong> FDR control (like the Benjamini-Hochberg procedure) is MORE lenient than familywise error rate control — it allows some false positives in exchange for more power. The graph shows a strong effect — but the issue is the opposite: NOT controlling the error rate makes it EASIER to find significance, not harder."
       },
@@ -2023,15 +2679,47 @@
         "label": "E",
         "text": "Nothing — p < 0.05 is already conservative enough to protect against false positives across any number of endpoints.",
         "graph": {
-          "hr": 1,
-          "brate": 0.3
+          "rows": [
+            {
+              "label": "Endpoint 1",
+              "estimate": 1.1,
+              "ciLow": 0.96,
+              "ciHigh": 1.26
+            },
+            {
+              "label": "Endpoint 2",
+              "estimate": 1.08,
+              "ciLow": 0.94,
+              "ciHigh": 1.24
+            },
+            {
+              "label": "Endpoint 3",
+              "estimate": 1.12,
+              "ciLow": 0.98,
+              "ciHigh": 1.28
+            },
+            {
+              "label": "Endpoint 4",
+              "estimate": 1.06,
+              "ciLow": 0.92,
+              "ciHigh": 1.22
+            },
+            {
+              "label": "Endpoint 5",
+              "estimate": 1.14,
+              "ciLow": 0.99,
+              "ciHigh": 1.31
+            }
+          ],
+          "title": "5 Endpoints × α=0.05 → FWER ≈ 23%",
+          "annotation": "α=0.05 protects ONE test, not a family. FWER grows with each additional endpoint — 5 endpoints = 22.6% chance of at least one spurious \"significant\" result."
         },
         "desc": "<strong>p < 0.05 protects against a false positive on ONE test. It does not protect across multiple tests.</strong> Run 20 tests and you expect one false positive at α = 0.05. Run 100 and you expect five. The graph shows the null because the protection doesn't scale. Multiplicity adjustment (Bonferroni, Holm, Hochberg) is mandatory precisely because α = 0.05 per test doesn't control the overall error rate."
       }
     ],
     "correct": 1,
     "baseGraph": {
-      "title": "ImmunoBoost — Three Primary Endpoints (α=0.05 each)",
+      "title": "ImmunoBoost — Three Primary Endpoints (α = 0.05 each, unadjusted)",
       "type": "forestPlot",
       "nullLine": 1,
       "rows": [
@@ -2053,7 +2741,8 @@
           "ciLow": 0.94,
           "ciHigh": 1.28
         }
-      ]
+      ],
+      "annotation": "FWER ≈ 1 − (1 − 0.05)³ = 14.3% — each additional endpoint inflates the familywise error rate"
     },
     "explanation": "Familywise error rate = P(at least one Type I error across all tests). With k independent tests, FWER ≈ 1 − (1 − α)^k. At k = 3, FWER ≈ 14%. Bonferroni: test each endpoint at α/k. Holm: sequential Bonferroni, more powerful. Pre-specifying a single primary endpoint is the simplest solution.",
     "trap": "Multiple primary endpoints without multiplicity adjustment is like buying multiple lottery tickets and celebrating the winner. The FDA typically requires: (1) a single primary endpoint, OR (2) a gatekeeping/hierarchical testing strategy, OR (3) multiplicity adjustment. If an ad says 'significant on three endpoints' but doesn't mention adjustment, the familywise error rate isn't 5% — it's higher."

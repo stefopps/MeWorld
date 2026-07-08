@@ -1233,38 +1233,58 @@ function updateQuizGraph(){
     document.getElementById('qz-ctrls-'+gt).style.display = '';
   }
 
+  // Per-option graph overrides — option.graph can shadow baseGraph fields
+  let renderBg = bg;
+  if (currentPickedOpt >= 0) {
+    const opt = q.options[currentPickedOpt];
+    if (opt && opt.graph) {
+      // For forestPlot: option.graph.rows overrides baseGraph.rows
+      if ((gt === 'forestPlot' || gt === 'rocCurve' || gt === 'dotplot' || gt === 'ppvCurve') && opt.graph.rows) {
+        renderBg = { ...bg, rows: opt.graph.rows };
+        if (opt.graph.title) renderBg.title = opt.graph.title;
+        if (opt.graph.nullLine != null) renderBg.nullLine = opt.graph.nullLine;
+        if (opt.graph.marginLine != null) renderBg.marginLine = opt.graph.marginLine;
+        if (opt.graph.annotation) renderBg.annotation = opt.graph.annotation;
+      }
+      // For other non-slider types: pass option.graph directly as the effective bg
+      if (['biasDiagram','studyDesignGrid','phaseTimeline','dag','decisionTree','contingencyTable','bar-multigroup'].includes(gt)) {
+        if (opt.graph.concept) renderBg = { ...bg, concept: opt.graph.concept };
+      }
+    }
+  }
+
   if (gt==='cumulative') {
     document.getElementById('cvq-hr').innerText = qzHR.toFixed(2);
     document.getElementById('cvq-ctrl').innerText = (qzBRate*100).toFixed(0)+'%';
     document.getElementById('cvq-trt').innerText = (qzTreat*100).toFixed(0)+'%';
     document.getElementById('cvq-red').innerHTML = ((1-qzHR)*100).toFixed(0)+'% <span style="font-size:.5rem;color:#d1d5db;font-weight:400">(1.0−'+qzHR.toFixed(2)+'='+(1-qzHR).toFixed(2)+')</span>';
-    updateCumulativeChart(q, bg);
+    updateCumulativeChart(q, renderBg);
   } else if (gt==='normal') {
-    updateNormalChart(q, bg);
+    updateNormalChart(q, renderBg);
   } else if (['bar','bar-multigroup'].includes(gt)) {
-    updateBarChart(q, bg);
+    updateBarChart(q, renderBg);
   } else if (gt==='ppvCurve') {
-    updatePPVCurveChart(q, bg);
+    updatePPVCurveChart(q, renderBg);
   } else if (gt==='forestPlot') {
-    updateForestPlotChart(q, bg);
+    updateForestPlotChart(q, renderBg);
   } else if (gt==='rocCurve') {
-    updateROCChart(q, bg);
+    updateROCChart(q, renderBg);
   } else if (gt==='dotplot') {
-    updateDotplotChart(q, bg);
+    updateDotplotChart(q, renderBg);
   } else if (gt==='contingencyTable') {
-    renderContingencyTable(q, bg);
+    renderContingencyTable(q, renderBg);
   } else if (gt==='biasDiagram') {
-    renderBiasDiagram(q, bg);
+    renderBiasDiagram(q, renderBg);
   } else if (gt==='studyDesignGrid') {
-    renderStudyDesignGrid(q, bg);
+    renderStudyDesignGrid(q, renderBg);
   } else if (gt==='phaseTimeline') {
-    renderPhaseTimeline(q, bg);
+    renderPhaseTimeline(q, renderBg);
   } else if (gt==='dag') {
-    renderDAG(q, bg);
+    renderDAG(q, renderBg);
   } else if (gt==='decisionTree') {
-    renderDecisionTree(q, bg);
+    renderDecisionTree(q, renderBg);
   } else if (gt==='spaghettiPlot') {
-    renderSpaghettiPlot(q, bg);
+    renderSpaghettiPlot(q, renderBg);
     setTimeout(() => startSpaghettiTour(), 100); // slight delay for DOM to settle
   }
 }
@@ -1724,8 +1744,9 @@ function updateForestPlotChart(q, bg) {
 
   const svgNS = 'http://www.w3.org/2000/svg';
   const leftPad = 155, rightPad = 135, topPad = 64, rowH = 44, botPad = 75;
+  const extraAnnotH = (bg.annotation && bg.annotation.length > 0) ? 22 : 0;
+  const totalH = topPad + rows.length * rowH + botPad + 50 + extraAnnotH; // +50 for FWER annotation
   const plotW = 800 - leftPad - rightPad;
-  const totalH = topPad + rows.length * rowH + botPad + 50; // +50 for FWER annotation
 
   const svg = document.createElementNS(svgNS, 'svg');
   svg.setAttribute('viewBox', '0 0 800 ' + totalH);
@@ -1971,6 +1992,19 @@ function updateForestPlotChart(q, bg) {
   aText.setAttribute('text-anchor', 'middle'); aText.setAttribute('font-size', '10'); aText.setAttribute('font-weight', '600'); aText.setAttribute('fill', '#92400e');
   aText.textContent = k + ' independent subgroup tests at \u03b1 = 0.05 \u2192 ' + (fwer * 100).toFixed(1) + '% familywise error rate (1\u22120.95' + (k > 1 ? '\u2074' : '') + ')';
   svg.appendChild(aText);
+
+  // Custom annotation from bg.annotation
+  const annotationText = bg.annotation || '';
+  if (annotationText) {
+    const annY = annotTop + annotH + 14;
+    const annEl = document.createElementNS(svgNS, 'text');
+    annEl.setAttribute('x', plotLeft + plotW / 2); annEl.setAttribute('y', annY);
+    annEl.setAttribute('text-anchor', 'middle');
+    annEl.setAttribute('font-size', '9'); annEl.setAttribute('fill', '#6b7280');
+    annEl.setAttribute('font-style', 'italic');
+    annEl.textContent = annotationText;
+    svg.appendChild(annEl);
+  }
 
   // Crosshair line (hidden by default, shown on mousemove)
   const crosshairLine = document.createElementNS(svgNS, 'line');
