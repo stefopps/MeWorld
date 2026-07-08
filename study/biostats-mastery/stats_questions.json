@@ -1378,9 +1378,13 @@
     ],
     "correct": 1,
     "baseGraph": {
-      "hr": 1.08,
-      "brate": 0.3,
-      "type": "cumulative"
+      "title": "HeartGuard Non-Inferiority Trial",
+      "type": "forestPlot",
+      "nullLine": 1.0,
+      "marginLine": 1.15,
+      "rows": [
+        { "label": "HeartGuard vs Warfarin", "estimate": 1.08, "ciLow": 0.94, "ciHigh": 1.24 }
+      ]
     },
     "explanation": "Non-inferiority is a one-sided hypothesis evaluated via the CI. The null is 'HeartGuard is worse by at least the margin (15%).' To reject the null, the ENTIRE CI must fall below the margin. Here, the upper CI bound (1.24) exceeds 1.15 — so we cannot reject the possibility that HeartGuard is meaningfully worse.",
     "trap": "Non-inferiority margin ≠ point estimate comparison. The CI must be entirely below the margin. When the upper CI bound crosses the margin, the data are inconclusive — you can neither declare non-inferiority nor conclude inferiority. You simply don't have enough data to be sure."
@@ -1438,9 +1442,13 @@
     ],
     "correct": 1,
     "baseGraph": {
-      "hr": 1.15,
-      "brate": 0.3,
-      "type": "cumulative"
+      "title": "HeartGuard Non-Inferiority Trial",
+      "type": "forestPlot",
+      "nullLine": 1.0,
+      "marginLine": 1.15,
+      "rows": [
+        { "label": "HeartGuard vs Warfarin", "estimate": 1.08, "ciLow": 0.94, "ciHigh": 1.24 }
+      ]
     },
     "explanation": "Non-inferiority inverts the usual logic. In a superiority trial, you assume no difference and try to prove one. In non-inferiority, you assume the drug IS worse (by at least the margin) and try to disprove it. Failing to reject means the drug might be unacceptably worse. Rejecting means you're confident the drug is no worse than the margin.",
     "trap": "Non-inferiority H₀: 'new drug is worse by Δ or more.' If the CI is entirely below Δ, reject H₀ → conclude non-inferiority. If the upper CI bound exceeds Δ, fail to reject → data are inconclusive. The 'burden of proof' is on showing the drug ISN'T too much worse — very different from superiority where the burden is on showing the drug IS better."
