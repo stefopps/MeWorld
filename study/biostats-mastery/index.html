@@ -104,6 +104,25 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 .chart-panel canvas{width:100%!important;height:100%!important}
 .chart-panel #chart-quiz-html{width:100%;height:100%;overflow:auto}
 .chart-panel #chart-quiz-html img{user-select:none}
+
+/* ═══ Spaghetti Plot Tour — highlight/dim effect ═══ */
+#chart-quiz-html.sp-tour-active .sp-group { transition: opacity 0.5s ease; }
+#chart-quiz-html.sp-tour-active .sp-group { opacity: 0.13; }
+#chart-quiz-html.sp-tour-active .sp-group.sp-tour-focus { opacity: 1; }
+
+/* Tour card — step narrative */
+.sp-tour-step-title { font-size: .6875rem; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
+.sp-tour-step-body { font-size: .625rem; color: #4b5563; line-height: 1.55; margin-bottom: 12px; }
+.sp-tour-nav { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.sp-tour-nav-btn { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-family: Inter,sans-serif; font-size: .5625rem; font-weight: 600; color: #374151; display: flex; align-items: center; gap: 3px; }
+.sp-tour-nav-btn:hover:not(:disabled) { background: #e5e7eb; }
+.sp-tour-nav-btn:disabled { opacity: .35; cursor: default; }
+.sp-tour-dots { display: flex; gap: 3px; margin-left: auto; }
+.sp-tour-dot { width: 7px; height: 7px; border-radius: 50%; background: #d1d5db; cursor: pointer; transition: background .2s; }
+.sp-tour-dot.active { background: #2563eb; }
+.sp-tour-auto-label { font-size: .5rem; color: #9ca3af; margin-left: 4px; }
+.sp-tour-tab { display: none; }
+.sp-tour-tab.visible { display: flex; }
 .option-image-badge{font-size:.5625rem;color:#7c3aed;background:#f5f3ff;padding:4px 10px;border-radius:4px;border:1px solid #ede9fe}
 
 /* ── Floating card — the command center ── */
@@ -450,6 +469,7 @@ body.chat-docked .float-card:not(.docked) {
           <button class="card-tab" data-card="card-quiz" data-tab="answer" title="Answer"><i class="ti ti-clipboard-check"></i></button>
           <button class="card-tab" data-card="card-quiz" data-tab="stats" title="Stats"><i class="ti ti-chart-bar"></i></button>
           <button class="card-tab" data-card="card-quiz" data-tab="controls" title="Controls"><i class="ti ti-adjustments"></i></button>
+          <button class="card-tab sp-tour-tab" data-card="card-quiz" data-tab="tour" title="Graph Tour"><i class="ti ti-map-route"></i></button>
           <button class="dock-toggle-btn" onclick="this.classList.toggle('active'); toggleDock('card-quiz')" title="Dock to right"><i class="ti ti-layout-sidebar-right"></i></button>
         </div>
         <div class="card-body" id="cbody-formula">
@@ -515,6 +535,9 @@ body.chat-docked .float-card:not(.docked) {
           </div>
           <button class="show-trap-btn" id="show-trap-btn" onclick="toggleTrapCurve()">Compare: Option B (60% reduction) curve</button>
           <button class="compare-btn" id="compare-btn" onclick="toggleCompareCurves()">Show baseline curves</button>
+        </div>
+        <div class="card-body" id="cbody-tour" style="display:none">
+          <span class="empty">Graph tour loads with the spaghetti plot</span>
         </div>
         <div class="rs-handle rs-n" data-dir="n"></div>
         <div class="rs-handle rs-s" data-dir="s"></div>
@@ -819,7 +842,7 @@ function setQMode(mode) {
 function switchCardTab(tab) {
   activeCardTab = tab;
   const card = document.getElementById('card-quiz');
-  ['formula','chat','answer','stats','controls'].forEach(t => {
+  ['formula','chat','answer','stats','controls','tour'].forEach(t => {
     const btn = card.querySelector('.card-tab[data-tab="'+t+'"]');
     if (btn) btn.classList.toggle('active', t===tab);
     const body = document.getElementById('cbody-'+t);
@@ -1185,6 +1208,7 @@ function updateQuizGraph(){
   qzGraphType = gt;
 
   hideAllQuizChartPanels();
+  showSpaghettiTourTab(gt === 'spaghettiPlot');
 
   // Show the right canvas/control for this type
   const chartTypes = ['cumulative','normal','bar','ppvCurve','forestPlot','rocCurve','dotplot',
@@ -1239,6 +1263,7 @@ function updateQuizGraph(){
     renderDecisionTree(q, bg);
   } else if (gt==='spaghettiPlot') {
     renderSpaghettiPlot(q, bg);
+    setTimeout(() => startSpaghettiTour(), 100); // slight delay for DOM to settle
   }
 }
 
@@ -2476,7 +2501,10 @@ function renderSpaghettiPlot(q, bg) {
     const baseline = Math.max(0, beforeMean + boxMuller(rng) * beforeSD);
     const noise = boxMuller(rng) * diffSD;
     const drug = Math.max(0, baseline - diffMean + noise);
-    patients.push({ before: baseline, after: drug });
+    patients.push({ before: baseline, after: drug,
+      x1: colBefore + (Math.random() - 0.5) * 14,
+      x2: colAfter + (Math.random() - 0.5) * 14
+    });
   }
 
   // Compute display stats
@@ -2496,58 +2524,163 @@ function renderSpaghettiPlot(q, bg) {
   html += '<div style="font-size:.75rem;font-weight:700;color:#1a1a2e;text-align:center;margin-bottom:8px">' + (bg.title || 'Paired Before/After — Each Patient Is Their Own Control') + '</div>';
   html += '<div style="font-size:.625rem;color:#6b7280;text-align:center;margin-bottom:12px;line-height:1.4">Every patient contributes two dots, connected by a line. ' + n + ' patients × 2 measurements each.</div>';
 
-  html += '<svg viewBox="0 0 ' + totalW + ' ' + totalH + '" width="100%" height="' + plotH + '" style="display:block;font-family:Inter,sans-serif">';
+  html += '<svg viewBox="0 0 ' + totalW + ' ' + totalH + '" width="100%" height="' + plotH + '" style="display:block;font-family:Inter,sans-serif" id="sp-svg">';
 
-  // Grid lines
+  // Grid lines (sp-grid)
+  html += '<g class="sp-group sp-grid">';
   for (let v = 0; v <= valMax; v += Math.ceil(valMax / 6)) {
     const y = yPos(v);
     html += '<line x1="' + plotLeft + '" y1="' + y + '" x2="' + plotRight + '" y2="' + y + '" stroke="#f3f4f6" stroke-width="1"></line>';
     html += '<text x="' + (plotLeft - 8) + '" y="' + (y + 4) + '" text-anchor="end" font-size="10" fill="#9ca3af">' + v.toFixed(0) + '</text>';
   }
+  html += '</g>';
 
-  // Column labels + mean bars
+  // Column labels + mean bars (sp-labels + sp-means)
   const beforeMeanY = yPos(beforeMean);
   const afterMeanY = yPos(bg.afterMean || (beforeMean - diffMean));
+  html += '<g class="sp-group sp-labels">';
   html += '<text x="' + colBefore + '" y="' + (topPad - 8) + '" text-anchor="middle" font-size="11" font-weight="600" fill="#ef4444">' + beforeLabel + '</text>';
   html += '<text x="' + colAfter + '" y="' + (topPad - 8) + '" text-anchor="middle" font-size="11" font-weight="600" fill="#2563eb">' + afterLabel + '</text>';
   html += '<text x="' + colBefore + '" y="' + (topPad + plotH + 14) + '" text-anchor="middle" font-size="9" fill="#9ca3af">Mean ' + beforeMean.toFixed(1) + '</text>';
   html += '<text x="' + colAfter + '" y="' + (topPad + plotH + 14) + '" text-anchor="middle" font-size="9" fill="#9ca3af">Mean ' + (bg.afterMean || (beforeMean - diffMean)).toFixed(1) + '</text>';
+  html += '</g>';
 
-  // Mean lines (horizontal)
+  // Mean lines (horizontal) — sp-means
+  html += '<g class="sp-group sp-means">';
   html += '<line x1="' + (colBefore - 24) + '" y1="' + beforeMeanY + '" x2="' + (colBefore + 24) + '" y2="' + beforeMeanY + '" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,3"></line>';
   html += '<line x1="' + (colAfter - 24) + '" y1="' + afterMeanY + '" x2="' + (colAfter + 24) + '" y2="' + afterMeanY + '" stroke="#2563eb" stroke-width="2" stroke-dasharray="4,3"></line>';
+  html += '</g>';
 
-  // Patient lines + dots
+  // Patient lines + dots (sp-lines, sp-before-dots, sp-after-dots)
+  html += '<g class="sp-group sp-lines">';
   patients.forEach((p, i) => {
-    const x1 = colBefore + (Math.random() - 0.5) * 14; // slight horizontal jitter
-    const x2 = colAfter + (Math.random() - 0.5) * 14;
     const y1 = yPos(p.before), y2 = yPos(p.after);
     const slope = p.after - p.before;
     const lineColor = slope < 0 ? 'rgba(37,99,235,.25)' : 'rgba(239,68,68,.3)';
-    html += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="' + lineColor + '" stroke-width="1.2"></line>';
-    html += '<circle cx="' + x1.toFixed(1) + '" cy="' + y1.toFixed(1) + '" r="3.5" fill="#ef4444" opacity=".7"></circle>';
-    html += '<circle cx="' + x2.toFixed(1) + '" cy="' + y2.toFixed(1) + '" r="3.5" fill="#2563eb" opacity=".7"></circle>';
+    html += '<line x1="' + p.x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + p.x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="' + lineColor + '" stroke-width="1.2"></line>';
   });
+  html += '</g>';
 
-  // Y-axis label
+  html += '<g class="sp-group sp-before-dots">';
+  patients.forEach((p, i) => {
+    html += '<circle cx="' + p.x1.toFixed(1) + '" cy="' + yPos(p.before).toFixed(1) + '" r="3.5" fill="#ef4444" opacity=".7"></circle>';
+  });
+  html += '</g>';
+
+  html += '<g class="sp-group sp-after-dots">';
+  patients.forEach((p, i) => {
+    html += '<circle cx="' + p.x2.toFixed(1) + '" cy="' + yPos(p.after).toFixed(1) + '" r="3.5" fill="#2563eb" opacity=".7"></circle>';
+  });
+  html += '</g>';
+
+  // Y-axis label (sp-axis)
+  html += '<g class="sp-group sp-axis">';
   html += '<text x="12" y="' + (topPad + plotH / 2) + '" text-anchor="middle" font-size="10" fill="#6b7280" transform="rotate(-90,12,' + (topPad + plotH / 2) + ')">Migraine days / month</text>';
+  html += '</g>';
 
-  // Difference annotation arrow
+  // Difference annotation arrow (sp-diff)
+  html += '<g class="sp-group sp-diff">';
   const arrowY = topPad + plotH + 32;
   html += '<text x="' + ((colBefore + colAfter) / 2) + '" y="' + arrowY + '" text-anchor="middle" font-size="11" font-weight="600" fill="#059669">−' + diffMean.toFixed(1) + ' days (mean difference)</text>';
+  html += '</g>';
 
   html += '</svg>';
 
-  // SE comparison box
-  html += '<div style="display:flex;gap:16px;justify-content:center;margin-top:10px;font-size:.625rem;color:#6b7280">';
+  // SE comparison box (sp-se-box)
+  html += '<div class="sp-group sp-se-box" style="display:flex;gap:16px;justify-content:center;margin-top:10px;font-size:.625rem;color:#6b7280">';
   html += '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:6px 12px;text-align:center"><span style="font-weight:700;color:#059669">Paired SE = ' + pairedSE.toFixed(2) + '</span><br><span style="color:#9ca3af">SD<sub>diff</sub> / √n = ' + diffSD.toFixed(1) + ' / √' + n + '</span></div>';
   html += '<div style="background:#fefce8;border:1px solid #fde68a;border-radius:6px;padding:6px 12px;text-align:center"><span style="font-weight:700;color:#92400e">Independent SE ≈ ' + indepSE.toFixed(2) + '</span><br><span style="color:#9ca3af">pooled SD / √(n/2)</span></div>';
   html += '</div>';
 
-  html += '<div style="font-size:.5625rem;color:#9ca3af;text-align:center;margin-top:8px;line-height:1.4">Paired SE is <b>' + (indepSE / pairedSE).toFixed(1) + '× smaller</b> — because each patient is their own control, between-person noise cancels out. The wide scatter across 30 patients is real, but the <em>change</em> within each patient is consistent.</div>';
+  // Bottom explanation (sp-explanation)
+  html += '<div class="sp-group sp-explanation" style="font-size:.5625rem;color:#9ca3af;text-align:center;margin-top:8px;line-height:1.4">Paired SE is <b>' + (indepSE / pairedSE).toFixed(1) + '× smaller</b> — because each patient is their own control, between-person noise cancels out. The wide scatter across 30 patients is real, but the <em>change</em> within each patient is consistent.</div>';
 
   html += '</div>';
   div.innerHTML = html;
+}
+// ═══════════════════════════════════════════════════════════
+// SPAGHETTI PLOT GRAPH TOUR — step-by-step explainer
+// ═══════════════════════════════════════════════════════════
+let spTourStep = 0;
+const spTourSteps = [
+  { title: 'Step 1 — Each dot is ONE patient', groups: ['sp-before-dots','sp-after-dots'],
+    body: 'There are <b>30 patients</b> in this study. Each patient has <b>two dots:</b> a red dot for their migraine days on Placebo, and a blue dot for their migraine days on InferMigraine. Every patient appears twice — once in each column.' },
+  { title: 'Step 2 — The line connects the same patient', groups: ['sp-lines'],
+    body: 'This is the most important part. Each line connects <b>one patient\'s</b> before and after measurements. If Patient #7 had 8 migraine days on placebo and 4 on the drug, that line belongs to <b>that one person.</b> Every line is one patient\'s journey.' },
+  { title: 'Step 3 — Why connect them?', groups: ['sp-lines','sp-means'],
+    body: 'The study doesn\'t care that Patient A naturally gets more migraines than Patient B. It only asks: <b>"How much did THIS patient\'s migraines change?"</b> Instead of comparing Patient A vs Patient B, we compare Patient A before vs Patient A after — for every single patient. That\'s what pairing means.' },
+  { title: 'Step 4 — What do you notice?', groups: ['sp-lines','sp-diff'],
+    body: 'Almost every line slopes <b>downward.</b> The red dots are generally higher than the blue dots. That means — on average across these 30 patients — migraines decreased on InferMigraine. The green annotation at the bottom shows exactly how much: the mean difference.' },
+  { title: 'Step 5 — What is the graph NOT showing?', groups: ['sp-before-dots'],
+    body: 'It is <b>NOT</b> trying to show whether patients have lots of migraines. Some patients naturally have 9 migraines a month, others have 2. That scatter is real but it\'s not the point. The graph is asking: <b>did THIS person improve?</b> The absolute number doesn\'t matter.' },
+  { title: 'Step 6 — Why is this more powerful?', groups: ['sp-lines','sp-means'],
+    body: 'Imagine Patient A goes from 10 → 7 migraines (difference −3). Patient B goes from 4 → 1 (−3). Completely different baselines, <b>same treatment effect.</b> The paired test ignores the fact that 10 ≠ 4 — because that\'s just natural variation. It only remembers: −3, −3. The <b>change</b> is consistent — the baseline noise disappears.' },
+  { title: 'Step 7 — Look at the boxes underneath', groups: ['sp-se-box'],
+    body: 'Paired SE is much smaller than Independent SE. Why? Because each patient is their own control — the massive random differences <b>between</b> people get cancelled out. If these were two unrelated groups, all that between-person noise would inflate the error. Pairing strips it away.' },
+  { title: 'Step 8 — The picture in one sentence', groups: ['sp-before-dots','sp-after-dots','sp-lines','sp-means','sp-diff','sp-se-box','sp-grid','sp-labels','sp-axis','sp-explanation'],
+    body: 'This graph shows that <b>each patient is compared to themselves.</b> All the natural differences between patients disappear, leaving only the treatment effect. That makes the standard error smaller and the statistical test more powerful — which is exactly <b>why we use a paired t-test.</b>' }
+];
+
+function setSpaghettiTourStep(n) {
+  spTourStep = n;
+  const container = document.getElementById('chart-quiz-html');
+  if (container) {
+    // Remove all focus classes
+    container.querySelectorAll('.sp-group.sp-tour-focus').forEach(el => el.classList.remove('sp-tour-focus'));
+    container.classList.add('sp-tour-active');
+    // Add focus to target groups
+    const step = spTourSteps[n];
+    step.groups.forEach(cls => {
+      container.querySelectorAll('.' + cls).forEach(el => el.classList.add('sp-tour-focus'));
+    });
+    // For sp-se-box (HTML), toggle separately
+    if (step.groups.includes('sp-se-box')) {
+      container.querySelectorAll('.sp-se-box').forEach(el => el.style.opacity = '1');
+    } else {
+      container.querySelectorAll('.sp-se-box').forEach(el => el.style.opacity = '');
+    }
+  }
+  // Render step text
+  const body = document.getElementById('cbody-tour');
+  if (!body) return;
+  const step = spTourSteps[n];
+  let html = '<div class="sp-tour-step-title">' + step.title + '</div>';
+  html += '<div class="sp-tour-step-body">' + step.body + '</div>';
+  html += '<div class="sp-tour-nav">';
+  html += '<button class="sp-tour-nav-btn" onclick="setSpaghettiTourStep(' + (n - 1) + ')" ' + (n === 0 ? 'disabled' : '') + '><i class="ti ti-chevron-left"></i> Back</button>';
+  html += '<div class="sp-tour-dots">';
+  for (let i = 0; i < spTourSteps.length; i++) {
+    html += '<div class="sp-tour-dot' + (i === n ? ' active' : '') + '" onclick="setSpaghettiTourStep(' + i + ')" title="Step ' + (i + 1) + '"></div>';
+  }
+  html += '</div>';
+  html += '<button class="sp-tour-nav-btn" onclick="setSpaghettiTourStep(' + (n + 1) + ')" ' + (n >= spTourSteps.length - 1 ? 'disabled' : '') + '>Next <i class="ti ti-chevron-right"></i></button>';
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+function startSpaghettiTour() {
+  spTourStep = 0;
+  setSpaghettiTourStep(0);
+  switchCardTab('tour');
+}
+
+function endSpaghettiTour() {
+  const container = document.getElementById('chart-quiz-html');
+  if (container) {
+    container.classList.remove('sp-tour-active');
+    container.querySelectorAll('.sp-group.sp-tour-focus').forEach(el => el.classList.remove('sp-tour-focus'));
+    container.querySelectorAll('.sp-se-box').forEach(el => el.style.opacity = '');
+  }
+}
+
+function showSpaghettiTourTab(visible) {
+  const tab = document.querySelector('.sp-tour-tab');
+  if (tab) tab.classList.toggle('visible', visible);
+  if (!visible) {
+    endSpaghettiTour();
+    // If currently on tour tab, switch back to formula
+    if (activeCardTab === 'tour') switchCardTab('formula');
+  }
 }
 
 
