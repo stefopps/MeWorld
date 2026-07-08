@@ -135,6 +135,32 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 .float-card .rs-se{bottom:-4px;right:-4px;width:16px;height:16px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,#d1d5db 50%);border-radius:0 0 10px 0;opacity:.4;transition:opacity .15s}
 .float-card .rs-se:hover{opacity:.8}
 .float-card .rs-n:hover,.float-card .rs-s:hover,.float-card .rs-e:hover,.float-card .rs-w:hover,.float-card .rs-ne:hover,.float-card .rs-nw:hover,.float-card .rs-sw:hover{background:rgba(37,99,235,.12)}
+/* Dock-to-right mode */
+.float-card.docked {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  left: auto !important;
+  bottom: 0 !important;
+  height: 100vh !important;
+  width: var(--docked-width, 380px);
+  border-radius: 0;
+  z-index: 200;
+}
+.float-card.docked .rs-n, .float-card.docked .rs-s, .float-card.docked .rs-e,
+.float-card.docked .rs-ne, .float-card.docked .rs-nw, .float-card.docked .rs-se {
+  display: none;
+}
+.float-card.docked .rs-w {
+  width: 8px;
+  cursor: ew-resize;
+}
+.dock-toggle-btn {
+  background: none; border: none; cursor: pointer; color: #9ca3af;
+  padding: 6px; border-radius: 6px; display: flex; align-items: center;
+}
+.dock-toggle-btn:hover { color: #4b5563; background: #f3f4f6; }
+.dock-toggle-btn.active { color: #2563eb; }
 .float-card .card-body{padding:18px 20px 14px 20px;font-size:.6875rem;line-height:1.6;flex:1 1 auto;min-height:40px;overflow-y:auto;overflow-x:hidden;position:relative}
 #card-quiz{width:min(420px,38vw)}
 .chat-context{font-size:.5625rem;color:#6b7280;margin-bottom:8px;padding:6px 8px;background:#f9fafb;border-radius:6px;border:1px solid #f3f4f6}
@@ -207,6 +233,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 .chat-input:focus{border-color:#7c3aed;box-shadow:0 0 0 2px rgba(124,58,237,.1)}
 .chat-send-btn{width:32px;height:32px;border-radius:50%;border:1px solid #7c3aed;background:#7c3aed;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
 .chat-send-btn:hover{background:#6d28d9}
+#cbody-chat{max-height:420px;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth}
 .chat-copy-btn{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:4px;border:none;background:transparent;color:#9ca3af;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,color .12s}
 .chat-msg-attending:hover .chat-copy-btn,.chat-msg-student:hover .chat-copy-btn{opacity:1}
 .chat-copy-btn:hover{color:#2563eb;background:#f0f4ff}
@@ -406,6 +433,7 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
           <button class="card-tab" data-card="card-quiz" data-tab="answer" title="Answer"><i class="ti ti-clipboard-check"></i></button>
           <button class="card-tab" data-card="card-quiz" data-tab="stats" title="Stats"><i class="ti ti-chart-bar"></i></button>
           <button class="card-tab" data-card="card-quiz" data-tab="controls" title="Controls"><i class="ti ti-adjustments"></i></button>
+          <button class="dock-toggle-btn" onclick="this.classList.toggle('active'); toggleDock('card-quiz')" title="Dock to right"><i class="ti ti-layout-sidebar-right"></i></button>
         </div>
         <div class="card-body" id="cbody-formula">
           <span class="empty">Click an option to see the formula for that scenario</span>
@@ -2051,6 +2079,24 @@ function autoFitCard() {
   document.querySelectorAll('.float-card').forEach(c => { c.style.height = 'auto'; });
 }
 
+function toggleDock(cardId) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  const isDocked = card.classList.toggle('docked');
+  if (isDocked) {
+    card.dataset.prevLeft = card.style.left || '';
+    card.dataset.prevTop = card.style.top || '';
+    card.dataset.prevWidth = card.style.width || '';
+    card.dataset.prevHeight = card.style.height || '';
+    card.style.setProperty('--docked-width', (card.offsetWidth || 380) + 'px');
+  } else {
+    card.style.left = card.dataset.prevLeft || '';
+    card.style.top = card.dataset.prevTop || '';
+    card.style.width = card.dataset.prevWidth || '';
+    card.style.height = card.dataset.prevHeight || '';
+  }
+}
+
 document.querySelectorAll('.float-card').forEach(card => {
   const id = card.id;
   // Restore per-card position (supports left or right anchoring)
@@ -2196,6 +2242,23 @@ document.querySelectorAll('.float-card .rs-handle').forEach(handle => {
   window.addEventListener('touchmove', e => { if (rs) move(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
   window.addEventListener('mouseup', end);
   window.addEventListener('touchend', end);
+});
+
+// Docked left-edge resize handler — drag left = wider card
+document.querySelectorAll('.float-card .rs-w').forEach(handle => {
+  const card = handle.closest('.float-card');
+  let dragging = false, startX = 0, startW = 0;
+  handle.addEventListener('mousedown', e => {
+    if (!card.classList.contains('docked')) return;
+    dragging = true; startX = e.clientX; startW = card.offsetWidth;
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const newW = Math.max(280, startW - (e.clientX - startX));
+    card.style.setProperty('--docked-width', newW + 'px');
+  });
+  window.addEventListener('mouseup', () => { dragging = false; });
 });
 
 // ═══ ARR ═══
@@ -2560,6 +2623,11 @@ function copyMessage(msgId) {
   }).catch(() => {});
 }
 
+function scrollChatToBottom() {
+  const chatBody = document.getElementById('cbody-chat');
+  if (chatBody) chatBody.scrollTop = chatBody.scrollHeight;
+}
+
 function renderChatHistoryHTML() {
   if (!chatHistory.length) return '';
   let html = '<div class="chat-history">';
@@ -2595,6 +2663,7 @@ function renderChatPanel(qIdx) {
     '<button class="ask-ai-btn" onclick="askDeepSeek('+qIdx+','+optIdx+')"><i class="ti ti-message"></i> '+(currentPickedOpt >= 0 ? 'Explain this option' : 'Start with Immersa')+'</button>' +
     '<button class="ask-ai-btn" onclick="askDeepSeek('+qIdx+','+optIdx+',null,true)" style="margin-left:4px"><i class="ti ti-refresh"></i> Refresh</button>';
   autoFitCard();
+  scrollChatToBottom();
 }
 
 async function submitChat(qIdx) {
@@ -2781,6 +2850,7 @@ Correct answer: option ${q.options[q.correct].label} (index ${q.correct})
     const hist = document.getElementById('cbody-chat').querySelector('.chat-history');
     if (hist) hist.appendChild(errEl);
     switchCardTab('chat');
+    scrollChatToBottom();
   }
 }
 
