@@ -136,6 +136,12 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 .float-card .rs-se:hover{opacity:.8}
 .float-card .rs-n:hover,.float-card .rs-s:hover,.float-card .rs-e:hover,.float-card .rs-w:hover,.float-card .rs-ne:hover,.float-card .rs-nw:hover,.float-card .rs-sw:hover{background:rgba(37,99,235,.12)}
 /* Dock-to-right mode */
+.main {
+  transition: margin-right .2s ease;
+}
+body.chat-docked .main {
+  margin-right: var(--docked-width, 380px);
+}
 .float-card.docked {
   position: fixed !important;
   top: 0 !important;
@@ -2083,18 +2089,25 @@ function toggleDock(cardId) {
   const card = document.getElementById(cardId);
   if (!card) return;
   const isDocked = card.classList.toggle('docked');
+  document.body.classList.toggle('chat-docked', isDocked);
+
   if (isDocked) {
     card.dataset.prevLeft = card.style.left || '';
     card.dataset.prevTop = card.style.top || '';
     card.dataset.prevWidth = card.style.width || '';
     card.dataset.prevHeight = card.style.height || '';
-    card.style.setProperty('--docked-width', (card.offsetWidth || 380) + 'px');
+    document.documentElement.style.setProperty('--docked-width', (card.offsetWidth || 380) + 'px');
   } else {
     card.style.left = card.dataset.prevLeft || '';
     card.style.top = card.dataset.prevTop || '';
     card.style.width = card.dataset.prevWidth || '';
     card.style.height = card.dataset.prevHeight || '';
+    document.documentElement.style.setProperty('--docked-width', '');
   }
+
+  setTimeout(() => {
+    [chartARR, chartHR, chartQuiz, chartQuizNormal, chartQuizBar].forEach(c => c && c.resize());
+  }, 210);
 }
 
 document.querySelectorAll('.float-card').forEach(card => {
@@ -2256,9 +2269,12 @@ document.querySelectorAll('.float-card .rs-w').forEach(handle => {
   window.addEventListener('mousemove', e => {
     if (!dragging) return;
     const newW = Math.max(280, startW - (e.clientX - startX));
-    card.style.setProperty('--docked-width', newW + 'px');
+    document.documentElement.style.setProperty('--docked-width', newW + 'px');
   });
-  window.addEventListener('mouseup', () => { dragging = false; });
+  window.addEventListener('mouseup', () => {
+    if (dragging) { [chartARR, chartHR, chartQuiz, chartQuizNormal, chartQuizBar].forEach(c => c && c.resize()); }
+    dragging = false;
+  });
 });
 
 // ═══ ARR ═══
