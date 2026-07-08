@@ -8,7 +8,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <style>
@@ -98,6 +97,8 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 
 .main{flex:1;display:flex;flex-direction:column;padding:20px;min-width:0}
 .chart-area{flex:1;position:relative;background:#fff;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,.04);min-height:0}
+.reset-zoom-btn{position:absolute;top:8px;right:16px;z-index:5;background:rgba(255,255,255,.9);border:1px solid #e5e7eb;border-radius:6px;padding:4px 10px;font-family:Inter,sans-serif;font-size:.625rem;font-weight:600;color:#6b7280;cursor:pointer;backdrop-filter:blur(4px);display:flex;align-items:center;gap:4px;transition:color .15s,border-color .15s}
+.reset-zoom-btn:hover{color:#2563eb;border-color:#93c5fd}.reset-zoom-btn i{font-size:12px}
 .chart-panel{display:none;position:absolute;inset:20px}
 .chart-panel.active{display:block}
 .chart-panel canvas{width:100%!important;height:100%!important}
@@ -408,6 +409,7 @@ body.chat-docked .float-card:not(.docked) {
         <div id="chart-quiz-html" style="display:none;width:100%;height:100%;overflow:auto;padding:16px"></div>
       </div>
 
+      <button class="reset-zoom-btn" onclick="resetAllChartZoom()" title="Reset zoom"><i class="ti ti-zoom-reset"></i> Reset zoom</button>
       <!-- Floating command cards — HUD overlays on chart -->
       <div class="float-card" id="card-arr" style="top:16px;right:16px">
         <div class="card-body">
@@ -1516,7 +1518,7 @@ const qzNormalLabelPlugin = {
   }
 };
 Chart.register(qzNormalLabelPlugin);
-const chartQuiz=new Chart(document.getElementById('chart-quiz-cumulative'),{type:'line',data:{labels:[],datasets:[{label:'Control',data:[],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'Treatment',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'HR=1',data:[],borderColor:'rgba(0,0,0,.12)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0},{label:'Trap curve',data:[],borderColor:'#f87171',backgroundColor:'rgba(248,113,113,.06)',borderWidth:2,borderDash:[3,5],fill:true,pointRadius:0,tension:.15,order:0,hidden:true},{label:'Baseline Control',data:[],borderColor:'rgba(99,102,241,.45)',borderWidth:2,borderDash:[2,6],pointRadius:0,fill:false,tension:.15,order:0,hidden:true},{label:'Baseline Treatment',data:[],borderColor:'rgba(99,102,241,.45)',borderWidth:2,borderDash:[8,4],pointRadius:0,fill:false,tension:.15,order:0,hidden:true},{label:'CI Upper',data:[],borderColor:'rgba(37,99,235,0)',backgroundColor:'rgba(37,99,235,.10)',borderWidth:0,fill:'+1',pointRadius:0,tension:.15,order:0},{label:'CI Lower',data:[],borderColor:'rgba(37,99,235,0)',borderWidth:0,fill:false,pointRadius:0,tension:.15,order:0}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16}}},zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},scales:{x:{type:'linear',min:0,max:6,title:{display:true,text:'Time (months)',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:1},grid:{color:'rgba(0,0,0,.04)'}},y:{min:0,max:1,title:{display:true,text:'Cumulative Events',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:.2,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(0,0,0,.04)'}}},interaction:{mode:'index',intersect:false}}});
+const chartQuiz=new Chart(document.getElementById('chart-quiz-cumulative'),{type:'line',data:{labels:[],datasets:[{label:'Control',data:[],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'Treatment',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'HR=1',data:[],borderColor:'rgba(0,0,0,.12)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0},{label:'Trap curve',data:[],borderColor:'#f87171',backgroundColor:'rgba(248,113,113,.06)',borderWidth:2,borderDash:[3,5],fill:true,pointRadius:0,tension:.15,order:0,hidden:true},{label:'Baseline Control',data:[],borderColor:'rgba(99,102,241,.45)',borderWidth:2,borderDash:[2,6],pointRadius:0,fill:false,tension:.15,order:0,hidden:true},{label:'Baseline Treatment',data:[],borderColor:'rgba(99,102,241,.45)',borderWidth:2,borderDash:[8,4],pointRadius:0,fill:false,tension:.15,order:0,hidden:true},{label:'CI Upper',data:[],borderColor:'rgba(37,99,235,0)',backgroundColor:'rgba(37,99,235,.10)',borderWidth:0,fill:'+1',pointRadius:0,tension:.15,order:0},{label:'CI Lower',data:[],borderColor:'rgba(37,99,235,0)',borderWidth:0,fill:false,pointRadius:0,tension:.15,order:0}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16}}},scales:{x:{type:'linear',min:0,max:6,title:{display:true,text:'Time (months)',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:1},grid:{color:'rgba(0,0,0,.04)'}},y:{min:0,max:1,title:{display:true,text:'Cumulative Events',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:.2,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(0,0,0,.04)'}}},interaction:{mode:'index',intersect:false}}});
 
 // ── Normal / Gaussian distribution chart ──
 const chartQuizNormal = new Chart(document.getElementById('chart-quiz-normal'), {
@@ -1533,7 +1535,7 @@ const chartQuizNormal = new Chart(document.getElementById('chart-quiz-normal'), 
   },
   options: {
     responsive: true, maintainAspectRatio: false, animation: false,
-    plugins: { legend: {position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16,filter: i => i.datasetIndex < 6}} },zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},
+    plugins: { legend: {position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16,filter: i => i.datasetIndex < 6}} },
     scales: {
       x: { type:'linear', min:-5, max:5, title:{display:true,text:'Standardized Effect (z-score)',font:{family:'Inter',size:12},color:'#6b7280'}, ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:1}, grid:{color:'rgba(0,0,0,.04)'} },
       y: { min:0, max:0.5, title:{display:true,text:'Probability Density',font:{family:'Inter',size:12},color:'#6b7280'}, ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:.1, callback:v=>v.toFixed(1)}, grid:{color:'rgba(0,0,0,.04)'} }
@@ -1553,7 +1555,7 @@ const chartQuizBar = new Chart(document.getElementById('chart-quiz-bar'), {
   },
   options: {
     responsive: true, maintainAspectRatio: false, animation: false,
-    plugins: { legend: {display:false} },zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},
+    plugins: { legend: {display:false} },
     scales: {
       x: { title:{display:true,text:'Group',font:{family:'Inter',size:12},color:'#6b7280'}, ticks:{font:{family:'Inter',size:13,weight:'600'},color:'#374151'}, grid:{display:false} },
       y: { min:0, max:1, title:{display:true,text:'Event Rate',font:{family:'Inter',size:12},color:'#6b7280'}, ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:.1,callback:v=>(v*100).toFixed(0)+'%'}, grid:{color:'rgba(0,0,0,.04)'} }
@@ -1633,11 +1635,8 @@ function updatePPVCurveChart(q, bg) {
       }
     }
   });
+  ensurePPVZoom();
 }
-
-// ═══════════════════════════════════════════════════════════
-// FOREST PLOT — Meta-analysis results
-// ═══════════════════════════════════════════════════════════
 let chartQuizForest = null; // unused since forestPlot switch to SVG — kept for compat
 
 let forestPristine = {}; // per-question snapshot of original row data, so dragging is always reversible
@@ -2162,6 +2161,7 @@ function updateROCChart(q, bg) {
       }
     }
   });
+  ensureROCZoom();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2206,6 +2206,7 @@ function updateDotplotChart(q, bg) {
       }
     }
   });
+  ensureDotZoom();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2864,7 +2865,7 @@ document.querySelectorAll('.float-card .rs-w').forEach(handle => {
 let showArrOverlay=true,arrSE=0.73,arrDiff=2.0;
 const arrDimPlugin={id:'arrDim',afterDraw(chart){if(activeTab!=='arr'||!showArrOverlay||arrDiff<=0)return;const{ctx,chartArea:{top,bottom},scales:{x}}=chart;const xs=x.getPixelForValue(0),xe=x.getPixelForValue(arrDiff),dy=top+(bottom-top)*.22;ctx.save();ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(xs,dy);ctx.lineTo(xe,dy);ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle='rgba(0,0,0,.3)';ctx.lineWidth=1.5;[xs,xe].forEach(xx=>{ctx.beginPath();ctx.moveTo(xx,dy-8);ctx.lineTo(xx,dy+8);ctx.stroke()});const a=5;ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.moveTo(xs,dy);ctx.lineTo(xs+a,dy-a);ctx.lineTo(xs+a,dy+a);ctx.fill();ctx.beginPath();ctx.moveTo(xe,dy);ctx.lineTo(xe-a,dy-a);ctx.lineTo(xe-a,dy+a);ctx.fill();ctx.fillStyle='#1a1a2e';ctx.font='700 15px Inter,sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText('ARR = '+arrDiff.toFixed(1)+' ppt',(xs+xe)/2,dy-12);ctx.restore()}};
 Chart.register(arrDimPlugin);
-const chartARR=new Chart(document.getElementById('chart-arr'),{type:'line',data:{labels:[],datasets:[{label:'Placebo',data:[],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.08)',borderWidth:2,fill:true,pointRadius:0,tension:.1,order:1},{label:'Treatment',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.08)',borderWidth:2,fill:true,pointRadius:0,tension:.1,order:1},{label:'μ₀',data:[],borderColor:'rgba(239,68,68,.5)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0},{label:'μ₁',data:[],borderColor:'rgba(37,99,235,.5)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16,filter:i=>i.datasetIndex<2}}},zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},scales:{x:{type:'linear',min:-4,max:8,title:{display:true,text:'Effect Measurement',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af'},grid:{color:'rgba(0,0,0,.04)'}},y:{display:false,min:0,grid:{color:'rgba(0,0,0,.03)'}}},interaction:{mode:'index',intersect:false}}});
+const chartARR=new Chart(document.getElementById('chart-arr'),{type:'line',data:{labels:[],datasets:[{label:'Placebo',data:[],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.08)',borderWidth:2,fill:true,pointRadius:0,tension:.1,order:1},{label:'Treatment',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.08)',borderWidth:2,fill:true,pointRadius:0,tension:.1,order:1},{label:'μ₀',data:[],borderColor:'rgba(239,68,68,.5)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0},{label:'μ₁',data:[],borderColor:'rgba(37,99,235,.5)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16,filter:i=>i.datasetIndex<2}}},scales:{x:{type:'linear',min:-4,max:8,title:{display:true,text:'Effect Measurement',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af'},grid:{color:'rgba(0,0,0,.04)'}},y:{display:false,min:0,grid:{color:'rgba(0,0,0,.03)'}}},interaction:{mode:'index',intersect:false}}});
 function updateARR(){const rn=parseFloat(document.getElementById('n-slider').value);const d=parseFloat(document.getElementById('diff-slider').value);const n=Math.floor(Math.pow(rn/1000,3)*99998)+2;const se=4/Math.sqrt(n);arrSE=se;arrDiff=d;document.getElementById('n-val').innerText=n.toLocaleString();document.getElementById('diff-val').innerText=d.toFixed(1);updateARRCard();const xv=[],ny=[],ay=[];for(let x=-4;x<=8;x+=.05){xv.push(x);ny.push(normalPDF(x,0,se));ay.push(normalPDF(x,d,se))}const mh=Math.max(...ny,...ay)*1.05;chartARR.data.labels=xv;chartARR.data.datasets[0].data=ny;chartARR.data.datasets[1].data=ay;chartARR.data.datasets[2].data=[{x:0,y:0},{x:0,y:mh}];chartARR.data.datasets[3].data=[{x:d,y:0},{x:d,y:mh}];chartARR.options.scales.y.max=mh*1.15;chartARR.update()}
 function updateARRCard(){document.getElementById('cv-se').innerText=arrSE.toFixed(3);document.getElementById('cv-arr').innerText=(arrDiff/100).toFixed(3);document.getElementById('cv-nnt').innerText=arrDiff>0?(100/arrDiff).toFixed(1):'∞';document.getElementById('cv-z').innerText=(arrDiff/arrSE).toFixed(2)}
 
@@ -2872,12 +2873,62 @@ function updateARRCard(){document.getElementById('cv-se').innerText=arrSE.toFixe
 let hrV=0.6,ctrlR=0.3,treatR=0.18;
 const hrDimPlugin={id:'hrDim',afterDraw(chart){if(activeTab!=='hr')return;const{ctx,chartArea:{top,bottom,left,right},scales:{x,y}}=chart;const td=2.5,xd=x.getPixelForValue(td);const yc=y.getPixelForValue(1-Math.exp(-ctrlR*td*2.5));const yt=y.getPixelForValue(1-Math.exp(-treatR*td*2.5));const hr=hrV,kept=hr*100,trimmed=(1-hr)*100;ctx.save();ctx.strokeStyle='rgba(0,0,0,.1)';ctx.lineWidth=1;ctx.setLineDash([2,4]);ctx.beginPath();ctx.moveTo(xd,top);ctx.lineTo(xd,bottom);ctx.stroke();ctx.setLineDash([]);[{yy:yc,c:'#ef4444',l:'Control '+(ctrlR*100).toFixed(0)+'%'},{yy:yt,c:'#2563eb',l:'Treatment '+(treatR*100).toFixed(0)+'%'}].forEach(p=>{ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(xd,p.yy,5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#374151';ctx.font='600 11px Inter,sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(p.l,xd+12,p.yy)});const bx=xd+100;ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=2;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(bx,yc);ctx.lineTo(bx,yt);ctx.stroke();[yc,yt].forEach(yy=>{ctx.beginPath();ctx.moveTo(bx-8,yy);ctx.lineTo(bx+8,yy);ctx.stroke()});ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.moveTo(bx,yt);ctx.lineTo(bx-5,yt+10);ctx.lineTo(bx+5,yt+10);ctx.fill();ctx.beginPath();ctx.moveTo(bx,yc);ctx.lineTo(bx-5,yc-10);ctx.lineTo(bx+5,yc-10);ctx.fill();const gm=(yc+yt)/2;ctx.fillStyle='#1a1a2e';ctx.font='700 13px Inter,sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText('↓ '+trimmed.toFixed(0)+'%',bx+16,gm-8);ctx.fillStyle='#6b7280';ctx.font='400 10px Inter,sans-serif';ctx.fillText('reduction in hazard',bx+16,gm+8);const barX=right-320,barW=290,barHB=16,barR=3,barGap=18,keptW=(kept/100)*barW,trimW=(trimmed/100)*barW;const barYc=bottom-68,barYt=bottom-34;ctx.fillStyle='#6b7280';ctx.font='500 .625rem Inter,sans-serif';ctx.textAlign='left';ctx.fillText('Hazard Velocity',barX,barYc-9);ctx.fillStyle='#e5e7eb';ctx.strokeStyle='#d1d5db';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(barX,barYc,barW,barHB,barR);ctx.fill();ctx.stroke();ctx.fillStyle='#374151';ctx.font='600 .625rem Inter,sans-serif';ctx.textAlign='right';ctx.fillText('Control 100%',barX+barW-8,barYc+barHB/2+1);if(keptW>1){ctx.fillStyle='#93c5fd';ctx.beginPath();ctx.roundRect(barX,barYt,keptW,barHB,{tl:barR,tr:0,bl:barR,br:0});ctx.fill();ctx.fillStyle='#1e40af';ctx.font='700 .625rem Inter,sans-serif';ctx.textAlign='center';ctx.fillText('Kept '+kept.toFixed(0)+'%',barX+keptW/2,barYt+barHB/2+1)}if(trimW>1){ctx.fillStyle='rgba(252,165,165,.2)';ctx.strokeStyle='#fca5a5';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.roundRect(barX+keptW,barYt,trimW,barHB,{tl:0,tr:barR,bl:0,br:barR});ctx.fill();ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#991b1b';ctx.font='700 .625rem Inter,sans-serif';ctx.textAlign='center';ctx.fillText(trimmed.toFixed(0)+'% prevented',barX+keptW+trimW/2,barYt+barHB/2+1)}ctx.fillStyle='#6b7280';ctx.font='500 .625rem Inter,sans-serif';ctx.textAlign='left';ctx.fillText('Tx',barX-28,barYt+barHB/2+1);const bracketX=barX-16;ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=1.5;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(bracketX,barYc+barHB);ctx.lineTo(bracketX,barYt);ctx.stroke();ctx.beginPath();ctx.moveTo(bracketX-4,barYc+barHB);ctx.lineTo(bracketX+4,barYc+barHB);ctx.stroke();ctx.beginPath();ctx.moveTo(bracketX-4,barYt);ctx.lineTo(bracketX+4,barYt);ctx.stroke();ctx.fillStyle='#1a1a2e';ctx.font='700 .75rem Inter,sans-serif';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText('↓ '+(1-hr).toFixed(2)+' = '+(trimmed).toFixed(0)+'%',bracketX-10,(barYc+barHB+barYt)/2);ctx.restore()}};
 Chart.register(hrDimPlugin);
-const chartHR=new Chart(document.getElementById('chart-hr'),{type:'line',data:{labels:[],datasets:[{label:'Control',data:[],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'Treatment',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'HR=1',data:[],borderColor:'rgba(0,0,0,.12)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16,filter:i=>i.datasetIndex<2}}},zoom:{pan:{enabled:true,mode:'xy',modifierKey:null},zoom:{wheel:{enabled:true,speed:.08},pinch:{enabled:true},mode:'xy'}},scales:{x:{type:'linear',min:0,max:6,title:{display:true,text:'Time (months)',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:1},grid:{color:'rgba(0,0,0,.04)'}},y:{min:0,max:1,title:{display:true,text:'Cumulative Events',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:.2,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(0,0,0,.04)'}}},interaction:{mode:'index',intersect:false}}});
+const chartHR=new Chart(document.getElementById('chart-hr'),{type:'line',data:{labels:[],datasets:[{label:'Control',data:[],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'Treatment',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',borderWidth:2,fill:true,pointRadius:0,tension:.15,order:1},{label:'HR=1',data:[],borderColor:'rgba(0,0,0,.12)',borderWidth:1.5,borderDash:[4,6],pointRadius:0,fill:false,order:0}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:12,weight:'500'},color:'#6b7280',usePointStyle:true,pointStyleWidth:8,padding:16,filter:i=>i.datasetIndex<2}}},scales:{x:{type:'linear',min:0,max:6,title:{display:true,text:'Time (months)',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:1},grid:{color:'rgba(0,0,0,.04)'}},y:{min:0,max:1,title:{display:true,text:'Cumulative Events',font:{family:'Inter',size:12},color:'#6b7280'},ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:.2,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(0,0,0,.04)'}}},interaction:{mode:'index',intersect:false}}});
 
-// Double-click any chart canvas to reset pan/zoom back to default view
-[chartARR, chartHR, chartQuiz, chartQuizNormal, chartQuizBar].forEach(c => {
-  c.canvas.addEventListener('dblclick', () => c.resetZoom());
-});
+// ═══════════════════════════════════════════════════════════
+// ZOOM / PAN — cursor-centered wheel zoom + middle-click drag
+// ═══════════════════════════════════════════════════════════
+const _zoomBase = {};
+const _panState = {};
+function installChartZoom(chart, canvasId, xMin, xMax) {
+  const c = chart, canvas = c.canvas;
+  if (!canvas) return;
+  if (!_zoomBase[canvasId]) _zoomBase[canvasId] = { xMin, xMax };
+  function _xAtPixel(px) { const area = c.chartArea; if (!area) return 0; const scale = c.scales.x; return scale.min + ((px - area.left) / (area.right - area.left)) * (scale.max - scale.min); }
+  canvas.addEventListener('wheel', e => {
+    if (canvas.offsetParent === null) return;
+    e.preventDefault();
+    const px = e.clientX - canvas.getBoundingClientRect().left;
+    const centerVal = _xAtPixel(px), scale = c.scales.x, range = scale.max - scale.min;
+    const factor = e.deltaY < 0 ? 0.85 : 1.18, newRange = Math.max(0.02, range * factor);
+    const leftFrac = Math.max(0, Math.min(1, (centerVal - scale.min) / range));
+    c.options.scales.x.min = centerVal - newRange * leftFrac;
+    c.options.scales.x.max = centerVal + newRange * (1 - leftFrac);
+    c.update('none');
+  }, { passive: false });
+  canvas.addEventListener('mousedown', e => {
+    if (e.button !== 1 || canvas.offsetParent === null) return;
+    e.preventDefault();
+    _panState[canvasId] = { startPx: e.clientX, startMin: c.scales.x.min, startMax: c.scales.x.max };
+  });
+  window.addEventListener('mousemove', e => {
+    const ps = _panState[canvasId]; if (!ps) return;
+    const range = ps.startMax - ps.startMin, rect = canvas.getBoundingClientRect();
+    const deltaVal = -(e.clientX - ps.startPx) / rect.width * range;
+    c.options.scales.x.min = ps.startMin + deltaVal; c.options.scales.x.max = ps.startMax + deltaVal; c.update('none');
+  });
+  window.addEventListener('mouseup', e => { if (e.button === 1) delete _panState[canvasId]; });
+  canvas.addEventListener('auxclick', e => { if (e.button === 1) e.preventDefault(); });
+  canvas.addEventListener('contextmenu', e => { if (_panState[canvasId]) e.preventDefault(); });
+}
+function resetAllChartZoom() {
+  Object.keys(_zoomBase).forEach(id => {
+    const allCharts = [chartARR, chartHR, chartQuiz, chartQuizNormal, chartQuizBar, chartQuizPPV, chartQuizROC, chartQuizDot];
+    const chart = allCharts.find(c => c && c.canvas && c.canvas.id === id);
+    if (!chart || !chart.options || !chart.options.scales) return;
+    const b = _zoomBase[id];
+    chart.options.scales.x.min = b.xMin; chart.options.scales.x.max = b.xMax; chart.update('none');
+  });
+}
+installChartZoom(chartQuiz, 'chart-quiz-cumulative', 0, 6);
+installChartZoom(chartQuizNormal, 'chart-quiz-normal', -5, 5);
+installChartZoom(chartQuizBar, 'chart-quiz-bar', -0.5, 1.5);
+installChartZoom(chartARR, 'chart-arr', -4, 8);
+installChartZoom(chartHR, 'chart-hr', 0, 6);
+function ensurePPVZoom() { if (chartQuizPPV && !_zoomBase['chart-quiz-ppv']) installChartZoom(chartQuizPPV, 'chart-quiz-ppv', 0, 100); }
+function ensureROCZoom() { if (chartQuizROC && !_zoomBase['chart-quiz-roc']) installChartZoom(chartQuizROC, 'chart-quiz-roc', 0, 100); }
+function ensureDotZoom() { if (chartQuizDot && !_zoomBase['chart-quiz-dot']) { const s = chartQuizDot.scales.x; installChartZoom(chartQuizDot, 'chart-quiz-dot', s.min, s.max); } }
+
 function updateHR(){hrV=parseFloat(document.getElementById('hr-slider').value)/100;ctrlR=parseFloat(document.getElementById('rate-slider').value)/100;treatR=ctrlR*hrV;document.getElementById('hr-val').innerText=hrV.toFixed(2);document.getElementById('rate-val').innerText=ctrlR.toFixed(2);updateHRCard();const xv=[],cy=[],ty=[],hy=[];for(let t=0;t<=6;t+=.05){xv.push(t);cy.push(1-Math.exp(-ctrlR*t*2.5));ty.push(1-Math.exp(-treatR*t*2.5));hy.push(1-Math.exp(-ctrlR*t*2.5))}chartHR.data.labels=xv;chartHR.data.datasets[0].data=cy;chartHR.data.datasets[1].data=ty;chartHR.data.datasets[2].data=hy;chartHR.update()}
 function updateHRCard(){const pc=(1-hrV)*100;document.getElementById('cv-hr').innerText=hrV.toFixed(2);document.getElementById('cv-hr').className='val '+(hrV<1?'green':'red');document.getElementById('cv-ctrl').innerText=(ctrlR*100).toFixed(0)+'%';document.getElementById('cv-trt').innerText=(treatR*100).toFixed(0)+'%';document.getElementById('cv-red').innerHTML=pc.toFixed(0)+'% <span style="font-size:.5rem;color:#d1d5db;font-weight:400">(1.0−'+hrV.toFixed(2)+')</span>'}
 
