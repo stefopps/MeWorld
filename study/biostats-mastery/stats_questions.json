@@ -2313,8 +2313,7 @@
         "label": "A",
         "text": "Case-control studies can't calculate odds ratios — only relative risks.",
         "graph": {
-          "hr": 0.38,
-          "brate": 0.3
+          "concept": "mountain-pit"
         },
         "desc": "<strong>Odds ratios are precisely what case-control studies are designed to estimate.</strong> You CAN'T calculate relative risk directly from case-control data because the sampling is by outcome status, not exposure status. The graph shows HR=0.38 — the OR estimate. The issue isn't whether OR is calculable. It's what the OR represents."
       },
@@ -2322,8 +2321,7 @@
         "label": "B",
         "text": "Case-control sampling fixes the case:control ratio artificially (200:200), so the OR approximates the RR only when the disease is rare — but Alzheimer's is common in older adults, so the OR overstates the protective effect.",
         "graph": {
-          "hr": 0.38,
-          "brate": 0.3
+          "concept": "mountain-pit"
         },
         "desc": "<strong>OR = (a/b) / (c/d) = (40/160) / (80/120) = 0.375.</strong> The OR is valid, but the RR (which the ad's language implies: 'half the rate') can't be directly estimated. The OR overstates the RR when the outcome is common. Since Alzheimer's affects ~10% of older adults, the RR is actually closer to: RR = (40/120) / (80/200) = 0.33 / 0.40 ≈ 0.83 — a much weaker protective association. The graph shows the OR = 0.38 — but the RR, which is what 'half the rate' means, is closer to 0.83."
       },
@@ -2331,8 +2329,7 @@
         "label": "C",
         "text": "The OR is biased because cases and controls were not matched on age.",
         "graph": {
-          "hr": 0.45,
-          "brate": 0.3
+          "concept": "mountain-pit"
         },
         "desc": "<strong>The study DID match on age — 200 cases to 200 age-matched controls.</strong> Matching improves precision and controls for confounding by the matched variable. The graph shows a stronger effect — but the matching is a strength, not the threat. The threat is the interpretation of the OR as if it were a RR."
       },
@@ -2340,8 +2337,7 @@
         "label": "D",
         "text": "Case-control studies can only show association, never causation.",
         "graph": {
-          "hr": 0.38,
-          "brate": 0.3
+          "concept": "mountain-pit"
         },
         "desc": "<strong>No observational design can prove causation — but case-control studies are susceptible to additional biases.</strong> Recall bias (patients with Alzheimer's may not recall supplement use accurately), selection bias (controls may differ from the source population), and temporal ambiguity (did CognEase prevent Alzheimer's, or did preclinical Alzheimer's make people less likely to take supplements?). The graph shows the OR. The threat is multi-layered: biased OR + overinterpretation as RR + reverse causation."
       },
@@ -2349,21 +2345,20 @@
         "label": "E",
         "text": "The OR is inflated by the small number of exposed cases (40).",
         "graph": {
-          "hr": 0.5,
-          "brate": 0.3
+          "concept": "mountain-pit"
         },
         "desc": "<strong>The OR point estimate can be unstable with small cell counts, but 40 exposed cases is adequate.</strong> The instability shows up in the CI width, not the OR itself. The graph shows a slightly weaker effect — reflecting the small-count uncertainty. But the primary threat to interpretation isn't sample size. It's the OR→RR translation."
       }
     ],
     "correct": 1,
     "baseGraph": {
-      "hr": 0.38,
-      "brate": 0.3,
-      "type": "studyDesignGrid"
+      "type": "biasDiagram",
+      "concept": "mountain-pit"
     },
     "explanation": "The OR approximates the RR only when the outcome is rare (<10%). Alzheimer's is common in older adults. OR = 0.38 sounds dramatic, but the corresponding RR is closer to 0.83 — a 17% reduction, not 62%. Case-control studies report ORs by design. Drug ads translate them into RR language because OR sounds more impressive.",
     "trap": "OR ≠ RR when the outcome is common. OR always makes the effect look stronger than RR (for OR < 1, OR is farther from 1.0 than RR is). When you see an OR from a case-control study and the disease isn't rare, mentally shrink the effect toward 1.0. The formula: RR ≈ OR / (1 − p₀ + p₀ × OR), where p₀ is the baseline risk.",
-    "graph": "studyDesignGrid"
+    "graph": "studyDesignGrid",
+    "concept": "mountain-pit"
   },
   {
     "id": 35,
