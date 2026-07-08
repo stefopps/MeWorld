@@ -101,7 +101,8 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 .reset-zoom-btn:hover{color:#2563eb;border-color:#93c5fd}.reset-zoom-btn i{font-size:12px}
 .chart-panel{display:none;position:absolute;inset:20px}
 .chart-panel.active{display:block}
-.chart-panel canvas{width:100%!important;height:100%!important}
+.chart-panel canvas.quiz-canvas{position:absolute;inset:0;visibility:hidden}
+.chart-panel canvas.quiz-canvas.active{visibility:visible;z-index:5}
 .chart-panel #chart-quiz-html{width:100%;height:100%;overflow:auto}
 .chart-panel #chart-quiz-html img{user-select:none}
 
@@ -203,13 +204,14 @@ body.chat-docked .float-card:not(.docked) {
 }
 .dock-toggle-btn {
   background: none; border: none; cursor: pointer; color: #9ca3af;
-  padding: 6px; border-radius: 6px; display: flex; align-items: center;
+  padding: 10px 12px; border-radius: 6px; display: flex; align-items: center;
+  font-size: 1rem; line-height: 1;
 }
 .dock-toggle-btn:hover { color: #4b5563; background: #f3f4f6; }
 .dock-toggle-btn.active { color: #2563eb; }
 .float-card .card-body{padding:18px 20px 14px 20px;font-size:.6875rem;line-height:1.6;flex:1 1 auto;min-height:40px;overflow-y:auto;overflow-x:hidden;position:relative}
 #card-quiz{width:min(420px,38vw)}
-.chat-context{font-size:.5625rem;color:#6b7280;margin-bottom:8px;padding:6px 8px;background:#f9fafb;border-radius:6px;border:1px solid #f3f4f6}
+.chat-context{font-size:var(--chat-font, 12px);color:#6b7280;margin-bottom:8px;padding:6px 8px;background:#f9fafb;border-radius:6px;border:1px solid #f3f4f6}
 .chat-scroll-bottom{position:sticky;bottom:0;left:50%;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;border:1px solid #d1d5db;background:#fff;color:#6b7280;font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center;margin:8px auto 0 auto;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:10;transition:all .15s;flex-shrink:0}
 .chat-scroll-bottom:hover{background:#f0f4ff;border-color:#93c5fd;color:#2563eb}
 .chat-scroll-bottom.visible{display:flex}
@@ -290,10 +292,10 @@ body.chat-docked .float-card:not(.docked) {
 .chat-simplify-btn:hover{color:#7c3aed;background:#f0eaff}
 .chat-simplify-btn.simplifying{color:#7c3aed;animation:spin 1s linear infinite;pointer-events:none}
 .chat-history{display:flex;flex-direction:column;gap:6px;margin-top:10px;margin-bottom:8px}
-.chat-msg-student,.chat-msg-attending{position:relative;font-size:.5625rem;line-height:1.45;padding:6px 10px;border-radius:6px;font-family:'Inter',sans-serif;flex-shrink:0}
+.chat-msg-student,.chat-msg-attending{position:relative;font-size:var(--chat-font, 12px);line-height:1.45;padding:6px 10px;border-radius:6px;font-family:'Inter',sans-serif;flex-shrink:0}
 .chat-msg-student{background:#f0f9ff;border:1px solid #bfdbfe;color:#1e40af;align-self:flex-end;max-width:90%}
 .chat-msg-attending{background:#faf8ff;border:1px solid #ddcefe;color:#374151;align-self:flex-start;max-width:90%}
-.chat-role{font-size:.4375rem;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:2px;color:#9ca3af}
+.chat-role{font-size:.45em;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:2px;color:#9ca3af}
 /* KaTeX math styling */
 .katex{font-size:1.05em !important}
 .katex-display{margin:.5em 0;overflow-x:auto;overflow-y:hidden}
@@ -302,8 +304,8 @@ body.chat-docked .float-card:not(.docked) {
 .chat-msg-attending p{margin:0 0 .4em 0;line-height:1.5}
 .chat-msg-attending p:last-child{margin-bottom:0}
 .chat-msg-attending li{list-style:disc;margin-left:1.2em;margin-bottom:.2em;line-height:1.45}
-.chat-msg-attending .chat-heading{font-size:.65rem;font-weight:600;color:#1e1b4b;margin:.4em 0 .2em 0;line-height:1.3}
-.chat-msg-attending .inline-code{background:#ede9fe;color:#6d28d9;font-size:.5rem;padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono','Cascadia Code',monospace}
+.chat-msg-attending .chat-heading{font-size:1.1em;font-weight:600;color:#1e1b4b;margin:.4em 0 .2em 0;line-height:1.3}
+.chat-msg-attending .inline-code{background:#ede9fe;color:#6d28d9;font-size:.85em;padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono','Cascadia Code',monospace}
 .chat-msg-student p{margin:0;line-height:1.45}
 </style>
 </head>
@@ -362,6 +364,11 @@ body.chat-docked .float-card:not(.docked) {
       <span class="settings-hint">questions &amp; explanations</span>
     </div>
     <div class="settings-section">
+      <label class="settings-section-label">Chat text size <span id="chat-font-size-label">12px</span></label>
+      <input type="range" id="chat-font-slider" min="8" max="22" value="12" style="width:100%">
+      <span class="settings-hint">chat messages in the Ask Immersa tab</span>
+    </div>
+    <div class="settings-section">
       <label class="settings-section-label">DeepSeek API key</label>
       <input type="password" id="ds-api-key" placeholder="DeepSeek API key" style="width:100%;padding:6px 10px;font-family:'Inter',sans-serif;font-size:.75rem;border:1px solid #e5e7eb;border-radius:6px">
       <span class="settings-hint">stored locally · <a href="#" onclick="document.getElementById('ds-api-key').value='';localStorage.removeItem('stats_viz_ds_key');return false">clear</a></span>
@@ -417,7 +424,7 @@ body.chat-docked .float-card:not(.docked) {
       <div class="q-label">Preamble <span class="q-family-badge" id="q-family-badge" style="display:none"></span></div>
       <div class="q-ad-text" id="q-ad"></div>
     </div>
-    <div class="q-label">Question</div>
+    <div class="q-label">Question <button id="plain-speak-global-toggle" style="float:right;background:none;border:1px solid #d1d5db;border-radius:6px;padding:2px 8px;font-family:Inter,sans-serif;font-size:.625rem;font-weight:500;color:#6b7280;cursor:pointer;display:none">plain speak</button></div>
     <div class="q-stem-text" id="q-stem"></div>
     <div id="q-options"></div>
   </aside>
@@ -429,14 +436,15 @@ body.chat-docked .float-card:not(.docked) {
       <div class="chart-panel" id="panel-arr"><canvas id="chart-arr"></canvas></div>
       <div class="chart-panel" id="panel-hr"><canvas id="chart-hr"></canvas></div>
       <div class="chart-panel active" id="panel-quiz">
-        <canvas id="chart-quiz-cumulative"></canvas>
-        <canvas id="chart-quiz-normal" style="display:none"></canvas>
-                <canvas id="chart-quiz-bar" style="display:none"></canvas>
-        <canvas id="chart-quiz-ppv" style="display:none"></canvas>
-        <div id="chart-quiz-forest" style="display:none;width:100%;height:100%;overflow:auto"></div>
-        <canvas id="chart-quiz-roc" style="display:none"></canvas>
-        <canvas id="chart-quiz-dot" style="display:none"></canvas>
-        <div id="chart-quiz-html" style="display:none;width:100%;height:100%;overflow:auto;padding:16px"></div>
+        <div id="graph-crash-banner" style="display:none;position:absolute;top:4px;left:0;right:0;z-index:200;background:#dc2626;color:#fff;font-size:.6875rem;padding:4px 12px;text-align:center;font-family:monospace"></div>
+        <canvas id="chart-quiz-cumulative" class="quiz-canvas active"></canvas>
+        <canvas id="chart-quiz-normal" class="quiz-canvas"></canvas>
+        <canvas id="chart-quiz-bar" class="quiz-canvas"></canvas>
+        <canvas id="chart-quiz-ppv" class="quiz-canvas"></canvas>
+        <div id="chart-quiz-forest" class="quiz-canvas" style="display:none;width:100%;height:100%;overflow:auto"></div>
+        <canvas id="chart-quiz-roc" class="quiz-canvas"></canvas>
+        <canvas id="chart-quiz-dot" class="quiz-canvas"></canvas>
+        <div id="chart-quiz-html" class="quiz-canvas" style="display:none;width:100%;height:100%;overflow:auto;padding:16px"></div>
       </div>
 
       <button class="reset-zoom-btn" onclick="resetAllChartZoom()" title="Reset zoom"><i class="ti ti-zoom-reset"></i> Reset zoom</button>
@@ -477,7 +485,7 @@ body.chat-docked .float-card:not(.docked) {
         <div class="card-tabs">
           <button class="card-tab active" data-card="card-quiz" data-tab="formula" title="Formula"><i class="ti ti-math-function"></i></button>
           <button class="card-tab" data-card="card-quiz" data-tab="chat" title="Chat"><i class="ti ti-message"></i></button>
-          <button class="card-tab" data-card="card-quiz" data-tab="answer" title="Answer"><i class="ti ti-clipboard-check"></i></button>
+          <button class="card-tab" data-card="card-quiz" data-tab="image" title="Visual Metaphor"><i class="ti ti-photo"></i></button>
           <button class="card-tab" data-card="card-quiz" data-tab="stats" title="Stats"><i class="ti ti-chart-bar"></i></button>
           <button class="card-tab" data-card="card-quiz" data-tab="controls" title="Controls"><i class="ti ti-adjustments"></i></button>
           <button class="card-tab tour-tab" data-card="card-quiz" data-tab="tour" title="Graph Tour" onclick="startGraphTour(currentQ)" style="display:none"><i class="ti ti-map-route"></i></button>
@@ -489,8 +497,8 @@ body.chat-docked .float-card:not(.docked) {
         <div class="card-body" id="cbody-chat" style="display:none">
           <span class="empty">Chat loads with each question</span>
         </div>
-        <div class="card-body" id="cbody-answer" style="display:none">
-          <span class="empty">Select an option and enter Answer Mode to see the explanation here</span>
+        <div class="card-body" id="cbody-image" style="display:none">
+          <span class="empty">Click an option with a visual metaphor to see it here</span>
         </div>
         <div class="card-body" id="cbody-stats" style="display:none">
           <div class="stats-row"><span class="key">HR</span><span class="val green" id="cvq-hr">0.60</span></div>
@@ -564,6 +572,14 @@ body.chat-docked .float-card:not(.docked) {
 </div>
 
 <script>
+// ── CRASH GUARD — surface any JS error as a visible toast ──
+window.addEventListener('error', function(e) {
+  if (e.filename && e.filename.includes('index.html')) {
+    const msg = (e.message || 'Unknown error').slice(0, 200);
+    console.error('PAGE CRASH:', msg, 'line', e.lineno);
+  }
+});
+
 // ── ATTENDING SYSTEM PROMPT (must be first — top of script, no TDZ) ──
 const ATTENDING_SYSTEM = `You are an attending physician teaching statistics for USMLE / board exam preparation. You are a brilliant senior resident who loves teaching — direct, warm, and never pedantic. Speak in short, spoken-word sentences.
 
@@ -854,7 +870,7 @@ function setQMode(mode) {
 function switchCardTab(tab) {
   activeCardTab = tab;
   const card = document.getElementById('card-quiz');
-  ['formula','chat','answer','stats','controls','tour'].forEach(t => {
+  ['formula','chat','image','stats','controls','tour'].forEach(t => {
     const btn = card.querySelector('.card-tab[data-tab="'+t+'"]');
     if (btn) btn.classList.toggle('active', t===tab);
     const body = document.getElementById('cbody-'+t);
@@ -933,13 +949,27 @@ function renderQuestion() {
     renderQuestion._lastQ = currentQ;
   }
 
+  // Global plain-speak toggle state
+  if (typeof window._plainSpeakGlobal === 'undefined') window._plainSpeakGlobal = false;
+  const hasPlain = !!(q.stemPlain || q.adPlain || q.options.some(o => o.textPlain));
+  const isPlain = window._plainSpeakGlobal && hasPlain;
+  const toggleBtn = document.getElementById('plain-speak-global-toggle');
+  if (toggleBtn) {
+    toggleBtn.style.display = hasPlain ? '' : 'none';
+    toggleBtn.textContent = isPlain ? 'stats speak' : 'plain speak';
+    toggleBtn.onclick = () => {
+      window._plainSpeakGlobal = !window._plainSpeakGlobal;
+      renderQuestion();
+    };
+  }
+
   // Foundation demos — skip scoring, show graph directly
   if (q.concept === 'foundations') {
     document.getElementById('q-preamble-block').style.display = 'none';
     document.getElementById('q-stem').innerText = q.stem;
     document.getElementById('q-options').innerHTML = '';
     document.getElementById('cbody-formula').innerHTML = '<span class="empty">Interactive demo — drag the points to explore</span>';
-    document.getElementById('cbody-answer').innerHTML = '<span class="empty">' + (q.explanation || '') + '</span>';
+    document.getElementById('cbody-image').innerHTML = '<span class="empty">' + (q.explanation || '') + '</span>';
     document.getElementById('show-trap-btn').style.display = 'none';
     switchCardTab('formula');
     updateQuizGraph();
@@ -957,7 +987,7 @@ function renderQuestion() {
   const badgeEl = document.getElementById('q-family-badge');
   if (q.ad) {
     preambleBlock.style.display = '';
-    adEl.textContent = q.ad;
+    adEl.textContent = isPlain && q.adPlain ? q.adPlain : q.ad;
     const fam = getAdSiblingInfo(q);
     if (fam && fam.total > 1) {
       badgeEl.textContent = fam.key + ' · ' + fam.index + ' of ' + fam.total;
@@ -972,7 +1002,7 @@ function renderQuestion() {
     badgeEl.style.display = 'none';
   }
 
-  document.getElementById('q-stem').innerText = q.stem;
+  document.getElementById('q-stem').innerText = isPlain && q.stemPlain ? q.stemPlain : q.stem;
 
   const optsDiv = document.getElementById('q-options'); optsDiv.innerHTML = '';
   const inAM = (qMode === 'answer');
@@ -983,7 +1013,7 @@ function renderQuestion() {
     if (qAnswered && inAM && qState.answers[q.id] === false && i === qState.picked) btn.classList.add('wrong-flash');
     if (qAnswered && inAM && qState.answers[q.id] === true && i === qState.picked) btn.classList.add('correct-flash');
     if (i === currentPickedOpt) btn.classList.add('exploring');
-    btn.innerHTML = '<strong>'+opt.label+')</strong> '+opt.text;
+    btn.innerHTML = '<strong>'+opt.label+')</strong> ' + (isPlain && opt.textPlain ? opt.textPlain : opt.text);
     btn.onclick = () => pickAnswer(i);
     optsDiv.appendChild(btn);
   });
@@ -995,15 +1025,27 @@ function renderQuestion() {
   } else {
     document.getElementById('cbody-formula').innerHTML = '<span class="empty">Click an option to see the formula for that scenario</span>';
   }
-  renderChatPanel(currentQ);
+  try { renderChatPanel(currentQ); } catch(e) { console.error('renderChatPanel error:', e.message); }
+  // Image tab — show visual metaphor for current option, plus explanation when answered
+  const pickedOpt = currentPickedOpt >= 0 ? q.options[currentPickedOpt] : null;
+  let imgHTML = '';
+  if (pickedOpt && pickedOpt.visual && pickedOpt.visual.src) {
+    const v = pickedOpt.visual;
+    imgHTML = '<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 0">'
+      + '<img src="' + v.src + '" alt="' + (v.alt || 'Visual metaphor').replace(/"/g, '&quot;') + '" style="max-width:100%;max-height:280px;object-fit:contain;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.1)">'
+      + (v.caption ? '<div style="font-size:.625rem;color:#6b7280;text-align:center;line-height:1.5;max-width:320px">' + v.caption + '</div>' : '')
+      + '</div>';
+  } else if (currentPickedOpt < 0) {
+    imgHTML = '<span class="empty">Click an option to see the visual metaphor for that concept</span>';
+  } else {
+    imgHTML = '<span class="empty">No visual metaphor for this option</span>';
+  }
   if (qAnswered && inAM) {
     const corr = q.options[q.correct].label;
-    document.getElementById('cbody-answer').innerHTML =
-      '<div class="answer-'+(qState.answers[q.id]?'correct':'wrong')+'"><strong>You picked: '+q.options[qState.picked].label+'</strong><br><strong>Correct: '+corr+'</strong><br><br>'+renderRich(q.explanation)+'<div class="trap-note">'+renderRich(q.trap)+'</div></div>';
-  } else {
-    document.getElementById('cbody-answer').innerHTML = '<span class="empty">Switch to Answer Mode to submit</span>';
+    imgHTML += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid #e5e7eb" class="answer-'+(qState.answers[q.id]?'correct':'wrong')+'"><strong>You picked: '+q.options[qState.picked].label+'</strong><br><strong>Correct: '+corr+'</strong><br><br>'+renderRich(q.explanation)+'<div class="trap-note">'+renderRich(q.trap)+'</div></div>';
   }
-  switchCardTab(qAnswered ? 'answer' : 'formula');
+  document.getElementById('cbody-image').innerHTML = imgHTML || '<span class="empty">Click an option to see its visual metaphor</span>';
+  switchCardTab(qAnswered ? 'image' : 'formula');
 
   // trap button — show if question defines trapGraph
   const qTrap = q.trapGraph;
@@ -1031,14 +1073,18 @@ function renderQuestion() {
     const manualDock = localStorage.getItem('stats_viz_dock_manual');
     if (card && !manualDock) {
       if (isForest && !card.classList.contains('docked')) {
-        toggleDock('card-quiz');
+        try { toggleDock('card-quiz'); } catch(e) {}
       } else if (!isForest && card.classList.contains('docked')) {
-        toggleDock('card-quiz');
+        try { toggleDock('card-quiz'); } catch(e) {}
       }
     }
 
-    updateQuizGraph();
-    updateQuizCard();
+    try { updateQuizGraph(); } catch(e) {
+      console.error('updateQuizGraph crash:', e);
+      const banner = document.getElementById('graph-crash-banner');
+      if (banner) { banner.style.display = ''; banner.textContent = 'Graph render error: ' + (e.message || '').slice(0, 100); }
+    }
+    try { updateQuizCard(); } catch(e) { console.error('updateQuizCard crash:', e); }
   }
   if (pivotMode) updatePivotUI();
 }
@@ -1055,25 +1101,39 @@ function syncViewModeToCrossAt() {
 }
 
 function updateSlidersFromState() {
-  document.getElementById('qz-hr-slider').value = Math.round(qzHR*100);
-  document.getElementById('qz-rate-slider').value = Math.round(qzBRate*100);
-  document.getElementById('qz-hr-val').innerText = qzHR.toFixed(2);
-  document.getElementById('qz-rate-val').innerText = qzBRate.toFixed(2);
+  const hrSlider = document.getElementById('qz-hr-slider');
+  if (hrSlider) { hrSlider.value = Math.round(qzHR*100); }
+  const rateSlider = document.getElementById('qz-rate-slider');
+  if (rateSlider) { rateSlider.value = Math.round(qzBRate*100); }
+  const hrVal = document.getElementById('qz-hr-val');
+  if (hrVal) hrVal.innerText = qzHR.toFixed(2);
+  const rateVal = document.getElementById('qz-rate-val');
+  if (rateVal) rateVal.innerText = qzBRate.toFixed(2);
   // Normal
-  document.getElementById('qz-nd-slider').value = Math.round(qzNormD*100);
-  document.getElementById('qz-nn-slider').value = Math.round(1000 * Math.cbrt(Math.max(0, qzNormN - 4) / 19996));
-  document.getElementById('qz-na-slider').value = Math.round(qzNormAlpha*100);
-  document.getElementById('qz-nd-val').innerText = qzNormD.toFixed(2);
-  document.getElementById('qz-nn-val').innerText = qzNormN.toLocaleString();
-  document.getElementById('qz-na-val').innerText = qzNormAlpha.toFixed(2);
+  const ndSlider = document.getElementById('qz-nd-slider');
+  if (ndSlider) ndSlider.value = Math.round(qzNormD*100);
+  const nnSlider = document.getElementById('qz-nn-slider');
+  if (nnSlider) nnSlider.value = Math.round(1000 * Math.cbrt(Math.max(0, qzNormN - 4) / 19996));
+  const naSlider = document.getElementById('qz-na-slider');
+  if (naSlider) naSlider.value = Math.round(qzNormAlpha*100);
+  const ndVal = document.getElementById('qz-nd-val');
+  if (ndVal) ndVal.innerText = qzNormD.toFixed(2);
+  const nnVal = document.getElementById('qz-nn-val');
+  if (nnVal) nnVal.innerText = qzNormN.toLocaleString();
+  const naVal = document.getElementById('qz-na-val');
+  if (naVal) naVal.innerText = qzNormAlpha.toFixed(2);
   // Bar
-  document.getElementById('qz-bc-slider').value = Math.round(qzBarC*100);
-  document.getElementById('qz-bt-slider').value = Math.round(qzBarT*100);
-  document.getElementById('qz-bc-val').innerText = qzBarC.toFixed(2);
-  document.getElementById('qz-bt-val').innerText = qzBarT.toFixed(2);
+  const bcSlider = document.getElementById('qz-bc-slider');
+  if (bcSlider) bcSlider.value = Math.round(qzBarC*100);
+  const btSlider = document.getElementById('qz-bt-slider');
+  if (btSlider) btSlider.value = Math.round(qzBarT*100);
+  const bcVal = document.getElementById('qz-bc-val');
+  if (bcVal) bcVal.innerText = qzBarC.toFixed(2);
+  const btVal = document.getElementById('qz-bt-val');
+  if (btVal) btVal.innerText = qzBarT.toFixed(2);
   // KM n-per-arm
   const ns2 = document.getElementById("qz-n-slider");
-  if (ns2) { ns2.value = qzNPerArm; document.getElementById("qz-n-val").innerText = qzNPerArm; }
+  if (ns2) { ns2.value = qzNPerArm; const nsv = document.getElementById("qz-n-val"); if (nsv) nsv.innerText = qzNPerArm; }
 }
 
 function pickAnswer(i) {
@@ -1093,6 +1153,16 @@ function pickAnswer(i) {
   }
 
   document.getElementById('cbody-formula').innerHTML = renderFormulaForOption(q, opt, i);
+  // Also update image tab with visual metaphor
+  if (opt.visual && opt.visual.src) {
+    const v = opt.visual;
+    document.getElementById('cbody-image').innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 0">'
+      + '<img src="' + v.src + '" alt="' + (v.alt || 'Visual metaphor').replace(/"/g, '&quot;') + '" style="max-width:100%;max-height:280px;object-fit:contain;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.1)">'
+      + (v.caption ? '<div style="font-size:.625rem;color:#6b7280;text-align:center;line-height:1.5;max-width:320px">' + v.caption + '</div>' : '')
+      + '</div>';
+  } else {
+    document.getElementById('cbody-image').innerHTML = '<span class="empty">No visual metaphor for this option</span>';
+  }
   renderChatPanel(currentQ);
   highlightExploredOption(i);
   switchCardTab('formula');
@@ -1134,8 +1204,8 @@ function applyGraphPresetByType(graph, baseGraph) {
   // forestPlot, rocCurve, dotplot, ppvCurve, etc. — no interactive sliders
 }
 
-function nextQuestion() { if (currentQ<QUESTION_BANK.length-1){currentQ++; if(pivotMode) pivotCurrentIdx=currentQ; qAnswered=false;showTrap=false;showCompare=false;saveQS();renderQuestion();updatePivotUI();} }
-function prevQuestion() { if (currentQ>0){currentQ--; if(pivotMode) pivotCurrentIdx=currentQ; qAnswered=false;showTrap=false;showCompare=false;saveQS();renderQuestion();updatePivotUI();} }
+function nextQuestion() { if (currentQ<QUESTION_BANK.length-1){currentQ++; if(pivotMode) pivotCurrentIdx=currentQ; qAnswered=false;showTrap=false;showCompare=false;saveQS(); try{renderQuestion();}catch(e){console.error('nextQuestion render error:',e);} updatePivotUI();} }
+function prevQuestion() { if (currentQ>0){currentQ--; if(pivotMode) pivotCurrentIdx=currentQ; qAnswered=false;showTrap=false;showCompare=false;saveQS(); try{renderQuestion();}catch(e){console.error('prevQuestion render error:',e);} updatePivotUI();} }
 function startQuestionJump(){
   const el = document.getElementById('q-progress');
   const current = QUESTION_BANK[currentQ].id;
@@ -1173,7 +1243,13 @@ function optionPrefersImage(opt) {
 }
 
 function hideAllQuizChartPanels() {
-  ['chart-quiz-cumulative','chart-quiz-normal','chart-quiz-bar','chart-quiz-ppv','chart-quiz-forest','chart-quiz-roc','chart-quiz-dot','chart-quiz-html'].forEach(id => {
+  // Chart.js canvases: use visibility class (not display:none — Chart.js needs dimensions)
+  ['chart-quiz-cumulative','chart-quiz-normal','chart-quiz-bar','chart-quiz-ppv','chart-quiz-roc','chart-quiz-dot'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  // Non-Chart.js divs: use display:none (they set innerHTML)
+  ['chart-quiz-forest','chart-quiz-html'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
@@ -1183,11 +1259,25 @@ function hideAllQuizChartPanels() {
   });
   // Reset forest proof toggle when switching away
   const fc = document.getElementById('chart-quiz-forest');
-  if (fc) { delete fc.dataset.proof; delete fc._reroll; }
+  if (fc) { delete fc.dataset.proof; delete fc._reroll; fc.dataset.viewMode = 'forest'; }
+  const controlsBar = document.getElementById('forest-controls-bar');
+  if (controlsBar) controlsBar.remove();
   const tgl = document.getElementById('forest-proof-toggle');
   if (tgl) tgl.style.display = 'none';
+  const funnelTgl = document.getElementById('forest-funnel-toggle');
+  if (funnelTgl) { funnelTgl.style.display = 'none'; funnelTgl.innerHTML = '<i class="ti ti-chart-dots" style="font-size:12px"></i>view as funnel plot'; }
+  const adjBar = document.getElementById('forest-adjust-bar');
+  if (adjBar) { adjBar.innerHTML = ''; adjBar.remove(); }
+  const adjNote = document.getElementById('forest-adjust-note');
+  if (adjNote) { adjNote.textContent = ''; adjNote.remove(); }
   const stl = document.getElementById('forest-sim-tally');
   if (stl) stl.innerHTML = '';
+  const i2Bar = document.getElementById('forest-i2-bar');
+  if (i2Bar) i2Bar.remove();
+  const floatAnn = document.getElementById('forest-float-ann');
+  if (floatAnn) floatAnn.remove();
+  const verdictPanel = document.getElementById('forest-verdict-panel');
+  if (verdictPanel) { verdictPanel.style.display = 'none'; verdictPanel.remove(); }
 }
 
 function renderOptionImage(q, opt) {
@@ -1233,29 +1323,44 @@ function updateQuizGraph(){
   const gt = bg.type || 'cumulative';
   qzGraphType = gt;
 
+  // Clear any previous crash banner
+  const crashBanner = document.getElementById('graph-crash-banner');
+  if (crashBanner) crashBanner.style.display = 'none';
+
   hideAllQuizChartPanels();
   showTourTab(gt === 'spaghettiPlot' || !!gTourByQId(currentQ));
 
   // Show the right canvas/control for this type
-  const chartTypes = ['cumulative','normal','bar','ppvCurve','forestPlot','rocCurve','dotplot',
-    'contingencyTable','biasDiagram','studyDesignGrid','phaseTimeline','dag','decisionTree','bar-multigroup'];
   const htmlTypes = ['contingencyTable','biasDiagram','studyDesignGrid','phaseTimeline','dag','decisionTree','spaghettiPlot',
-    'secantTangent','hazardSecant'];
+    'secantTangent','hazardSecant','cltGraph'];
 
-  if (gt === 'bar-multigroup') {
-    document.getElementById('chart-quiz-bar').style.display = '';
-    document.getElementById('qz-ctrls-bar').style.display = '';
-  } else if (gt === 'bar') {
-    document.getElementById('chart-quiz-bar').style.display = '';
-    document.getElementById('qz-ctrls-bar').style.display = '';
+  if (['bar','bar-multigroup'].includes(gt)) {
+    const barCanvas = document.getElementById('chart-quiz-bar');
+    if (barCanvas) barCanvas.classList.add('active');
+    const barCtrls = document.getElementById('qz-ctrls-bar');
+    if (barCtrls) barCtrls.style.display = '';
   } else if (htmlTypes.includes(gt)) {
-    document.getElementById('chart-quiz-html').style.display = '';
-  } else if (['ppvCurve','forestPlot','rocCurve','dotplot'].includes(gt)) {
-    const canvasId = gt==='ppvCurve'?'chart-quiz-ppv':gt==='forestPlot'?'chart-quiz-forest':gt==='rocCurve'?'chart-quiz-roc':'chart-quiz-dot';
-    document.getElementById(canvasId).style.display = '';
+    const htmlDiv = document.getElementById('chart-quiz-html');
+    if (htmlDiv) htmlDiv.style.display = '';
+  } else if (gt === 'forestPlot') {
+    const fc = document.getElementById('chart-quiz-forest');
+    if (fc) fc.style.display = '';
+  } else if (gt === 'ppvCurve') {
+    const canvas = document.getElementById('chart-quiz-ppv');
+    if (canvas) canvas.classList.add('active');
+  } else if (gt === 'rocCurve') {
+    const canvas = document.getElementById('chart-quiz-roc');
+    if (canvas) canvas.classList.add('active');
+  } else if (gt === 'dotplot') {
+    const canvas = document.getElementById('chart-quiz-dot');
+    if (canvas) canvas.classList.add('active');
   } else {
-    document.getElementById('chart-quiz-'+gt).style.display = '';
-    document.getElementById('qz-ctrls-'+gt).style.display = '';
+    // cumulative, normal, and any future canvas-based types
+    const canvasId = gt === 'cumulative' ? 'chart-quiz-cumulative' : 'chart-quiz-normal';
+    const canvas = document.getElementById(canvasId);
+    if (canvas) canvas.classList.add('active');
+    const ctrls = document.getElementById('qz-ctrls-'+gt);
+    if (ctrls) ctrls.style.display = '';
   }
 
   // Per-option graph overrides — option.graph can shadow baseGraph fields
@@ -1263,8 +1368,22 @@ function updateQuizGraph(){
   if (currentPickedOpt >= 0) {
     const opt = q.options[currentPickedOpt];
     if (opt && opt.graph) {
-      // For forestPlot: option.graph.rows overrides baseGraph.rows
-      if ((gt === 'forestPlot' || gt === 'rocCurve' || gt === 'dotplot' || gt === 'ppvCurve') && opt.graph.rows) {
+      // For forestPlot: option.graph.rows overrides baseGraph.rows; highlight + verdict
+      if (gt === 'forestPlot') {
+        if (opt.graph.rows) renderBg = { ...renderBg, rows: opt.graph.rows };
+        if (opt.graph.title) renderBg.title = opt.graph.title;
+        if (opt.graph.nullLine != null) renderBg.nullLine = opt.graph.nullLine;
+        if (opt.graph.marginLine != null) renderBg.marginLine = opt.graph.marginLine;
+        if (opt.graph.annotation) renderBg.annotation = opt.graph.annotation;
+        if (opt.graph.highlight) renderBg.highlight = opt.graph.highlight;
+        if (opt.graph.verdict) renderBg.verdict = opt.graph.verdict;
+        if (opt.graph.verdictTitle) renderBg.verdictTitle = opt.graph.verdictTitle;
+        if (opt.graph.verdictText) renderBg.verdictText = opt.graph.verdictText;
+        if (opt.graph.verdictNote) renderBg.verdictNote = opt.graph.verdictNote;
+        if (opt.graph.verdictTitlePlain) renderBg.verdictTitlePlain = opt.graph.verdictTitlePlain;
+        if (opt.graph.verdictTextPlain) renderBg.verdictTextPlain = opt.graph.verdictTextPlain;
+        if (opt.graph.verdictNotePlain) renderBg.verdictNotePlain = opt.graph.verdictNotePlain;
+      } else if ((gt === 'rocCurve' || gt === 'dotplot' || gt === 'ppvCurve') && opt.graph.rows) {
         renderBg = { ...bg, rows: opt.graph.rows };
         if (opt.graph.title) renderBg.title = opt.graph.title;
         if (opt.graph.nullLine != null) renderBg.nullLine = opt.graph.nullLine;
@@ -1278,23 +1397,30 @@ function updateQuizGraph(){
     }
   }
 
+
   if (gt==='cumulative') {
-    document.getElementById('cvq-hr').innerText = qzHR.toFixed(2);
-    document.getElementById('cvq-ctrl').innerText = (qzBRate*100).toFixed(0)+'%';
-    document.getElementById('cvq-trt').innerText = (qzTreat*100).toFixed(0)+'%';
-    document.getElementById('cvq-red').innerHTML = ((1-qzHR)*100).toFixed(0)+'% <span style="font-size:.5rem;color:#d1d5db;font-weight:400">(1.0−'+qzHR.toFixed(2)+'='+(1-qzHR).toFixed(2)+')</span>';
+    const cvqHr=document.getElementById('cvq-hr'); if(cvqHr)cvqHr.innerText=qzHR.toFixed(2);
+    const cvqCtrl=document.getElementById('cvq-ctrl'); if(cvqCtrl)cvqCtrl.innerText=(qzBRate*100).toFixed(0)+'%';
+    const cvqTrt=document.getElementById('cvq-trt'); if(cvqTrt)cvqTrt.innerText=(qzTreat*100).toFixed(0)+'%';
+    const cvqRed=document.getElementById('cvq-red'); if(cvqRed)cvqRed.innerHTML=((1-qzHR)*100).toFixed(0)+'% <span style="font-size:.5rem;color:#d1d5db;font-weight:400">(1.0\u2212'+qzHR.toFixed(2)+'='+(1-qzHR).toFixed(2)+')</span>';
+    if (chartQuiz) chartQuiz.resize();
     updateCumulativeChart(q, renderBg);
   } else if (gt==='normal') {
+    if (chartQuizNormal) chartQuizNormal.resize();
     updateNormalChart(q, renderBg);
   } else if (['bar','bar-multigroup'].includes(gt)) {
+    if (chartQuizBar) chartQuizBar.resize();
     updateBarChart(q, renderBg);
   } else if (gt==='ppvCurve') {
+    if (chartQuizPPV) chartQuizPPV.resize();
     updatePPVCurveChart(q, renderBg);
   } else if (gt==='forestPlot') {
     updateForestPlotChart(q, renderBg);
   } else if (gt==='rocCurve') {
+    if (chartQuizROC) chartQuizROC.resize();
     updateROCChart(q, renderBg);
   } else if (gt==='dotplot') {
+    if (chartQuizDot) chartQuizDot.resize();
     updateDotplotChart(q, renderBg);
   } else if (gt==='contingencyTable') {
     renderContingencyTable(q, renderBg);
@@ -1310,11 +1436,13 @@ function updateQuizGraph(){
     renderDecisionTree(q, renderBg);
   } else if (gt==='spaghettiPlot') {
     renderSpaghettiPlot(q, renderBg);
-    setTimeout(() => startSpaghettiTour(), 100); // slight delay for DOM to settle
+    setTimeout(() => { try { startSpaghettiTour(); } catch(e) {} }, 100);
   } else if (gt==='secantTangent') {
     renderSecantTangent(q, renderBg);
   } else if (gt==='hazardSecant') {
     renderHazardSecant(q, renderBg);
+  } else if (gt==='cltGraph') {
+    renderCLTDemo(q, renderBg);
   }
 }
 
@@ -1382,8 +1510,10 @@ function updateCumulativeChart(q, bg) {
   chartQuiz.setDatasetVisibility(3,showTrap);
   chartQuiz.setDatasetVisibility(4,showCompare);
   chartQuiz.setDatasetVisibility(5,showCompare);
-  chartQuiz.options.scales.x.max = xMax;
-  chartQuiz.options.scales.x.ticks.stepSize = (xMax > 10) ? 2 : 1;
+  if (!_userZoomed['chart-quiz-cumulative']) {
+    chartQuiz.options.scales.x.max = xMax;
+    chartQuiz.options.scales.x.ticks.stepSize = (xMax > 10) ? 2 : 1;
+  }
   const vt = document.getElementById("qz-view-toggle");
   if (vt) vt.checked = (qzViewMode==="survival");
   chartQuiz.update();
@@ -1520,8 +1650,10 @@ function updateNormalChart(q, bg) {
   chartQuizNormal.data.datasets[1].label = "True Effect (d="+d.toFixed(2)+")"+rawSuffix;
   chartQuizNormal.data.datasets[3].label = "Type I error (a="+alpha.toFixed(2)+")";
   chartQuizNormal.data.datasets[4].label = "Type II error (b="+beta.toFixed(2)+")";
-  chartQuizNormal.options.scales.x.min = xMin;
-  chartQuizNormal.options.scales.x.max = xMax2;
+  if (!_userZoomed['chart-quiz-normal']) {
+    chartQuizNormal.options.scales.x.min = xMin;
+    chartQuizNormal.options.scales.x.max = xMax2;
+  }
   const tl = (qzOneTail?"One-tailed":"Two-tailed")+"  z_crit=+"+zCrit.toFixed(2)+"  n="+n+"  Power="+(power*100).toFixed(0)+"%";
   chartQuizNormal.options.scales.x.title.text = tl;
   // Live stat cards + one/two-tail comparison
@@ -1716,6 +1848,33 @@ function updatePPVCurveChart(q, bg) {
 let chartQuizForest = null; // unused since forestPlot switch to SVG — kept for compat
 
 let forestPristine = {}; // per-question snapshot of original row data, so dragging is always reversible
+let forestAdjustMethod = {}; // per-question multiplicity-adjustment choice: 'none' | 'bonferroni' | 'holm'
+
+function computeAdjustedAlphas(rows, method) {
+  // "Summary" rows (Overall trial / Pooled estimate) aren't part of the multiple-comparisons
+  // family being corrected for — only the individual tests are.
+  const testIdx = rows.map((r, i) => i).filter(i => !/^(overall|pooled)/i.test(rows[i].label));
+  const k = testIdx.length;
+  const alphaFor = new Array(rows.length).fill(0.05);
+  const significant = rows.map(r => r.pValue < 0.05);
+  if (method === 'bonferroni') {
+    testIdx.forEach(i => { alphaFor[i] = 0.05 / k; significant[i] = rows[i].pValue < alphaFor[i]; });
+  } else if (method === 'holm') {
+    // Proper step-down: sort ascending, test each against alpha/(k-rank). The moment one
+    // fails, every subsequent (larger p-value) row is automatically non-significant too —
+    // it does NOT get independently re-tested against its own looser threshold.
+    const sorted = testIdx.slice().sort((a, b) => rows[a].pValue - rows[b].pValue);
+    let stopped = false;
+    sorted.forEach((rowIdx, rank) => {
+      const thresh = 0.05 / (k - rank);
+      alphaFor[rowIdx] = thresh;
+      if (stopped) { significant[rowIdx] = false; return; }
+      if (rows[rowIdx].pValue < thresh) { significant[rowIdx] = true; }
+      else { significant[rowIdx] = false; stopped = true; }
+    });
+  }
+  return { alphaFor, significant, k };
+}
 let forestSimTally = {}; // per-question running tally: { draws, flagged } across simulation clicks
 function showForestTooltip(container, row, nullLine) {
   let tip = container.querySelector('#forest-tooltip');
@@ -1750,6 +1909,15 @@ function hideForestTooltip(container) {
   if (tip) tip.style.display = 'none';
 }
 
+// Extract drug name from question ad — e.g. "ImmunoBoost: '83% responded'..." → "ImmunoBoost"
+function resolveDrugName(q) {
+  if (q && q.ad) {
+    const m = q.ad.match(/^(\w[\w\-\/]*)/);
+    if (m) return m[1];
+  }
+  return 'the drug';
+}
+
 function updateForestPlotChart(q, bg) {
   const container = document.getElementById('chart-quiz-forest');
   if (!container) return;
@@ -1759,9 +1927,28 @@ function updateForestPlotChart(q, bg) {
   if (!rows.length) { container.innerHTML = '<div style="padding:32px;color:#9ca3af;font-family:Inter,sans-serif;font-size:.75rem;text-align:center">No forest plot data for this question.</div>'; return; }
 
   if (!forestPristine[q.id]) forestPristine[q.id] = JSON.parse(JSON.stringify(rows));
+  const adjustMethod = forestAdjustMethod[q.id] || 'none';
+  const { alphaFor, significant: adjSignificant, k: adjustK } = computeAdjustedAlphas(rows, adjustMethod);
+
+  // ── I² heterogeneity demo (Q26) — slider interpolates between I²=0% and I²≈80% dispersion ──
+  if (bg.i2HighRows && bg.i2HighRows.length === rows.length) {
+    if (typeof window._forestI2 === 'undefined') window._forestI2 = {};
+    const i2val = window._forestI2[q.id] ?? 0;
+    const t = Math.min(1, i2val / 80);
+    rows.forEach((row, i) => {
+      const hi = bg.i2HighRows[i];
+      if (!hi) return;
+      const lerpLog = (a, b) => Math.exp(Math.log(a) + (Math.log(b) - Math.log(a)) * t);
+      row.estimate = lerpLog(row.estimate, hi.estimate);
+      row.ciLow = lerpLog(row.ciLow, hi.ciLow);
+      row.ciHigh = lerpLog(row.ciHigh, hi.ciHigh);
+      if (t > 0) row.label = hi.label;
+    });
+  }
 
   const nullLine = bg.nullLine ?? 1.0;
   const marginLine = bg.marginLine;
+  const isI2Demo = !!(bg.i2HighRows && bg.i2HighRows.length);
 
   // Compute log range with padding
   const allVals = rows.flatMap(r => [r.estimate, r.ciLow, r.ciHigh]).concat(nullLine);
@@ -1774,7 +1961,7 @@ function updateForestPlotChart(q, bg) {
   const svgNS = 'http://www.w3.org/2000/svg';
   const leftPad = 155, rightPad = 135, topPad = 64, rowH = 44, botPad = 75;
   const extraAnnotH = (bg.annotation && bg.annotation.length > 0) ? 22 : 0;
-  const totalH = topPad + rows.length * rowH + botPad + 50 + extraAnnotH; // +50 for FWER annotation
+  const totalH = isI2Demo ? topPad + rows.length * rowH + botPad : topPad + rows.length * rowH + botPad + 50 + extraAnnotH; // I² demo: no FWER block below
   const plotW = 800 - leftPad - rightPad;
 
   const svg = document.createElementNS(svgNS, 'svg');
@@ -1837,6 +2024,28 @@ function updateForestPlotChart(q, bg) {
   harmT.textContent = 'Favors control \u2192';
   svg.appendChild(harmT);
 
+  // Green overlap band (subgroup interaction) — renders when bg.highlight includes 'overlap'
+  const highlightArr = bg.highlight || [];
+  if (highlightArr.includes('overlap')) {
+    const menRow = rows.find(r => r.label && r.label.includes('Men'));
+    const womenRow = rows.find(r => r.label && r.label.includes('Women'));
+    if (menRow && womenRow) {
+      const menLoX = xPos(menRow.ciLow), menHiX = xPos(menRow.ciHigh);
+      const womLoX = xPos(womenRow.ciLow), womHiX = xPos(womenRow.ciHigh);
+      const loX = Math.max(menLoX, womLoX);
+      const hiX = Math.min(menHiX, womHiX);
+      const menIdx = rows.indexOf(menRow), womenIdx = rows.indexOf(womenRow);
+      const menY = chartTop + menIdx * rowH + rowH / 2;
+      const womenY = chartTop + womenIdx * rowH + rowH / 2;
+      const overlapR = document.createElementNS(svgNS, 'rect');
+      overlapR.setAttribute('x', loX); overlapR.setAttribute('y', menY);
+      overlapR.setAttribute('width', Math.max(0, hiX - loX));
+      overlapR.setAttribute('height', womenY - menY);
+      overlapR.setAttribute('fill', '#97C459'); overlapR.setAttribute('opacity', '0.18');
+      svg.appendChild(overlapR);
+    }
+  }
+
   // Margin line (non-inferiority) — rendered only when bg.marginLine is defined
   if (marginLine != null) {
     const mgnX = xPos(marginLine);
@@ -1879,21 +2088,56 @@ function updateForestPlotChart(q, bg) {
   xLab.textContent = 'Hazard Ratio (log scale)';
   svg.appendChild(xLab);
 
-  // Rows
+  // Rows — pre-compute max precision for scaling curve heights
+  const maxCurveH = 30;
+  let maxPrecision = 0;
+  rows.forEach((row) => {
+    if (row.estimate == null || row.ciLow == null || row.ciHigh == null) return;
+    const seLog = (Math.log(row.ciHigh) - Math.log(row.ciLow)) / (2 * 1.959964);
+    const precision = 1 / seLog;
+    if (precision > maxPrecision) maxPrecision = precision;
+  });
+  if (maxPrecision === 0) maxPrecision = 1;
+
   rows.forEach((row, i) => {
+    // Defensive: skip rows missing required fields instead of crashing
+    if (row.estimate == null || row.ciLow == null || row.ciHigh == null) {
+      console.warn('Forest plot row', i, 'missing required field — skipping');
+      return;
+    }
+    if (row.pValue === undefined) {
+      const seLog = (Math.log(row.ciHigh) - Math.log(row.ciLow)) / (2 * 1.959964);
+      const z = Math.log(row.estimate) / seLog;
+      row.pValue = 2 * (1 - cDF(Math.abs(z), 0, 1));
+    }
     const rowGroup = document.createElementNS(svgNS, 'g');
     rowGroup.setAttribute('class', 'fp-row');
     rowGroup.setAttribute('data-row', i);
     const y = chartTop + i * rowH + rowH / 2;
-    const crossesNull = (row.ciLow <= nullLine && row.ciHigh >= nullLine);
-    const color = crossesNull ? '#9ca3af' : '#2563eb';
-    const fill = crossesNull ? '#6b7280' : '#1d4ed8';
+    // Adjusted CI for display: same SE this row's own 95% CI implies, re-drawn at the
+    // corrected alpha for the chosen multiplicity method. Never mutates row.ciLow/ciHigh
+    // itself — drag/reset/simulate all keep working against the true stored values.
+    let displayCiLow = row.ciLow, displayCiHigh = row.ciHigh;
+    if (adjustMethod !== 'none') {
+      const seLogRow = (Math.log(row.ciHigh) - Math.log(row.ciLow)) / (2 * 1.959964);
+      const zAdj = nQ(1 - alphaFor[i] / 2);
+      displayCiLow = row.estimate * Math.exp(-zAdj * seLogRow);
+      displayCiHigh = row.estimate * Math.exp(zAdj * seLogRow);
+    }
+    const crossesNull = adjustMethod === 'none'
+      ? (displayCiLow <= nullLine && displayCiHigh >= nullLine)
+      : !adjSignificant[i];
+    const isHighlighted = highlightArr.some(h => h !== 'overlap' && row.label && row.label.includes(h));
+    const baseColor = crossesNull ? '#9ca3af' : '#378ADD';
+    const baseFill = crossesNull ? '#6b7280' : '#2563eb';
+    const color = isHighlighted ? '#D85A30' : baseColor;
+    const fill = isHighlighted ? '#D85A30' : baseFill;
 
     // Gaussian curve — the CI, drawn as the actual sampling distribution it represents.
     // log(HR) ~ Normal(log(estimate), seLog); seLog is derived from the reported CI width.
     const seLog = (Math.log(row.ciHigh) - Math.log(row.ciLow)) / (2 * 1.959964);
     const meanLog = Math.log(row.estimate);
-    const curveH = 18;
+    const curveH = maxCurveH * ((1 / seLog) / maxPrecision); // narrower CI → taller curve, wider CI → flatter curve
     const peakPdf = 1 / (seLog * Math.sqrt(2 * Math.PI));
     let curveD = '';
     const steps = 48;
@@ -1921,10 +2165,10 @@ function updateForestPlotChart(q, bg) {
     label.textContent = row.label;
     rowGroup.appendChild(label);
 
-    // CI line
+    // CI line (may be wider than the stored 95% CI when adjusting for multiplicity)
     const ci = document.createElementNS(svgNS, 'line');
-    ci.setAttribute('x1', xPos(row.ciLow)); ci.setAttribute('y1', y);
-    ci.setAttribute('x2', xPos(row.ciHigh)); ci.setAttribute('y2', y);
+    ci.setAttribute('x1', xPos(displayCiLow)); ci.setAttribute('y1', y);
+    ci.setAttribute('x2', xPos(displayCiHigh)); ci.setAttribute('y2', y);
     ci.setAttribute('stroke', color); ci.setAttribute('stroke-width', '2'); ci.setAttribute('stroke-linecap', 'round');
     rowGroup.appendChild(ci);
 
@@ -1991,14 +2235,14 @@ function updateForestPlotChart(q, bg) {
     const est = document.createElementNS(svgNS, 'text');
     est.setAttribute('x', plotRight + 12); est.setAttribute('y', y - 5);
     est.setAttribute('text-anchor', 'start'); est.setAttribute('font-size', '10'); est.setAttribute('font-weight', '600'); est.setAttribute('fill', fill);
-    est.textContent = row.estimate.toFixed(2) + ' [' + row.ciLow.toFixed(2) + '\u2013' + (row.ciHigh < 1 ? row.ciHigh.toFixed(2) : row.ciHigh.toFixed(2)) + ']';
+    est.textContent = row.estimate.toFixed(2) + ' [' + displayCiLow.toFixed(2) + '\u2013' + (displayCiHigh < 1 ? displayCiHigh.toFixed(2) : displayCiHigh.toFixed(2)) + ']';
     rowGroup.appendChild(est);
 
     // P-value
     const pEl = document.createElementNS(svgNS, 'text');
     pEl.setAttribute('x', plotRight + 12); pEl.setAttribute('y', y + 12);
     pEl.setAttribute('text-anchor', 'start'); pEl.setAttribute('font-size', '9');
-    pEl.setAttribute('fill', row.pValue < 0.05 ? '#dc2626' : '#9ca3af');
+    pEl.setAttribute('fill', fill);
     pEl.textContent = 'p = ' + (row.pValue < 0.01 ? row.pValue.toFixed(3) : row.pValue.toFixed(2));
     rowGroup.appendChild(pEl);
 
@@ -2011,7 +2255,8 @@ function updateForestPlotChart(q, bg) {
     svg.appendChild(rowGroup);
   });
 
-  // FWER annotation (below rows, above axis)
+  // FWER annotation (below rows, above axis) — floating HUD when I² demo, else baked into SVG
+  if (!isI2Demo) {
   const annotTop = chartTop + rows.length * rowH + 8;
   const annotH = 36;
   const annot = document.createElementNS(svgNS, 'rect');
@@ -2040,6 +2285,7 @@ function updateForestPlotChart(q, bg) {
     annEl.textContent = annotationText;
     svg.appendChild(annEl);
   }
+  } // end if !isI2Demo
 
   // Crosshair line (hidden by default, shown on mousemove)
   const crosshairLine = document.createElementNS(svgNS, 'line');
@@ -2053,6 +2299,104 @@ function updateForestPlotChart(q, bg) {
   container.innerHTML = '';
   delete container.dataset.proof;
   container.appendChild(svg);
+
+  // ── I² heterogeneity HUD (Q26) — floating overlay on SVG, drug name from question ──
+  {
+    let i2Bar = document.getElementById('forest-i2-bar');
+    if (bg.i2HighRows && bg.i2HighRows.length) {
+      if (typeof window._forestI2 === 'undefined') window._forestI2 = {};
+      const i2val = window._forestI2[q.id] ?? 0;
+      const drugName = resolveDrugName(q);
+      if (!i2Bar) {
+        i2Bar = document.createElement('div');
+        i2Bar.id = 'forest-i2-bar';
+        i2Bar.style.cssText = 'position:absolute;bottom:6px;left:10px;right:10px;z-index:8;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.94);border:1px solid #e5e7eb;border-radius:8px;padding:6px 10px;font-family:Inter,sans-serif;pointer-events:auto;backdrop-filter:blur(2px);flex-wrap:wrap';
+        container.appendChild(i2Bar);
+      }
+      const qual = i2val < 25 ? 'tightly clustered' : i2val < 50 ? 'moderate spread' : i2val < 75 ? 'clearly disagreeing' : 'widely scattered';
+      i2Bar.innerHTML =
+        '<span style="font-size:.625rem;font-weight:600;color:#374151;white-space:nowrap">'+drugName+' · I² = '+i2val+'% <span style="color:#6b7280;font-weight:400">— '+qual+'</span></span>'+
+        '<input type="range" id="forest-i2-slider" min="0" max="100" value="'+i2val+'" step="1" style="flex:1;min-width:100px;accent-color:#2563eb">'+
+        '<span style="font-size:.625rem;color:#9ca3af;white-space:nowrap">80% — scattered</span>';
+      i2Bar.style.display = '';
+      const slider = i2Bar.querySelector('#forest-i2-slider');
+      if (slider) {
+        slider.oninput = () => {
+          window._forestI2[q.id] = parseInt(slider.value);
+          if (forestPristine[q.id]) bg.rows = JSON.parse(JSON.stringify(forestPristine[q.id]));
+          updateForestPlotChart(q, bg);
+        };
+      }
+    } else {
+      if (i2Bar) i2Bar.style.display = 'none';
+    }
+  }
+
+  // ── Floating annotation HUD (I² demo) — replaces the baked-in annotation when viewport is tight  ──
+  {
+    let floatAnn = document.getElementById('forest-float-ann');
+    if (isI2Demo && (bg.annotation || bg.title)) {
+      if (!floatAnn) {
+        floatAnn = document.createElement('div');
+        floatAnn.id = 'forest-float-ann';
+        floatAnn.style.cssText = 'position:absolute;top:8px;left:12px;right:70px;z-index:7;pointer-events:none;font-family:Inter,sans-serif;font-size:.6875rem;color:#6b7280;line-height:1.4;background:rgba(255,255,255,.85);backdrop-filter:blur(2px);border-radius:6px;padding:4px 8px;border:1px solid #f0f0f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+        container.appendChild(floatAnn);
+      }
+      floatAnn.textContent = bg.annotation || bg.title || '';
+      floatAnn.style.display = '';
+    } else {
+      if (floatAnn) floatAnn.style.display = 'none';
+    }
+  }
+
+  // Verdict panel — shown when bg.verdict is set (Q32 subgroup interaction)
+  {
+    let verdictDiv = document.getElementById('forest-verdict-panel');
+    if (bg.verdict) {
+      if (!verdictDiv) {
+        verdictDiv = document.createElement('div');
+        verdictDiv.id = 'forest-verdict-panel';
+        verdictDiv.style.cssText = 'background:#fff;border-radius:12px;padding:12px 14px;font-family:Inter,sans-serif;line-height:1.6;margin-top:0';
+        container.appendChild(verdictDiv);
+      }
+      const verdictColors = {
+        green: { bg: '#064e3b', text: '#6ee7b7' },
+        amber: { bg: '#78350f', text: '#fbbf24' },
+        red:   { bg: '#7f1d1d', text: '#fca5a5' },
+        gray:  { bg: '#1f2937', text: '#9ca3af' }
+      };
+      const vc = verdictColors[bg.verdict] || verdictColors.gray;
+
+      // Persist toggle state per-question in a global; default = false (stat speak)
+      if (typeof window._forestPlainSpeak === 'undefined') window._forestPlainSpeak = {};
+      const qId = q.id;
+      const isPlain = !!window._forestPlainSpeak[qId];
+      const hasPlain = !!(bg.verdictTitlePlain || bg.verdictTextPlain || bg.verdictNotePlain);
+      const title = isPlain && bg.verdictTitlePlain ? bg.verdictTitlePlain : bg.verdictTitle;
+      const text = isPlain && bg.verdictTextPlain ? bg.verdictTextPlain : bg.verdictText;
+      const note = isPlain && bg.verdictNotePlain ? bg.verdictNotePlain : bg.verdictNote;
+
+      verdictDiv.innerHTML =
+        '<span style="display:inline-block;font-size:12px;font-weight:500;padding:2px 10px;border-radius:6px;background:'+vc.bg+';color:'+vc.text+';margin-bottom:8px">'+title+'</span>'+
+        (hasPlain ? '<button id="forest-plain-toggle" style="float:right;background:none;border:1px solid #d1d5db;border-radius:6px;padding:3px 10px;font-family:Inter,sans-serif;font-size:.6875rem;font-weight:500;color:#6b7280;cursor:pointer;margin-top:0">'+(isPlain ? 'stats speak' : 'plain speak')+'</button>' : '')+
+        '<p style="margin:8px 0 0;font-size:14px;color:#374151">'+text+'</p>'+
+        '<p style="margin:8px 0 0;color:#6b7280;font-size:13px">'+note+'</p>';
+      verdictDiv.style.display = '';
+
+      // Wire toggle
+      if (hasPlain) {
+        const toggleBtn = document.getElementById('forest-plain-toggle');
+        if (toggleBtn) {
+          toggleBtn.onclick = () => {
+            window._forestPlainSpeak[qId] = !window._forestPlainSpeak[qId];
+            updateForestPlotChart(q, bg);
+          };
+        }
+      }
+    } else {
+      if (verdictDiv) verdictDiv.style.display = 'none';
+    }
+  }
 
   // Crosshair readout
   let readout = document.getElementById('forest-crosshair-readout');
@@ -2076,14 +2420,23 @@ function updateForestPlotChart(q, bg) {
   };
   container.onmouseleave = () => { crosshairLine.setAttribute('opacity', '0'); readout.style.display = 'none'; };
 
+  // ── Controls bar — all floating buttons in one flex-wrap row, no overlap ──
+  let controlsBar = document.getElementById('forest-controls-bar');
+  if (!controlsBar) {
+    controlsBar = document.createElement('div');
+    controlsBar.id = 'forest-controls-bar';
+    controlsBar.style.cssText = 'position:absolute;top:10px;right:10px;left:10px;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;z-index:5;pointer-events:none';
+    container.appendChild(controlsBar);
+  }
+
   let resetBtn = document.getElementById('forest-reset-btn');
   if (!resetBtn) {
     resetBtn = document.createElement('button');
     resetBtn.id = 'forest-reset-btn';
-    resetBtn.style.cssText = 'position:absolute;top:10px;right:10px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:5px 10px;font-family:Inter,sans-serif;font-size:.6875rem;font-weight:600;color:#2563eb;cursor:pointer;display:flex;align-items:center;gap:4px;z-index:5';
+    resetBtn.style.cssText = 'background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:5px 10px;font-family:Inter,sans-serif;font-size:.6875rem;font-weight:600;color:#2563eb;cursor:pointer;display:flex;align-items:center;gap:4px;pointer-events:auto;white-space:nowrap';
     resetBtn.innerHTML = '<i class="ti ti-refresh" style="font-size:12px"></i>reset to actual data';
     container.style.position = 'relative';
-    container.appendChild(resetBtn);
+    controlsBar.appendChild(resetBtn);
   }
   resetBtn.onclick = () => {
     bg.rows = JSON.parse(JSON.stringify(forestPristine[q.id]));
@@ -2095,9 +2448,9 @@ function updateForestPlotChart(q, bg) {
   if (!simBtn) {
     simBtn = document.createElement('button');
     simBtn.id = 'forest-sim-btn';
-    simBtn.style.cssText = 'position:absolute;top:10px;right:170px;background:#2563eb;border:none;border-radius:6px;padding:5px 10px;font-family:Inter,sans-serif;font-size:.6875rem;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;gap:4px;z-index:5';
-    simBtn.innerHTML = '<i class="ti ti-dice" style="font-size:12px"></i>simulate this trial if the drug does nothing';
-    container.appendChild(simBtn);
+    simBtn.style.cssText = 'background:#2563eb;border:none;border-radius:6px;padding:5px 10px;font-family:Inter,sans-serif;font-size:.6875rem;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;gap:4px;pointer-events:auto;white-space:nowrap';
+    simBtn.innerHTML = '<i class="ti ti-dice" style="font-size:12px"></i>simulate if the drug does nothing';
+    controlsBar.appendChild(simBtn);
   }
   simBtn.onclick = () => {
     const pristine = forestPristine[q.id];
@@ -2126,7 +2479,7 @@ function updateForestPlotChart(q, bg) {
   if (!tallyEl) {
     tallyEl = document.createElement('div');
     tallyEl.id = 'forest-sim-tally';
-    tallyEl.style.cssText = 'position:absolute;top:40px;right:10px;font-family:Inter,sans-serif;font-size:.6875rem;color:#6b7280;text-align:right;max-width:320px;line-height:1.4';
+    tallyEl.style.cssText = 'position:absolute;top:44px;right:10px;font-family:Inter,sans-serif;font-size:.6875rem;color:#6b7280;text-align:right;max-width:320px;line-height:1.4;z-index:4';
     container.appendChild(tallyEl);
   }
   if (tally && tally.draws > 0) {
@@ -2141,10 +2494,10 @@ function updateForestPlotChart(q, bg) {
   if (!toggleBtn) {
     toggleBtn = document.createElement('button');
     toggleBtn.id = 'forest-proof-toggle';
-    toggleBtn.style.cssText = 'position:absolute;top:10px;right:430px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:5px 10px;font-family:Inter,sans-serif;font-size:.6875rem;font-weight:600;color:#059669;cursor:pointer;display:none;align-items:center;gap:4px;z-index:5';
+    toggleBtn.style.cssText = 'background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:5px 10px;font-family:Inter,sans-serif;font-size:.6875rem;font-weight:600;color:#059669;cursor:pointer;display:none;align-items:center;gap:4px;pointer-events:auto;white-space:nowrap';
     toggleBtn.innerHTML = '<i class="ti ti-eye" style="font-size:12px"></i>show the proof';
     container.style.position = 'relative';
-    container.appendChild(toggleBtn);
+    controlsBar.appendChild(toggleBtn);
   }
   toggleBtn.style.display = 'flex';
   toggleBtn.innerHTML = '<i class="ti ti-eye" style="font-size:12px"></i>show the proof';
@@ -2153,13 +2506,77 @@ function updateForestPlotChart(q, bg) {
     if (showingProof) {
       container.dataset.proof = '0';
       toggleBtn.innerHTML = '<i class="ti ti-eye" style="font-size:12px"></i>show the proof';
+      const ft = document.getElementById('forest-funnel-toggle');
+      if (ft && rows.length >= 5) ft.style.display = 'flex';
       updateForestPlotChart(q, bg);
     } else {
       container.dataset.proof = '1';
       toggleBtn.innerHTML = '<i class="ti ti-chart-arrows" style="font-size:12px"></i>back to forest plot';
-      renderForestProofSimulation(container, rows);
+      const ft = document.getElementById('forest-funnel-toggle');
+      if (ft) ft.style.display = 'none';
+      renderForestProofSimulation(container, rows, q, bg);
     }
   };
+
+  // ── Toggle: forest plot ↔ funnel plot (publication bias view) ──
+  let funnelBtn = document.getElementById('forest-funnel-toggle');
+  if (!funnelBtn) {
+    funnelBtn = document.createElement('button');
+    funnelBtn.id = 'forest-funnel-toggle';
+    funnelBtn.style.cssText = 'background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:5px 10px;font-family:Inter,sans-serif;font-size:.6875rem;font-weight:600;color:#7c3aed;cursor:pointer;display:none;align-items:center;gap:4px;pointer-events:auto;white-space:nowrap';
+    funnelBtn.innerHTML = '<i class="ti ti-chart-dots" style="font-size:12px"></i>view as funnel plot';
+    container.style.position = 'relative';
+    controlsBar.appendChild(funnelBtn);
+  }
+  // Show for any forest plot with ≥5 studies (typical meta-analysis)
+  funnelBtn.style.display = (rows.length >= 5) ? 'flex' : 'none';
+  funnelBtn.onclick = () => {
+    if (container.dataset.viewMode === 'funnel') {
+      container.dataset.viewMode = 'forest';
+      document.getElementById('forest-proof-toggle').style.display = 'flex';
+      document.getElementById('forest-funnel-toggle').innerHTML = '<i class="ti ti-chart-dots" style="font-size:12px"></i>view as funnel plot';
+      updateForestPlotChart(q, bg);
+    } else {
+      container.dataset.viewMode = 'funnel';
+      document.getElementById('forest-proof-toggle').style.display = 'none';
+      document.getElementById('forest-funnel-toggle').innerHTML = '<i class="ti ti-arrow-back" style="font-size:12px"></i>back to forest plot';
+      renderFunnelPlot(container, q, bg);
+    }
+  };
+
+  // ── Multiplicity adjustment control — only meaningful with 2+ actual tests ──
+  if (adjustK >= 2) {
+    let adjBar = document.getElementById('forest-adjust-bar');
+    if (!adjBar) {
+      adjBar = document.createElement('div');
+      adjBar.id = 'forest-adjust-bar';
+      adjBar.style.cssText = 'position:absolute;top:44px;left:10px;display:flex;gap:4px;z-index:5;pointer-events:auto;flex-wrap:wrap';
+      container.appendChild(adjBar);
+    }
+    const methods = [
+      { key: 'none', label: 'Unadjusted' },
+      { key: 'bonferroni', label: 'Bonferroni' },
+      { key: 'holm', label: "Holm's step-down" }
+    ];
+    adjBar.innerHTML = methods.map(m => {
+      const active = adjustMethod === m.key;
+      return '<button data-adj="' + m.key + '" style="font-family:Inter,sans-serif;font-size:.625rem;font-weight:600;padding:4px 9px;border-radius:6px;cursor:pointer;border:1px solid ' + (active ? '#2563eb' : '#e5e7eb') + ';background:' + (active ? '#2563eb' : '#fff') + ';color:' + (active ? '#fff' : '#374151') + '">' + m.label + '</button>';
+    }).join('');
+    adjBar.querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => { forestAdjustMethod[q.id] = btn.dataset.adj; updateForestPlotChart(q, bg); };
+    });
+    const adjAlphaLabel = adjustMethod === 'bonferroni' ? '\u03b1 = 0.05/' + adjustK + ' = ' + (0.05 / adjustK).toFixed(3) + ' for every test'
+      : adjustMethod === 'holm' ? '\u03b1 thresholds range from 0.05/' + adjustK + ' to 0.05, tightest for the smallest p-value'
+      : '\u03b1 = 0.05 for every test, unadjusted';
+    let adjNote = document.getElementById('forest-adjust-note');
+    if (!adjNote) {
+      adjNote = document.createElement('div');
+      adjNote.id = 'forest-adjust-note';
+      adjNote.style.cssText = 'position:absolute;top:70px;left:10px;font-family:Inter,sans-serif;font-size:.625rem;color:#6b7280;z-index:4;max-width:400px';
+      container.appendChild(adjNote);
+    }
+    adjNote.textContent = adjAlphaLabel;
+  }
 }
 
 // ── Forest proof simulation — 100 trials, null-is-true, count false positives ──
@@ -2174,7 +2591,14 @@ function forestProofMulberry32(seed) {
   };
 }
 
-function renderForestProofSimulation(container, rows) {
+function restoreForestPlotFromProof(container) {
+  if (!container || !container._fpQ) return;
+  container.dataset.proof = '0';
+  updateForestPlotChart(container._fpQ, container._fpBg);
+}
+
+function renderForestProofSimulation(container, rows, q, bg) {
+  container._fpQ = q; container._fpBg = bg;
   const k = rows.filter(r => r.label !== 'Overall trial').length; // subgroups only
   let seed = forestProofSeed();
   const rng = forestProofMulberry32(seed);
@@ -2190,12 +2614,13 @@ function renderForestProofSimulation(container, rows) {
   }
 
   const theoretical = (1 - Math.pow(0.95, k)) * 100;
+  const drugName = resolveDrugName(q);
 
   // Build inline HTML — self-contained simulation with re-roll
   container.innerHTML = `
     <div style="font-family:Inter,sans-serif;padding:20px 24px;height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:16px">
-      <div style="font-size:.75rem;font-weight:700;color:#1a1a2e">What if NovaStat does <span style="color:#92400e">nothing</span>?</div>
-      <div style="font-size:.6875rem;color:#6b7280;line-height:1.5">100 parallel worlds where NovaStat is a placebo. Every single dot is a trial where the drug has zero real effect — yet across ${k} subgroups, chance alone will "find" something.</div>
+      <div style="font-size:.75rem;font-weight:700;color:#1a1a2e">What if ${drugName} does <span style="color:#92400e">nothing</span>?</div>
+      <div style="font-size:.6875rem;color:#6b7280;line-height:1.5">100 parallel worlds where ${drugName} is a placebo. Every single dot is a trial where the drug has zero real effect — yet across ${k} subgroups, chance alone will "find" something.</div>
 
       <div style="background:#fff7ed;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:.6875rem;color:#78350f;text-align:center;line-height:1.6">
         <b>${k}</b> independent tests at &alpha; = 0.05 &rarr; formula predicts <b>${theoretical.toFixed(1)}%</b> familywise error rate
@@ -2206,6 +2631,7 @@ function renderForestProofSimulation(container, rows) {
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <span style="font-size:.625rem;font-weight:700;text-transform:uppercase;color:#9ca3af">100 trials &middot; effect = zero in every one</span>
           <button onclick="document.getElementById('chart-quiz-forest')._reroll?.()" style="font-size:.625rem;font-weight:600;color:#2563eb;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px"><i class="ti ti-refresh" style="font-size:11px"></i>run 100 new trials</button>
+          <button onclick="restoreForestPlotFromProof(document.getElementById('chart-quiz-forest'))" style="font-size:.625rem;font-weight:600;color:#059669;background:none;border:1px solid #e5e7eb;border-radius:6px;padding:5px 10px;cursor:pointer;display:flex;align-items:center;gap:4px"><i class="ti ti-chart-arrows" style="font-size:12px"></i>back to forest plot</button>
         </div>
         <div style="display:grid;grid-template-columns:repeat(10,1fr);gap:3px">${
           trials.map((subgroups, idx) => {
@@ -2233,7 +2659,285 @@ function renderForestProofSimulation(container, rows) {
     </div>`;
 
   // Wire re-roll
-  container._reroll = () => renderForestProofSimulation(container, rows);
+  container._reroll = () => renderForestProofSimulation(container, rows, q, bg);
+}
+
+// ═══════════════════════════════════════════════════════════
+// FUNNEL PLOT — publication bias / funnel asymmetry
+// Classic epidemiology: log(HR) on x-axis, SE on y-axis (inverted)
+// ═══════════════════════════════════════════════════════════
+let funnelViewMode = 'forest'; // 'forest' | 'funnel'
+
+function renderFunnelPlot(container, q, bg) {
+  const rows = bg.rows || [];
+  const svgNS = 'http://www.w3.org/2000/svg';
+
+  // Derive logHR + SE from CI for each study row
+  const studies = rows
+    .filter(r => r.estimate != null && r.ciLow != null && r.ciHigh != null && !/pooled/i.test(r.label || ''))
+    .map(r => {
+      const logHR = Math.log(r.estimate);
+      const seLog = (Math.log(r.ciHigh) - Math.log(r.ciLow)) / (2 * 1.959964);
+      const n = parseInt((r.label || '').match(/n=(\d+)/)?.[1]) || 100;
+      return { label: r.label, logHR, seLog, n, estimate: r.estimate, ciLow: r.ciLow, ciHigh: r.ciHigh };
+    });
+
+  // Build a synthetic "ideal funnel" — symmetric scatter around null
+  // Same precision levels as real data, but estimates centered on HR=1
+  const idealStudies = studies.map(s => {
+    // Jitter around null using the same SE, preserving original precision
+    const z = (Math.random() - 0.5) * 2.5; // random normal-ish
+    const logHR = z * s.seLog;
+    const est = Math.exp(logHR);
+    return { ...s, logHR, estimate: est, ciLow: Math.exp(logHR - 1.96 * s.seLog), ciHigh: Math.exp(logHR + 1.96 * s.seLog), isIdeal: true };
+  });
+
+  // Canvas dimensions
+  const W = 400, H = 420;
+  const pad = { top: 40, right: 30, bottom: 55, left: 75 };
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top - pad.bottom;
+
+  // x range in log space — symmetric around 0 (HR=1)
+  const logXMin = Math.log(0.4), logXMax = Math.log(2.5);
+  function xPos(logV) { return pad.left + ((logV - logXMin) / (logXMax - logXMin)) * plotW; }
+
+  // y range in SE — 0 at top, max at bottom
+  const seMax = Math.max(...studies.map(s => s.seLog)) * 1.2;
+  function yPos(se) { return pad.top + (1 - se / seMax) * plotH; }
+
+  function drawFunnelPanel(svgEl, data, title, isActual) {
+    // Background
+    const bgR = document.createElementNS(svgNS, 'rect');
+    bgR.setAttribute('width', W); bgR.setAttribute('height', H);
+    bgR.setAttribute('fill', '#fafafa'); bgR.setAttribute('rx', '6');
+    svgEl.appendChild(bgR);
+
+    // Title
+    const titleEl = document.createElementNS(svgNS, 'text');
+    titleEl.setAttribute('x', W / 2); titleEl.setAttribute('y', 24);
+    titleEl.setAttribute('text-anchor', 'middle');
+    titleEl.setAttribute('font-size', '11'); titleEl.setAttribute('font-weight', '700');
+    titleEl.setAttribute('fill', isActual ? '#dc2626' : '#059669');
+    titleEl.textContent = title;
+    svgEl.appendChild(titleEl);
+
+    // Plot area
+    const plotLeft = pad.left, plotRight = W - pad.right;
+    const plotTop = pad.top, plotBot = pad.top + plotH;
+
+    // Null line (HR = 1 → logHR = 0)
+    const nullX = xPos(0);
+    const nullL = document.createElementNS(svgNS, 'line');
+    nullL.setAttribute('x1', nullX); nullL.setAttribute('y1', plotTop);
+    nullL.setAttribute('x2', nullX); nullL.setAttribute('y2', plotBot);
+    nullL.setAttribute('stroke', '#ef4444'); nullL.setAttribute('stroke-width', '1.5');
+    nullL.setAttribute('stroke-dasharray', '5,4'); nullL.setAttribute('opacity', '0.6');
+    svgEl.appendChild(nullL);
+
+    const nullLabel = document.createElementNS(svgNS, 'text');
+    nullLabel.setAttribute('x', nullX); nullLabel.setAttribute('y', plotTop - 6);
+    nullLabel.setAttribute('text-anchor', 'middle'); nullLabel.setAttribute('font-size', '8');
+    nullLabel.setAttribute('fill', '#dc2626');
+    nullLabel.textContent = 'HR = 1';
+    svgEl.appendChild(nullLabel);
+
+    // Funnel envelope — ±1.96 × SE (triangular)
+    // Upper bound: logHR = 0 + 1.96 * SE
+    // Lower bound: logHR = 0 - 1.96 * SE
+    const steps = 40;
+    let upperD = '', lowerD = '';
+    for (let i = 0; i <= steps; i++) {
+      const se = (i / steps) * seMax;
+      const ux = xPos(0 + 1.96 * se);
+      const lx = xPos(0 - 1.96 * se);
+      const py = yPos(se);
+      upperD += (i === 0 ? 'M' : 'L') + ux.toFixed(1) + ',' + py.toFixed(1) + ' ';
+      lowerD += (i === 0 ? 'M' : 'L') + lx.toFixed(1) + ',' + py.toFixed(1) + ' ';
+    }
+    [upperD, lowerD].forEach(d => {
+      const path = document.createElementNS(svgNS, 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('fill', 'none'); path.setAttribute('stroke', '#d1d5db');
+      path.setAttribute('stroke-width', '1.25'); path.setAttribute('stroke-dasharray', '4,3');
+      path.setAttribute('opacity', '0.7');
+      svgEl.appendChild(path);
+    });
+
+    // "95% CI bounds" label
+    const envLabel = document.createElementNS(svgNS, 'text');
+    envLabel.setAttribute('x', plotRight - 4); envLabel.setAttribute('y', yPos(seMax * 0.55));
+    envLabel.setAttribute('text-anchor', 'end'); envLabel.setAttribute('font-size', '7');
+    envLabel.setAttribute('fill', '#cbd5e1'); envLabel.setAttribute('font-style', 'italic');
+    envLabel.textContent = '±1.96 SE';
+    svgEl.appendChild(envLabel);
+
+    // Study dots — sized by n
+    const maxN = Math.max(...data.map(s => s.n));
+    data.forEach(s => {
+      const cx = xPos(s.logHR);
+      const cy = yPos(s.seLog);
+      const r = 2 + (s.n / maxN) * 7; // radius 2-9
+
+      const circle = document.createElementNS(svgNS, 'circle');
+      circle.setAttribute('cx', cx); circle.setAttribute('cy', cy);
+      circle.setAttribute('r', r);
+      circle.setAttribute('fill', s.isIdeal ? '#059669' : '#2563eb');
+      circle.setAttribute('opacity', s.isIdeal ? '0.7' : '0.85');
+      if (s.isIdeal) circle.setAttribute('stroke', '#059669');
+      else circle.setAttribute('stroke', '#1d4ed8');
+      circle.setAttribute('stroke-width', '1');
+      svgEl.appendChild(circle);
+
+      // Label for largest studies
+      if (s.n >= maxN * 0.45) {
+        const lbl = document.createElementNS(svgNS, 'text');
+        lbl.setAttribute('x', cx + r + 4); lbl.setAttribute('y', cy + 3);
+        lbl.setAttribute('font-size', '7'); lbl.setAttribute('fill', '#6b7280');
+        lbl.textContent = s.label.replace(/\s*\(n=(\d+)\)/, ' (n=$1)');
+        svgEl.appendChild(lbl);
+      }
+    });
+
+    // Annotation: missing studies highlight (asymmetric only)
+    if (isActual) {
+      const missingLabel = document.createElementNS(svgNS, 'text');
+      missingLabel.setAttribute('x', xPos(Math.log(0.55)));
+      missingLabel.setAttribute('y', yPos(seMax * 0.6));
+      missingLabel.setAttribute('text-anchor', 'middle'); missingLabel.setAttribute('font-size', '8');
+      missingLabel.setAttribute('fill', '#dc2626'); missingLabel.setAttribute('font-weight', '600');
+      missingLabel.textContent = 'Missing';
+      svgEl.appendChild(missingLabel);
+
+      const missingArrow = document.createElementNS(svgNS, 'text');
+      missingArrow.setAttribute('x', xPos(Math.log(0.55)));
+      missingArrow.setAttribute('y', yPos(seMax * 0.55) - 10);
+      missingArrow.setAttribute('text-anchor', 'middle'); missingArrow.setAttribute('font-size', '14');
+      missingArrow.setAttribute('fill', '#dc2626');
+      missingArrow.textContent = '↓';
+      svgEl.appendChild(missingArrow);
+
+      // Empty circles in the missing zone
+      for (let i = 0; i < 4; i++) {
+        const ghost = document.createElementNS(svgNS, 'circle');
+        const gx = xPos(Math.log(0.5 + i * 0.12));
+        const gy = yPos(seMax * (0.45 + i * 0.08));
+        ghost.setAttribute('cx', gx); ghost.setAttribute('cy', gy);
+        ghost.setAttribute('r', 3 + i * 0.5);
+        ghost.setAttribute('fill', 'none'); ghost.setAttribute('stroke', '#fca5a5');
+        ghost.setAttribute('stroke-width', '1'); ghost.setAttribute('stroke-dasharray', '2,1');
+        ghost.setAttribute('opacity', '0.6');
+        svgEl.appendChild(ghost);
+      }
+    }
+
+    // Axis labels
+    const xLab = document.createElementNS(svgNS, 'text');
+    xLab.setAttribute('x', pad.left + plotW / 2); xLab.setAttribute('y', plotBot + 30);
+    xLab.setAttribute('text-anchor', 'middle'); xLab.setAttribute('font-size', '9');
+    xLab.setAttribute('fill', '#6b7280');
+    xLab.textContent = '← Drug better    Hazard Ratio (log scale)    Drug worse →';
+    svgEl.appendChild(xLab);
+
+    const yLab = document.createElementNS(svgNS, 'text');
+    yLab.setAttribute('x', 14); yLab.setAttribute('y', pad.top + plotH / 2);
+    yLab.setAttribute('text-anchor', 'middle'); yLab.setAttribute('font-size', '9');
+    yLab.setAttribute('fill', '#6b7280');
+    yLab.setAttribute('transform', 'rotate(-90,14,' + (pad.top + plotH / 2) + ')');
+    yLab.textContent = '← Precision (1/SE)    Standard Error →';
+    svgEl.appendChild(yLab);
+
+    // Y-axis ticks
+    const yTicks = [0, seMax * 0.25, seMax * 0.5, seMax * 0.75, seMax];
+    yTicks.forEach(se => {
+      const ty = yPos(se);
+      const tick = document.createElementNS(svgNS, 'line');
+      tick.setAttribute('x1', pad.left - 4); tick.setAttribute('y1', ty);
+      tick.setAttribute('x2', pad.left); tick.setAttribute('y2', ty);
+      tick.setAttribute('stroke', '#d1d5db'); tick.setAttribute('stroke-width', '1');
+      svgEl.appendChild(tick);
+
+      // "Large studies" / "Small studies" labels
+      if (se < 0.001) {
+        const tl = document.createElementNS(svgNS, 'text');
+        tl.setAttribute('x', pad.left - 8); tl.setAttribute('y', ty + 6);
+        tl.setAttribute('text-anchor', 'end'); tl.setAttribute('font-size', '7');
+        tl.setAttribute('fill', '#9ca3af');
+        tl.textContent = 'Large';
+        svgEl.appendChild(tl);
+      }
+      if (Math.abs(se - seMax) < 0.01) {
+        const tl = document.createElementNS(svgNS, 'text');
+        tl.setAttribute('x', pad.left - 8); tl.setAttribute('y', ty + 6);
+        tl.setAttribute('text-anchor', 'end'); tl.setAttribute('font-size', '7');
+        tl.setAttribute('fill', '#9ca3af');
+        tl.textContent = 'Small';
+        svgEl.appendChild(tl);
+      }
+    });
+
+    // X-axis ticks
+    [0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.5, 2.0].forEach(v => {
+      const tx = xPos(Math.log(v));
+      if (tx < pad.left || tx > plotRight) return;
+      const tick = document.createElementNS(svgNS, 'line');
+      tick.setAttribute('x1', tx); tick.setAttribute('y1', plotBot);
+      tick.setAttribute('x2', tx); tick.setAttribute('y2', plotBot + 5);
+      tick.setAttribute('stroke', '#d1d5db'); tick.setAttribute('stroke-width', '1');
+      svgEl.appendChild(tick);
+      const tl = document.createElementNS(svgNS, 'text');
+      tl.setAttribute('x', tx); tl.setAttribute('y', plotBot + 16);
+      tl.setAttribute('text-anchor', 'middle'); tl.setAttribute('font-size', '8');
+      tl.setAttribute('fill', '#9ca3af');
+      tl.textContent = v.toFixed(v < 1 ? 1 : 0);
+      svgEl.appendChild(tl);
+    });
+  }
+
+  // Build dual-panel HTML
+  const wrapper = document.createElement('div');
+  wrapper.style.display = 'flex';
+  wrapper.style.gap = '12px';
+  wrapper.style.padding = '8px';
+  wrapper.style.height = '100%';
+  wrapper.style.alignItems = 'flex-start';
+  wrapper.style.justifyContent = 'center';
+
+  // Left: ideal funnel
+  const idealSVG = document.createElementNS(svgNS, 'svg');
+  idealSVG.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  idealSVG.setAttribute('width', '48%');
+  idealSVG.style.flexShrink = '0';
+  idealSVG.style.background = '#fff';
+  idealSVG.style.borderRadius = '8px';
+  idealSVG.style.border = '1px solid #e5e7eb';
+  drawFunnelPanel(idealSVG, idealStudies, 'Ideal funnel (no bias)', false);
+  wrapper.appendChild(idealSVG);
+
+  // Right: actual asymmetric funnel
+  const actualSVG = document.createElementNS(svgNS, 'svg');
+  actualSVG.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  actualSVG.setAttribute('width', '48%');
+  actualSVG.style.flexShrink = '0';
+  actualSVG.style.background = '#fff';
+  actualSVG.style.borderRadius = '8px';
+  actualSVG.style.border = '1px solid #e5e7eb';
+  drawFunnelPanel(actualSVG, studies, 'Asymmetric funnel (publication bias)', true);
+  wrapper.appendChild(actualSVG);
+
+  // Caption
+  const caption = document.createElement('div');
+  caption.style.cssText = 'text-align:center;font-size:.6875rem;color:#6b7280;padding:6px 0 4px;font-family:Inter,sans-serif;';
+  caption.innerHTML = 'Small negative/null studies never published → funnel asymmetry → <b style="color:#dc2626">publication bias</b>';
+
+  const fullWrap = document.createElement('div');
+  fullWrap.style.cssText = 'width:100%;height:100%;display:flex;flex-direction:column;background:#fafafa;';
+  fullWrap.appendChild(wrapper);
+  fullWrap.appendChild(caption);
+
+  container.innerHTML = '';
+  container.style.display = '';
+  container.appendChild(fullWrap);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2334,22 +3038,39 @@ function renderContingencyTable(q, bg) {
   if (!div) return;
   div.style.display = '';
 
-  // Try to extract numbers from stem
-  const stem = q.stem || '';
-  let tp=0,fp=0,fn=0,tn=0;
-  // Pattern: "X patients with [disease] undergo test and Y test positive"
-  const withDisease = stem.match(/([0-9]+)s+patients?s+withs+(?:confirmeds+)?([a-z]+)[sS]*?([0-9]+)s+(?:ofs+thems+)?tests+positive/i);
-  const withoutDisease = stem.match(/([0-9]+)s+patients?s+(?:whos+ares+)?(?:confirmeds+)?(?:nots+tos+have|without)s+([a-z]+)[sS]*?([0-9]+)s+(?:ofs+thems+)?(?:receives+as+)?positive/i);
+  // Honor bg params if provided — otherwise fall back to stem regex
+  let tp = bg.tp, fp = bg.fp, fn = bg.fn, tn = bg.tn;
+  const hasDirectCounts = (tp != null && fp != null && fn != null && tn != null);
 
-  if (withDisease) {
-    const totalDisease = parseInt(withDisease[1]);
-    tp = parseInt(withDisease[3]);
-    fn = totalDisease - tp;
+  if (!hasDirectCounts) {
+    // Try Sn / Sp / prevalence / n from bg
+    const sn = bg.sn, sp = bg.sp, prev = bg.prevalence, total = bg.n || 1000;
+    if (sn != null && sp != null && prev != null) {
+      const diseasePlus = Math.round(total * prev);
+      const diseaseMinus = total - diseasePlus;
+      tp = Math.round(diseasePlus * sn);
+      fn = diseasePlus - tp;
+      tn = Math.round(diseaseMinus * sp);
+      fp = diseaseMinus - tn;
+    }
   }
-  if (withoutDisease) {
-    const totalNoDisease = parseInt(withoutDisease[1]);
-    fp = parseInt(withoutDisease[3]);
-    tn = totalNoDisease - fp;
+
+  if (!hasDirectCounts && (tp == null || tp+fp+fn+tn === 0)) {
+    // Try to extract numbers from stem
+    const stem = q.stem || '';
+    const withDisease = stem.match(/([0-9]+)\s+patients?\s+with\s+(?:confirmed\s+)?([a-z]+)[\s\S]*?([0-9]+)\s+(?:of\s+them\s+)?tests?\s+positive/i);
+    const withoutDisease = stem.match(/([0-9]+)\s+patients?\s+(?:who\s+are\s+)?(?:confirmed\s+)?(?:not\s+to\s+have|without)\s+([a-z]+)[\s\S]*?([0-9]+)\s+(?:of\s+them\s+)?(?:receive\s+a\s+)?positive/i);
+
+    if (withDisease) {
+      const totalDisease = parseInt(withDisease[1]);
+      tp = parseInt(withDisease[3]);
+      fn = totalDisease - tp;
+    }
+    if (withoutDisease) {
+      const totalNoDisease = parseInt(withoutDisease[1]);
+      fp = parseInt(withoutDisease[3]);
+      tn = totalNoDisease - fp;
+    }
   }
 
   if (tp+fp+fn+tn === 0) { tp=56; fp=12; fn=44; tn=88; } // default
@@ -2358,9 +3079,10 @@ function renderContingencyTable(q, bg) {
   const spec = (tn/(tn+fp)*100).toFixed(0);
   const ppv = (tp/(tp+fp)*100).toFixed(0);
   const npv = (tn/(tn+fn)*100).toFixed(0);
+  const prevalence = parseInt(((tp+fn)/(tp+fp+fn+tn)*100).toFixed(0));
 
   div.innerHTML = '<div style="font-family:Inter,sans-serif;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;padding:8px">'+
-    '<div style="font-size:.75rem;color:#6b7280;font-weight:600;margin-bottom:4px">2×2 Contingency Table</div>'+
+    '<div style="font-size:.75rem;color:#6b7280;font-weight:600;margin-bottom:4px">' + (bg.title || '2×2 Contingency Table') + '</div>'+
     '<table style="border-collapse:collapse;text-align:center;font-size:.75rem">'+
     '<tr><th style="padding:10px 16px;background:#f9fafb;border:1px solid #e5e7eb;font-weight:600;color:#374151" colspan="2" rowspan="2"></th><th style="padding:10px 16px;background:#f9fafb;border:1px solid #e5e7eb;font-weight:600;color:#374151" colspan="2">Gold Standard</th></tr>'+
     '<tr><th style="padding:8px 16px;background:#eff6ff;border:1px solid #e5e7eb;color:#2563eb">Disease (+)</th><th style="padding:8px 16px;background:#fef2f2;border:1px solid #e5e7eb;color:#ef4444">Disease (−)</th></tr>'+
@@ -2372,7 +3094,8 @@ function renderContingencyTable(q, bg) {
     '<div><b style="color:#ef4444">Spec</b> = TN/(TN+FP) = '+tn+'/'+(tn+fp)+' = <b>'+spec+'%</b></div>'+
     '<div><b style="color:#22c55e">PPV</b> = TP/(TP+FP) = '+tp+'/'+(tp+fp)+' = <b>'+ppv+'%</b></div>'+
     '<div><b style="color:#f59e0b">NPV</b> = TN/(TN+FN) = '+tn+'/'+(tn+fn)+' = <b>'+npv+'%</b></div>'+
-    '</div></div>';
+    '</div>'+
+    '<div style="font-size:.625rem;color:#9ca3af;text-align:center;margin-top:2px;line-height:1.4">At <b style="color:#d1d5db">'+prevalence+'%</b> prevalence, even a test with <b style="color:#d1d5db">'+sens+'%</b> sensitivity and <b style="color:#d1d5db">'+spec+'%</b> specificity produces mostly false positives.<br/>'+(ppv<50?'Only <b style="color:#f87171">'+ppv+'%</b> of positive results are true positives — the other <b style="color:#f87171">'+(100-ppv)+'%</b> are false alarms.':'')+'</div></div>';
 }
 
 // ── BIAS DIAGRAM ──
@@ -2683,6 +3406,144 @@ function renderDecisionTree(q, bg) {
 // ═══════════════════════════════════════════════════════════
 // SECANT-TO-TANGENT — Derivative intuition (f(x)=x², at x=−1)
 // ═══════════════════════════════════════════════════════════
+function renderMannWhitneyDemo(q, bg) {
+  const div = document.getElementById('chart-quiz-html');
+  if (!div) return;
+  // Insert MW content after the CLT header, inside the main container
+  const container = div.querySelector('[style*="background:#0f111a"]');
+  if (!container) return;
+
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'display:flex;flex-direction:column;gap:14px;flex:1';
+  wrapper.innerHTML =
+    '<div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#6b7280;text-transform:uppercase;margin-bottom:-4px">Mann‑Whitney U — Rank Visualizer</div>' +
+    '<div style="font-size:20px;font-weight:700;color:#f1f5f9">Instead of comparing means, compare ranks.</div>' +
+    '<div style="font-size:11px;color:#94a3b8">Each dot is one patient\'s LDL drop — blue for control, orange for treatment. "Show ranks" snaps the dots from raw, lopsided positions into evenly-spaced rank order. The giant outlier that would yank a t-test\'s mean becomes just "rank 36" — one step above rank 35.</div>' +
+
+    // Buttons
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+    '<button id="mw-show-ranks-btn" style="font-size:12px;padding:7px 12px;border-radius:8px;border:1px solid #3b82f6;background:rgba(59,130,246,0.1);color:#93c5fd;cursor:pointer;font-family:Inter,sans-serif;font-weight:500">Show ranks</button>' +
+    '<button id="mw-regen-btn" style="font-size:12px;padding:7px 12px;border-radius:8px;border:1px solid #475569;background:rgba(255,255,255,0.03);color:#94a3b8;cursor:pointer;font-family:Inter,sans-serif;">New random sample</button>' +
+    '</div>' +
+
+    // Dual track
+    '<div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:14px 14px 8px">' +
+    '<div id="mw-axis-label" style="font-size:11px;color:#6b7280;margin-bottom:10px">Raw LDL drop (mg/dL) — one dot per patient</div>' +
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
+    '<span style="font-size:11px;width:60px;color:#94a3b8">Control</span>' +
+    '<div id="mw-track-control" style="position:relative;flex:1;height:26px;background:rgba(255,255,255,0.05);border-radius:6px"></div>' +
+    '</div>' +
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
+    '<span style="font-size:11px;width:60px;color:#94a3b8">Treatment</span>' +
+    '<div id="mw-track-treatment" style="position:relative;flex:1;height:26px;background:rgba(255,255,255,0.05);border-radius:6px"></div>' +
+    '</div>' +
+    '</div>' +
+
+    // Stats
+    '<div id="mw-stats" style="background:rgba(255,255,255,0.03);border-radius:12px;padding:14px;font-size:13px;line-height:1.6;color:#e2e8f0"></div>';
+
+  container.appendChild(wrapper);
+
+  // ── Internal state ──
+  let showRanks = false;
+  let data = [];
+
+  function randExp() { return -10 * Math.log(1 - Math.random()); }
+  function erf(x) {
+    const sign = x < 0 ? -1 : 1;
+    x = Math.abs(x);
+    const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+    const t = 1 / (1 + p * x);
+    const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    return sign * y;
+  }
+  function normalCdf(z) { return 0.5 * (1 + erf(z / Math.sqrt(2))); }
+
+  function generate() {
+    const n = 18;
+    const control = Array.from({ length: n }, () => ({ group: 'Control', value: randExp() * 1.4 }));
+    const treatment = Array.from({ length: n }, () => ({ group: 'Treatment', value: randExp() * 2.8 }));
+    data = control.concat(treatment);
+    data.sort((a, b) => a.value - b.value);
+    data.forEach((d, i) => { d.rank = i + 1; });
+  }
+
+  function computeStats() {
+    const n1 = 18, n2 = 18, N = 36;
+    const rankSumTreatment = data.filter(d => d.group === 'Treatment').reduce((s, d) => s + d.rank, 0);
+    const rankSumControl = data.filter(d => d.group === 'Control').reduce((s, d) => s + d.rank, 0);
+    const U1 = rankSumTreatment - n2 * (n2 + 1) / 2;
+    const U2 = n1 * n2 - U1;
+    const U = Math.min(U1, U2);
+    const muU = n1 * n2 / 2;
+    const sigmaU = Math.sqrt(n1 * n2 * (N + 1) / 12);
+    const z = (U - muU) / sigmaU;
+    const p = 2 * (1 - normalCdf(Math.abs(z)));
+    return { rankSumTreatment, rankSumControl, U1, U2, meanRankT: rankSumTreatment / n1, meanRankC: rankSumControl / n2, p };
+  }
+
+  function renderTrack(group, trackId) {
+    const track = document.getElementById(trackId);
+    if (!track) return;
+    track.innerHTML = '';
+    const values = data.filter(d => d.group === group);
+    const maxVal = Math.max(...data.map(d => d.value));
+    const maxRank = 36;
+    values.forEach(d => {
+      const dot = document.createElement('div');
+      dot.style.position = 'absolute';
+      dot.style.width = '10px'; dot.style.height = '10px';
+      dot.style.borderRadius = '50%';
+      dot.style.top = '8px';
+      dot.style.background = group === 'Control' ? '#378ADD' : '#D85A30';
+      dot.style.transition = 'left 0.5s ease';
+      dot.style.boxShadow = '0 0 2px rgba(0,0,0,0.3)';
+      const pct = showRanks ? (d.rank - 1) / (maxRank - 1) * 96 : (d.value / maxVal) * 96;
+      dot.style.left = pct + '%';
+      track.appendChild(dot);
+    });
+  }
+
+  function renderStats() {
+    const el = document.getElementById('mw-stats');
+    if (!el) return;
+    const s = computeStats();
+    const sig = s.p < 0.05;
+    const badgeBg = sig ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)';
+    const badgeColor = sig ? '#34d399' : '#fbbf24';
+    el.innerHTML =
+      '<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px">' +
+      '<div><div style="font-size:11px;color:#6b7280">Mean rank, control</div><div style="font-size:18px;font-weight:500">' + s.meanRankC.toFixed(1) + '</div></div>' +
+      '<div><div style="font-size:11px;color:#6b7280">Mean rank, treatment</div><div style="font-size:18px;font-weight:500">' + s.meanRankT.toFixed(1) + '</div></div>' +
+      '<div><div style="font-size:11px;color:#6b7280">U statistic</div><div style="font-size:18px;font-weight:500">' + Math.round(s.U1) + '</div></div>' +
+      '<div><div style="font-size:11px;color:#6b7280">Approx p-value</div><div style="font-size:18px;font-weight:500">' + s.p.toFixed(3) + '</div></div>' +
+      '</div>' +
+      '<span style="display:inline-block;font-size:12px;font-weight:500;padding:3px 10px;border-radius:6px;background:' + badgeBg + ';color:' + badgeColor + '">' +
+      (sig ? 'Treatment ranks significantly higher' : 'Not significant at this sample') +
+      '</span>' +
+      '<p style="margin:10px 0 0;color:#6b7280;font-size:12px;line-height:1.5">Notice the extreme values on the right barely change the rank picture — the biggest drop is still just rank 36, one step above rank 35. In raw values, that same point can be twice as far from its neighbor as any other gap on the line. This is Mann‑Whitney\'s trick: throw away actual mg/dL, keep only "who\'s bigger than whom."</p>';
+  }
+
+  function renderAll() {
+    const axisLabel = document.getElementById('mw-axis-label');
+    if (axisLabel) axisLabel.textContent = showRanks
+      ? 'Rank (1 = smallest drop, 36 = largest drop) — one dot per patient'
+      : 'Raw LDL drop (mg/dL) — one dot per patient';
+    renderTrack('Control', 'mw-track-control');
+    renderTrack('Treatment', 'mw-track-treatment');
+    renderStats();
+  }
+
+  // Wire buttons
+  const showBtn = document.getElementById('mw-show-ranks-btn');
+  if (showBtn) showBtn.onclick = () => { showRanks = !showRanks; showBtn.textContent = showRanks ? 'Show raw values' : 'Show ranks'; renderAll(); };
+
+  const regenBtn = document.getElementById('mw-regen-btn');
+  if (regenBtn) regenBtn.onclick = () => { generate(); renderAll(); };
+
+  generate();
+  renderAll();
+}
 function renderSecantTangent(q, bg) {
   const div = document.getElementById('chart-quiz-html');
   if (!div) return;
@@ -3091,8 +3952,382 @@ function renderHazardSecant(q, bg) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// SPAGHETTI PLOT — Paired before/after for crossover/pre-post
+// CLT DEMO — Interactive skew-CLT sample size explorer
+// Q30: "Is the t-test valid with n=18, skewed LDL data?"
+// Brilliant.org style — drag n, see the giant shrink, watch the bell emerge
 // ═══════════════════════════════════════════════════════════
+function renderCLTDemo(q, bg) {
+  const div = document.getElementById('chart-quiz-html');
+  if (!div) return;
+  div.style.display = '';
+  div.style.padding = '0';
+  div.style.overflow = 'auto';
+
+  // ── RNG: right-skewed LDL drops (exponential, mean ~10 mg/dL) ──
+  const popMean = 10;
+  function randExp() { return -popMean * Math.log(1 - Math.random()); }
+
+  // ── Skewness of an array ──
+  function skewness(arr) {
+    const n = arr.length;
+    const m = arr.reduce((a, b) => a + b, 0) / n;
+    let m2 = 0, m3 = 0;
+    for (const x of arr) { const d = x - m; m2 += d * d; m3 += d * d * d; }
+    m2 /= n; m3 /= n;
+    const s = Math.sqrt(m2);
+    return s === 0 ? 0 : m3 / (s * s * s);
+  }
+
+  // ── Build HTML structure ──
+  div.innerHTML =
+    '<div style="font-family:Inter,sans-serif;background:#0f111a;color:#e2e8f0;padding:20px 24px;border-radius:0;min-height:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:16px">' +
+
+    // Header + MW toggle
+    '<div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
+    + '<div>'
+    + '<div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#6b7280;text-transform:uppercase;margin-bottom:4px">Central Limit Theorem</div>'
+    + '<div style="font-size:20px;font-weight:700;color:#f1f5f9">When does the t‑test become valid with skewed data?</div>'
+    + '<div style="font-size:11px;color:#94a3b8;margin-top:4px">Drag the slider to watch what happens when you change the sample size — the giant outlier shrinks and the bell curve emerges.</div>'
+    + '</div>'
+    + '<button id="clt-mw-toggle" style="flex-shrink:0;font-size:11px;padding:6px 12px;border-radius:8px;border:1px solid #3b82f6;background:rgba(59,130,246,0.1);color:#93c5fd;cursor:pointer;font-family:Inter,sans-serif;font-weight:500;white-space:nowrap">Mann‑Whitney rank view</button>'
+    + '</div>'
+    + '</div>' +
+
+    // CLT content wrapper
+    '<div id="clt-content-wrapper">' +
+
+    // Slider row
+    '<div style="display:flex;align-items:center;gap:14px">'
+    + '<span style="font-size:11px;font-weight:600;color:#94a3b8;white-space:nowrap;min-width:140px">Sample size (n) per arm</span>'
+    + '<input type="range" id="clt-n-slider" min="4" max="300" value="18" step="1" style="flex:1;accent-color:#3b82f6">'
+    + '<span id="clt-n-out" style="font-size:22px;font-weight:700;min-width:48px;text-align:right;color:#f1f5f9">18</span>'
+    + '</div>' +
+
+    // Two-column: left = one sample bars + giant pull, right = histogram + stats
+    '<div style="display:grid;grid-template-columns:1.2fr 1fr;gap:14px">' +
+
+    // ── Left column: one sample of n ──
+    '<div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:14px 16px">'
+    + '<div style="font-size:11px;font-weight:600;color:#94a3b8;margin-bottom:10px">One sample of n patients</div>'
+    + '<div style="font-size:9px;color:#6b7280;margin-bottom:6px">LDL drops (mg/dL) — each bar = one patient · <span style="color:#f97316">orange</span> = the giant outlier</div>'
+    + '<div id="clt-crowd" style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:2px;min-height:48px"></div>'
+    + '<div id="clt-giant-pull" style="font-size:11px;color:#94a3b8;margin-top:10px;line-height:1.5"></div>'
+    + '</div>' +
+
+    // ── Right column: histogram + verdict ── 
+    '<div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+    + '<span style="font-size:11px;font-weight:600;color:#94a3b8">Sampling distribution of the mean</span>'
+    + '<span id="clt-verdict" style="font-size:11px;font-weight:600;padding:3px 12px;border-radius:20px">t-test valid</span>'
+    + '</div>'
+    + '<div style="font-size:9px;color:#6b7280;margin-bottom:6px">2,000 simulated experiments — each computes the average of n skewed LDL values</div>'
+    + '<div style="position:relative;flex:1;min-height:140px">'
+    + '<canvas id="clt-hist" role="img" aria-label="Histogram of 2,000 simulated sample means" style="width:100%;height:100%"></canvas>'
+    + '</div>'
+    + '<div style="display:flex;gap:16px;margin-top:8px;font-size:11px;color:#94a3b8">'
+    + '<span>SE ≈ <span id="clt-se" style="color:#e2e8f0;font-weight:600"></span></span>'
+    + '<span>Skew ≈ <span id="clt-skew" style="color:#e2e8f0;font-weight:600"></span></span>'
+    + '</div>' +
+    '</div></div>' +
+
+    // ── Bottom: rule of thumb bar ──
+    '<div style="display:flex;gap:10px;flex-wrap:wrap">'
+    + '<div style="flex:1;min-width:140px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);border-radius:10px;padding:12px 16px"><div style="font-size:13px;font-weight:700;color:#34d399">n ≥ 30</div><div style="font-size:10px;color:#6ee7b7;margin-top:2px">CLT engaged — t‑test valid even with skewed data</div></div>'
+    + '<div style="flex:1;min-width:140px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.15);border-radius:10px;padding:12px 16px"><div style="font-size:13px;font-weight:700;color:#fbbf24">15 ≤ n < 30</div><div style="font-size:10px;color:#fcd34d;margin-top:2px">Borderline — consider Mann‑Whitney U if heavily skewed</div></div>'
+    + '<div style="flex:1;min-width:140px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);border-radius:10px;padding:12px 16px"><div style="font-size:13px;font-weight:700;color:#f87171">n < 15</div><div style="font-size:10px;color:#fca5a5;margin-top:2px">CLT not engaged — t‑test invalid unless data is normal</div></div>'
+    + '</div>' +
+
+    // Action
+    '<div style="background:rgba(59,130,246,0.06);border:1px solid rgba(96,165,250,0.2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:8px">'
+    + '<span style="font-size:11px;color:#93c5fd">At <b>n = 18</b> with skewed LDL, the CLT has not fully normalized the sampling distribution.</span>'
+    + '<span style="display:inline-block;background:rgba(16,185,129,0.15);color:#34d399;font-size:9px;font-weight:700;padding:3px 10px;border-radius:12px;white-space:nowrap">↳ Use Mann‑Whitney U</span>'
+    + '</div>' +
+
+    // ── Per-option explorer: side‑by‑side n=18 vs n=200 ──
+    '<div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#6b7280;text-transform:uppercase;margin-top:4px;margin-bottom:-4px">Test Each Claim Against the Evidence</div>' +
+    '<div style="font-size:11px;color:#94a3b8">Two reference panels sit side by side — n=18 (still lopsided) and n=200 (smooth). Click each option to see which panel proves or disproves it.</div>' +
+
+    // Option buttons
+    '<div id="clt-opt-btn-row" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>' +
+
+    // Two panels
+    '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
+    '<div id="clt-opt-panel-18" style="flex:1;min-width:200px;background:rgba(255,255,255,0.03);border-radius:10px;padding:10px 12px;border:2px solid transparent;transition:border-color 0.3s">' +
+    '<div style="font-size:11px;color:#6b7280;margin-bottom:6px">Sampling distribution of the mean, n = 18</div>' +
+    '<canvas id="clt-opt-hist-18" width="280" height="90" style="width:100%;height:90px;display:block;border-radius:4px"></canvas>' +
+    '<div id="clt-opt-stat-18" style="font-size:11px;color:#6b7280;margin-top:6px"></div>' +
+    '</div>' +
+    '<div id="clt-opt-panel-200" style="flex:1;min-width:200px;background:rgba(255,255,255,0.03);border-radius:10px;padding:10px 12px;border:2px solid transparent;transition:border-color 0.3s">' +
+    '<div style="font-size:11px;color:#6b7280;margin-bottom:6px">Sampling distribution of the mean, n = 200</div>' +
+    '<canvas id="clt-opt-hist-200" width="280" height="90" style="width:100%;height:90px;display:block;border-radius:4px"></canvas>' +
+    '<div id="clt-opt-stat-200" style="font-size:11px;color:#6b7280;margin-top:6px"></div>' +
+    '</div>' +
+    '</div>' +
+
+    // Verdict panel
+    '<div id="clt-opt-verdict" style="background:rgba(255,255,255,0.03);border-radius:10px;padding:12px 14px;margin-top:8px;font-size:13px;line-height:1.6;color:#e2e8f0"></div>' +
+
+    '</div>' + // close clt-content-wrapper
+
+    '</div>';
+
+  // ── Draw the histogram onto the canvas ──
+  function drawHist(canvas, means) {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, rect.width, rect.height);
+
+    const mn = Math.min(...means), mx = Math.max(...means);
+    const bins = 30;
+    const w = (mx - mn) / bins || 1;
+    const counts = new Array(bins).fill(0);
+    for (const v of means) {
+      let idx = Math.floor((v - mn) / w);
+      if (idx >= bins) idx = bins - 1;
+      if (idx < 0) idx = 0;
+      counts[idx]++;
+    }
+    const maxCount = Math.max(...counts);
+    const barW = rect.width / bins;
+    // Draw neutral bars
+    ctx.fillStyle = '#475569';
+    for (let i = 0; i < bins; i++) {
+      const h = (counts[i] / maxCount) * (rect.height - 6);
+      ctx.fillRect(i * barW + 1.5, rect.height - h, Math.max(barW - 3, 1), h);
+    }
+    // Draw vertical mean line
+    const avg = means.reduce((a, b) => a + b, 0) / means.length;
+    const meanX = ((avg - mn) / (mx - mn)) * rect.width;
+    ctx.strokeStyle = 'rgba(96,165,250,0.5)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath();
+    ctx.moveTo(meanX, 0); ctx.lineTo(meanX, rect.height);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // ── Render at a given n ──
+  function cltRender(n) {
+    document.getElementById('clt-n-out').textContent = n;
+
+    // One sample
+    const sample = Array.from({ length: n }, () => randExp());
+    const total = sample.reduce((a, b) => a + b, 0);
+    const mean = total / n;
+    const giant = Math.max(...sample);
+    const meanWithoutGiant = (total - giant) / (n - 1 || 1);
+    const pullPct = mean === 0 ? 0 : ((mean - meanWithoutGiant) / mean * 100);
+
+    const crowd = document.getElementById('clt-crowd');
+    crowd.innerHTML = '';
+    const shown = sample.slice(0, 80);
+    const maxVal = Math.max(...shown);
+    shown.forEach(v => {
+      const isGiant = v === giant;
+      const h = 6 + (v / maxVal) * 32;
+      const dot = document.createElement('div');
+      dot.style.width = (isGiant ? '14' : '7') + 'px';
+      dot.style.height = h + 'px';
+      dot.style.borderRadius = '2px';
+      dot.style.background = isGiant ? '#f97316' : '#475569';
+      dot.title = isGiant ? 'Giant outlier: ' + v.toFixed(0) + ' mg/dL' : v.toFixed(0) + ' mg/dL';
+      crowd.appendChild(dot);
+    });
+    if (n > 80) {
+      const more = document.createElement('span');
+      more.style.cssText = 'font-size:10px;color:#6b7280;margin-left:4px;align-self:flex-end';
+      more.textContent = '+ ' + (n - 80) + ' more patients';
+      crowd.appendChild(more);
+    }
+
+    document.getElementById('clt-giant-pull').innerHTML =
+      'Biggest single drop: <b style="color:#f97316">' + giant.toFixed(0) + ' mg/dL</b> out of ' + n + ' patients — it pulls the average by ≈ <b>' + pullPct.toFixed(1) + '%</b>';
+
+    // Sampling distribution: 2000 resampled means
+    const means = [];
+    for (let i = 0; i < 2000; i++) {
+      let s = 0;
+      for (let j = 0; j < n; j++) s += randExp();
+      means.push(s / n);
+    }
+    const skew = skewness(means);
+    const se = popMean / Math.sqrt(n);
+
+    document.getElementById('clt-se').textContent = se.toFixed(2);
+    document.getElementById('clt-skew').textContent = skew.toFixed(2);
+
+    const absSkew = Math.abs(skew);
+    let verdictText, verdictBg, verdictColor;
+    if (absSkew < 0.3) {
+      verdictText = 't-test valid ✓'; verdictBg = 'rgba(16,185,129,0.15)'; verdictColor = '#34d399';
+    } else if (absSkew < 0.7) {
+      verdictText = 'borderline ⚠'; verdictBg = 'rgba(245,158,11,0.15)'; verdictColor = '#fbbf24';
+    } else {
+      verdictText = 't-test not valid ✕'; verdictBg = 'rgba(239,68,68,0.15)'; verdictColor = '#f87171';
+    }
+    const v = document.getElementById('clt-verdict');
+    v.textContent = verdictText; v.style.background = verdictBg; v.style.color = verdictColor;
+
+    drawHist(document.getElementById('clt-hist'), means);
+  }
+
+  // ── Wire slider ──
+  const slider = document.getElementById('clt-n-slider');
+  slider.addEventListener('input', function (e) { cltRender(parseInt(e.target.value)); });
+  cltRender(18);
+
+  // ── Mann-Whitney toggle ──
+  const mwToggle = document.getElementById('clt-mw-toggle');
+  let mwWrapper = null;
+  if (mwToggle) {
+    mwToggle.onclick = () => {
+      const wrapper = document.getElementById('clt-content-wrapper');
+      const isMW = wrapper.style.display === 'none';
+      if (isMW) {
+        wrapper.style.display = '';
+        mwToggle.textContent = 'Mann‑Whitney rank view';
+        mwToggle.style.background = 'rgba(59,130,246,0.1)';
+        mwToggle.style.color = '#93c5fd';
+        mwToggle.style.borderColor = '#3b82f6';
+        if (mwWrapper) { mwWrapper.remove(); mwWrapper = null; }
+        cltRender(parseInt(slider.value));
+      } else {
+        wrapper.style.display = 'none';
+        mwToggle.textContent = 'Back to CLT explorer';
+        mwToggle.style.background = 'rgba(16,185,129,0.15)';
+        mwToggle.style.color = '#34d399';
+        mwToggle.style.borderColor = 'rgba(16,185,129,0.3)';
+        renderMannWhitneyDemo(q, bg);
+      }
+    };
+  }
+
+  // ── Per‑option explorer: n=18 vs n=200 static panels ──
+  const popMeanOpt = 20;
+  function randExpOpt() { return -popMeanOpt * Math.log(1 - Math.random()); }
+  function simulateMeansOpt(n, reps) {
+    const means = [];
+    for (let i = 0; i < reps; i++) {
+      let s = 0;
+      for (let j = 0; j < n; j++) s += randExpOpt();
+      means.push(s / n);
+    }
+    return means;
+  }
+  function drawHistFixed(canvasId, means, color) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = 280, h = 90;
+    ctx.clearRect(0, 0, w, h);
+    const min = Math.min(...means), max = Math.max(...means);
+    const bins = 22;
+    const bw = (max - min) / bins || 1;
+    const counts = new Array(bins).fill(0);
+    for (const v of means) {
+      let idx = Math.floor((v - min) / bw);
+      if (idx >= bins) idx = bins - 1;
+      if (idx < 0) idx = 0;
+      counts[idx]++;
+    }
+    const maxCount = Math.max(...counts, 1);
+    const barW = w / bins;
+    ctx.fillStyle = color;
+    for (let i = 0; i < bins; i++) {
+      const bh = (counts[i] / maxCount) * (h - 6);
+      ctx.fillRect(i * barW + 1, h - bh, Math.max(barW - 2, 1), bh);
+    }
+  }
+
+  const means18opt = simulateMeansOpt(18, 2000);
+  const means200opt = simulateMeansOpt(200, 2000);
+  const skew18opt = skewness(means18opt);
+  const skew200opt = skewness(means200opt);
+
+  drawHistFixed('clt-opt-hist-18', means18opt, '#3b82f6');
+  drawHistFixed('clt-opt-hist-200', means200opt, '#3b82f6');
+  const stat18 = document.getElementById('clt-opt-stat-18');
+  if (stat18) stat18.textContent = 'Skew ' + skew18opt.toFixed(2) + ' — still lopsided';
+  const stat200 = document.getElementById('clt-opt-stat-200');
+  if (stat200) stat200.textContent = 'Skew ' + skew200opt.toFixed(2) + ' — smooth and symmetric';
+
+  const opts = {
+    A: { verdict: 'red', title: 'A — overstates robustness',
+      text: '"Robust to ALL violations regardless of sample size" is too strong. Look at the n=18 panel — it is still visibly lopsided. Robustness has limits, and small n plus severe skew is exactly where it breaks down.',
+      note: 'Robust to moderate violations at reasonable n. Not a blanket guarantee.', highlight: 'n18red' },
+    B: { verdict: 'green', title: 'B — correct answer',
+      text: 'The n=18 panel shows the CLT has not finished its job yet — the sampling distribution is still skewed, so the t‑test p‑value is not trustworthy here. Mann‑Whitney (which ranks the data) or a log‑transform sidesteps the problem entirely.',
+      note: 'Small n + real skew = consider a non‑parametric test or transformation.', highlight: 'n18red' },
+    C: { verdict: 'red', title: 'C — wrong distinction',
+      text: 'The t‑test is mathematically a special case of one‑way ANOVA with two groups. They share the exact same normality assumption on the residuals — skewness threatens both equally. Neither panel changes based on which test name you use.',
+      note: 'Same assumption, same risk, for both tests.', highlight: 'none' },
+    D: { verdict: 'red', title: 'D — too strict the other direction',
+      text: 'Look at the n=200 panel — with a large enough sample, the same skewed population produces a smooth, symmetric sampling distribution. The t‑test is fine there. "Any departure invalidates it regardless of size" ignores what the CLT actually does as n grows.',
+      note: 'Large n + skew: CLT usually rescues the t‑test. Small n + skew: it often cannot.', highlight: 'n200green' },
+    E: { verdict: 'red', title: 'E — conflates two separate assumptions',
+      text: 'Similar standard deviations (22 vs 18) speaks to equal variance, a completely different assumption from the shape of the distribution. You can have equal variances with heavily skewed data, or normal data with unequal variances — both panels are about shape, not spread.',
+      note: 'Equal variance and normality are independent checks.', highlight: 'none' }
+  };
+
+  const badgeColors = {
+    green: { bg: 'rgba(16,185,129,0.12)', text: '#34d399' },
+    red: { bg: 'rgba(239,68,68,0.12)', text: '#f87171' }
+  };
+
+  function applyOptHighlight(key) {
+    const p18 = document.getElementById('clt-opt-panel-18');
+    const p200 = document.getElementById('clt-opt-panel-200');
+    if (p18) p18.style.borderColor = key === 'n18red' ? '#D85A30' : 'transparent';
+    if (p200) p200.style.borderColor = key === 'n200green' ? '#22c55e' : 'transparent';
+  }
+
+  function selectOptOption(key) {
+    const btnRow = document.getElementById('clt-opt-btn-row');
+    if (btnRow) {
+      btnRow.querySelectorAll('button').forEach(b => {
+        const isSel = b.dataset.key === key;
+        b.style.borderColor = isSel ? '#3b82f6' : '#475569';
+        b.style.background = isSel ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.03)';
+        b.style.color = isSel ? '#93c5fd' : '#94a3b8';
+      });
+    }
+    const o = opts[key];
+    const c = badgeColors[o.verdict];
+    applyOptHighlight(o.highlight);
+    const vd = document.getElementById('clt-opt-verdict');
+    if (vd) vd.innerHTML =
+      '<span style="display:inline-block;font-size:11px;font-weight:600;padding:3px 12px;border-radius:20px;background:' + c.bg + ';color:' + c.text + ';margin-bottom:8px">' + o.title + '</span>' +
+      '<p style="margin:8px 0 0;line-height:1.6">' + o.text + '</p>' +
+      '<p style="margin:8px 0 0;color:#6b7280;font-size:12px">' + o.note + '</p>';
+  }
+
+  const btnRow = document.getElementById('clt-opt-btn-row');
+  if (btnRow) {
+    Object.keys(opts).forEach(key => {
+      const b = document.createElement('button');
+      b.dataset.key = key;
+      b.textContent = key;
+      b.style.cssText = 'width:36px;height:36px;border-radius:8px;border:1px solid #475569;cursor:pointer;font-weight:600;font-size:13px;background:rgba(255,255,255,0.03);color:#94a3b8;font-family:Inter,sans-serif';
+      b.onclick = () => selectOptOption(key);
+      btnRow.appendChild(b);
+    });
+    selectOptOption('B');
+  }
+
+  // Resize handler
+  const ro = new ResizeObserver(() => {
+    cltRender(parseInt(slider.value));
+  });
+  ro.observe(div);
+}
 function renderSpaghettiPlot(q, bg) {
   const div = document.getElementById('chart-quiz-html');
   if (!div) return;
@@ -3850,6 +5085,7 @@ const chartHR=new Chart(document.getElementById('chart-hr'),{type:'line',data:{l
 // ═══════════════════════════════════════════════════════════
 const _zoomBase = {};
 const _panState = {};
+const _userZoomed = {}; // true once user has manually zoomed/panned — update functions must not clobber this
 function installChartZoom(chart, canvasId, xMin, xMax) {
   const c = chart, canvas = c.canvas;
   if (!canvas) return;
@@ -3858,6 +5094,7 @@ function installChartZoom(chart, canvasId, xMin, xMax) {
   canvas.addEventListener('wheel', e => {
     if (canvas.offsetParent === null) return;
     e.preventDefault();
+    _userZoomed[canvasId] = true;
     const px = e.clientX - canvas.getBoundingClientRect().left;
     const centerVal = _xAtPixel(px), scale = c.scales.x, range = scale.max - scale.min;
     const factor = e.deltaY < 0 ? 0.85 : 1.18, newRange = Math.max(0.02, range * factor);
@@ -3869,6 +5106,7 @@ function installChartZoom(chart, canvasId, xMin, xMax) {
   canvas.addEventListener('mousedown', e => {
     if (e.button !== 1 || canvas.offsetParent === null) return;
     e.preventDefault();
+    _userZoomed[canvasId] = true;
     _panState[canvasId] = { startPx: e.clientX, startMin: c.scales.x.min, startMax: c.scales.x.max };
   });
   window.addEventListener('mousemove', e => {
@@ -3888,6 +5126,7 @@ function resetAllChartZoom() {
     if (!chart || !chart.options || !chart.options.scales) return;
     const b = _zoomBase[id];
     chart.options.scales.x.min = b.xMin; chart.options.scales.x.max = b.xMax; chart.update('none');
+    _userZoomed[id] = false;
   });
 }
 installChartZoom(chartQuiz, 'chart-quiz-cumulative', 0, 6);
@@ -3951,6 +5190,56 @@ loadQuestions().then(() => {
     if (e.key === 'ArrowLeft') { e.preventDefault(); prevQuestion(); }
     if (e.key === 'ArrowRight') { e.preventDefault(); nextQuestion(); }
   });
+
+  // ── Zoom/pan for HTML-based graphs (CLT demo, bias diagrams, spaghetti plots, etc.) ──
+  (function installHtmlChartZoom() {
+    const htmlDiv = document.getElementById('chart-quiz-html');
+    if (!htmlDiv) return;
+    let scale = 1, tx = 0, ty = 0, _panStart = null;
+
+    function apply() {
+      htmlDiv.style.transform = `scale(${scale}) translate(${tx}px, ${ty}px)`;
+      htmlDiv.style.transformOrigin = '0 0';
+    }
+
+    htmlDiv.addEventListener('wheel', function(e) {
+      if (e.ctrlKey || e.metaKey) return; // let browser zoom work
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 1.12 : 0.89;
+      const rect = htmlDiv.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) / scale - tx;
+      const my = (e.clientY - rect.top) / scale - ty;
+      scale = Math.max(0.25, Math.min(4, scale * factor));
+      tx = (e.clientX - rect.left) / scale - mx;
+      ty = (e.clientY - rect.top) / scale - my;
+      apply();
+    }, { passive: false });
+
+    htmlDiv.addEventListener('mousedown', function(e) {
+      if (e.button !== 1 && e.button !== 0) return;
+      if (e.button === 0 && !e.altKey) return; // left-drag requires Alt key
+      e.preventDefault();
+      _panStart = { x: e.clientX - tx * scale, y: e.clientY - ty * scale };
+    });
+
+    window.addEventListener('mousemove', function(e) {
+      if (!_panStart) return;
+      tx = (e.clientX - _panStart.x) / scale;
+      ty = (e.clientY - _panStart.y) / scale;
+      apply();
+    });
+
+    window.addEventListener('mouseup', function() { _panStart = null; });
+    htmlDiv.addEventListener('auxclick', function(e) { if (e.button === 1) e.preventDefault(); });
+
+    // Reset on double-click the reset-zoom button — combine with existing handler
+    const resetBtn = document.querySelector('.reset-zoom-btn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function() {
+        scale = 1; tx = 0; ty = 0; apply();
+      });
+    }
+  })();
 });
 
 // ── Double-click collapse ──
@@ -4083,6 +5372,10 @@ document.querySelectorAll('.float-card .card-tabs').forEach(tab => {
   });
 })();
 
+// ── Chat state (must be above IIFEs that reference these) ──
+let chatHistory = []; // {role:'student'|'attending', text:string}[]
+let chatFontSize = parseInt(localStorage.getItem('stats_viz_chat_font') || '12');
+
 // ── Font scale ──
 const FONT_SCALE_KEY = 'stats_viz_font_scale';
 (function initFontScale() {
@@ -4110,6 +5403,33 @@ const FONT_SCALE_KEY = 'stats_viz_font_scale';
     document.documentElement.style.fontSize = '17px';
     document.getElementById('font-size-label').innerText = '100%';
     localStorage.setItem(FONT_SCALE_KEY, 1);
+  };
+})();
+
+// ── Chat font size ──
+(function initChatFont() {
+  const slider = document.getElementById('chat-font-slider');
+  const label = document.getElementById('chat-font-size-label');
+  const chatBody = document.getElementById('cbody-chat');
+  if (!slider || !label || !chatBody) return;
+  slider.value = chatFontSize;
+  label.innerText = chatFontSize + 'px';
+  chatBody.style.setProperty('--chat-font', chatFontSize + 'px');
+  slider.oninput = function () {
+    const val = parseInt(this.value);
+    chatFontSize = val;
+    label.innerText = val + 'px';
+    const cb = document.getElementById('cbody-chat');
+    if (cb) cb.style.setProperty('--chat-font', val + 'px');
+  };
+  slider.onchange = function () { saveChatPrefs(); };
+  slider.ondblclick = function () {
+    this.value = 12;
+    chatFontSize = 12;
+    label.innerText = '12px';
+    const cb = document.getElementById('cbody-chat');
+    if (cb) cb.style.setProperty('--chat-font', '12px');
+    saveChatPrefs();
   };
 })();
 
@@ -4185,9 +5505,8 @@ function renderMath(html, wrapParagraphs = true) {
   return out;
 }
 
-// ── Chat state ──
-let chatHistory = []; // {role:'student'|'attending', text:string}[]
 const CHAT_KEY_PREFIX = 'stats_viz_chat_';
+function saveChatPrefs() { localStorage.setItem('stats_viz_chat_font', chatFontSize); }
 const BIOSTATS_API = 'http://127.0.0.1:3001/api/biostats/chat/';
 
 function chatStorageKey(qId) { return CHAT_KEY_PREFIX + qId; }
@@ -4290,6 +5609,11 @@ function renderChatPanel(qIdx) {
     '<button class="ask-ai-btn" onclick="askDeepSeek('+qIdx+','+optIdx+')"><i class="ti ti-message"></i> '+(currentPickedOpt >= 0 ? 'Explain this option' : 'Start with Immersa')+'</button>' +
     '<button class="ask-ai-btn" onclick="askDeepSeek('+qIdx+','+optIdx+',null,true)" style="margin-left:4px"><i class="ti ti-refresh"></i> Refresh</button>';
   autoFitCard();
+  // restore saved chat font size
+  const chatBody = document.getElementById('cbody-chat');
+  if (chatBody) chatBody.style.setProperty('--chat-font', chatFontSize + 'px');
+  const lbl = document.getElementById('chat-font-label');
+  if (lbl) lbl.textContent = chatFontSize;
   scrollChatToBottom();
 }
 

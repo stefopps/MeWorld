@@ -135,24 +135,63 @@ function validate(questions, verbose = false) {
       );
     }
 
-    // ═══════ 4. Numeric self-consistency (forestPlot rows) ═══════
+    // ═══════ 4. forestPlot row integrity ═══════
     if (graphType === 'forestPlot' && Array.isArray(baseGraph.rows)) {
-      for (const row of baseGraph.rows) {
-        if ('pValue' in row && 'ciLow' in row && 'ciHigh' in row) {
+      for (let ri = 0; ri < baseGraph.rows.length; ri++) {
+        const row = baseGraph.rows[ri];
+        if (!row) continue;
+        // REQUIRED fields — renderer will crash without these
+        for (const req of ['label', 'estimate', 'ciLow', 'ciHigh']) {
+          if (!(req in row) || row[req] == null) {
+            errors.push(`${prefix} baseGraph.rows[${ri}] missing required field '${req}' — renderer will crash`);
+          }
+        }
+        // pValue: warn if missing (renderer now falls back gracefully, but authoring is preferred)
+        if (!('pValue' in row) || row.pValue == null) {
+          const derived = (row.estimate != null && row.ciLow != null && row.ciHigh != null)
+            ? pValueFromCI(row.estimate, row.ciLow, row.ciHigh) : null;
+          warnings.push(
+            `${prefix} baseGraph.rows[${ri}] ('${row.label || '?'}') missing pValue — renderer derives ${derived ? 'p=' + derived.toFixed(3) : '?*'} at runtime; pre-author for control`
+          );
+        }
+        // Consistency check if pValue IS provided
+        if ('pValue' in row && row.pValue != null && 'ciLow' in row && 'ciHigh' in row && row.estimate != null) {
           const recalc = pValueFromCI(row.estimate, row.ciLow, row.ciHigh);
           if (recalc !== null) {
             stats.pValueChecks++;
             const stored = row.pValue;
-            const ratioOk = Math.abs(stored - recalc) < 0.02;
-            if (!ratioOk) {
+            if (Math.abs(stored - recalc) >= 0.02) {
               stats.pValueMismatches++;
               warnings.push(
-                `${prefix} row '${row.label || '?'}': stored p=${stored.toFixed(4)}, recalculated from CI p=${recalc.toFixed(4)} — mismatch`
+                `${prefix} row '${row.label || '?'}': stored p=${stored.toFixed(4)}, recalculated p=${recalc.toFixed(4)} — mismatch`
               );
             }
           }
         }
       }
+      // Check per-option rows too (Q26-style option-specific forest plots)
+      for (let oi = 0; oi < q.options.length; oi++) {
+        const optRows = q.options[oi].graph?.rows;
+        if (!Array.isArray(optRows)) continue;
+        for (let ri = 0; ri < optRows.length; ri++) {
+          const row = optRows[ri];
+          if (!row) continue;
+          for (const req of ['label', 'estimate', 'ciLow', 'ciHigh']) {
+            if (!(req in row) || row[req] == null) {
+              errors.push(`${prefix} option ${oi} graph.rows[${ri}] missing required field '${req}'`);
+            }
+          }
+          if (!('pValue' in row) || row.pValue == null) {
+            warnings.push(
+              `${prefix} option ${oi} graph.rows[${ri}] ('${row.label || '?'}') missing pValue`
+            );
+          }
+        }
+      }
+    }
+
+    if (graphType === 'forestPlot' && (!Array.isArray(baseGraph.rows) || baseGraph.rows.length === 0)) {
+      errors.push(`${prefix} forestPlot type but baseGraph.rows is empty or missing`);
     }
 
     // ═══════ 5. Range safety for cumulative HR ═══════

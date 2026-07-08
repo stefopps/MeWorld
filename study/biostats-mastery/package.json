@@ -9,5 +9,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "playwright": "^1.61.1"
+  }
 }

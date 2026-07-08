@@ -1,0 +1,126 @@
+# Reference-book graph-fit rule (always-on)
+
+**Goal:** Every graph in this module must **teach the concept** — not just display data. The learner should understand the question thoroughly through visual interaction, Brilliant.org style. No memorization.
+
+## Golden principle
+
+**The graph must serve the concept the way the reference book teaches it.** If the reference chapter uses a particular visual schema, our graph must match or exceed that schema in explanatory power.
+
+## Mandatory workflow — every time an agent touches a graph or question
+
+### Step 1: Identify the concept
+
+Read the question's `stem`, `ad`, and `options`. Identify the **one core statistical concept** the question tests. Examples:
+- "t-test validity with skewed data at small n" (CLT convergence)
+- "proportional hazards assumption" (KM curve interpretation)
+- "multiple comparisons inflate familywise error rate" (Bonferroni correction)
+
+### Step 2: Cross-reference the book
+
+Open `reference/BOOK_REFERENCE_MAP.md`. Find the question's range or exact ID. Note:
+- Which book covers this concept (Understandable Statistics vs High-Yield Biostatistics)
+- Which chapter(s) are relevant
+- What "printable graphs" the book recommends for this concept
+
+If the question is **not explicitly listed** in the map, infer from the concept:
+- Core stats (distributions, t-tests, CIs, power, regression) → **Understandable Statistics**
+- Medical stats (OR/RR, study designs, bias, screening, NNT, meta-analysis) → **High-Yield Biostatistics**
+
+### Step 3: Evaluate graph fitness — the 4-point checklist
+
+For each question, answer:
+
+| # | Question | Bad sign | Good sign |
+|---|----------|----------|-----------|
+| 1 | **Does the graph type match the concept from the reference?** | `normal` chart for a conceptual question with no parameter variation; `cumulative` for a prevalence question | Graph type matches the reference book's recommended visual for that chapter |
+| 2 | **Does each option's visual teach WHY it's right or wrong?** | All 5 options have identical graph data (same `d`, same `hr`, same `control`) | Each option's graph shows something visually distinct that illustrates the answer |
+| 3 | **Is there interactive discovery?** | Static graph with no sliders, no drag, no click-to-reveal when the concept is about "what happens when X changes" | The learner can manipulate a parameter and see the concept respond (slider, drag, toggle) |
+| 4 | **Is this the most explanatory possible visual?** | A generic chart chosen because "that's the chart type used for this sort of data" | A visual specifically designed to make this concept click — even if it's a custom SVG, analogy plate, or metaphor |
+
+### Step 4: Classify and act
+
+| Rating | Criteria | Action |
+|--------|----------|--------|
+| **A (teaches)** | All 4 checkpoints pass. Graph type matches reference, options are visually distinct, interactive where appropriate, explanatory. | No change needed. Document why it's good. |
+| **B (adequate)** | Graph type matches reference (checkpoint 1) but options aren't differentiated OR interaction is missing. | Improve option graphs or add interaction. |
+| **C (disconnected)** | Graph type doesn't match the reference concept (checkpoint 1 fails). | Change graph type to what the reference recommends. |
+| **D (empty/missing)** | No graph data, placeholder values, or graph doesn't render. | Author proper graph data. |
+
+## Graph-type decision table — what to use when
+
+| Concept / Reference chapter | Best graph type | Why |
+|---|---|---|
+| **Survival analysis, HR, KM curves** (HY Ch 5) | `cumulative` with sliders | Learner adjusts HR and sees curves separate. CrossAt support for non-PH. |
+| **Effect size, power, sample size, t-test** (US Ch 6–8) | `normal` with d/n/α sliders | Learner sees SE shrink as n grows. Stat cards show t/z/p. |
+| **CLT, normality assumption, skewed data** (US Ch 8.2) | `cltGraph` (custom SVG) | Shows parent distribution → sampling distributions at increasing n. A `normal` chart cannot teach CLT convergence. |
+| **Proportions, ARR, absolute risks** (US Ch 2) | `bar` with rate sliders | Side-by-side control vs treatment rates. |
+| **Meta-analysis, heterogeneity, pooled estimates** (HY Ch 6) | `forestPlot` | Rows = individual studies. Drag to explore. Funnel toggle for bias. |
+| **Publication bias, funnel plot asymmetry** (HY Ch 6) | `forestPlot` with funnel toggle | Dual-view: forest → funnel. Small studies vs large studies visual. |
+| **Non-inferiority, NI margin** (HY Ch 5) | `forestPlot` with `marginLine` | Must show the NI margin as a dashed reference line. `cumulative` cannot. |
+| **Multiple comparisons, FWER** (HY Ch 5–6) | `forestPlot` with adjustment controls | Bonferroni/Holm buttons widen CIs. FWER simulation toggle. |
+| **Multi-group bar comparison** | `bar-multigroup` | Multiple bars per category. |
+| **Study design: case-control, cohort, RCT** (HY Ch 4) | `studyDesignGrid` | Grid showing design features. OR vs RR calculation flows from design. |
+| **Study design: OR vs RR, rare disease** (HY Ch 8) | `biasDiagram` with custom schematic | Mountain & pit metaphor (Q34). 2×2 contingency tables. |
+| **Bias types: carryover, selection, confounding** (HY Ch 5) | `biasDiagram` with custom schematic | Diagram must show the mechanism of this specific bias — not a generic bias label. |
+| **Paired data, within-subject, crossover** (US Ch 8.4) | `spaghettiPlot` | Before/after dots with connecting lines. Paired SE vs independent SE comparison. |
+| **Test selection: chi-square vs t-test vs log-rank** (HY Ch 2, US Ch 10) | `decisionTree` | Flowchart showing which test to choose based on data type. |
+| **Screening: Sn, Sp, PPV, NPV** (HY Ch 3) | `ppvCurve` or `contingencyTable` | PPV curve with prevalence slider. 2×2 table with calculated metrics. |
+| **ROC, AUC** (HY Ch 3) | `rocCurve` | ROC curve with threshold marker. |
+| **Clinical trial phases** (HY Ch 4) | `phaseTimeline` | I–IV timeline with descriptions. |
+| **Confounding, DAG** (HY Ch 5) | `dag` | Directed acyclic graph showing confounder pathways. |
+| **Dose-response, continuous outcome over levels** | `dotplot` or `bar-multigroup` | Scatter or bar per dose level. |
+| **Teaching demo: derivative, secant→tangent** | `secantTangent` or `hazardSecant` | Foundations content — interactive math demos. |
+
+## Anti-patterns — what to never ship
+
+| Anti-pattern | Why it fails | Example |
+|---|---|---|
+| **Identical graphs for all 5 options** | The learner clicks options and sees nothing change. No visual learning. | Q12–15 all show d=0.8, n=64, α=0.05 regardless of option. |
+| **`normal` chart for a concepts question** | The normal distribution does not teach CLT, t-test assumptions, or study design. It only shows abstract curves. | Q30 was `normal` with d=0.857 — it just showed two curves, not CLT convergence. |
+| **`cumulative` for anything not time-to-event** | KM curves answer one question: "how does survival change over time?" Using them for prevalence, NI, or bias is misleading. | Q20 carryover was `cumulative` — a bias diagram is the right visual. |
+| **`bar` chart for complex multi-study concepts** | A single bar pair cannot represent individual trial estimates, CIs, or heterogeneity. | Q26 I²=0% needs a forest plot to show trial-level estimates. |
+| **Placeholder values (d=0.8, n=64, hr=0.6, brate=0.3)** | These are construction defaults, not teaching values. | Must match the question's actual numbers from the ad/stem. |
+| **No interaction when concept is parametric** | "What happens when n increases?" → the learner must drag n to discover. Static means memorization. | Power curve without n-slider. CI width without SE-slider. |
+
+## Visual metaphor / analogy plates
+
+**When to use:** A concept that is spatial, structural, or counterintuitive benefits from an image over a chart.
+
+| Trigger | Approach |
+|---|---|
+| "Any departure from normality invalidates all parametric tests" | Giant-outlier analogy: same outlier in large crowd vs small group |
+| "Type I vs Type II error" | Courtroom analogy: convicting innocent vs freeing guilty |
+| "Interaction effect" | Parallel vs crossing lines on a simple 2×2 plot |
+| "Confounding" | Backdoor path diagram (DAG) |
+| "Power = 1 − β" | Balance scale: effect size on one side, noise on the other |
+
+**Format:** `option.visual = { src: "assets/images/...", prefer: "image", type: "image", caption: "...", alt: "..." }`
+
+## Graph tour / step-by-step walkthrough
+
+For concepts that benefit from Brilliant.org-style progressive revelation:
+
+| Trigger | Graph type | Tour filename |
+|---|---|---|
+| Paired t-test, spaghetti plot | `spaghettiPlot` | Built-in — startSpaghettiTour() |
+| Forest plot — dragging changes estimates | `forestPlot` | Per-question tour data in `graphTours` |
+| Normal chart — t/z, one-tail vs two-tail | `normal` | Per-question tour data in `graphTours` |
+
+**Tour data shape:** Array of `{ step, highlightIds: [...], text }` where `highlightIds` are SVG element IDs to spotlight.
+
+## When checking existing questions
+
+Run this evaluation silently and report:
+
+```
+Q{N} | Concept: {concept} | Ref: {book} Ch {chapter} | Current: {type} | Rating: {A/B/C/D} | Issue: {if not A, what's wrong}
+```
+
+If rating is C or D, propose the fix before implementing.
+
+## Related rules
+
+- `.cursor/rules/graphify.mdc` — codebase knowledge graph (run `graphify query` before code exploration)
+- `reference/BOOK_REFERENCE_MAP.md` — question-to-book mapping
+- `SCHEMA.md` — JSON field reference for all graph types
+- `AGENTS.md` — full module handoff, architecture, launch gotchas
