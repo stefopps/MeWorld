@@ -1515,6 +1515,39 @@ let chartQuizForest = null; // unused since forestPlot switch to SVG — kept fo
 
 let forestPristine = {}; // per-question snapshot of original row data, so dragging is always reversible
 let forestSimTally = {}; // per-question running tally: { draws, flagged } across simulation clicks
+function showForestTooltip(container, row, nullLine) {
+  let tip = container.querySelector('#forest-tooltip');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.id = 'forest-tooltip';
+    tip.style.cssText = 'position:absolute;pointer-events:none;background:#1a1a2e;color:#fff;padding:8px 10px;border-radius:6px;font-family:Inter,sans-serif;font-size:.6875rem;line-height:1.5;z-index:20;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.15)';
+    container.appendChild(tip);
+  }
+  const crosses = row.ciLow <= nullLine && row.ciHigh >= nullLine;
+  tip.innerHTML = '<b>' + row.label + '</b><br>' +
+    'Estimate: ' + row.estimate.toFixed(2) + '<br>' +
+    '95% CI: ' + row.ciLow.toFixed(2) + ' \u2013 ' + row.ciHigh.toFixed(2) + '<br>' +
+    'p-value: ' + (row.pValue < 0.001 ? row.pValue.toExponential(1) : row.pValue.toFixed(3)) + '<br>' +
+    '<span style="color:' + (crosses ? '#9ca3af' : '#93c5fd') + '">' + (crosses ? 'crosses the null \u2014 not significant' : 'excludes the null \u2014 significant') + '</span>';
+  tip.style.display = 'block';
+}
+function positionForestTooltip(container, e) {
+  const tip = container.querySelector('#forest-tooltip');
+  if (!tip) return;
+  const rect = container.getBoundingClientRect();
+  let left = e.clientX - rect.left + 14;
+  let top = e.clientY - rect.top - 10;
+  const tipW = tip.offsetWidth, tipH = tip.offsetHeight;
+  if (left + tipW > rect.width) left = e.clientX - rect.left - tipW - 14;
+  if (top + tipH > rect.height) top = rect.height - tipH - 8;
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+}
+function hideForestTooltip(container) {
+  const tip = container.querySelector('#forest-tooltip');
+  if (tip) tip.style.display = 'none';
+}
+
 function updateForestPlotChart(q, bg) {
   const container = document.getElementById('chart-quiz-forest');
   if (!container) return;
@@ -1535,7 +1568,7 @@ function updateForestPlotChart(q, bg) {
   const logMax = Math.log(dataMax * 1.15);
 
   const svgNS = 'http://www.w3.org/2000/svg';
-  const leftPad = 155, rightPad = 135, topPad = 50, rowH = 44, botPad = 75;
+  const leftPad = 155, rightPad = 135, topPad = 64, rowH = 44, botPad = 75;
   const plotW = 800 - leftPad - rightPad;
   const totalH = topPad + rows.length * rowH + botPad + 50; // +50 for FWER annotation
 
@@ -1563,7 +1596,7 @@ function updateForestPlotChart(q, bg) {
   svg.appendChild(title);
 
   const hint = document.createElementNS(svgNS, 'text');
-  hint.setAttribute('x', plotRight); hint.setAttribute('y', 26);
+  hint.setAttribute('x', plotRight); hint.setAttribute('y', 42);
   hint.setAttribute('text-anchor', 'end'); hint.setAttribute('font-size', '9'); hint.setAttribute('fill', '#9ca3af');
   hint.textContent = 'drag any square to test a different result \u2192';
   svg.appendChild(hint);
@@ -1629,6 +1662,31 @@ function updateForestPlotChart(q, bg) {
     const color = crossesNull ? '#9ca3af' : '#2563eb';
     const fill = crossesNull ? '#6b7280' : '#1d4ed8';
 
+    // Gaussian curve — the CI, drawn as the actual sampling distribution it represents.
+    // log(HR) ~ Normal(log(estimate), seLog); seLog is derived from the reported CI width.
+    const seLog = (Math.log(row.ciHigh) - Math.log(row.ciLow)) / (2 * 1.959964);
+    const meanLog = Math.log(row.estimate);
+    const curveH = 18;
+    const peakPdf = 1 / (seLog * Math.sqrt(2 * Math.PI));
+    let curveD = '';
+    const steps = 48;
+    for (let s = 0; s <= steps; s++) {
+      const logX = meanLog - 4 * seLog + (8 * seLog) * (s / steps);
+      const xVal = Math.exp(logX);
+      if (xVal < dataMin * 0.35 || xVal > dataMax * 2.3) continue;
+      const pdf = Math.exp(-0.5 * Math.pow((logX - meanLog) / seLog, 2)) / (seLog * Math.sqrt(2 * Math.PI));
+      const px = xPos(xVal);
+      const py = y - (pdf / peakPdf) * curveH;
+      curveD += (curveD === '' ? 'M' : 'L') + px.toFixed(1) + ',' + py.toFixed(1) + ' ';
+    }
+    const curvePath = document.createElementNS(svgNS, 'path');
+    curvePath.setAttribute('d', curveD);
+    curvePath.setAttribute('fill', 'none');
+    curvePath.setAttribute('stroke', color);
+    curvePath.setAttribute('stroke-width', '1.25');
+    curvePath.setAttribute('opacity', '0.55');
+    svg.appendChild(curvePath);
+
     // Label
     const label = document.createElementNS(svgNS, 'text');
     label.setAttribute('x', plotLeft - 12); label.setAttribute('y', y + 4);
@@ -1653,6 +1711,16 @@ function updateForestPlotChart(q, bg) {
     pt.setAttribute('fill', fill); pt.setAttribute('rx', '2');
     pt.style.cursor = 'grab';
     svg.appendChild(pt);
+
+    // Full-row hover strip — hovering anywhere on this row's line/curve shows exact numbers
+    const hoverStrip = document.createElementNS(svgNS, 'rect');
+    hoverStrip.setAttribute('x', plotLeft); hoverStrip.setAttribute('y', y - rowH / 2);
+    hoverStrip.setAttribute('width', plotW); hoverStrip.setAttribute('height', rowH);
+    hoverStrip.setAttribute('fill', 'transparent');
+    svg.appendChild(hoverStrip);
+    hoverStrip.addEventListener('mouseenter', () => showForestTooltip(container, row, nullLine));
+    hoverStrip.addEventListener('mousemove', e => positionForestTooltip(container, e));
+    hoverStrip.addEventListener('mouseleave', () => hideForestTooltip(container));
 
     const hitArea = document.createElementNS(svgNS, 'rect');
     hitArea.setAttribute('x', ptX - hitSz / 2); hitArea.setAttribute('y', y - hitSz / 2);
