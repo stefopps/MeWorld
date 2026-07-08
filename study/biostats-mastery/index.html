@@ -813,6 +813,12 @@ function renderFormulaForOption(q, opt, optIdx) {
     mathLine = 'd = '+g.d.toFixed(2)+',\\quad n = '+(g.n ?? 64);
   } else if ((gt === 'bar' || gt === 'bar-multigroup') && g.control != null) {
     mathLine = '\\text{Control } = '+(g.control*100).toFixed(0)+'\\%,\\quad \\text{Treatment } = '+((g.treatment ?? g.control)*100).toFixed(0)+'\\%';
+  } else if (gt === 'spaghettiPlot' && q.baseGraph) {
+    const sg = q.baseGraph;
+    const pairedSE = (sg.diffSD || 1.4) / Math.sqrt(sg.n || 30);
+    const pooledSD = ((sg.beforeSD || 2) + (sg.afterSD || 1.8)) / 2;
+    const indepSE = pooledSD / Math.sqrt((sg.n || 30) / 2);
+    mathLine = '\\text{Mean diff = ' + (sg.diffMean || 2.6).toFixed(1) + ', SE}_{\\text{paired}}=' + pairedSE.toFixed(2) + ', SE_{\\text{indep}}\\approx' + indepSE.toFixed(2);
   } else if (gt === 'forestPlot' && q.baseGraph?.rows) {
     const rows = q.baseGraph.rows;
     if (rows.length === 2 || rows.length === 3) {
@@ -1159,7 +1165,7 @@ function updateQuizGraph(){
   // Show the right canvas/control for this type
   const chartTypes = ['cumulative','normal','bar','ppvCurve','forestPlot','rocCurve','dotplot',
     'contingencyTable','biasDiagram','studyDesignGrid','phaseTimeline','dag','decisionTree','bar-multigroup'];
-  const htmlTypes = ['contingencyTable','biasDiagram','studyDesignGrid','phaseTimeline','dag','decisionTree'];
+  const htmlTypes = ['contingencyTable','biasDiagram','studyDesignGrid','phaseTimeline','dag','decisionTree','spaghettiPlot'];
 
   if (gt === 'bar-multigroup') {
     document.getElementById('chart-quiz-bar').style.display = '';
@@ -1207,6 +1213,8 @@ function updateQuizGraph(){
     renderDAG(q, bg);
   } else if (gt==='decisionTree') {
     renderDecisionTree(q, bg);
+  } else if (gt==='spaghettiPlot') {
+    renderSpaghettiPlot(q, bg);
   }
 }
 
@@ -2212,6 +2220,108 @@ function renderDecisionTree(q, bg) {
 // MODIFIED BAR CHART — supports bar and bar-multigroup
 // ═══════════════════════════════════════════════════════════
 // (updateBarChart already exists — we just need to handle multigroup in it)
+
+// ═══════════════════════════════════════════════════════════
+// SPAGHETTI PLOT — Paired before/after for crossover/pre-post
+// ═══════════════════════════════════════════════════════════
+function renderSpaghettiPlot(q, bg) {
+  const div = document.getElementById('chart-quiz-html');
+  if (!div) return;
+  div.style.display = '';
+
+  const n = bg.n || 30;
+  const beforeLabel = bg.beforeLabel || 'Before';
+  const afterLabel = bg.afterLabel || 'After';
+  const beforeMean = bg.beforeMean || 0;
+  const beforeSD = bg.beforeSD || 1;
+  const diffMean = bg.diffMean || 0;
+  const diffSD = bg.diffSD || 1;
+
+  // Seeded RNG so the 30 patient dots are stable across re-renders
+  function mulberry32(seed) { return function() { seed |= 0; seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function boxMuller(rng) { const u1 = Math.max(rng(), 1e-9), u2 = rng(); return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2); }
+
+  const rng = mulberry32(q.id * 1000 + 7);
+
+  // Generate 30 patients: baseline ~ N(beforeMean, beforeSD), then drug = baseline - diffMean + N(0, diffSD)
+  const patients = [];
+  for (let i = 0; i < n; i++) {
+    const baseline = Math.max(0, beforeMean + boxMuller(rng) * beforeSD);
+    const noise = boxMuller(rng) * diffSD;
+    const drug = Math.max(0, baseline - diffMean + noise);
+    patients.push({ before: baseline, after: drug });
+  }
+
+  // Compute display stats
+  const pairedSE = diffSD / Math.sqrt(n);
+  const pooledSD = (beforeSD + (bg.afterSD || beforeSD)) / 2;
+  const indepSE = pooledSD / Math.sqrt(n / 2);
+
+  const svgW = 600, leftPad = 80, rightPad = 60, topPad = 40, plotH = 280, botPad = 70;
+  const totalW = svgW, totalH = topPad + plotH + botPad;
+  const plotLeft = leftPad, plotRight = svgW - rightPad;
+  const colBefore = plotLeft + (plotRight - plotLeft) * 0.25;
+  const colAfter = plotLeft + (plotRight - plotLeft) * 0.75;
+  const valMin = 0, valMax = Math.max(beforeMean + 3 * beforeSD, (bg.afterMean || 0) + 3 * (bg.afterSD || 0)) * 1.1;
+  function yPos(v) { return topPad + plotH - (v / valMax) * plotH; }
+
+  let html = '<div style="font-family:Inter,sans-serif;width:100%;height:100%;overflow:auto">';
+  html += '<div style="font-size:.75rem;font-weight:700;color:#1a1a2e;text-align:center;margin-bottom:8px">' + (bg.title || 'Paired Before/After — Each Patient Is Their Own Control') + '</div>';
+  html += '<div style="font-size:.625rem;color:#6b7280;text-align:center;margin-bottom:12px;line-height:1.4">Every patient contributes two dots, connected by a line. ' + n + ' patients × 2 measurements each.</div>';
+
+  html += '<svg viewBox="0 0 ' + totalW + ' ' + totalH + '" width="100%" height="' + plotH + '" style="display:block;font-family:Inter,sans-serif">';
+
+  // Grid lines
+  for (let v = 0; v <= valMax; v += Math.ceil(valMax / 6)) {
+    const y = yPos(v);
+    html += '<line x1="' + plotLeft + '" y1="' + y + '" x2="' + plotRight + '" y2="' + y + '" stroke="#f3f4f6" stroke-width="1"></line>';
+    html += '<text x="' + (plotLeft - 8) + '" y="' + (y + 4) + '" text-anchor="end" font-size="10" fill="#9ca3af">' + v.toFixed(0) + '</text>';
+  }
+
+  // Column labels + mean bars
+  const beforeMeanY = yPos(beforeMean);
+  const afterMeanY = yPos(bg.afterMean || (beforeMean - diffMean));
+  html += '<text x="' + colBefore + '" y="' + (topPad - 8) + '" text-anchor="middle" font-size="11" font-weight="600" fill="#ef4444">' + beforeLabel + '</text>';
+  html += '<text x="' + colAfter + '" y="' + (topPad - 8) + '" text-anchor="middle" font-size="11" font-weight="600" fill="#2563eb">' + afterLabel + '</text>';
+  html += '<text x="' + colBefore + '" y="' + (topPad + plotH + 14) + '" text-anchor="middle" font-size="9" fill="#9ca3af">Mean ' + beforeMean.toFixed(1) + '</text>';
+  html += '<text x="' + colAfter + '" y="' + (topPad + plotH + 14) + '" text-anchor="middle" font-size="9" fill="#9ca3af">Mean ' + (bg.afterMean || (beforeMean - diffMean)).toFixed(1) + '</text>';
+
+  // Mean lines (horizontal)
+  html += '<line x1="' + (colBefore - 24) + '" y1="' + beforeMeanY + '" x2="' + (colBefore + 24) + '" y2="' + beforeMeanY + '" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,3"></line>';
+  html += '<line x1="' + (colAfter - 24) + '" y1="' + afterMeanY + '" x2="' + (colAfter + 24) + '" y2="' + afterMeanY + '" stroke="#2563eb" stroke-width="2" stroke-dasharray="4,3"></line>';
+
+  // Patient lines + dots
+  patients.forEach((p, i) => {
+    const x1 = colBefore + (Math.random() - 0.5) * 14; // slight horizontal jitter
+    const x2 = colAfter + (Math.random() - 0.5) * 14;
+    const y1 = yPos(p.before), y2 = yPos(p.after);
+    const slope = p.after - p.before;
+    const lineColor = slope < 0 ? 'rgba(37,99,235,.25)' : 'rgba(239,68,68,.3)';
+    html += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="' + lineColor + '" stroke-width="1.2"></line>';
+    html += '<circle cx="' + x1.toFixed(1) + '" cy="' + y1.toFixed(1) + '" r="3.5" fill="#ef4444" opacity=".7"></circle>';
+    html += '<circle cx="' + x2.toFixed(1) + '" cy="' + y2.toFixed(1) + '" r="3.5" fill="#2563eb" opacity=".7"></circle>';
+  });
+
+  // Y-axis label
+  html += '<text x="12" y="' + (topPad + plotH / 2) + '" text-anchor="middle" font-size="10" fill="#6b7280" transform="rotate(-90,12,' + (topPad + plotH / 2) + ')">Migraine days / month</text>';
+
+  // Difference annotation arrow
+  const arrowY = topPad + plotH + 32;
+  html += '<text x="' + ((colBefore + colAfter) / 2) + '" y="' + arrowY + '" text-anchor="middle" font-size="11" font-weight="600" fill="#059669">−' + diffMean.toFixed(1) + ' days (mean difference)</text>';
+
+  html += '</svg>';
+
+  // SE comparison box
+  html += '<div style="display:flex;gap:16px;justify-content:center;margin-top:10px;font-size:.625rem;color:#6b7280">';
+  html += '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:6px 12px;text-align:center"><span style="font-weight:700;color:#059669">Paired SE = ' + pairedSE.toFixed(2) + '</span><br><span style="color:#9ca3af">SD<sub>diff</sub> / √n = ' + diffSD.toFixed(1) + ' / √' + n + '</span></div>';
+  html += '<div style="background:#fefce8;border:1px solid #fde68a;border-radius:6px;padding:6px 12px;text-align:center"><span style="font-weight:700;color:#92400e">Independent SE ≈ ' + indepSE.toFixed(2) + '</span><br><span style="color:#9ca3af">pooled SD / √(n/2)</span></div>';
+  html += '</div>';
+
+  html += '<div style="font-size:.5625rem;color:#9ca3af;text-align:center;margin-top:8px;line-height:1.4">Paired SE is <b>' + (indepSE / pairedSE).toFixed(1) + '× smaller</b> — because each patient is their own control, between-person noise cancels out. The wide scatter across 30 patients is real, but the <em>change</em> within each patient is consistent.</div>';
+
+  html += '</div>';
+  div.innerHTML = html;
+}
 
 
 // Quiz slider events

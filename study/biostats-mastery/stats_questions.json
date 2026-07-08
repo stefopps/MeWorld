@@ -1117,9 +1117,16 @@
     ],
     "correct": 1,
     "baseGraph": {
-      "hr": 0.55,
-      "brate": 0.3,
-      "type": "cumulative"
+      "type": "spaghettiPlot",
+      "beforeLabel": "Placebo month",
+      "afterLabel": "InferMigraine",
+      "n": 30,
+      "beforeMean": 5.8,
+      "beforeSD": 2.0,
+      "afterMean": 3.2,
+      "afterSD": 1.8,
+      "diffMean": 2.6,
+      "diffSD": 1.4
     },
     "explanation": "A paired design removes between-subject variability. Each patient's placebo response becomes the baseline for their own treatment response. The test compares the mean of the within-patient differences to zero — not two independent group means. This is more powerful because you eliminate the noise of inter-individual variation.",
     "trap": "When you see a crossover trial or a before-after design, the analysis is paired — whether they call it that or not. The key number to look for is the mean difference and the standard deviation OF the differences. If they report group SDs separately but not the SD of the differences, they're hiding the information you need to reconstruct the paired analysis."
