@@ -1089,6 +1089,8 @@ function hideAllQuizChartPanels() {
   if (fc) { delete fc.dataset.proof; delete fc._reroll; }
   const tgl = document.getElementById('forest-proof-toggle');
   if (tgl) tgl.style.display = 'none';
+  const stl = document.getElementById('forest-sim-tally');
+  if (stl) stl.innerHTML = '';
 }
 
 function renderOptionImage(q, opt) {
@@ -1486,6 +1488,7 @@ function updatePPVCurveChart(q, bg) {
 let chartQuizForest = null; // unused since forestPlot switch to SVG — kept for compat
 
 let forestPristine = {}; // per-question snapshot of original row data, so dragging is always reversible
+let forestSimTally = {}; // per-question running tally: { draws, flagged } across simulation clicks
 function updateForestPlotChart(q, bg) {
   const container = document.getElementById('chart-quiz-forest');
   if (!container) return;
@@ -1721,12 +1724,58 @@ function updateForestPlotChart(q, bg) {
     updateForestPlotChart(q, bg);
   };
 
+  // ── Simulate: redraw this trial as if the drug does nothing ──
+  let simBtn = document.getElementById('forest-sim-btn');
+  if (!simBtn) {
+    simBtn = document.createElement('button');
+    simBtn.id = 'forest-sim-btn';
+    simBtn.style.cssText = 'position:absolute;top:10px;right:170px;background:#2563eb;border:none;border-radius:6px;padding:5px 10px;font-family:Inter,sans-serif;font-size:.6875rem;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;gap:4px;z-index:5';
+    simBtn.innerHTML = '<i class="ti ti-dice" style="font-size:12px"></i>simulate this trial if the drug does nothing';
+    container.appendChild(simBtn);
+  }
+  simBtn.onclick = () => {
+    const pristine = forestPristine[q.id];
+    let anySubgroupFlagged = false;
+    bg.rows.forEach((row, i) => {
+      const orig = pristine[i];
+      const seLog = (Math.log(orig.ciHigh) - Math.log(orig.ciLow)) / (2 * 1.959964);
+      const u1 = Math.max(Math.random(), 1e-9), u2 = Math.random();
+      const z0 = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+      const newLogEstimate = Math.log(nullLine) + z0 * seLog;
+      row.estimate = Math.exp(newLogEstimate);
+      row.ciLow = Math.exp(newLogEstimate - 1.959964 * seLog);
+      row.ciHigh = Math.exp(newLogEstimate + 1.959964 * seLog);
+      const zStat = newLogEstimate / seLog;
+      row.pValue = 2 * (1 - cDF(Math.abs(zStat), 0, 1));
+      if (i !== 0 && row.pValue < 0.05) anySubgroupFlagged = true;
+    });
+    if (!forestSimTally[q.id]) forestSimTally[q.id] = { draws: 0, flagged: 0 };
+    forestSimTally[q.id].draws++;
+    if (anySubgroupFlagged) forestSimTally[q.id].flagged++;
+    updateForestPlotChart(q, bg);
+  };
+
+  const tally = forestSimTally[q.id];
+  let tallyEl = document.getElementById('forest-sim-tally');
+  if (!tallyEl) {
+    tallyEl = document.createElement('div');
+    tallyEl.id = 'forest-sim-tally';
+    tallyEl.style.cssText = 'position:absolute;top:40px;right:10px;font-family:Inter,sans-serif;font-size:.6875rem;color:#6b7280;text-align:right;max-width:320px;line-height:1.4';
+    container.appendChild(tallyEl);
+  }
+  if (tally && tally.draws > 0) {
+    const pct = Math.round(tally.flagged / tally.draws * 100);
+    tallyEl.innerHTML = '<b style="color:' + (pct >= 15 && pct <= 25 ? '#16a34a' : '#1a1a2e') + '">' + tally.flagged + ' of ' + tally.draws + '</b> simulated redraws had \u22651 fluke subgroup \u2014 running rate: <b>' + pct + '%</b> <span style="color:#9ca3af">(formula predicts ~18.5%)</span>';
+  } else {
+    tallyEl.innerHTML = '';
+  }
+
   // ── Toggle: forest plot ↔ 100-trial FWER simulation ──
   let toggleBtn = document.getElementById('forest-proof-toggle');
   if (!toggleBtn) {
     toggleBtn = document.createElement('button');
     toggleBtn.id = 'forest-proof-toggle';
-    toggleBtn.style.cssText = 'position:absolute;top:10px;right:170px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:5px 10px;font-family:Inter,sans-serif;font-size:.6875rem;font-weight:600;color:#059669;cursor:pointer;display:none;align-items:center;gap:4px;z-index:5';
+    toggleBtn.style.cssText = 'position:absolute;top:10px;right:430px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:5px 10px;font-family:Inter,sans-serif;font-size:.6875rem;font-weight:600;color:#059669;cursor:pointer;display:none;align-items:center;gap:4px;z-index:5';
     toggleBtn.innerHTML = '<i class="ti ti-eye" style="font-size:12px"></i>show the proof';
     container.style.position = 'relative';
     container.appendChild(toggleBtn);
