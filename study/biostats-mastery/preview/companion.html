@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PPV & ROC Companion — Biostats Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --purple: #A98BFF; --purple-dark: #7D5CFF; --purple-light: #C8B5FF;
+    --black: #111111; --white: #FFFFFF;
+    --bg: #fafafa; --ink: #1a1a2e; --sub: #6b6b6b; --line: #e5e0d8;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--bg); color:var(--ink); padding:24px;
+    display:flex; justify-content:center; align-items:flex-start; min-height:100vh;
+  }
+
+  /* ── Panel shell ── */
+  .companion-panel {
+    position:relative; width:100%; max-width:820px;
+    background:var(--white); border:2px solid var(--line); border-radius:16px;
+    box-shadow:0 2px 24px rgba(0,0,0,.06); overflow:hidden;
+  }
+  .companion-header {
+    display:flex; align-items:center; padding:10px 16px;
+    background:var(--white); border-bottom:1px solid var(--line);
+    cursor:grab; user-select:none; gap:10px;
+  }
+  .companion-header:active { cursor:grabbing; }
+  .companion-title {
+    font-size:.6875rem; font-weight:700; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--purple-dark); margin-right:auto;
+  }
+  .companion-header .tab-icon { font-size:16px; color:var(--purple); }
+  .companion-close {
+    background:none; border:none; cursor:pointer; color:var(--sub);
+    font-size:16px; padding:4px; border-radius:6px; display:flex; align-items:center;
+  }
+  .companion-close:hover { color:var(--ink); background:rgba(0,0,0,.05); }
+
+  /* ── Tabs ── */
+  .companion-tabs {
+    display:flex; gap:0; border-bottom:1px solid var(--line); padding:0 16px;
+    background:var(--white);
+  }
+  .companion-tab {
+    padding:8px 14px; font-size:.6875rem; font-weight:600; color:var(--sub);
+    background:none; border:none; border-bottom:2px solid transparent;
+    cursor:pointer; transition:all .15s; font-family:'Inter',-apple-system,sans-serif;
+  }
+  .companion-tab:hover { color:var(--ink); }
+  .companion-tab.active { color:var(--purple-dark); border-bottom-color:var(--purple-dark); }
+
+  /* ── Dual layout ── */
+  .companion-body { padding:0; display:none; }
+  .companion-body.active { display:block; }
+  .dual-grid { display:grid; grid-template-columns:1fr 1fr; gap:0; min-height:340px; }
+  .chart-cell {
+    padding:14px 14px 8px 14px; position:relative;
+    display:flex; flex-direction:column;
+  }
+  .chart-cell:first-child { border-right:1px solid var(--line); }
+  .cell-label {
+    font-size:.5625rem; font-weight:700; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--purple-dark); margin-bottom:6px;
+  }
+  .cell-wrapper { flex:1; position:relative; min-height:0; }
+  .cell-wrapper canvas { width:100% !important; height:100% !important; }
+
+  /* ── Accent blocks (behind) ── */
+  .accent-block {
+    position:absolute; border-radius:8px; opacity:0.45; pointer-events:none; z-index:0;
+    background:var(--purple);
+  }
+
+  /* ── Controls ── */
+  .companion-footer {
+    padding:10px 16px; background:var(--white); border-top:1px solid var(--line);
+    display:flex; align-items:center; gap:14px;
+  }
+  .ctrl-group { display:flex; align-items:center; gap:8px; flex:1; }
+  .ctrl-group label {
+    font-size:.6875rem; font-weight:600; color:var(--sub); white-space:nowrap; min-width:64px;
+  }
+  .ctrl-group input[type=range] { flex:1; accent-color:var(--purple-dark); max-width:200px; }
+  .ctrl-group .val { font-weight:700; font-size:.75rem; min-width:32px; text-align:right; color:var(--purple-dark); }
+
+  /* ── Sensitivity / Specificity bars ── */
+  .snsp-section { padding:8px 16px 14px 16px; background:var(--white); border-top:1px solid var(--line); }
+  .snsp-title { font-size:.625rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--sub); margin-bottom:8px; }
+  .snsp-row { display:flex; align-items:center; gap:10px; margin-bottom:7px; font-size:.6875rem; }
+  .snsp-row .bm-label { width:50px; font-weight:700; color:var(--ink); flex-shrink:0; }
+  .snsp-row .bar-wrap { flex:1; display:flex; flex-direction:column; gap:2px; }
+  .snsp-row .bar { height:8px; border-radius:4px; min-width:2px; transition:width .2s; }
+  .snsp-row .bar.sn { background:var(--purple); }
+  .snsp-row .bar.sp { background:var(--purple-dark); }
+  .snsp-row .pct { width:36px; text-align:right; font-weight:600; flex-shrink:0; font-size:.625rem; color:var(--sub); }
+
+  /* ── Micro story legend ── */
+  .story-block {
+    padding:6px 16px 10px 16px; background:rgba(169,139,255,.06); border-top:1px solid var(--line);
+    font-size:.625rem; color:var(--sub); line-height:1.55;
+  }
+  .story-block b { color:var(--purple-dark); }
+
+  /* ── Font slider ── */
+  .font-ctrl { display:flex; align-items:center; gap:6px; margin-left:auto; }
+  .font-ctrl label { font-size:.625rem; color:var(--sub); white-space:nowrap; }
+  .font-ctrl input[type=range] { width:60px; accent-color:var(--purple-dark); }
+
+  .drag-handle {
+    position:absolute; right:0; top:0; bottom:0; width:8px; cursor:ew-resize;
+    z-index:10;
+  }
+  .drag-handle::after {
+    content:''; position:absolute; right:2px; top:30%; bottom:30%; width:3px;
+    border-radius:2px; background:transparent; transition:background .15s;
+  }
+  .drag-handle:hover::after { background:var(--purple-light); }
+</style>
+</head>
+<body>
+
+<div class="companion-panel" id="panel">
+
+  <!-- Accent blocks -->
+  <div class="accent-block" style="top:20px;left:18px;width:60px;height:60px;transform:rotate(10deg)"></div>
+  <div class="accent-block" style="top:12px;right:40px;width:44px;height:44px;border-radius:50%;transform:rotate(-8deg)"></div>
+  <div class="accent-block" style="bottom:140px;right:60px;width:50px;height:40px;transform:rotate(14deg)"></div>
+
+  <div class="drag-handle" id="resize-handle"></div>
+
+  <!-- Header -->
+  <div class="companion-header" id="drag-header">
+    <i class="ti ti-chart-dots-3 tab-icon"></i>
+    <span class="companion-title">PPV & ROC Reference</span>
+    <button class="companion-close" id="btn-close" title="Close"><i class="ti ti-x"></i></button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="companion-tabs">
+    <button class="companion-tab active" data-tab="ppv">PPV Curve</button>
+    <button class="companion-tab" data-tab="roc">ROC Space</button>
+    <button class="companion-tab" data-tab="dual">Compare</button>
+  </div>
+
+  <!-- PPV body -->
+  <div class="companion-body active" id="body-ppv">
+    <div style="padding:14px 14px 8px 14px;">
+      <div style="position:relative;height:260px;"><canvas id="ppvCanvas"></canvas></div>
+    </div>
+    <div class="snsp-section" id="snsp-bars"></div>
+    <div class="story-block">
+      <b>Micro story:</b> High <b>specificity</b> (SpPin) pushes PPV up — CHF5 rules <b>IN</b> CHF. High <b>sensitivity</b> (SnNout) pushes NPV up — CHF2 rules <b>OUT</b> CHF. Drag the prevalence slider to see how PPV changes.
+    </div>
+  </div>
+
+  <!-- ROC body -->
+  <div class="companion-body" id="body-roc">
+    <div style="padding:14px 14px 8px 14px;">
+      <div style="position:relative;height:260px;"><canvas id="rocCanvas"></canvas></div>
+    </div>
+    <div class="snsp-section" id="roc-snsp-bars"></div>
+    <div class="story-block">
+      <b>Micro story:</b> ROC measures <b>inherent discrimination</b> — how well a test separates diseased from healthy, <b>independent of prevalence</b>. Each biomarker is one point. The diagonal = random guessing. Upper-left = best. Notice CHF2 (high Sn) is near the upper-left despite having low PPV on the other tab — different questions, different tools.
+    </div>
+  </div>
+
+  <!-- Dual body (side by side) -->
+  <div class="companion-body" id="body-dual">
+    <div class="dual-grid">
+      <div class="chart-cell">
+        <div class="cell-label">PPV vs Prevalence</div>
+        <div class="cell-wrapper"><canvas id="dualPpvCanvas"></canvas></div>
+      </div>
+      <div class="chart-cell">
+        <div class="cell-label">ROC (Sn vs 1−Sp)</div>
+        <div class="cell-wrapper"><canvas id="dualRocCanvas"></canvas></div>
+      </div>
+    </div>
+    <div class="story-block">
+      <b>Compare:</b> PPV collapses as prevalence drops — every test looks "bad" at low prevalence. But ROC stays still — it is the <b>test's fingerprint</b>, unchanged by how rare the disease is. Drag the prevalence slider to see: PPV shifts, ROC does not.
+    </div>
+  </div>
+
+  <!-- Footer controls -->
+  <div class="companion-footer">
+    <div class="ctrl-group">
+      <label>Prevalence</label>
+      <input type="range" id="prev-slider" min="1" max="50" value="10" step="1">
+      <span class="val" id="prev-display">10%</span>
+    </div>
+    <div class="font-ctrl">
+      <label>Font</label>
+      <input type="range" id="font-slider" min="8" max="16" value="10" step="1">
+      <span class="val" id="font-display" style="color:var(--sub);font-weight:600">1.0x</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Biomarker data ──
+const biomarkers = [
+  { id:'CHF1', label:'CHF1', sn:0.67, sp:0.72 },
+  { id:'CHF2', label:'CHF2', sn:0.95, sp:0.56 },
+  { id:'CHF3', label:'CHF3', sn:0.81, sp:0.81 },
+  { id:'CHF4', label:'CHF4', sn:0.50, sp:0.89 },
+  { id:'CHF5', label:'CHF5', sn:0.58, sp:0.93 }
+];
+
+const bmColors = ['#C8B5FF','#A98BFF','#7D5CFF','#6B4FD4','#4B2E8C'];
+
+// ── State ──
+let fontScale = 1.0;
+let ppvChart = null, dualPpvChart = null, rocChart = null, dualRocChart = null;
+
+// PPV calc
+function ppvPct(sn, sp, prev){ const d=sn*prev+(1-sp)*(1-prev); return d===0?0:(sn*prev)/d*100; }
+
+// ── Render Sn/Sp bars ──
+function renderSnSpBars(containerId){
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = '<div class="snsp-title">Sensitivity & Specificity</div>' +
+    biomarkers.map((bm,i) =>
+      '<div class="snsp-row">'+
+        '<span class="bm-label" style="color:'+bmColors[i]+'">'+bm.label+'</span>'+
+        '<div class="bar-wrap">'+
+          '<div class="bar sn" style="width:'+(bm.sn*100)+'%"></div>'+
+          '<div class="bar sp" style="width:'+(bm.sp*100)+'%"></div>'+
+        '</div>'+
+        '<span class="pct">Sn '+Math.round(bm.sn*100)+'%<br>Sp '+Math.round(bm.sp*100)+'%</span>'+
+      '</div>'
+    ).join('');
+}
+
+function getPrevalence(){ return parseFloat(document.getElementById('prev-slider').value)/100; }
+
+// ── PPV Chart ──
+function buildPpvChart(canvasId, existingChart){
+  const prev = getPrevalence(), fs = fontScale;
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  if (existingChart) existingChart.destroy();
+
+  const nPts = 101;
+  const labels = [];
+  for (let i=0;i<nPts;i++) labels.push((i/(nPts-1)*100).toFixed(0)+'%');
+
+  const datasets = biomarkers.map((bm,i) => ({
+    label: bm.label + ' (Sn='+Math.round(bm.sn*100)+'%, Sp='+Math.round(bm.sp*100)+'%)',
+    data: Array.from({length:nPts},(_,j)=>ppvPct(bm.sn,bm.sp,j/(nPts-1))),
+    borderColor: bmColors[i], backgroundColor:'transparent',
+    borderWidth:2, pointRadius:0, tension:.3
+  }));
+
+  const ch = new Chart(ctx, {
+    type:'line', data:{labels,datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:false,
+      plugins:{
+        legend:{ position:'top', labels:{ font:{family:'Inter',size:Math.round(9*fs)}, usePointStyle:true, pointStyleWidth:7, padding:8, color:'#6b6b6b' } },
+        tooltip:{ backgroundColor:'rgba(0,0,0,.8)', titleFont:{family:'Inter',size:Math.round(10*fs)}, bodyFont:{family:'Inter',size:Math.round(9*fs)} }
+      },
+      scales:{
+        x:{ title:{display:true,text:'Prevalence',font:{family:'Inter',size:Math.round(10*fs)},color:'#4b5563'},
+            ticks:{font:{family:'Inter',size:Math.round(9*fs)},color:'#9ca3af',maxTicksLimit:8},
+            grid:{color:'rgba(0,0,0,.04)'}, min:0, max:50 },
+        y:{ title:{display:true,text:'PPV (%)',font:{family:'Inter',size:Math.round(10*fs)},color:'#4b5563'},
+            ticks:{font:{family:'Inter',size:Math.round(9*fs)},color:'#9ca3af',callback:v=>v+'%'},
+            grid:{color:'rgba(0,0,0,.04)'}, min:0, max:100 }
+      }
+    },
+    plugins:[{
+      id:'prevLine',
+      afterDraw:function(c){
+        if (!c.scales.x||!c.scales.y) return;
+        const x = c.scales.x.getPixelForValue(prev*100);
+        c.ctx.save();
+        c.ctx.beginPath(); c.ctx.setLineDash([4,4]);
+        c.ctx.strokeStyle='rgba(0,0,0,.2)'; c.ctx.lineWidth=1;
+        c.ctx.moveTo(x, c.scales.y.getPixelForValue(100));
+        c.ctx.lineTo(x, c.scales.y.getPixelForValue(0));
+        c.ctx.stroke(); c.ctx.setLineDash([]);
+        // PPV dots + labels
+        biomarkers.forEach((bm,i)=>{
+          const y = c.scales.y.getPixelForValue(ppvPct(bm.sn,bm.sp,prev));
+          c.ctx.beginPath(); c.ctx.arc(x,y,5,0,Math.PI*2);
+          c.ctx.fillStyle=bmColors[i]; c.ctx.fill();
+          c.ctx.strokeStyle='#fff'; c.ctx.lineWidth=1.5; c.ctx.stroke();
+        });
+        // Draggable handle
+        c.ctx.beginPath(); c.ctx.arc(x, c.scales.y.getPixelForValue(100)-2, 8, 0, Math.PI*2);
+        c.ctx.fillStyle='#7D5CFF'; c.ctx.fill();
+        c.ctx.strokeStyle='#fff'; c.ctx.lineWidth=2; c.ctx.stroke();
+        c._pvX=x; c._pvY=c.scales.y.getPixelForValue(100)-2;
+        c.ctx.restore();
+      }
+    }]
+  });
+  return ch;
+}
+
+// ── ROC Chart ──
+function buildRocChart(canvasId, existingChart){
+  const fs = fontScale;
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  if (existingChart) existingChart.destroy();
+
+  // Each biomarker is a single (1-Sp, Sn) point
+  const points = biomarkers.map((bm,i)=>({x:(1-bm.sp)*100, y:bm.sn*100, label:bm.label, color:bmColors[i]}));
+
+  const ch = new Chart(ctx, {
+    type:'scatter', data:{datasets:[{
+      label:'Biomarkers', data:points,
+      backgroundColor:bmColors, borderColor:bmColors,
+      pointRadius:7, pointHoverRadius:12, borderWidth:2
+    },{
+      label:'Random (AUC=0.5)', data:[{x:0,y:0},{x:100,y:100}],
+      borderColor:'rgba(0,0,0,.15)', borderDash:[6,4], borderWidth:1.5,
+      pointRadius:0, showLine:true, fill:false
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:false,
+      plugins:{
+        legend:{ position:'top', labels:{ font:{family:'Inter',size:Math.round(9*fs)}, usePointStyle:true, pointStyleWidth:7, padding:8, color:'#6b6b6b', generateLabels:function(ch){return ch.data.datasets[0].data.map((p,i)=>({text:p.label+' (Sn='+Math.round(p.y)+'%, Sp='+Math.round(100-p.x)+'%)',fillStyle:p.color,strokeStyle:p.color,lineWidth:0,hidden:false,index:i}))} } },
+        tooltip:{ callbacks:{label:function(ctx){const p=ctx.raw; return p.label+': Sn='+Math.round(p.y)+'%, Sp='+Math.round(100-p.x)+'% (1−Sp='+Math.round(p.x)+'%)'}, backgroundColor:'rgba(0,0,0,.8)', titleFont:{family:'Inter',size:Math.round(10*fs)}, bodyFont:{family:'Inter',size:Math.round(9*fs)} } }
+      },
+      scales:{
+        x:{ title:{display:true,text:'1 − Specificity (%)',font:{family:'Inter',size:Math.round(10*fs)},color:'#4b5563'},
+            ticks:{font:{family:'Inter',size:Math.round(9*fs)},color:'#9ca3af',maxTicksLimit:8},
+            grid:{color:'rgba(0,0,0,.04)'}, min:0, max:100 },
+        y:{ title:{display:true,text:'Sensitivity (%)',font:{family:'Inter',size:Math.round(10*fs)},color:'#4b5563'},
+            ticks:{font:{family:'Inter',size:Math.round(9*fs)},color:'#9ca3af',maxTicksLimit:8},
+            grid:{color:'rgba(0,0,0,.04)'}, min:0, max:100 }
+      }
+    },
+    plugins:[{
+      id:'rocAnnotations',
+      afterDraw:function(c){
+        if (!c.scales.x) return;
+        const scaleX = c.scales.x, scaleY = c.scales.y;
+        c.ctx.save();
+        c.ctx.font = Math.round(7*fontScale)+'px Inter';
+        c.ctx.fontWeight='600';
+        // AUC annotation
+        c.ctx.fillStyle='#7D5CFF';
+        c.ctx.fillText('Upper-left = Best', scaleX.getPixelForValue(12), scaleY.getPixelForValue(92));
+        c.ctx.fillStyle='#9ca3af';
+        c.ctx.fillText('Diagonal = Random (AUC 0.5)', scaleX.getPixelForValue(52), scaleY.getPixelForValue(48));
+        c.ctx.restore();
+      }
+    }]
+  });
+  return ch;
+}
+
+// ── Draw all ──
+function drawAll(){
+  ppvChart = buildPpvChart('ppvCanvas', ppvChart);
+  dualPpvChart = buildPpvChart('dualPpvCanvas', dualPpvChart);
+  rocChart = buildRocChart('rocCanvas', rocChart);
+  dualRocChart = buildRocChart('dualRocCanvas', dualRocChart);
+}
+
+// ── Tab switching ──
+function switchTab(tab){
+  document.querySelectorAll('.companion-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.companion-body').forEach(b=>b.classList.toggle('active',b.id==='body-'+tab));
+  if (tab==='ppv') ppvChart = buildPpvChart('ppvCanvas', ppvChart);
+  if (tab==='roc') rocChart = buildRocChart('rocCanvas', rocChart);
+  if (tab==='dual'){ dualPpvChart=buildPpvChart('dualPpvCanvas',dualPpvChart); dualRocChart=buildRocChart('dualRocCanvas',dualRocChart); }
+}
+
+document.querySelector('.companion-tabs').addEventListener('click', function(e){
+  const btn = e.target.closest('.companion-tab');
+  if (!btn) return;
+  switchTab(btn.dataset.tab);
+});
+
+// ── Sliders ──
+document.getElementById('prev-slider').addEventListener('input', function(){
+  document.getElementById('prev-display').textContent = this.value+'%';
+  ppvChart = buildPpvChart('ppvCanvas', ppvChart);
+  dualPpvChart = buildPpvChart('dualPpvCanvas', dualPpvChart);
+});
+document.getElementById('font-slider').addEventListener('input', function(){
+  fontScale = this.value/10;
+  document.getElementById('font-display').textContent = fontScale.toFixed(1)+'x';
+  drawAll();
+});
+
+// ── Draggable prevalence on PPV chart ──
+let isDraggingPrev = false;
+function getPrevFromClientX(clientX, canvasId){
+  const charts = {ppvCanvas:ppvChart, dualPpvCanvas:dualPpvChart};
+  const ch = charts[canvasId]; if (!ch||!ch.scales.x) return 0;
+  const canvas = document.getElementById(canvasId);
+  const rect = canvas.getBoundingClientRect();
+  return ch.scales.x.getValueForPixel(clientX-rect.left);
+}
+['ppvCanvas','dualPpvCanvas'].forEach(function(cid){
+  const canvas = document.getElementById(cid);
+  canvas.addEventListener('pointerdown', function(e){
+    const charts = {ppvCanvas:ppvChart, dualPpvCanvas:dualPpvChart};
+    const ch = charts[cid];
+    if (!ch||!ch._pvX) return;
+    const rect = canvas.getBoundingClientRect();
+    const dx = (e.clientX-rect.left)-ch._pvX, dy = (e.clientY-rect.top)-ch._pvY;
+    if (Math.sqrt(dx*dx+dy*dy)<18){ isDraggingPrev=true; canvas.setPointerCapture(e.pointerId); canvas.style.cursor='grabbing'; }
+  });
+  canvas.addEventListener('pointermove', function(e){
+    if (!isDraggingPrev){ const charts={ppvCanvas:ppvChart,dualPpvCanvas:dualPpvChart}; const ch=charts[cid]; if(ch&&ch._pvX){ const r=canvas.getBoundingClientRect(); const dx=(e.clientX-r.left)-ch._pvX,dy=(e.clientY-r.top)-ch._pvY; canvas.style.cursor=Math.sqrt(dx*dx+dy*dy)<18?'grab':'default'; } return; }
+    const v = Math.max(0,Math.min(50,getPrevFromClientX(e.clientX,cid)));
+    document.getElementById('prev-slider').value = Math.round(v);
+    document.getElementById('prev-display').textContent = Math.round(v)+'%';
+    ppvChart=buildPpvChart('ppvCanvas',ppvChart);
+    dualPpvChart=buildPpvChart('dualPpvCanvas',dualPpvChart);
+  });
+  canvas.addEventListener('pointerup', function(){ isDraggingPrev=false; canvas.style.cursor='default'; });
+  canvas.addEventListener('pointercancel', function(){ isDraggingPrev=false; canvas.style.cursor='default'; });
+});
+
+// ── Init ──
+renderSnSpBars('snsp-bars');
+renderSnSpBars('roc-snsp-bars');
+drawAll();
+switchTab('ppv');
+</script>
+</body>
+</html>

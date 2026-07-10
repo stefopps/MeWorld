@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Q82 — Dotplot: Find the Mode of BP Readings</title>
+<style>
+  :root { --bg:#f3efe8; --card:#faf8f4; --ink:#1a1a2e; --sub:#6b6b6b; --faint:#a0a0a0; --line:#dcd5cc;
+    --green:#16a34a; --red:#dc2626; --blue:#2563eb; --mean:#6366f1; --median:#f59e0b; --mode:#10b981; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--ink); padding:28px 24px 60px; user-select:none; }
+  .wrap { max-width:920px; margin:0 auto; }
+
+  .eyebrow { font-size:.6875rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:4px; }
+  h1 { font-size:1.35rem; font-weight:700; letter-spacing:-.01em; margin-bottom:6px; }
+  .sub { font-size:.8125rem; color:var(--sub); line-height:1.55; margin-bottom:18px; max-width:74ch; }
+  .sub b { color:var(--ink); }
+
+  .master-controls { margin-bottom:16px; padding:12px 18px; background:var(--card); border:1px solid var(--line); border-radius:12px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .master-controls .legend { display:flex; gap:16px; flex:1; font-size:.6875rem; color:var(--sub); flex-wrap:wrap; }
+  .legend-item { display:flex; align-items:center; gap:5px; }
+  .legend-dot { width:8px; height:8px; border-radius:50%; }
+  .ctrl-group { display:flex; align-items:center; gap:6px; }
+  .ctrl-group label { color:var(--sub); white-space:nowrap; font-weight:500; font-size:.75rem; }
+  .ctrl-group input[type=range] { width:80px; accent-color:var(--ink); }
+  .ctrl-group .val { font-weight:700; font-size:.8125rem; min-width:32px; text-align:right; }
+
+  .stage { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 24px 8px; margin-bottom:8px; }
+  .stage-hint { font-size:.6875rem; color:var(--sub); margin-bottom:8px; }
+  svg { display:block; width:100%; touch-action:none; }
+
+  .stat-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px; }
+  .stat-card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 14px; text-align:center; }
+  .stat-card.mode-card { border-color:var(--mode); border-width:2px; }
+  .stat-card .stat-label { font-size:.625rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); margin-bottom:2px; }
+  .stat-card .stat-num { font-size:1.5rem; font-weight:800; font-feature-settings:"tnum"; }
+  .stat-card.mode-card .stat-num { color:var(--mode); }
+  .stat-card .stat-sub { font-size:.625rem; color:var(--sub); margin-top:2px; }
+
+  .options { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+  .opt-btn { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; font-size:.75rem; font-weight:500; padding:8px 14px; border-radius:8px; border:1px solid var(--line); cursor:pointer; background:#fff; color:var(--ink); transition:all .15s; }
+  .opt-btn:hover { border-color:#93c5fd; background:#eff6ff; }
+  .opt-btn.selected { border-color:var(--blue); background:#e6f1fb; }
+  .opt-btn.green { border-color:var(--green); background:#f0fdf4; }
+  .opt-btn.red { border-color:var(--red); background:#fef2f2; }
+
+  .verdict-panel { padding:14px 18px; background:var(--card); border:1px solid var(--line); border-radius:12px; font-size:.8125rem; line-height:1.55; color:var(--ink); min-height:48px; }
+  .verdict-badge { display:inline-block; font-size:.6875rem; font-weight:600; padding:3px 10px; border-radius:6px; margin-bottom:8px; }
+  .verdict-green { background:#eaf3de; color:#27500a; }
+  .verdict-red { background:#fcebeb; color:#791f1f; }
+
+  .reset-hint { margin-top:4px; font-size:.625rem; color:var(--faint); text-align:center; }
+  .footnote { margin-top:16px; font-size:.6875rem; color:var(--faint); line-height:1.7; border-top:1px solid var(--line); padding-top:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="eyebrow">Question 82 · Measures of Central Tendency</div>
+<h1>What is the mode of these blood pressure readings?</h1>
+<p class="sub"><b>64-year-old male</b> with type II diabetes checks his early-morning BP daily for a week: <b>105, 108, 103, 99, 111, 108, 110</b>. <b>Drag any dot</b> to change its value — watch which statistic moves and which one doesn't. The mode is the value that appears most often.</p>
+
+<div class="master-controls">
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:var(--mean)"></span> Mean</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--median)"></span> Median</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--mode)"></span> Mode</span>
+    <span style="margin-left:auto;color:var(--faint)">← drag any dot — mean chases it, median barely moves, mode only changes if you touch 108 →</span>
+  </div>
+  <div class="ctrl-group"><label>Font</label><input type="range" id="font-slider" min="8" max="18" value="10" step="1"><span class="val" id="font-display">1.0×</span></div>
+</div>
+
+<div class="stage">
+  <div class="stage-hint">Drag any of the 7 dots horizontally. Watch the mean, median, and mode update in real time below.</div>
+  <svg id="dotplot" viewBox="0 0 880 200"></svg>
+</div>
+
+<div class="stat-cards">
+  <div class="stat-card"><div class="stat-label">Mean (average)</div><div class="stat-num" id="mean-val">106.3</div><div class="stat-sub">744 ÷ 7</div></div>
+  <div class="stat-card"><div class="stat-label">Median (middle)</div><div class="stat-num" id="median-val">108</div><div class="stat-sub">4th of 7 sorted</div></div>
+  <div class="stat-card mode-card"><div class="stat-label">Mode (most frequent)</div><div class="stat-num" id="mode-val">108</div><div class="stat-sub">appears 2 times</div></div>
+</div>
+
+<div class="options" id="btnRow"></div>
+<p class="reset-hint">➔ Drag dots to test your intuition. <b>Reset</b> button restores original values.</p>
+
+<div class="verdict-panel" id="panel"></div>
+
+<div class="footnote">
+  <b>Why mode matters clinically:</b> Mode tells you the <b>most typical</b> reading — the value you'd most likely see on any given morning. Mean gets pulled by outliers (one 99 or 111 shifts it). Median resists outliers but ignores frequency. Only mode captures "this value happens the most."<br>
+  <span style="margin-top:3px;display:inline-block;">Glaser, <i>High-Yield Biostatistics</i> (4th Ed) · Brase &amp; Brase, <i>Understandable Statistics</i> (13th Ed)</span>
+</div>
+
+</div>
+
+<script>
+let fontScale = 1.0, activeKey = 'D';
+
+// Data: 7 readings, each with a value that can be dragged
+const originalData = [105, 108, 103, 99, 111, 108, 110];
+let data = [...originalData];
+
+// SVG layout
+const svgW = 880, svgH = 200;
+const padL = 70, padR = 40, padT = 30, padB = 70;
+const plotW = svgW - padL - padR;
+const xMin = 95, xMax = 115;
+
+function xPx(v) { return padL + ((v - xMin) / (xMax - xMin)) * plotW; }
+function vFromX(x) { return xMin + ((x - padL) / plotW) * (xMax - xMin); }
+
+function computeStats(arr) {
+  const sorted = [...arr].sort((a,b)=>a-b);
+  const mean = arr.reduce((s,v)=>s+v,0) / arr.length;
+  const median = sorted[Math.floor(sorted.length/2)];
+  // Mode: most frequent (tie → smallest)
+  const freq = {};
+  arr.forEach(v => freq[v] = (freq[v]||0)+1);
+  let mode = arr[0], modeFreq = 1;
+  Object.entries(freq).forEach(([v,f]) => {
+    if (f > modeFreq || (f === modeFreq && +v < mode)) { mode = +v; modeFreq = f; }
+  });
+  return { mean, median, mode, modeFreq };
+}
+
+function computeDotPositions(arr) {
+  // Group same values into columns (stack vertically)
+  const groups = {};
+  arr.forEach((v,i) => {
+    if (!groups[v]) groups[v] = [];
+    groups[v].push(i);
+  });
+  const positions = new Array(arr.length);
+  Object.entries(groups).forEach(([vStr, indices]) => {
+    const v = +vStr;
+    const count = indices.length;
+    indices.forEach((idx, pos) => {
+      const offset = count > 1 ? (pos - (count-1)/2) * 14 : 0;
+      positions[idx] = { x: xPx(v), y: 115 + offset, v };
+    });
+  });
+  return positions;
+}
+
+// Drag state
+let draggingIdx = -1, dragStartX = 0, dragStartV = 0;
+
+function drawDotplot() {
+  const svg = document.getElementById('dotplot');
+  const fs = fontScale;
+  const stats = computeStats(data);
+  const positions = computeDotPositions(data);
+
+  let s = '';
+
+  // Axis line
+  s += `<line x1="${padL}" y1="145" x2="${svgW-padR}" y2="145" stroke="#c4bfb5" stroke-width="1.5"/>`;
+
+  // Tick marks every 2 units
+  for (let v = 96; v <= 114; v += 2) {
+    const x = xPx(v);
+    s += `<line x1="${x}" y1="140" x2="${x}" y2="150" stroke="#c4bfb5" stroke-width="1"/>`;
+    s += `<text x="${x}" y="165" text-anchor="middle" font-size="${Math.round(12*fs)}" fill="#5f5e5a" font-weight="500">${v}</text>`;
+  }
+
+  // Axis label
+  s += `<text x="${padL+plotW/2}" y="185" text-anchor="middle" font-size="${Math.round(12*fs)}" fill="#5f5e5a" font-weight="600">Blood Pressure (mg/dL)</text>`;
+
+  // Mode marker (highlight band)
+  const mode = stats.mode;
+  const modeX = xPx(mode);
+  if (stats.modeFreq >= 2) {
+    s += `<rect x="${modeX-16}" y="80" width="32" height="65" rx="6" fill="#10b981" opacity="0.12"/>`;
+    s += `<text x="${modeX}" y="73" text-anchor="middle" font-size="${Math.round(11*fs)}" font-weight="700" fill="#10b981">MODE</text>`;
+  }
+
+  // Mean line (dashed vertical)
+  const meanX = xPx(stats.mean);
+  s += `<line x1="${meanX}" y1="80" x2="${meanX}" y2="152" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5,4"/>`;
+  s += `<text x="${meanX}" y="73" text-anchor="middle" font-size="${Math.round(11*fs)}" font-weight="700" fill="#6366f1">μ=${stats.mean.toFixed(1)}</text>`;
+
+  // Median line (solid vertical)
+  const medX = xPx(stats.median);
+  s += `<line x1="${medX}" y1="88" x2="${medX}" y2="150" stroke="#f59e0b" stroke-width="1.8" stroke-dasharray="3,3"/>`;
+  s += `<text x="${medX}" y="83" text-anchor="middle" font-size="${Math.round(11*fs)}" font-weight="700" fill="#f59e0b">Med=${stats.median}</text>`;
+
+  // Dots
+  positions.forEach((p, i) => {
+    const r = draggingIdx === i ? 8 : 6;
+    const fill = data[i] === mode && stats.modeFreq >= 2 ? '#10b981' : '#1a1a2e';
+    const stroke = draggingIdx === i ? '#2563eb' : '#fff';
+    s += `<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="2" style="cursor:${draggingIdx===i?'grabbing':'grab'}" data-idx="${i}"/>`;
+  });
+
+  // Value labels above dots (only for mode dots when freq >= 2, or all if few)
+  if (new Set(data).size <= 5) {
+    const seen = {};
+    positions.forEach((p, i) => {
+      if (data[i] === mode && stats.modeFreq >= 2) {
+        s += `<text x="${p.x}" y="${p.y-12}" text-anchor="middle" font-size="${Math.round(10*fs)}" font-weight="700" fill="#10b981">${data[i]}</text>`;
+        seen[data[i]] = true;
+      }
+    });
+    positions.forEach((p, i) => {
+      if (!seen[data[i]]) {
+        s += `<text x="${p.x}" y="${p.y-12}" text-anchor="middle" font-size="${Math.round(9*fs)}" fill="#5f5e5a">${data[i]}</text>`;
+        seen[data[i]] = true;
+      }
+    });
+  }
+
+  svg.innerHTML = s;
+
+  // Update stat cards
+  document.getElementById('mean-val').textContent = stats.mean.toFixed(1);
+  document.getElementById('median-val').textContent = stats.median;
+  document.getElementById('mode-val').textContent = stats.mode;
+  document.getElementById('mode-val').parentElement.querySelector('.stat-sub').textContent =
+    stats.modeFreq >= 2 ? `appears ${stats.modeFreq} times` : 'no clear mode (all appear once)';
+  document.getElementById('median-val').parentElement.querySelector('.stat-sub').textContent =
+    `${Math.ceil(data.length/2)}th of ${data.length} sorted`;
+}
+
+// Drag handlers
+const dotplotEl = document.getElementById('dotplot');
+
+dotplotEl.addEventListener('pointerdown', function(e) {
+  const target = e.target.closest('circle[data-idx]');
+  if (!target) return;
+  const idx = parseInt(target.dataset.idx);
+  draggingIdx = idx;
+  dragStartV = data[idx];
+  target.setPointerCapture(e.pointerId);
+  drawDotplot();
+});
+
+dotplotEl.addEventListener('pointermove', function(e) {
+  if (draggingIdx < 0) return;
+  e.preventDefault();
+  const rect = dotplotEl.getBoundingClientRect();
+  const relX = (e.clientX - rect.left) / rect.width * svgW;
+  let newV = vFromX(relX);
+  newV = Math.round(Math.max(xMin, Math.min(xMax, newV)));
+  data[draggingIdx] = newV;
+  drawDotplot();
+});
+
+dotplotEl.addEventListener('pointerup', function() { draggingIdx = -1; drawDotplot(); });
+dotplotEl.addEventListener('pointercancel', function() { draggingIdx = -1; drawDotplot(); });
+
+// Touch events for Surface
+dotplotEl.addEventListener('touchstart', function(e) { if (e.target.closest('circle[data-idx]')) e.preventDefault(); }, {passive:false});
+dotplotEl.addEventListener('touchmove', function(e) { if (draggingIdx >= 0) e.preventDefault(); }, {passive:false});
+
+// Options
+const rulings = {
+  A: { value:99, verdict:'red', title:'99 — the minimum, not the mode',
+    text:'99 is the <b>lowest</b> reading in the set. Mode is the most frequent value, not the smallest. 99 appears only once.' },
+  B: { value:105, verdict:'red', title:'105 — appears once, not the mode',
+    text:'105 appears only once. The mode is <b>108</b> because it appears <b>twice</b> — more than any other value. Count the frequencies: 99×1, 103×1, 105×1, 108×2, 110×1, 111×1.' },
+  C: { value:106, verdict:'red', title:'106 — the mean, not the mode',
+    text:'~106.3 is the <b>mean</b> (average = 744 ÷ 7). But mode is the most <b>frequent</b> value, not the average. Mean and mode measure different things: mean = arithmetic center, mode = most common. Drag a dot from 99 to 80 and watch the mean drop — the mode stays at 108.' },
+  D: { value:108, verdict:'green', title:'108 — correct! The mode',
+    text:'108 appears <b>twice</b> — more than any other reading. Mode = the most commonly encountered value. Simple as that. <b>Drag one of the 108 dots to 107</b> and watch what happens to the mode — with no repeats, the mode disappears.' },
+  E: { value:111, verdict:'red', title:'111 — the maximum, not the mode',
+    text:'111 is the <b>highest</b> reading in the set. Mode is the most frequent value, not the largest. 111 appears only once. Drag it up to 120 — the mean rises but the mode stays at 108.' }
+};
+
+function selectOption(key) {
+  activeKey = key;
+  document.querySelectorAll('.opt-btn').forEach(b => {
+    b.classList.remove('selected','green','red');
+  });
+  const btn = document.querySelector(`.opt-btn[data-key="${key}"]`);
+  if (!btn) return;
+  btn.classList.add('selected');
+  const r = rulings[key];
+  btn.classList.add(r.verdict==='green'?'green':'red');
+
+  const vc = r.verdict==='green'?'verdict-green':'verdict-red';
+  document.getElementById('panel').innerHTML =
+    `<span class="verdict-badge ${vc}">${r.title}</span><p style="margin:4px 0 0;">${r.text}</p>`;
+
+  drawDotplot();
+}
+
+// Build option buttons
+const btnRow = document.getElementById('btnRow');
+['A','B','C','D','E'].forEach(key => {
+  const b = document.createElement('button');
+  b.className = 'opt-btn'; b.dataset.key = key;
+  b.textContent = `${key}) ${rulings[key].value}`;
+  b.onclick = () => selectOption(key);
+  btnRow.appendChild(b);
+});
+
+// Font slider
+document.getElementById('font-slider').addEventListener('input', function(){
+  fontScale = this.value/10;
+  document.getElementById('font-display').textContent = fontScale.toFixed(1)+'×';
+  drawDotplot();
+});
+
+// Keyboard: R to reset
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'r' || e.key === 'R') {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    data = [...originalData];
+    drawDotplot();
+  }
+});
+
+// Initial draw + pre-select D
+selectOption('D');
+</script>
+</body>
+</html>

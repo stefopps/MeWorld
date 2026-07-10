@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Q65 — Drag the Outliers</title>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --line:#d4d4d1; --bg:#fafaf8; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--ink); padding:32px 20px 80px; }
+  .wrap { max-width:900px; margin:0 auto; }
+  .eyebrow { font-size:.6875rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  h1 { font-size:1.35rem; font-weight:700; margin:0 0 8px; letter-spacing:-.01em; }
+  .sub { color:var(--muted); font-size:.875rem; line-height:1.55; margin:0 0 20px; max-width:70ch; }
+  .sub b { color:var(--ink); }
+
+  .stage { background:#e6e6e3; border-radius:16px; padding:40px 30px 30px; }
+  svg { display:block; width:100%; overflow:visible; }
+
+  .stat-row { display:flex; justify-content:center; gap:36px; margin-top:20px; }
+  .stat { text-align:center; }
+  .stat .lbl { font-size:.625rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  .stat .val { font-size:1.5rem; font-weight:800; font-variant-numeric:tabular-nums; margin-top:2px; }
+  .stat .shift { font-size:.6875rem; color:var(--muted); margin-top:2px; font-variant-numeric:tabular-nums; }
+
+  .options { display:grid; gap:8px; margin-top:24px; }
+  .opt-btn { background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-align:left; font-size:.8125rem; cursor:pointer; transition:all .15s; display:flex; gap:10px; align-items:flex-start; line-height:1.45; }
+  .opt-btn:hover { border-color:#93c5fd; background:#eff6ff; }
+  .opt-btn.answered { cursor:default; }
+  .opt-btn.correct { border-color:#16a34a; background:#f0fdf4; }
+  .opt-btn.incorrect { border-color:#ef4444; background:#fef2f2; }
+  .opt-label { font-weight:700; font-size:.75rem; color:var(--muted); min-width:20px; padding-top:1px; }
+  .opt-feedback { font-size:.75rem; font-weight:600; margin-top:4px; display:none; }
+  .opt-btn.answered .opt-feedback { display:block; }
+
+  .footer-note { margin-top:20px; font-size:.75rem; color:#9ca3af; line-height:1.6; border-top:1px solid var(--line); padding-top:16px; }
+  .footer-note b { color:var(--ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="eyebrow">Question 65 · Central Tendency &amp; Outliers</div>
+<h1>Which measure of central tendency is MOST affected by these two extreme values?</h1>
+<p class="sub"><b>A researcher surveys 100 patients</b> with osteoarthritis about their pain scores (range 0–100). <b>98 patients</b> cluster between 28–48, peaking around 32. <b>Two patients score 100.</b> Every single dot below is its own patient and can be dragged anywhere along the line — the two darker dots are the original outliers, but grab any of the 100 and watch how differently the mean, median, and mode respond.</p>
+
+<div class="stage">
+  <svg id="plot" viewBox="0 0 800 260"></svg>
+</div>
+
+<div class="stat-row">
+  <div class="stat"><div class="lbl">Mean</div><div class="val" id="meanVal">37.7</div><div class="shift" id="meanShift"></div></div>
+  <div class="stat"><div class="lbl">Median</div><div class="val" id="medianVal">35</div><div class="shift" id="medianShift"></div></div>
+  <div class="stat"><div class="lbl">Mode</div><div class="val" id="modeVal">32</div><div class="shift" id="modeShift"></div></div>
+</div>
+
+<div class="options" id="options">
+  <div class="opt-btn" data-opt="A"><span class="opt-label">A</span><span>Mode — the most frequent value shifts dramatically when extreme outliers appear.<div class="opt-feedback" style="color:#ef4444">Incorrect. The mode barely changes — it's still wherever the data is densest. Drag the outliers around and watch: the mode doesn't move.</div></span></div>
+  <div class="opt-btn" data-opt="B"><span class="opt-label">B</span><span>Mean — the arithmetic average is pulled toward the extreme values.<div class="opt-feedback" style="color:#16a34a">Correct. Drag an outlier further out and the mean keeps following it, every time, by exactly (change \u00f7 100).</div></span></div>
+  <div class="opt-btn" data-opt="C"><span class="opt-label">C</span><span>Median — the middle value shifts because the extreme values change the ordering.<div class="opt-feedback" style="color:#ef4444">Incorrect. Drag an outlier from 100 down to 60, then down to 51 - the median barely twitches, because only its rank matters, not how far out it sits.</div></span></div>
+  <div class="opt-btn" data-opt="D"><span class="opt-label">D</span><span>All three are equally affected — outliers change the entire distribution.<div class="opt-feedback" style="color:#ef4444">Incorrect. Drag an outlier and compare how far each of the three markers actually travels - they are not remotely equal.</div></span></div>
+  <div class="opt-btn" data-opt="E"><span class="opt-label">E</span><span>None is affected — measures of central tendency are robust to outliers by definition.<div class="opt-feedback" style="color:#ef4444">Incorrect. Watch the mean marker while you drag - it moves every single time. Only the median and mode are resistant.</div></span></div>
+</div>
+
+<div class="footer-note">
+  <b>Mnemonic: the mean is a weakling — every data point pulls on it.</b> The median is a rank-based wall — only position matters, not magnitude. The mode is a crowd — it only cares about who shows up the most.
+</div>
+</div>
+
+<script>
+// All 100 patients as one mutable array - every single index is independently draggable.
+// The original two indices (98, 99) are the "two patients score 100" from the question,
+// but nothing is special-cased after this point - any of the 100 can be grabbed and moved.
+const allValues = [29,29,29,29,29,30,30,30,30,30,30,31,31,31,31,31,31,31,31,31,32,32,32,32,32,32,32,32,32,32,32,33,33,33,33,33,33,33,33,34,34,34,34,34,34,35,35,35,35,35,35,36,36,36,36,36,36,37,37,37,37,37,37,37,38,38,38,38,39,39,39,40,40,40,41,41,41,42,42,42,43,43,43,44,44,44,45,45,45,46,46,46,47,47,47,48,48,48,100,100];
+const ORIGINAL_OUTLIER_IDX = [98, 99];
+
+function computeStats() {
+  const sorted = allValues.slice().sort((a,b)=>a-b);
+  const n = allValues.length;
+  const mean = allValues.reduce((a,b)=>a+b,0)/n;
+  const median = n%2 ? sorted[(n-1)/2] : (sorted[n/2-1]+sorted[n/2])/2;
+  const freq = {};
+  allValues.forEach(v => freq[v]=(freq[v]||0)+1);
+  let mode = allValues[0], modeCount = 0;
+  Object.keys(freq).forEach(v => { if (freq[v] > modeCount) { modeCount = freq[v]; mode = +v; } });
+  return { mean, median, mode };
+}
+const baselineStats = computeStats();
+
+const W = 800, H = 260, padL = 40, padR = 40, padT = 60, padB = 60;
+const xMin = 25, xMax = 105;
+const plotW = W-padL-padR, plotH = H-padT-padB;
+function xPx(v){ return padL + (v-xMin)/(xMax-xMin)*plotW; }
+function pxToX(px){ return xMin + (px-padL)/plotW*(xMax-xMin); }
+const clusterY = H - padB;
+
+// Every render, re-derive jittered (x,y) for all 100 points from their CURRENT values -
+// this has to be recomputed from scratch each time because dragging one point out of a
+// value-group changes the stacking for both the group it left and the group it joined.
+function computeDotPositions() {
+  const freq = {};
+  allValues.forEach(v => freq[v] = (freq[v]||0)+1);
+  const rowByVal = {};
+  return allValues.map((v,i) => {
+    if (!(v in rowByVal)) rowByVal[v] = 0;
+    const row = rowByVal[v]++;
+    const total = freq[v];
+    const spreadWidth = Math.min(26, 3 + total*2.2);
+    const spread = total <= 1 ? 0 : (row/(total-1) - 0.5) * spreadWidth;
+    return { x: xPx(v)+ (total>1 ? 0 : 0), y: clusterY + spread, v, i };
+  });
+}
+
+const svg = document.getElementById('plot');
+
+function render() {
+  const stats = computeStats();
+  document.getElementById('meanVal').textContent = stats.mean.toFixed(1);
+  document.getElementById('medianVal').textContent = stats.median.toFixed(1);
+  document.getElementById('modeVal').textContent = stats.mode.toFixed(1);
+  document.getElementById('meanShift').textContent = (stats.mean-baselineStats.mean>=0?'+':'')+(stats.mean-baselineStats.mean).toFixed(1)+' from original';
+  document.getElementById('medianShift').textContent = (stats.median-baselineStats.median>=0?'+':'')+(stats.median-baselineStats.median).toFixed(1)+' from original';
+  document.getElementById('modeShift').textContent = (stats.mode-baselineStats.mode>=0?'+':'')+(stats.mode-baselineStats.mode).toFixed(1)+' from original';
+
+  const dots = computeDotPositions();
+
+  let h = '';
+  h += `<line x1="${padL}" y1="${clusterY}" x2="${W-padR}" y2="${clusterY}" stroke="#c9c9c5" stroke-width="1.5"/>`;
+  for (let v=30; v<=100; v+=10) {
+    h += `<text x="${xPx(v)}" y="${clusterY+40}" text-anchor="middle" font-size="10" fill="#9a9a96" font-weight="600">${v}</text>`;
+  }
+  h += `<text x="${(padL+W-padR)/2}" y="${clusterY+54}" text-anchor="middle" font-size="9" letter-spacing="1" fill="#b5b5b1" font-weight="700">PAIN SCORE \u2014 every dot is draggable</text>`;
+
+  // markers - shape distinguishes which statistic, all monochrome per the reference aesthetic
+  const markers = [
+    { key:'mean',   x:xPx(stats.mean),   shape:'square',   label:'MEAN' },
+    { key:'median', x:xPx(stats.median), shape:'triangle', label:'MEDIAN' },
+    { key:'mode',   x:xPx(stats.mode),   shape:'diamond',  label:'MODE' }
+  ];
+  markers.forEach((m,i) => {
+    const y = padT - 8 - i*20;
+    h += `<line x1="${m.x}" y1="${y+14}" x2="${m.x}" y2="${clusterY}" stroke="#1a1a2e" stroke-width="1" stroke-dasharray="2,3" opacity="0.35"/>`;
+    if (m.shape==='square') h += `<rect x="${m.x-6}" y="${y}" width="12" height="12" fill="#1a1a2e"/>`;
+    if (m.shape==='triangle') h += `<polygon points="${m.x},${y} ${m.x+7},${y+13} ${m.x-7},${y+13}" fill="#1a1a2e"/>`;
+    if (m.shape==='diamond') h += `<polygon points="${m.x},${y-1} ${m.x+7},${y+6} ${m.x},${y+13} ${m.x-7},${y+6}" fill="#1a1a2e"/>`;
+    h += `<text x="${m.x}" y="${y-6}" text-anchor="middle" font-size="9" font-weight="700" letter-spacing="0.5" fill="#1a1a2e">${m.label}</text>`;
+  });
+
+  // every one of the 100 points, individually draggable
+  dots.forEach(d => {
+    const isOriginalOutlier = ORIGINAL_OUTLIER_IDX.includes(d.i);
+    const r = isOriginalOutlier ? 8 : 6;
+    h += `<circle class="patient-dot" data-idx="${d.i}" cx="${d.x}" cy="${d.y}" r="${r}" fill="#1a1a2e" opacity="${isOriginalOutlier?0.95:0.6}" stroke="#fff" stroke-width="1.5" style="cursor:ew-resize"><title>Patient ${d.i+1}: score ${d.v}</title></circle>`;
+  });
+
+  svg.innerHTML = h;
+
+  svg.querySelectorAll('.patient-dot').forEach(dot => {
+    dot.addEventListener('mousedown', e => { dragIdx = +dot.dataset.idx; e.preventDefault(); e.stopPropagation(); });
+    dot.addEventListener('touchstart', e => { dragIdx = +dot.dataset.idx; e.preventDefault(); e.stopPropagation(); }, {passive:false});
+  });
+}
+
+let dragIdx = null;
+function moveTo(clientX) {
+  if (dragIdx === null) return;
+  const rect = svg.getBoundingClientRect();
+  const px = (clientX - rect.left) / rect.width * W;
+  const x = Math.max(xMin+1, Math.min(xMax-1, pxToX(px)));
+  allValues[dragIdx] = Math.round(x*10)/10;
+  render();
+}
+window.addEventListener('mousemove', e => moveTo(e.clientX));
+window.addEventListener('mouseup', () => dragIdx = null);
+window.addEventListener('touchmove', e => { if (dragIdx!==null) { moveTo(e.touches[0].clientX); e.preventDefault(); } }, {passive:false});
+window.addEventListener('touchend', () => dragIdx = null);
+
+document.getElementById('options').addEventListener('click', e => {
+  const btn = e.target.closest('.opt-btn');
+  if (!btn || btn.classList.contains('answered')) return;
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('answered','correct','incorrect'));
+  btn.classList.add('answered');
+  btn.dataset.opt === 'B' ? btn.classList.add('correct') : btn.classList.add('incorrect');
+});
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Q75 — Epidemiological Terms: Which Answers "How Likely Am I to Survive?"</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<style>
+  :root { --bg:#f3efe8; --card:#faf8f4; --ink:#1a1a2e; --sub:#6b6b6b; --faint:#a0a0a0; --line:#dcd5cc;
+    --green:#16a34a; --red:#dc2626; --green-bg:#f0fdf4; --red-bg:#fef2f2; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--ink); padding:28px 24px 60px; }
+  .wrap { max-width:960px; margin:0 auto; }
+
+  .eyebrow { font-size:.6875rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:4px; }
+  h1 { font-size:1.35rem; font-weight:700; letter-spacing:-.01em; margin-bottom:6px; }
+  .stem { font-size:.8125rem; color:var(--sub); line-height:1.55; margin-bottom:18px; max-width:74ch; }
+  .stem b { color:var(--ink); }
+
+  .master-controls { margin-bottom:16px; padding:10px 16px; background:var(--card); border:1px solid var(--line); border-radius:12px; display:flex; align-items:center; gap:16px; }
+  .master-controls .legend { font-size:.625rem; color:var(--sub); letter-spacing:.03em; flex:1; }
+  .ctrl-group { display:flex; align-items:center; gap:6px; }
+  .ctrl-group label { color:var(--sub); white-space:nowrap; font-weight:500; font-size:.75rem; }
+  .ctrl-group input[type=range] { width:80px; accent-color:var(--ink); }
+  .ctrl-group .val { font-weight:700; font-size:.8125rem; min-width:32px; text-align:right; font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; }
+
+  .grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:14px; }
+  .concept-card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 12px 14px; text-align:center; cursor:pointer; transition:all .18s; }
+  .concept-card:hover { border-color:#93c5fd; background:#eff6ff; }
+  .concept-card.selected { border-color:#1a1a2e; background:#faf8f4; }
+  .concept-card.matched { border-color:var(--green); background:var(--green-bg); }
+  .concept-card.unmatched { border-color:var(--red); background:var(--red-bg); }
+  .concept-card .opt-label { display:block; font-size:.625rem; font-weight:700; letter-spacing:.1em; color:var(--faint); margin-bottom:4px; }
+  .concept-card .term-icon { width:40px; height:40px; margin:0 auto 8px; display:flex; align-items:center; justify-content:center; }
+  .concept-card .term-icon i { font-size:28px; color:#5f5e5a; }
+  .concept-card.selected .term-icon i,
+  .concept-card.matched .term-icon i { color:var(--ink); }
+  .concept-card .term-name { font-size:.75rem; font-weight:700; letter-spacing:-.01em; margin-bottom:1px; }
+  .concept-card .term-abbr { font-size:.625rem; color:var(--sub); font-weight:600; letter-spacing:.06em; margin-bottom:8px; }
+  .concept-card .term-formula { font-size:.6875rem; color:var(--sub); font-weight:600; font-family:'Inter',monospace; background:rgba(0,0,0,.03); padding:3px 8px; border-radius:4px; display:inline-block; margin-bottom:8px; }
+
+  .verdict-panel { padding:14px 18px; background:var(--card); border:1px solid var(--line); border-radius:12px; font-size:.8125rem; line-height:1.55; color:var(--ink); min-height:70px; }
+  .verdict-panel .q { font-weight:600; color:var(--sub); font-size:.75rem; margin-bottom:4px; }
+  .verdict-panel .match { font-size:.875rem; font-weight:700; }
+  .verdict-panel .match.yes { color:var(--green); }
+  .verdict-panel .match.no { color:var(--red); }
+  .verdict-panel .note { font-size:.6875rem; color:var(--sub); margin-top:4px; }
+
+  .reset-hint { margin-top:4px; font-size:.625rem; color:var(--faint); text-align:center; }
+
+  .footnote { margin-top:16px; font-size:.6875rem; color:var(--faint); line-height:1.7; border-top:1px solid var(--line); padding-top:12px; }
+
+  @media (max-width:720px) { .grid { grid-template-columns:repeat(2,1fr); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="eyebrow">Question 75 · Epidemiological Terms</div>
+<h1>Which term tells a patient how likely she is to survive her diagnosis?</h1>
+<p class="stem"><b>A 68-year-old woman</b> is diagnosed with pneumonia caused by a novel coronavirus. Having watched the news, she is extremely worried about dying and asks the physician: <b>"How likely am I to survive this?"</b> Click each card below — each term answers a DIFFERENT question. Only one answers hers.</p>
+
+<div class="master-controls">
+  <div class="legend">Each term answers exactly ONE kind of question. Click to reveal — the one that matches her question will highlight green.</div>
+  <div class="ctrl-group"><label>Font</label><input type="range" id="font-slider" min="8" max="18" value="10" step="1"><span class="val" id="font-display">1.0×</span></div>
+</div>
+
+<div class="grid" id="conceptGrid"></div>
+
+<p class="reset-hint">↻ Click cards again to compare. Only the one that answers "how likely am I to die from this?" matches.</p>
+
+<div class="verdict-panel" id="panel">
+  <p style="color:var(--faint)">← Click a card to see what question THAT term actually answers.</p>
+</div>
+
+<div class="footnote">
+  <b>Key insight:</b> The patient is a single diagnosed case asking about her own outcome — that is a <b>proportion</b> (CFR), not a comparison between two groups (AR, RR) and not about treatment effect (NNT, NNH). Every epidemiological statistic answers a specific, narrow question. Using the wrong one gives the right answer to the wrong question.<br>
+  <span style="margin-top:3px;display:inline-block;">Glaser, <i>High-Yield Biostatistics</i> (4th Ed) · Brase &amp; Brase, <i>Understandable Statistics</i> (13th Ed)</span>
+</div>
+
+</div>
+
+<script>
+let fontScale = 1.0;
+
+// Tabler icon mapping
+const tablerIcons = {
+  'users': '&#xeb55;',           // NNT — how many patients
+  'alert-triangle-filled': '&#xf84b;', // NNH — harm
+  'arrows-left-right': '&#xea27;',     // AR — comparing groups
+  'percentage': '&#xefc8;',            // CFR — proportion (%)
+  'divide': '&#xeec6;'                 // RR — ratio
+};
+
+const terms = {
+  A: {
+    name: 'Number Needed to Treat', abbr: 'NNT',
+    formula: '1 ÷ ARR',
+    icon: 'ti ti-users',
+    question: 'How many patients must I <b>treat</b> to prevent <b>one</b> bad outcome?',
+    patientMatch: false,
+    note: 'She is not asking about a treatment — she is asking about her odds of survival.'
+  },
+  B: {
+    name: 'Number Needed to Harm', abbr: 'NNH',
+    formula: '1 ÷ ARI',
+    icon: 'ti ti-alert-triangle-filled',
+    question: 'How many patients must be <b>exposed</b> for <b>one</b> to be harmed?',
+    patientMatch: false,
+    note: 'She is not asking about harm from a risk factor. NNH answers a safety question, not a prognosis question.'
+  },
+  C: {
+    name: 'Attributable Risk', abbr: 'AR',
+    formula: 'Riskᵉˣᵖ − Riskᵘⁿᵉˣᵖ',
+    icon: 'ti ti-arrows-left-right',
+    question: 'How much of the risk is <b>due to</b> the exposure?',
+    patientMatch: false,
+    note: 'AR compares an exposed group versus an unexposed group. She is ONE patient asking about ONE group — all diagnosed cases.'
+  },
+  D: {
+    name: 'Case Fatality Rate', abbr: 'CFR',
+    formula: 'Deaths ÷ Cases',
+    icon: 'ti ti-percentage',
+    question: 'Of those <b>diagnosed</b>, what <b>proportion</b> die?',
+    patientMatch: true,
+    note: 'This is exactly what she asked: "among patients like me, how many survive?" CFR = the percentage who die out of all diagnosed cases.'
+  },
+  E: {
+    name: 'Relative Risk', abbr: 'RR',
+    formula: 'Riskᵉˣᵖ ÷ Riskᵘⁿᵉˣᵖ',
+    icon: 'ti ti-divide',
+    question: 'How many <b>times</b> more likely is one group vs another?',
+    patientMatch: false,
+    note: 'RR compares two groups as a ratio — she is a single patient wanting a single proportion, not a ratio between groups.'
+  }
+};
+
+function selectTerm(key) {
+  document.querySelectorAll('.concept-card').forEach(c => {
+    c.classList.remove('selected','matched','unmatched');
+  });
+  const card = document.querySelector(`.concept-card[data-key="${key}"]`);
+  if (!card) return;
+  const t = terms[key];
+
+  card.classList.add('selected');
+  if (t.patientMatch) {
+    card.classList.add('matched');
+  } else {
+    card.classList.add('unmatched');
+  }
+
+  const panel = document.getElementById('panel');
+  const isMatch = t.patientMatch;
+  panel.innerHTML =
+    `<div class="q">This term answers: ${t.question}</div>` +
+    `<div class="match ${isMatch ? 'yes' : 'no'}">` +
+      (isMatch
+        ? 'YES — this is exactly what the patient asked for.'
+        : 'NO — this answers a different question.') +
+    `</div>` +
+    `<div class="note">${t.note}</div>`;
+}
+
+// Build grid with Tabler icons
+const grid = document.getElementById('conceptGrid');
+Object.keys(terms).forEach(key => {
+  const t = terms[key];
+  const card = document.createElement('div');
+  card.className = 'concept-card';
+  card.dataset.key = key;
+  card.innerHTML =
+    `<span class="opt-label">${key}</span>` +
+    `<div class="term-icon"><i class="${t.icon}"></i></div>` +
+    `<div class="term-name">${t.name}</div>` +
+    `<div class="term-abbr">${t.abbr}</div>` +
+    `<div class="term-formula">${t.formula}</div>`;
+  card.onclick = () => selectTerm(key);
+  grid.appendChild(card);
+});
+
+// Font slider
+document.getElementById('font-slider').addEventListener('input', function(){
+  fontScale = this.value/10;
+  document.getElementById('font-display').textContent = fontScale.toFixed(1)+'×';
+  document.documentElement.style.fontSize = (fontScale*100)+'%';
+});
+
+// Pre-select D (the correct answer) so the student sees the match immediately
+selectTerm('D');
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+{
+  "style_name": "flat_pictogram_purple_highlight",
+  "medium": "flat vector icon / infographic pictogram, no photorealism",
+  "canvas": {
+    "background": "solid white, no texture, no gradient background",
+    "layout": "grid of numbered cards, consistent column width",
+    "card_structure": [
+      "bold numbered title (top)",
+      "icon/diagram (center)",
+      "single-line plain-English caption (bottom, centered, gray-black text)"
+    ]
+  },
+  "color_palette": {
+    "hue_count": 1,
+    "primary_hue": "purple/violet (~#8b5cf6 to #7c3aed range)",
+    "usage": {
+      "outline_only_state": "black or near-black stroke, white/transparent fill — represents 'unselected' or 'baseline' figures",
+      "solid_fill_state": "same purple hue at full saturation, no stroke needed — represents 'the group being called out'",
+      "highlight_overlay": "same purple hue at low opacity (~15-25%), soft rounded/organic blob or capsule shape, placed BEHIND the called-out figures like a highlighter-pen stroke, edges softly rounded not sharp-cornered"
+    },
+    "no_other_colors": true,
+    "no_gradients_except": "the single translucent highlight overlay"
+  },
+  "figure_proportions": {
+    "head": "simple circle, unfilled outline (never filled, even when body is solid), proportionally large relative to body",
+    "torso": "long, narrow, gently tapered rounded rectangle — reads as 'thin and light', not bulky",
+    "arms": "omitted or minimal — implied by torso silhouette only, no separate limb shapes",
+    "legs_and_feet": "critical signature trait: legs are very short and stubby relative to torso length — torso occupies most of the figure height, legs/feet compress into a small base, NOT naturalistic human proportions — closer to a paper-doll or bowling-pin silhouette than an anatomical figure",
+    "stroke_weight": "uniform thin line weight throughout, consistent across every icon in the set",
+    "corner_style": "soft rounded corners on every shape, no sharp angles"
+  },
+  "iconographic_symbol_library": {
+    "emphasis_marker": "small circle badge with checkmark or exclamation mark, placed above/beside a figure's head to tag a status (positive test, healthy, etc.)",
+    "grouping_connector": "thin black bracket/brace line connecting a subset of figures to a single downstream icon or outcome",
+    "outcome_icons": [
+      "heart (positive/survival outcome)",
+      "skull (negative/death outcome)",
+      "plus/cross (medical/diagnosed marker)"
+    ],
+    "threshold_metaphor": "a doorway/frame shape a figure walks through, representing a diagnostic cutoff or test threshold",
+    "change_over_time": "simple arrow between two icon groups to represent before/after or progression"
+  },
+  "composition_rules": {
+    "figures_per_icon": "3-6, arranged in a single horizontal row unless the concept requires two rows (before/after)",
+    "called_out_subset": "always visually distinguished by BOTH solid-purple fill AND the soft highlight-blob overlay together, never one without the other",
+    "consistency": "identical figure silhouette reused across all icons in the set — only fill state and grouping change, never the base figure design itself"
+  },
+  "typography": {
+    "title": "bold, dark, sans-serif, sits above the icon",
+    "caption": "regular weight, muted dark gray, single sentence, plain language, sits below the icon"
+  },
+  "negative_constraints": [
+    "no anatomical detail (no fingers, faces, clothing texture)",
+    "no drop shadows",
+    "no outlines on the solid-fill purple figures",
+    "no secondary colors beyond the single purple hue and black/gray text",
+    "no photorealistic or 3D rendering of any kind"
+  ]
+}

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Q78 — PPV Curve: Which Biomarker Confirms CHF?</title>
+<style>
+  :root { --bg:#f3efe8; --card:#faf8f4; --ink:#1a1a2e; --sub:#6b6b6b; --faint:#a0a0a0; --line:#dcd5cc;
+    --green:#16a34a; --red:#dc2626; --blue:#2563eb; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--ink); padding:28px 24px 60px; }
+  .wrap { max-width:920px; margin:0 auto; }
+
+  .eyebrow { font-size:.6875rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:4px; }
+  h1 { font-size:1.35rem; font-weight:700; letter-spacing:-.01em; margin-bottom:6px; }
+  .sub { font-size:.8125rem; color:var(--sub); line-height:1.55; margin-bottom:18px; max-width:76ch; }
+  .sub b { color:var(--ink); }
+
+  .master-controls { margin-bottom:16px; padding:12px 18px; background:var(--card); border:1px solid var(--line); border-radius:12px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .master-controls .ci-summary { font-size:.75rem; font-weight:600; color:var(--ink); flex:1; min-width:180px; }
+  .ctrl-group { display:flex; align-items:center; gap:6px; }
+  .ctrl-group label { color:var(--sub); white-space:nowrap; font-weight:500; font-size:.75rem; }
+  .ctrl-group input[type=range] { width:90px; accent-color:var(--ink); }
+  .ctrl-group .val { font-weight:700; font-size:.8125rem; min-width:36px; text-align:right; }
+
+  .stage { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 24px; margin-bottom:12px; }
+  .chart-wrap { position:relative; width:100%; height:400px; }
+  .chart-wrap canvas { width:100% !important; height:100% !important; }
+  .prev-line-label { font-size:.6875rem; font-weight:700; }
+
+  .mini-legend { display:flex; gap:12px; flex-wrap:wrap; margin-top:10px; justify-content:center; }
+  .mini-legend .chip { display:flex; align-items:center; gap:5px; font-size:.6875rem; font-weight:600; color:var(--sub); opacity:.6; transition:opacity .15s; cursor:pointer; }
+  .mini-legend .chip:hover { opacity:1; }
+  .mini-legend .chip.selected { opacity:1; }
+  .mini-legend .chip .dot { width:10px; height:10px; border-radius:3px; }
+
+  .options { display:grid; gap:8px; margin-bottom:10px; }
+  .opt-btn { background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-align:left; font-size:.8125rem; cursor:pointer; transition:all .15s; display:flex; gap:10px; align-items:flex-start; line-height:1.45; font-family:'Inter',-apple-system,sans-serif; }
+  .opt-btn:hover { border-color:#93c5fd; background:#eff6ff; }
+  .opt-btn.selected { border-color:var(--blue); background:#eff6ff; }
+  .opt-btn.green { border-color:var(--green); background:#f0fdf4; }
+  .opt-btn.red { border-color:var(--red); background:#fef2f2; }
+  .opt-label { font-weight:700; font-size:.75rem; color:var(--faint); min-width:20px; padding-top:1px; }
+  .opt-sns { font-size:.6875rem; color:#9ca3af; margin-top:2px; }
+
+  .verdict-panel { padding:14px 18px; background:var(--card); border:1px solid var(--line); border-radius:12px; font-size:.8125rem; line-height:1.55; color:var(--ink); min-height:48px; }
+  .verdict-badge { display:inline-block; font-size:.6875rem; font-weight:600; padding:3px 10px; border-radius:6px; margin-bottom:8px; }
+  .verdict-green { background:#eaf3de; color:#27500a; }
+  .verdict-red { background:#fcebeb; color:#791f1f; }
+
+  .footnote { margin-top:16px; font-size:.6875rem; color:var(--faint); line-height:1.7; border-top:1px solid var(--line); padding-top:12px; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="eyebrow">Question 78 · Diagnostic Test Comparison</div>
+<h1>Which biomarker is most useful to <em>confirm</em> the diagnosis of CHF?</h1>
+<p class="sub"><b>Scenario:</b> Five candidate biomarkers for CHF in low-resource settings. "Confirm" means <b>rule IN</b> — you need the test with the <b>highest specificity</b> (fewest false positives). The PPV curve shows, for every prevalence level, how often a positive result is actually correct. <b>Drag the prevalence slider</b> to see which biomarker stays highest — that's your confirmatory test.</p>
+
+<div class="master-controls">
+  <div class="ci-summary">PPV at prevalence <span id="prevPct">10%</span></div>
+  <div class="ctrl-group"><label>Prevalence</label><input type="range" id="prev-slider" min="1" max="50" value="10" step="1"><span class="val" id="prev-display">10%</span></div>
+  <div class="ctrl-group"><label>Font</label><input type="range" id="font-slider" min="8" max="18" value="10" step="1"><span class="val" id="font-display">1.0×</span></div>
+</div>
+
+<div class="stage">
+  <div class="chart-wrap"><canvas id="ppvChart"></canvas></div>
+  <div class="mini-legend" id="legend"></div>
+</div>
+
+<div class="options" id="options">
+  <button class="opt-btn" data-opt="A"><span class="opt-label">A</span><span>CHF1 — sensitivity 67%, specificity 72%</span></button>
+  <button class="opt-btn" data-opt="B"><span class="opt-label">B</span><span>CHF2 — sensitivity 95%, specificity 56%</span></button>
+  <button class="opt-btn" data-opt="C"><span class="opt-label">C</span><span>CHF3 — sensitivity 81%, specificity 81%</span></button>
+  <button class="opt-btn" data-opt="D"><span class="opt-label">D</span><span>CHF4 — sensitivity 50%, specificity 89%</span></button>
+  <button class="opt-btn" data-opt="E"><span class="opt-label">E</span><span>CHF5 — sensitivity 58%, specificity 93%</span></button>
+</div>
+
+<div class="verdict-panel" id="panel">
+  <p style="color:var(--faint)">← Click an option to see why it's right or wrong as a confirmatory test.</p>
+</div>
+
+<div class="footnote">
+  <b>The rule:</b> Screening tests need <b>high sensitivity</b> (rule OUT — SnNout). Confirmatory tests need <b>high specificity</b> (rule IN — SpPin).<br>
+  <b>CHF5</b> has Sp=93% — at any prevalence, its PPV curve sits <b>above</b> all others. CHF2 (Sn=95%, Sp=56%) is a screening profile: great for ruling OUT, terrible for confirming.
+</div>
+
+</div>
+
+<script>
+let fontScale = 1.0;
+let chart = null;
+
+const biomarkers = [
+  { id:'CHF1', label:'CHF1', sn:0.67, sp:0.72, color:'#d4d4d8', colorHex:'#a1a1aa' },
+  { id:'CHF2', label:'CHF2', sn:0.95, sp:0.56, color:'#fde68a', colorHex:'#f59e0b' },
+  { id:'CHF3', label:'CHF3', sn:0.81, sp:0.81, color:'#c7d2fe', colorHex:'#818cf8' },
+  { id:'CHF4', label:'CHF4', sn:0.50, sp:0.89, color:'#a5f3fc', colorHex:'#06b6d4' },
+  { id:'CHF5', label:'CHF5', sn:0.58, sp:0.93, color:'#a7f3d0', colorHex:'#10b981' }
+];
+
+const rulings = {
+  A: { verdict:'red', title:'CHF1 — low sensitivity AND low specificity',
+    text:'Sn=67%, Sp=72%. A confirmatory test needs high specificity. CHF1 has the second-lowest specificity of the five. At 10% prevalence, PPV is only about 21% — nearly <b>4 out of 5 positive results are false positives</b>.' },
+  B: { verdict:'red', title:'CHF2 — a SCREENING test, not a confirmatory test',
+    text:'Sn=95%, Sp=56%. Classic screening profile: catch nearly everyone (high sensitivity) at the cost of many false positives. At 10% prevalence, PPV is only ~19%. This is the <b>worst</b> choice for confirmation. Use CHF2 to <b>rule OUT</b>, not rule in.' },
+  C: { verdict:'red', title:'CHF3 — balanced but not the best confirmatory test',
+    text:'Sn=81%, Sp=81%. A solid all-around test, but for the specific task of <b>confirming</b> diagnosis, you want the highest specificity available. CHF5 beats it on Sp (93% vs 81%). Every percentage point of specificity matters when prevalence is low.' },
+  D: { verdict:'red', title:'CHF4 — high specificity, but CHF5 is higher',
+    text:'Sn=50%, Sp=89%. Strong specificity profile, and would be the best confirmatory test if CHF5 weren\'t available. But Sp=89% &lt; Sp=93%. At 10% prevalence, CHF5\'s PPV is ~48% vs CHF4\'s ~36%.' },
+  E: { verdict:'green', title:'CHF5 — highest specificity = best confirmatory test',
+    text:'Sn=58%, Sp=93%. A confirmatory test (<b>rule IN</b>) must minimize false positives. CHF5 has the highest specificity — only 7% of people without CHF test positive. <b>Drag the prevalence slider to any level</b> and watch CHF5\'s curve stay above all others — it maximizes PPV across the entire prevalence range. This is the <b>SpPin</b> principle: high <b>Sp</b>ecificity rules <b>IN</b>.' }
+};
+
+function computePPV(sn, sp, prev){
+  const denom = sn*prev + (1-sp)*(1-prev);
+  return denom === 0 ? 0 : (sn*prev)/denom * 100;
+}
+
+function drawChart(selectedOpt){
+  const prev = parseFloat(document.getElementById('prev-slider').value)/100;
+  const fs = fontScale;
+
+  const ctx = document.getElementById('ppvChart').getContext('2d');
+  if (chart) chart.destroy();
+
+  // Generate curves
+  const datasets = [];
+  const nPoints = 101;
+  const prevValues = [];
+  for (let i=0; i<nPoints; i++) prevValues.push(i/(nPoints-1)*100);
+
+  biomarkers.forEach((bm, idx) => {
+    const ppvVals = [];
+    for (let i=0; i<nPoints; i++){
+      const p = i/(nPoints-1);
+      ppvVals.push(computePPV(bm.sn, bm.sp, p));
+    }
+    const isSelected = selectedOpt && rulings[selectedOpt] && rulings[selectedOpt].biomarker
+      ? (bm.id === (idx===0?'CHF1':idx===1?'CHF2':idx===2?'CHF3':idx===3?'CHF4':'CHF5') && selectedOpt === idx)
+      : false;
+    // Match biomarker by finding the ruling with that biomarker
+    let match = false;
+    if (selectedOpt && rulings[selectedOpt]){
+      const mapping = {A:'CHF1',B:'CHF2',C:'CHF3',D:'CHF4',E:'CHF5'};
+      match = bm.id === mapping[selectedOpt];
+    }
+
+    datasets.push({
+      label: bm.label + ' (Sn='+Math.round(bm.sn*100)+'%, Sp='+Math.round(bm.sp*100)+'%)',
+      data: ppvVals,
+      borderColor: bm.colorHex,
+      backgroundColor: 'transparent',
+      borderWidth: match ? 3.5 : 2,
+      pointRadius: 0,
+      tension: 0.3,
+      borderDash: [],
+      fill: false
+    });
+  });
+
+  // Prevalence vertical line
+  const xPrevalence = prev * 100;
+  // Compute PPV at current prevalence for each biomarker
+  const ppvsAtPrev = biomarkers.map(bm => computePPV(bm.sn, bm.sp, prev));
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: prevValues.map(p => p.toFixed(0)+'%'), datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            font: { family: 'Inter', size: Math.round(10*fs), weight: '600' },
+            color: '#4b5563',
+            usePointStyle: true,
+            pointStyleWidth: 8,
+            padding: 10,
+            generateLabels: function(chart){
+              const ds = chart.data.datasets;
+              return ds.map((d,i)=>({
+                text: d.label,
+                fillStyle: d.borderColor,
+                strokeStyle: d.borderColor,
+                lineWidth: 2,
+                hidden: false,
+                index: i
+              }));
+            }
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0,0,0,.8)',
+          titleFont: { family: 'Inter', size: Math.round(11*fs) },
+          bodyFont: { family: 'Inter', size: Math.round(10*fs) },
+          displayColors: false
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Prevalence', font: { family: 'Inter', size: Math.round(11*fs), weight:'600' }, color: '#4b5563' },
+          ticks: { font: { family: 'Inter', size: Math.round(10*fs) }, color: '#9ca3af', callback: v => v+'%', maxTicksLimit: 12 },
+          grid: { color: 'rgba(0,0,0,.04)' },
+          min: 0, max: 50
+        },
+        y: {
+          title: { display: true, text: 'PPV (%)', font: { family: 'Inter', size: Math.round(11*fs), weight:'600' }, color: '#4b5563' },
+          ticks: { font: { family: 'Inter', size: Math.round(10*fs) }, color: '#9ca3af', callback: v => v+'%' },
+          grid: { color: 'rgba(0,0,0,.04)' },
+          min: 0, max: 100
+        }
+      }
+    },
+    plugins: [{
+      id: 'prevLine',
+      afterDraw: function(c){
+        if (!c.scales.x || !c.scales.y) return;
+        const x = c.scales.x.getPixelForValue(xPrevalence);
+        const top = c.scales.y.getPixelForValue(100);
+        const bottom = c.scales.y.getPixelForValue(0);
+
+        // Vertical dashed line at current prevalence
+        c.ctx.save();
+        c.ctx.beginPath();
+        c.ctx.setLineDash([4,4]);
+        c.ctx.strokeStyle = 'rgba(0,0,0,.25)';
+        c.ctx.lineWidth = 1;
+        c.ctx.moveTo(x, top);
+        c.ctx.lineTo(x, bottom);
+        c.ctx.stroke();
+        c.ctx.setLineDash([]);
+        c.ctx.restore();
+
+        // PPV dots at current prevalence
+        ppvsAtPrev.forEach((ppv, i) => {
+          const bm = biomarkers[i];
+          const y = c.scales.y.getPixelForValue(ppv);
+          c.ctx.beginPath();
+          c.ctx.arc(x, y, 5, 0, Math.PI*2);
+          c.ctx.fillStyle = bm.colorHex;
+          c.ctx.fill();
+          c.ctx.strokeStyle = '#fff';
+          c.ctx.lineWidth = 1.5;
+          c.ctx.stroke();
+
+          // Label
+          c.ctx.font = Math.round(9*fs)+'px Inter';
+          c.ctx.fontWeight = '700';
+          c.ctx.fillStyle = bm.colorHex;
+          c.ctx.textAlign = 'left';
+          c.ctx.fillText(bm.label + '=' + ppv.toFixed(0)+'%', x + 10, y + 4);
+        });
+
+        // Prevalence label at bottom
+        c.ctx.font = Math.round(10*fs)+'px Inter';
+        c.ctx.fontWeight = '700';
+        c.ctx.fillStyle = '#374151';
+        c.ctx.textAlign = 'center';
+        c.ctx.fillText((prev*100).toFixed(0)+'% prevalence', x, bottom + 16);
+      }
+    }]
+  });
+}
+
+function selectOption(key){
+  document.querySelectorAll('.opt-btn').forEach(b => {
+    b.classList.remove('selected','green','red');
+  });
+  const btn = document.querySelector('.opt-btn[data-opt="'+key+'"]');
+  if (!btn) return;
+  btn.classList.add('selected');
+  const r = rulings[key];
+  btn.classList.add(r.verdict==='green'?'green':'red');
+
+  const panel = document.getElementById('panel');
+  const bc = r.verdict==='green'?'verdict-green':'verdict-red';
+  panel.innerHTML = '<span class="verdict-badge '+bc+'">'+r.title+'</span><p style="margin:4px 0 0;">'+r.text+'</p>';
+
+  drawChart(key);
+}
+
+// Init
+document.getElementById('prev-slider').addEventListener('input', function(){
+  document.getElementById('prevPct').textContent = this.value+'%';
+  document.getElementById('prev-display').textContent = this.value+'%';
+  const sel = document.querySelector('.opt-btn.selected');
+  drawChart(sel ? sel.dataset.opt : null);
+});
+
+document.getElementById('font-slider').addEventListener('input', function(){
+  fontScale = this.value/10;
+  document.getElementById('font-display').textContent = fontScale.toFixed(1)+'×';
+  const sel = document.querySelector('.opt-btn.selected');
+  drawChart(sel ? sel.dataset.opt : null);
+});
+
+document.getElementById('options').addEventListener('click', function(e){
+  const btn = e.target.closest('.opt-btn');
+  if (!btn) return;
+  selectOption(btn.dataset.opt);
+});
+
+// Initial draw — pre-select E (correct) so the answer is visible
+selectOption('E');
+</script>
+</body>
+</html>

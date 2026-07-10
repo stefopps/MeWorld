@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Q54 — ROC Curve: Test A vs Test B</title>
+<style>
+  :root { --bg:#f3efe8; --card:#faf8f4; --ink:#1a1a2e; --sub:#6b6b6b; --faint:#a0a0a0; --line:#dcd5cc;
+    --testA:#378ADD; --testB:#D85A30; --chance:#b4b2a9; --green:#97C459; --red:#D85A30; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--ink); padding:28px 24px 60px; }
+  .wrap { max-width:920px; margin:0 auto; }
+
+  .eyebrow { font-size:.6875rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:4px; }
+  h1 { font-size:1.35rem; font-weight:700; letter-spacing:-.01em; margin-bottom:6px; }
+  .sub { font-size:.8125rem; color:var(--sub); line-height:1.55; margin-bottom:18px; max-width:72ch; }
+
+  .master-controls { margin-bottom:16px; padding:12px 18px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+  .master-controls .legend { display:flex; gap:18px; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--line); font-size:.625rem; color:var(--sub); letter-spacing:.03em; }
+  .legend-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+  .master-controls .sliders { display:flex; gap:18px; align-items:center; }
+  .ctrl-group { display:flex; align-items:center; gap:6px; }
+  .ctrl-group label { color:var(--sub); white-space:nowrap; font-weight:500; font-size:.75rem; }
+  .ctrl-group input[type=range] { width:90px; accent-color:var(--ink); }
+  .ctrl-group .val { font-weight:700; font-size:.8125rem; min-width:36px; text-align:right; font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; }
+  .ctrl-divider { width:1px; height:22px; background:var(--line); margin:0 4px; }
+
+  .stage { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:12px; }
+  .stage-hint { font-size:.6875rem; color:var(--sub); margin-bottom:8px; }
+  svg { display:block; width:100%; touch-action:none; }
+
+  .options { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  .opt-btn { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; font-size:.75rem; font-weight:500; padding:8px 14px; border-radius:8px; border:1px solid var(--line); cursor:pointer; background:#fff; color:var(--ink); transition:all .15s; }
+  .opt-btn:hover { border-color:#93c5fd; background:#eff6ff; }
+  .opt-btn.active { border-color:var(--testA); background:#e6f1fb; }
+
+  .verdict-panel { padding:14px 18px; background:var(--card); border:1px solid var(--line); border-radius:12px; font-size:.8125rem; line-height:1.55; color:var(--ink); }
+  .verdict-badge { display:inline-block; font-size:.6875rem; font-weight:600; padding:3px 10px; border-radius:6px; margin-bottom:8px; }
+  .verdict-green { background:#eaf3de; color:#27500a; }
+  .verdict-red { background:#fcebeb; color:#791f1f; }
+  .verdict-gray { background:var(--bg); color:var(--faint); }
+  .verdict-note { margin-top:6px; font-size:.6875rem; color:var(--sub); }
+
+  .footnote { margin-top:16px; font-size:.6875rem; color:var(--faint); line-height:1.7; border-top:1px solid var(--line); padding-top:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="eyebrow">Question 54 · ROC Curve Comparison</div>
+<h1>Where on the ROC curve does Test A outperform Test B the most?</h1>
+<p class="sub">A rapid influenza test must rule out disease without flooding the clinic with false positives. Two tests are compared. <b>Click each option</b> — the shaded band highlights the false positive rate (FPR) region that option is talking about. The steepest separation near the origin is where it matters for screening.</p>
+
+<div class="master-controls">
+  <div class="legend">
+    <span><span class="legend-dot" style="background:var(--testA)"></span> Test A (AUC = 0.82)</span>
+    <span><span class="legend-dot" style="background:var(--testB)"></span> Test B (AUC = 0.78)</span>
+    <span><span class="legend-dot" style="background:var(--chance)"></span> Chance (AUC = 0.50)</span>
+    <span style="margin-left:auto;color:var(--faint)">← click options — shaded region updates →</span>
+  </div>
+  <div class="sliders">
+    <div class="ctrl-group"><label>Font</label><input type="range" id="font-slider" min="8" max="18" value="10" step="1"><span class="val" id="font-display">1.0×</span></div>
+    <div class="ctrl-divider"></div>
+    <div class="ctrl-group"><label>Threshold slider</label><input type="range" id="thresh-slider" min="0" max="100" value="50" step="1"><span class="val" id="thresh-display">0.50</span></div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-hint">Shaded band = the FPR region the selected answer option refers to. Drag the threshold slider — the dot traces along Test A's curve.</div>
+  <svg id="roc" viewBox="0 0 880 480"></svg>
+</div>
+
+<div class="options" id="btnRow"></div>
+
+<div class="verdict-panel" id="panel"></div>
+
+<div class="footnote">
+  <b>How to read:</b> The x-axis is 1 − specificity (false positive rate). The y-axis is sensitivity (true positive rate). A curve that rises steeply near the origin means the test captures most true cases before false alarms start piling up — ideal for screening. <b>Move the threshold slider</b> to see where Test A sits at any given operating point.<br>
+  <span style="margin-top:3px;display:inline-block;">Glaser, <i>High-Yield Biostatistics</i> (4th Ed) · Brase &amp; Brase, <i>Understandable Statistics</i> (13th Ed)</span>
+</div>
+
+</div>
+
+<script>
+let fontScale = 1.0, thresholdX = 0.5, activeKey = 'C';
+
+const pxL = 90, pxR = 830, pxT = 28, pxB = 432;
+function xToPx(x){ return pxL + x*(pxR-pxL); }
+function yToPx(y){ return pxB - y*(pxB-pxT); }
+
+// Real ROC data points — Test A rises faster near origin
+const ptsA = [[0,0],[0.03,0.32],[0.08,0.52],[0.15,0.65],[0.3,0.78],[0.5,0.87],[0.7,0.93],[1,1]];
+const ptsB = [[0,0],[0.05,0.12],[0.15,0.30],[0.3,0.50],[0.5,0.68],[0.7,0.83],[0.85,0.92],[1,1]];
+
+function catmullRomPath(pts){
+  const p = pts.map(pt => [xToPx(pt[0]), yToPx(pt[1])]);
+  let d = `M ${p[0][0]} ${p[0][1]} `;
+  for(let i=0;i<p.length-1;i++){
+    const p0 = p[i===0 ? 0 : i-1];
+    const p1 = p[i];
+    const p2 = p[i+1];
+    const p3 = p[i+2===p.length+1 ? i+1 : Math.min(i+2,p.length-1)];
+    const c1x = p1[0] + (p2[0]-p0[0])/6;
+    const c1y = p1[1] + (p2[1]-p0[1])/6;
+    const c2x = p2[0] - (p3[0]-p1[0])/6;
+    const c2y = p2[1] - (p3[1]-p1[1])/6;
+    d += `C ${c1x} ${c1y} ${c2x} ${c2y} ${p2[0]} ${p2[1]} `;
+  }
+  return d;
+}
+
+const opts = {
+  A: {verdict:'red', label:'A) High FPR range',
+    title:'Wrong emphasis — right side is not where the gap is biggest',
+    text:'Test A is still a bit higher at high FPR, but the gap there is small (about 8 points of sensitivity). That is not where these two tests actually differ in a way that matters clinically.',
+    range:[0.6,1.0], note:'A true observation about a region that is not the important one.'},
+  B: {verdict:'red', label:'B) All ranges — uniformly better',
+    title:'Overclaims uniform superiority',
+    text:'Test A is higher across the board, but "uniformly better" misses the point — the size of the advantage is wildly different depending on where you look on the curve.',
+    range:[0,1], note:'Being higher everywhere is not the same as being equally better everywhere.'},
+  C: {verdict:'green', label:'C) Low FPR range',
+    title:'Correct — the low-FPR region is where it matters',
+    text:'Near the y-axis (low false positive rate = high specificity), Test A shoots up much faster than Test B — 32 points of sensitivity gained by FPR 3%, versus Test B needing FPR 15% for the same gain. That steep rise near the origin is exactly what a screening test needs: rule out disease without a flood of false alarms.',
+    range:[0,0.2], note:'Steepest near the origin = best for low-prevalence screening, which is the clinical scenario here.'},
+  D: {verdict:'red', label:'D) Low sensitivity range',
+    title:'Not supported by the curves',
+    text:'There is no region on this graph where Test B sits above Test A. Test B is lower everywhere, most dramatically at low FPR — the opposite of what this option claims.',
+    range:[0,0.2], note:'Check the actual curve positions before assuming a "low sensitivity range" flips the advantage.'},
+  E: {verdict:'gray', label:'E) Cannot determine from AUC alone',
+    title:'Too cautious given what the curves show',
+    text:'ROC curves are built exactly to compare discrimination across the full range of thresholds. Here the shapes clearly differ in a specific, interpretable way — there is no reason to throw up your hands.',
+    range:[], note:'A real limitation of AUC alone, but this question is about the curve shapes you can read directly.'}
+};
+
+// Threshold dot: interpolate along Test A curve
+function interpolateA(t){
+  for(let i=0;i<ptsA.length-1;i++){
+    if(t>=ptsA[i][0] && t<=ptsA[i+1][0]){
+      const frac = (t-ptsA[i][0])/(ptsA[i+1][0]-ptsA[i][0]);
+      return [xToPx(t), yToPx(ptsA[i][1] + frac*(ptsA[i+1][1]-ptsA[i][1]))];
+    }
+  }
+  return [xToPx(1), yToPx(1)];
+}
+
+function interpolateSensY(t){
+  for(let i=0;i<ptsA.length-1;i++){
+    if(t>=ptsA[i][0] && t<=ptsA[i+1][0]){
+      const frac = (t-ptsA[i][0])/(ptsA[i+1][0]-ptsA[i][0]);
+      return ptsA[i][1] + frac*(ptsA[i+1][1]-ptsA[i][1]);
+    }
+  }
+  return 1;
+}
+
+let isDraggingThresh = false;
+
+function drawChart(key){
+  const svg = document.getElementById('roc');
+  let s = '';
+
+  // Grid
+  for(let g=0; g<=10; g++){
+    const gx = xToPx(g/10), gy = yToPx(g/10);
+    s += `<line x1="${gx}" y1="${pxT}" x2="${gx}" y2="${pxB}" stroke="#e8e4db" stroke-width="0.8"/>`;
+    s += `<line x1="${pxL}" y1="${gy}" x2="${pxR}" y2="${gy}" stroke="#e8e4db" stroke-width="0.8"/>`;
+  }
+
+  // Highlight band for selected option
+  if(opts[key].range.length){
+    const r = opts[key].range;
+    const rx = xToPx(r[0]), rw = xToPx(r[1])-xToPx(r[0]);
+    const col = opts[key].verdict==='green' ? '#97C459' : '#D85A30';
+    s += `<rect x="${rx}" y="${pxT}" width="${rw}" height="${pxB-pxT}" fill="${col}" opacity="0.15"/>`;
+  }
+
+  // Chance diagonal
+  s += `<line x1="${pxL}" y1="${pxB}" x2="${pxR}" y2="${pxT}" stroke="${'#b4b2a9'}" stroke-dasharray="6 5" stroke-width="1.5"/>`;
+
+  // Curves — Test B first (behind), then Test A
+  s += `<path d="${catmullRomPath(ptsB)}" fill="none" stroke="${'#D85A30'}" stroke-width="2.8"/>`;
+  s += `<path d="${catmullRomPath(ptsA)}" fill="none" stroke="${'#378ADD'}" stroke-width="3.2"/>`;
+
+  // Threshold dot on Test A
+  const [tx, ty] = interpolateA(thresholdX);
+  const sens = (interpolateSensY(thresholdX)*100).toFixed(0);
+  const fpr = (thresholdX*100).toFixed(0);
+  const spec = (100-thresholdX*100).toFixed(0);
+  s += `<line x1="${pxL}" y1="${ty}" x2="${tx}" y2="${ty}" stroke="#1a1a2e" stroke-width="0.5" stroke-dasharray="2,4" opacity="0.35"/>`;
+  s += `<line x1="${tx}" y1="${ty}" x2="${tx}" y2="${pxB}" stroke="#1a1a2e" stroke-width="0.5" stroke-dasharray="2,4" opacity="0.35"/>`;
+
+  // Floating coordinate readout, offset ~10px above the dot
+  const labelText = `Sens ${sens}%  ·  1−Spec ${fpr}%  ·  Spec ${spec}%`;
+  const labelW = 26 + labelText.length*6.2*fontScale;
+  let labelX = tx - labelW/2;
+  let labelY = ty - 42;
+  if(labelX < pxL) labelX = pxL;
+  if(labelX+labelW > pxR) labelX = pxR-labelW;
+  if(labelY < pxT-4) labelY = ty + 20;
+  s += `<g style="pointer-events:none;">`;
+  s += `<rect x="${labelX}" y="${labelY}" width="${labelW}" height="${Math.round(26*fontScale)}" rx="7" fill="#1a1a2e" opacity="0.92"/>`;
+  s += `<text x="${labelX+labelW/2}" y="${labelY+Math.round(17*fontScale)}" font-size="${Math.round(12*fontScale)}" font-weight="600" fill="#fff" text-anchor="middle">${labelText}</text>`;
+  s += `</g>`;
+
+  // draggable hit target (larger invisible ring) + visible dot on top
+  s += `<circle cx="${tx}" cy="${ty}" r="22" fill="transparent" id="threshHandle" style="cursor:${isDraggingThresh?'grabbing':'grab'};"/>`;
+  s += `<circle cx="${tx}" cy="${ty}" r="${isDraggingThresh?9:6}" fill="#1a1a2e"/><circle cx="${tx}" cy="${ty}" r="2.5" fill="#fff"/>`;
+
+  // Axes
+  s += `<line x1="${pxL}" y1="${pxT}" x2="${pxL}" y2="${pxB}" stroke="#2C2C2A" stroke-width="1.5"/>`;
+  s += `<line x1="${pxL}" y1="${pxB}" x2="${pxR}" y2="${pxB}" stroke="#2C2C2A" stroke-width="1.5"/>`;
+
+  // Tick labels
+  for(let t=0;t<=10;t+=2){
+    s += `<text x="${pxL-10}" y="${yToPx(t/10)+5}" font-size="${Math.round(13*fontScale)}" fill="#5F5E5A" text-anchor="end">${t*10}%</text>`;
+    s += `<text x="${xToPx(t/10)}" y="${pxB+20}" font-size="${Math.round(13*fontScale)}" fill="#5F5E5A" text-anchor="middle">${t*10}%</text>`;
+  }
+
+  // Axis labels
+  s += `<text x="${pxL+(pxR-pxL)/2}" y="${pxB+44}" font-size="${Math.round(14*fontScale)}" fill="#2C2C2A" text-anchor="middle">1 − Specificity (False Positive Rate)</text>`;
+  s += `<text x="18" y="${pxT+(pxB-pxT)/2}" font-size="${Math.round(14*fontScale)}" fill="#2C2C2A" text-anchor="middle" transform="rotate(-90 18 ${pxT+(pxB-pxT)/2})">Sensitivity (True Positive Rate)</text>`;
+
+  // AUC labels
+  s += `<text x="${xToPx(0.45)}" y="${yToPx(0.91)}" font-size="${Math.round(12*fontScale)}" font-weight="700" fill="${'#378ADD'}">Test A</text>`;
+  s += `<text x="${xToPx(0.62)}" y="${yToPx(0.74)}" font-size="${Math.round(12*fontScale)}" font-weight="700" fill="${'#D85A30'}">Test B</text>`;
+
+  svg.innerHTML = s;
+}
+
+function selectOption(key){
+  activeKey = key;
+  document.querySelectorAll('.opt-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.key === key);
+  });
+  const o = opts[key];
+  drawChart(key);
+
+  const vc = {green:'verdict-green', red:'verdict-red', gray:'verdict-gray'}[o.verdict];
+  document.getElementById('panel').innerHTML =
+    `<span class="verdict-badge ${vc}">${o.title}</span>` +
+    `<p style="margin:4px 0 0;">${o.text}</p>` +
+    `<p class="verdict-note">${o.note}</p>`;
+}
+
+// Build option buttons
+const btnRow = document.getElementById('btnRow');
+Object.keys(opts).forEach(key => {
+  const b = document.createElement('button');
+  b.className = 'opt-btn';
+  b.dataset.key = key;
+  b.textContent = opts[key].label;
+  b.onclick = () => selectOption(key);
+  btnRow.appendChild(b);
+});
+
+// Sliders
+document.getElementById('font-slider').addEventListener('input', function(){
+  fontScale = this.value/10;
+  document.getElementById('font-display').textContent = fontScale.toFixed(1)+'×';
+  drawChart(activeKey);
+});
+document.getElementById('thresh-slider').addEventListener('input', function(){
+  thresholdX = this.value/100;
+  document.getElementById('thresh-display').textContent = thresholdX.toFixed(2);
+  drawChart(activeKey);
+});
+
+// Drag the dot directly on the curve — event delegation since innerHTML redraws each frame
+const rocSvg = document.getElementById('roc');
+rocSvg.addEventListener('pointerdown', function(e){
+  if(e.target.id === 'threshHandle'){
+    isDraggingThresh = true;
+    e.target.setPointerCapture(e.pointerId);
+    drawChart(activeKey);
+  }
+});
+rocSvg.addEventListener('pointermove', function(e){
+  if(!isDraggingThresh) return;
+  const rect = rocSvg.getBoundingClientRect();
+  const relX = (e.clientX - rect.left) / rect.width * 880;
+  let x = (relX - pxL) / (pxR - pxL);
+  x = Math.max(0, Math.min(1, x));
+  thresholdX = x;
+  document.getElementById('thresh-slider').value = Math.round(x*100);
+  document.getElementById('thresh-display').textContent = x.toFixed(2);
+  drawChart(activeKey);
+});
+rocSvg.addEventListener('pointerup', function(){ isDraggingThresh = false; drawChart(activeKey); });
+rocSvg.addEventListener('pointercancel', function(){ isDraggingThresh = false; drawChart(activeKey); });
+
+// Init
+selectOption('C');
+</script>
+</body>
+</html>

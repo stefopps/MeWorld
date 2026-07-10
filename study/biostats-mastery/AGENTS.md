@@ -317,6 +317,23 @@ Adaptive practice: sorts questions by concept level, tracks mastery.
 - [ ] Voice: click mic → speak → click stop → transcript appears in chat
 - [ ] Console: no errors on load or option click
 
+## Graph preview design checklist (rgraph + companion panels)
+
+Before publishing any standalone graph preview, verify:
+
+- [ ] **The chart matches the clinical scenario.** If the question is about ONE test vs a gold standard (e.g., "prostate biopsy vs histology"), do NOT show five curves as if they are five real-world tests. Either (a) show one curve only, or (b) explicitly frame multiple curves as "hypothetical profiles of the same test" in the sub-text, stating there is only one test and the gold standard is not a curve.
+- [ ] **The sub-text explains WHY multiple lines appear.** If showing multiple curves/profiles for teaching comparison, the first sentence must say what the real-world scenario is, how many actual tests exist, and why virtual profiles are being shown.
+- [ ] **The gold standard is named explicitly** when present (e.g., "histology is the reference — not a curve").
+- [ ] Every curve/bar/point comes from embedded data (no fetch, no XHR, no localhost).
+- [ ] Font slider present and functional.
+- [ ] Chart starts from "base state" (no pre-selected answer skewing the initial view).
+- [ ] Color palette uses the approved iconography lock (#111111, #A98BFF, #7D5CFF, #C8B5FF).
+
+## Test-narrative fit (Q96 example)
+
+> **73-year-old man, elevated PSA — prostate biopsy vs histology gold standard.**
+> There is only ONE test in this scenario (biopsy), but the question asks which property makes it ideal for confirmation. To answer that, we compare five hypothetical versions of the same test — each with different sensitivity and specificity — so you can see which Sn/Sp profile produces the highest PPV. The gold standard (histology) is the reference — it is not one of the curves.
+
 ## Related handoffs
 
 - `C:\Users\steve\Downloads\_cursor_handoff.md` — batch-by-batch audit notes from the 2026-07-07 QA pass

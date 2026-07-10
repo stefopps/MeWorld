@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q52 — Clinical vs Statistical Significance</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box }
+  body { background:#f8f9fa; color:#1a1a2e; font-family:Inter,-apple-system,sans-serif; display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:32px 16px }
+  .card { background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.06); width:min(1000px, 95vw); padding:24px 28px }
+  .ad { font-size:0.75rem; color:#6b7280; margin-bottom:4px; font-style:italic; line-height:1.5 }
+  .stem { font-size:1rem; font-weight:700; color:#111827; margin-bottom:18px }
+  .label-row { display:flex; align-items:center; gap:8px; margin-bottom:10px }
+  .label-chip { display:inline-block; padding:3px 10px; font-size:0.625rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:#6366f1; background:#eef2ff; border-radius:6px }
+  .label-sub { font-size:0.6875rem; color:#9ca3af }
+  .options { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px }
+  .opt-btn { padding:8px 14px; font-size:0.75rem; font-weight:600; border:1px solid #d1d5db; border-radius:8px; background:#ffffff; color:#374151; cursor:pointer; transition:all .12s; white-space:nowrap }
+  .opt-btn:hover { border-color:#6366f1; color:#4f46e5; background:#eef2ff }
+  .opt-btn.active { border-color:#6366f1; background:#eef2ff; color:#4f46e5; box-shadow:0 0 0 1px #6366f1 }
+  .chart-wrap { width:100%; height:480px; position:relative; margin-bottom:16px }
+  .chart-wrap canvas { width:100%!important; height:100%!important }
+  .info { padding:12px 16px; background:#f0fdf4; border-left:3px solid #22c55e; border-radius:0 8px 8px 0; font-size:0.75rem; color:#374151; line-height:1.7; min-height:40px }
+  .info.wrong { background:#fef2f2; border-left-color:#ef4444 }
+  .info strong { color:#111827 }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="card">
+  <div class="ad" id="q-ad"></div>
+  <div class="stem" id="q-stem"></div>
+  <div class="label-row">
+    <span class="label-chip">Graph Preview</span>
+    <span class="label-sub">Click each option — arrows show effect size (d) between means</span>
+  </div>
+  <div class="options" id="q-options"></div>
+  <div class="chart-wrap"><canvas id="chart-preview"></canvas></div>
+  <div class="info" id="q-desc">Select an option to see what it teaches.</div>
+</div>
+
+<script>
+// ── Q52 Data ──
+var Q = {"id":52,"ad":"RCT: duloxetine vs placebo in 150 RA patients. Outcome: number of joints no longer inflamed at 4 months. Results: duloxetine = 7/12 joints improved (58%), placebo = 2/12 joints improved (17%). Two-tailed t-test: p = 0.02.","stem":"Q12d. Is the result clinically significant? Statistically significant?","baseGraph":{"type":"normal","d":0.66,"n":75,"alpha":0.05},"options":[{"label":"A","text":"Not clinically significant, not statistically significant.","graph":{"d":0.10,"n":75},"desc":"p = 0.02 IS statistically significant. The means are nearly identical (d=0.10) — trivial gap, curves overlap almost completely. Not clinically meaningful AND not significant at any reasonable n."},{"label":"B","text":"Not clinically significant, but statistically significant.","graph":{"d":0.25,"n":100},"desc":"p = 0.02 < 0.05 = statistically significant. But d=0.25 is a small effect — the mean separation is modest. A 25% SD shift may not be clinically meaningful even though p crosses the threshold."},{"label":"C","text":"Clinically significant, but not statistically significant.","graph":{"d":0.80,"n":12},"desc":"Large mean separation (d=0.80) — clinically meaningful. But n=12 is severely underpowered: wide curves, big overlap, p would NOT reach 0.05. Large effect without enough data to prove it."},{"label":"D","text":"Clinically significant AND statistically significant.","graph":{"d":0.66,"n":75},"desc":"d=0.66 — large mean separation. Statistical: p = 0.02 < 0.05. Clinical: 7/12 (58%) vs 2/12 (17%) = 41pp absolute improvement. Both criteria met. NBME answer.","correct":true},{"label":"E","text":"Cannot determine clinical significance — the study did not pre-specify MCID.","graph":{"d":0.66,"n":75},"desc":"Same d=0.66 separation as D. NBME expects clinical judgment — 5 extra pain-free joints out of 12 is intuitively meaningful. Pre-registered MCID is not required for the answer."}]};
+
+// ── Math functions ──
+function eRF(x){var sgn=x>=0?1:-1;x=Math.abs(x);var a1=.254829592,a2=-.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=.3275911;var t=1/(1+p*x);return sgn*(1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x))}
+function nQ(p){if(p<=0||p>=1)return 0;var a=[-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00];var b=[-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,6.680131188771972e+01,-1.328068155288572e+01];var c=[-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,-2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00];var d=[7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,3.754408661907416e+00];var plow=0.02425,phigh=1-plow;var q,r;if(p<plow){q=Math.sqrt(-2*Math.log(p));return(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)}else if(phigh<p){q=Math.sqrt(-2*Math.log(1-p));return-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)}else{q=p-0.5;r=q*q;return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1)}}
+function pDF(x,m,s){var v=s*s;return Math.exp(-.5*(x-m)*(x-m)/v)/Math.sqrt(2*Math.PI*v)}
+function cDF(x,m,s){return.5*(1+eRF((x-m)/(s*Math.SQRT2)))}
+
+// ── State ──
+var qzNormD = Q.baseGraph.d, qzNormN = Q.baseGraph.n, qzNormAlpha = 0.05;
+var qzOneTail = false;
+
+// ── Plugin: mean markers, effect-size arrow, retain/reject labels ──
+var meanArrowPlugin = {
+  id: 'meanArrowPlugin',
+  afterDraw: function(chart) {
+    var ctx = chart.ctx;
+    var ca = chart.chartArea;
+    var top = ca.top, bottom = ca.bottom, left = ca.left, right = ca.right;
+    var x = chart.scales.x, y = chart.scales.y;
+
+    var se = Math.sqrt(2 / qzNormN);
+    var zCrit = qzOneTail ? nQ(1 - qzNormAlpha) : nQ(1 - qzNormAlpha / 2);
+    var xCrit = zCrit * se;
+
+    var nullPx = x.getPixelForValue(0);
+    var treatPx = x.getPixelForValue(qzNormD);
+    var critPx = x.getPixelForValue(xCrit);
+
+    // ── Mean markers: filled circles on x-axis ──
+    var axisY = y.getPixelForValue(0);
+    axisY = Math.min(axisY, bottom); // clamp to chart area
+
+    // Null mean (μ=0)
+    ctx.save();
+    ctx.fillStyle = '#6b7280';
+    ctx.beginPath(); ctx.arc(nullPx, axisY, 6, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(nullPx, axisY, 6, 0, Math.PI*2); ctx.stroke();
+
+    // Treatment mean (μ=d)
+    ctx.fillStyle = '#2563eb';
+    ctx.beginPath(); ctx.arc(treatPx, axisY, 6, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(treatPx, axisY, 6, 0, Math.PI*2); ctx.stroke();
+
+    // ── Effect-size arrow between means (above axis) ──
+    var arrowY = axisY - 28; // above the axis
+    var gap = treatPx - nullPx;
+
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(nullPx, arrowY);
+    ctx.lineTo(treatPx, arrowY);
+    ctx.stroke();
+
+    // Arrowhead at treatment end
+    var headSize = 10;
+    ctx.fillStyle = '#2563eb';
+    ctx.beginPath();
+    ctx.moveTo(treatPx, arrowY);
+    ctx.lineTo(treatPx - headSize, arrowY - headSize/2);
+    ctx.lineTo(treatPx - headSize, arrowY + headSize/2);
+    ctx.closePath(); ctx.fill();
+
+    // Small tick at null end
+    ctx.beginPath();
+    ctx.moveTo(nullPx, arrowY - 5);
+    ctx.lineTo(nullPx, arrowY + 5);
+    ctx.stroke();
+
+    // ── Arrow label: "d = X.XX" ──
+    var midX = (nullPx + treatPx) / 2;
+    ctx.fillStyle = '#1e40af';
+    ctx.font = '700 13px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('d = ' + qzNormD.toFixed(2), midX, arrowY - 4);
+
+    // ── Mean labels below axis ──
+    var labelY = axisY + 22;
+    ctx.fillStyle = '#374151';
+    ctx.font = '600 12px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText('\u03bc=0', nullPx, labelY);
+    ctx.fillText('\u03bc=' + qzNormD.toFixed(2), treatPx, labelY);
+
+    // ── Critical value line + Retain / Reject H₀ ──
+    if (critPx > left + 10 && critPx < right - 10) {
+      var midCY = (top + bottom) / 2;
+      ctx.fillStyle = '#9ca3af'; ctx.font = '600 13px Inter, sans-serif';
+      ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      ctx.fillText('Retain H\u2080', critPx - 14, midCY - 12);
+      ctx.fillStyle = '#dc2626'; ctx.font = '700 13px Inter, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('Reject H\u2080', critPx + 14, midCY + 12);
+      ctx.fillStyle = '#9ca3af'; ctx.textAlign = 'right';
+      ctx.fillText('\u2190', critPx - 4, midCY - 12);
+      ctx.fillStyle = '#dc2626'; ctx.textAlign = 'left';
+      ctx.fillText('\u2192', critPx + 4, midCY + 12);
+    }
+
+    ctx.restore();
+  }
+};
+
+// ── Chart instance ──
+var ctx = document.getElementById('chart-preview').getContext('2d');
+var chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [
+      {label:'Control (Null \u03bc=0)',data:[],borderColor:'#6b7280',backgroundColor:'rgba(107,114,128,.08)',borderWidth:2,fill:true,pointRadius:0,tension:.3,order:2},
+      {label:'Treatment (True Effect)',data:[],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.10)',borderWidth:2,fill:true,pointRadius:0,tension:.3,order:2},
+      {label:'Critical Value',data:[],borderColor:'rgba(239,68,68,.6)',borderWidth:2.5,borderDash:[4,6],pointRadius:0,fill:false,order:3},
+      {label:'Type I Error (\u03b1=0.05)',data:[],borderColor:'transparent',backgroundColor:'rgba(239,68,68,.15)',borderWidth:0,fill:true,pointRadius:0,order:1},
+      {label:'Type II Error (\u03b2)',data:[],borderColor:'transparent',backgroundColor:'rgba(251,191,36,.20)',borderWidth:0,fill:true,pointRadius:0,order:1}
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, animation: false,
+    plugins: { legend: {position:'top',labels:{font:{family:'Inter',size:11,weight:'500'},color:'#374151',usePointStyle:true,pointStyleWidth:8,padding:16}} },
+    scales: {
+      x: { type:'linear', min:-5, max:5, title:{display:true,text:'Standardized Effect (z-score)',font:{family:'Inter',size:12,weight:'500'},color:'#6b7280'}, ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:1}, grid:{color:'rgba(0,0,0,.04)'} },
+      y: { min:0, max:0.5, title:{display:true,text:'Probability Density',font:{family:'Inter',size:12,weight:'500'},color:'#6b7280'}, ticks:{font:{family:'Inter',size:11},color:'#9ca3af',stepSize:0.1, callback:function(v){return v.toFixed(1)}}, grid:{color:'rgba(0,0,0,.04)'} }
+    },
+    interaction: {mode:'index',intersect:false}
+  },
+  plugins: [meanArrowPlugin]
+});
+
+// ── Render ──
+function renderNormal() {
+  var d = qzNormD, n = qzNormN, alpha = qzNormAlpha;
+  var se = Math.sqrt(2/n);
+  var zCrit = qzOneTail ? nQ(1-alpha) : nQ(1-alpha/2);
+  var xCrit = zCrit * se;
+  var xMin = Math.min(-4, d - 4), xMax2 = Math.max(4, d + 4);
+  var step = (xMax2 - xMin)/200;
+  var cy=[], ty=[], aShade=[], bShade=[];
+  for (var x = xMin; x <= xMax2; x += step) {
+    cy.push({x:x,y:pDF(x,0,se)});
+    ty.push({x:x,y:pDF(x,d,se)});
+    aShade.push({x:x, y: x>=xCrit ? pDF(x,0,se) : 0});
+    bShade.push({x:x, y: x<=xCrit ? pDF(x,d,se) : 0});
+  }
+  var peakH = Math.max.apply(null, cy.map(function(p){return p.y}).concat(ty.map(function(p){return p.y})));
+  chart.data.datasets[0].data = cy;
+  chart.data.datasets[1].data = ty;
+  chart.data.datasets[2].data = [{x:xCrit,y:0},{x:xCrit,y:peakH*1.1}];
+  chart.data.datasets[3].data = aShade;
+  chart.data.datasets[4].data = bShade;
+  var beta = cDF(xCrit, d, se);
+  var power = 1 - beta;
+  chart.options.scales.y.max = peakH * 1.15;
+  chart.options.scales.x.min = xMin;
+  chart.options.scales.x.max = xMax2;
+  chart.data.datasets[0].label = "Control (Null \u03bc=0)";
+  if (d > 0.01) {
+    chart.data.datasets[1].label = "Treatment (d=" + d.toFixed(2) + ")";
+  } else {
+    chart.data.datasets[1].label = "Treatment (Trivial)";
+  }
+  chart.data.datasets[3].label = "Type I Error (\u03b1=" + alpha.toFixed(2) + ")";
+  chart.data.datasets[4].label = "Type II Error (\u03b2=" + beta.toFixed(2) + ")";
+  var tStat = d / se;
+  var pVal = qzOneTail ? (1 - cDF(tStat, 0, 1)) : 2 * (1 - cDF(Math.abs(tStat), 0, 1));
+  var pStr = pVal < 0.001 ? pVal.toExponential(1) : pVal.toFixed(3);
+  var sigStr = pVal < 0.05 ? "SIGNIFICANT" : "NOT significant";
+  var tl = "Two-tailed  z_crit=+" + zCrit.toFixed(2) + "  n=" + n + "  Power=" + (power*100).toFixed(0) + "%  p=" + pStr + " (" + sigStr + ")";
+  chart.options.scales.x.title.text = tl;
+  chart.update();
+}
+
+// ── Option buttons ──
+document.getElementById('q-ad').textContent = Q.ad;
+document.getElementById('q-stem').textContent = Q.stem;
+
+var optsDiv = document.getElementById('q-options');
+var descDiv = document.getElementById('q-desc');
+
+Q.options.forEach(function(opt, i) {
+  var btn = document.createElement('button');
+  btn.className = 'opt-btn' + (i === 3 ? ' active' : '');
+  btn.textContent = opt.label + ') ' + opt.text.slice(0, 55);
+  btn.addEventListener('click', function() {
+    var all = document.querySelectorAll('.opt-btn');
+    for (var j = 0; j < all.length; j++) all[j].classList.remove('active');
+    btn.classList.add('active');
+    var g = Q.options[i].graph;
+    qzNormD = g.d; qzNormN = g.n;
+    renderNormal();
+    descDiv.innerHTML = '<strong>' + opt.label + ':</strong> ' + (opt.desc || '');
+    descDiv.className = opt.correct ? 'info' : 'info wrong';
+  });
+  optsDiv.appendChild(btn);
+});
+
+// Initial render — option D
+qzNormD = Q.options[3].graph.d;
+qzNormN = Q.options[3].graph.n;
+renderNormal();
+descDiv.innerHTML = '<strong>D:</strong> ' + Q.options[3].desc;
+descDiv.className = 'info';
+</script>
+</body>
+</html>

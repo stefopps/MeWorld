@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Q136 — RR CI Interpretation: RR = 1.05 (0.99–1.08)</title>
+<style>
+  :root { --bg:#f3efe8; --card:#faf8f4; --ink:#1a1a2e; --sub:#6b6b6b; --faint:#a0a0a0; --line:#dcd5cc;
+    --green:#16a34a; --red:#dc2626; --blue:#2563eb; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--ink); padding:28px 24px 60px; }
+  .wrap { max-width:880px; margin:0 auto; }
+  .eyebrow { font-size:.6875rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:4px; }
+  h1 { font-size:1.35rem; font-weight:700; letter-spacing:-.01em; margin-bottom:6px; }
+  .sub { font-size:.8125rem; color:var(--sub); line-height:1.55; margin-bottom:18px; max-width:72ch; }
+  .sub b { color:var(--ink); }
+  .master-controls { margin-bottom:16px; padding:10px 16px; background:var(--card); border:1px solid var(--line); border-radius:12px; display:flex; align-items:center; gap:14px; }
+  .ctrl-group { display:flex; align-items:center; gap:6px; }
+  .ctrl-group label { color:var(--sub); white-space:nowrap; font-weight:500; font-size:.75rem; }
+  .ctrl-group input[type=range] { width:80px; accent-color:var(--ink); }
+  .ctrl-group .val { font-weight:700; font-size:.8125rem; min-width:32px; text-align:right; }
+  .stage { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:24px 28px; margin-bottom:14px; }
+  .options { display:grid; gap:8px; margin-bottom:12px; }
+  .opt-btn { background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-align:left; font-size:.75rem; cursor:pointer; transition:all .15s; display:flex; gap:10px; align-items:flex-start; line-height:1.45; font-family:'Inter',-apple-system,sans-serif; }
+  .opt-btn:hover { border-color:#93c5fd; background:#eff6ff; }
+  .opt-btn.selected { border-color:var(--blue); background:#eff6ff; }
+  .opt-btn.green { border-color:var(--green); background:#f0fdf4; }
+  .opt-btn.red { border-color:var(--red); background:#fef2f2; }
+  .opt-label { font-weight:700; font-size:.75rem; color:var(--faint); min-width:20px; padding-top:1px; }
+  .verdict-panel { padding:14px 18px; background:var(--card); border:1px solid var(--line); border-radius:12px; font-size:.8125rem; line-height:1.55; color:var(--ink); min-height:60px; }
+  .verdict-badge { display:inline-block; font-size:.6875rem; font-weight:600; padding:3px 10px; border-radius:6px; margin-bottom:8px; }
+  .verdict-green { background:#eaf3de; color:#27500a; }
+  .verdict-red { background:#fcebeb; color:#791f1f; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="eyebrow">Question 136 · CI Interpretation — Relative Risk</div>
+<h1>Iburofen &amp; stomach cancer: RR = 1.05 (95% CI 0.99–1.08) — can we conclude an association?</h1>
+<p class="sub"><b>Retrospective cohort:</b> Long-term ibuprofen vs stomach cancer. RR = 1.05, 95% CI 0.99–1.08. <b>Null for RR is 1.0.</b> Click each option to see the ruling.</p>
+<div class="master-controls">
+  <div class="ctrl-group"><label>Font</label><input type="range" id="font-slider" min="8" max="18" value="10" step="1"><span class="val" id="font-display">1.0x</span></div>
+</div>
+<div class="stage"><svg id="ciSvg" viewBox="0 0 680 190"></svg></div>
+<div class="options" id="options">
+  <button class="opt-btn" data-opt="A"><span class="opt-label">A</span><span>it cannot be concluded that long-term ibuprofen use is associated with stomach cancer development</span></button>
+  <button class="opt-btn" data-opt="B"><span class="opt-label">B</span><span>long-term ibuprofen use has a small but clear correlation with stomach cancer development</span></button>
+  <button class="opt-btn" data-opt="C"><span class="opt-label">C</span><span>long-term ibuprofen use is likely to be protective against stomach cancer</span></button>
+  <button class="opt-btn" data-opt="D"><span class="opt-label">D</span><span>in some patients ibuprofen may decrease, while in others it may increase the risk</span></button>
+  <button class="opt-btn" data-opt="E"><span class="opt-label">E</span><span>there is stronger evidence in favor of causation than not causing it</span></button>
+</div>
+<div class="verdict-panel" id="panel"><p style="color:var(--faint)">Click an option.</p></div>
+</div>
+<script>
+var fontScale=1.0;
+var rulings={
+  A:{verdict:'green',title:'Correct — cannot conclude association',text:'The 95% CI [0.99, 1.08] <b>crosses 1.0</b> (the null). When the CI includes 1.0, we cannot reject the null — the result is not statistically significant. The point estimate 1.05 is a tiny 5% increase, compatible with no real effect.'},
+  B:{verdict:'red',title:'Overstated — CI crosses 1.0',text:'A "clear correlation" cannot be claimed when the data are compatible with RR = 1.0. The null is inside the CI.'},
+  C:{verdict:'red',title:'Wrong direction',text:'RR = 1.05 is above 1.0, not below. A protective effect requires RR &lt; 1.0. Even if the CI touches 0.99, the bulk of evidence leans toward a small increase, not protection.'},
+  D:{verdict:'red',title:'No evidence of effect modification',text:'Effect modification requires stratified analysis with separate RRs for subgroups. A single overall RR cannot show this.'},
+  E:{verdict:'red',title:'CI crosses null',text:'When the CI includes 1.0, the evidence does NOT favour causation over no association. "Stronger evidence for causation" is the opposite of the correct conclusion.'}
+};
+function draw(){
+  var svg=document.getElementById('ciSvg'),W=680,H=190,padL=70,padR=40,padT=36,padB=50;
+  var pW=W-padL-padR,rMin=0.5,rMax=2.0;
+  function xPx(v){return padL+(v-rMin)/(rMax-rMin)*pW}
+  var centerY=H-padB-20,fs=fontScale,s='';
+  s+='<line x1="'+padL+'" y1="'+centerY+'" x2="'+(W-padR)+'" y2="'+centerY+'" stroke="#d4d4d1" stroke-width="1.2"/>';
+  [0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.4,1.6,1.8,2.0].forEach(function(v){var x=xPx(v),maj=v===1.0||v%0.5===0,len=maj?10:6;s+='<line x1="'+x+'" y1="'+(centerY-len)+'" x2="'+x+'" y2="'+(centerY+len)+'" stroke="'+(v===1.0?'#9ca3af':'#c4bfb5')+'" stroke-width="'+(maj?1.2:0.8)+'"/>';s+='<text x="'+x+'" y="'+(centerY+26)+'" text-anchor="middle" font-size="'+Math.round(10*fs)+'" fill="'+(v===1.0?'#4b5563':'#9ca3af')+'" font-weight="'+(v===1.0?'700':'400')+'">'+v.toFixed(1)+'</text>'});
+  s+='<text x="'+(padL+pW/2)+'" y="'+(centerY+44)+'" text-anchor="middle" font-size="'+Math.round(11*fs)+'" fill="#1a1a2e" font-weight="600">Relative Risk</text>';
+  var nullX=xPx(1.0),estX=xPx(1.05),ciLoX=xPx(0.99),ciHiX=xPx(1.08);
+  s+='<line x1="'+nullX+'" y1="'+(padT+6)+'" x2="'+nullX+'" y2="'+(centerY-18)+'" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="5,4"/>';
+  s+='<rect x="'+(nullX-34)+'" y="'+(padT+2)+'" width="68" height="18" rx="4" fill="rgba(156,163,175,0.12)"/>';
+  s+='<text x="'+nullX+'" y="'+(padT+15)+'" text-anchor="middle" font-size="'+Math.round(10*fs)+'" font-weight="700" fill="#6b7280">Null (RR=1)</text>';
+  s+='<text x="'+xPx(1.055)+'" y="'+(padT+15)+'" text-anchor="start" font-size="'+Math.round(9*fs)+'" font-weight="700" fill="#ef4444">CI crosses null — NOT significant</text>';
+  s+='<line x1="'+ciLoX+'" y1="'+centerY+'" x2="'+ciHiX+'" y2="'+centerY+'" stroke="#2563eb" stroke-width="8" stroke-linecap="round" opacity="0.12"/>';
+  s+='<line x1="'+ciLoX+'" y1="'+(centerY-14)+'" x2="'+ciLoX+'" y2="'+(centerY+14)+'" stroke="#2563eb" stroke-width="2.5"/>';
+  s+='<line x1="'+ciHiX+'" y1="'+(centerY-14)+'" x2="'+ciHiX+'" y2="'+(centerY+14)+'" stroke="#2563eb" stroke-width="2.5"/>';
+  s+='<rect x="'+(estX-6)+'" y="'+(centerY-6)+'" width="12" height="12" rx="3" fill="#1a1a2e"/>';
+  s+='<text x="'+estX+'" y="'+(centerY-16)+'" text-anchor="middle" font-size="'+Math.round(11*fs)+'" font-weight="800" fill="#1a1a2e">RR=1.05</text>';
+  s+='<text x="'+ciLoX+'" y="'+(centerY+38)+'" text-anchor="middle" font-size="'+Math.round(10*fs)+'" font-weight="700" fill="#2563eb">0.99</text>';
+  s+='<text x="'+ciHiX+'" y="'+(centerY+38)+'" text-anchor="middle" font-size="'+Math.round(10*fs)+'" font-weight="700" fill="#2563eb">1.08</text>';
+  s+='<circle cx="'+nullX+'" cy="'+centerY+'" r="3.5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>';
+  svg.innerHTML=s;
+}
+function select(k){
+  var bs=document.querySelectorAll('.opt-btn');for(var i=0;i<bs.length;i++)bs[i].classList.remove('selected','green','red');
+  var btn=document.querySelector('.opt-btn[data-opt="'+k+'"]');if(!btn)return;btn.classList.add('selected');
+  var r=rulings[k];btn.classList.add(r.verdict==='green'?'green':'red');
+  document.getElementById('panel').innerHTML='<span class="verdict-badge '+(r.verdict==='green'?'verdict-green':'verdict-red')+'">'+r.title+'</span><p style="margin:4px 0 0">'+r.text+'</p>';
+}
+document.getElementById('options').addEventListener('click',function(e){var btn=e.target.closest('.opt-btn');if(btn)select(btn.dataset.opt)});
+document.getElementById('font-slider').addEventListener('input',function(){fontScale=this.value/10;document.getElementById('font-display').textContent=fontScale.toFixed(1)+'x';draw()});
+draw();select('A');
+</script>
+</body>
+</html>

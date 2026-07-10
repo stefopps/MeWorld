@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Q77 — Confidence Interval Interpretation: OR = 5.5 (3.2–7.8)</title>
+<style>
+  :root { --bg:#f3efe8; --card:#faf8f4; --ink:#1a1a2e; --sub:#6b6b6b; --faint:#a0a0a0; --line:#dcd5cc;
+    --green:#16a34a; --red:#dc2626; --blue:#2563eb; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--ink); padding:28px 24px 60px; }
+  .wrap { max-width:880px; margin:0 auto; }
+
+  .eyebrow { font-size:.6875rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:4px; }
+  h1 { font-size:1.35rem; font-weight:700; letter-spacing:-.01em; margin-bottom:6px; }
+  .sub { font-size:.8125rem; color:var(--sub); line-height:1.55; margin-bottom:18px; max-width:72ch; }
+  .sub b { color:var(--ink); }
+
+  .master-controls { margin-bottom:16px; padding:10px 16px; background:var(--card); border:1px solid var(--line); border-radius:12px; display:flex; align-items:center; gap:14px; }
+  .master-controls .ci-summary { font-size:.75rem; font-weight:600; color:var(--ink); flex:1; }
+  .ctrl-group { display:flex; align-items:center; gap:6px; }
+  .ctrl-group label { color:var(--sub); white-space:nowrap; font-weight:500; font-size:.75rem; }
+  .ctrl-group input[type=range] { width:80px; accent-color:var(--ink); }
+  .ctrl-group .val { font-weight:700; font-size:.8125rem; min-width:32px; text-align:right; }
+
+  .stage { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:24px 28px; margin-bottom:14px; }
+  .ci-plot { width:100%; max-width:700px; margin:0 auto; }
+  .ci-plot svg { display:block; width:100%; }
+
+  .options { display:grid; gap:8px; margin-bottom:12px; }
+  .opt-btn { background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-align:left; font-size:.8125rem; cursor:pointer; transition:all .15s; display:flex; gap:10px; align-items:flex-start; line-height:1.45; font-family:'Inter',-apple-system,sans-serif; }
+  .opt-btn:hover { border-color:#93c5fd; background:#eff6ff; }
+  .opt-btn.selected { border-color:var(--blue); background:#eff6ff; }
+  .opt-btn.green { border-color:var(--green); background:#f0fdf4; }
+  .opt-btn.red { border-color:var(--red); background:#fef2f2; }
+  .opt-label { font-weight:700; font-size:.75rem; color:var(--faint); min-width:20px; padding-top:1px; }
+
+  .verdict-panel { padding:14px 18px; background:var(--card); border:1px solid var(--line); border-radius:12px; font-size:.8125rem; line-height:1.55; color:var(--ink); min-height:60px; }
+  .verdict-badge { display:inline-block; font-size:.6875rem; font-weight:600; padding:3px 10px; border-radius:6px; margin-bottom:8px; }
+  .verdict-green { background:#eaf3de; color:#27500a; }
+  .verdict-red { background:#fcebeb; color:#791f1f; }
+
+  .footnote { margin-top:16px; font-size:.6875rem; color:var(--faint); line-height:1.7; border-top:1px solid var(--line); padding-top:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="eyebrow">Question 77 · Confidence Interval Interpretation</div>
+<h1>What does a 95% CI for an odds ratio of 5.5 (3.2–7.8) actually mean?</h1>
+<p class="sub"><b>Case-control study:</b> 200 lung cancer patients vs 200 controls. OR = 5.5, 95% CI 3.2–7.8. <b>Click each option</b> — each one interprets the CI a different way. Only one is correct.</p>
+
+<div class="master-controls">
+  <div class="ci-summary">OR = 5.5 · 95% CI [3.2, 7.8] · Log scale</div>
+  <div class="ctrl-group"><label>Font</label><input type="range" id="font-slider" min="8" max="18" value="10" step="1"><span class="val" id="font-display">1.0×</span></div>
+</div>
+
+<div class="stage">
+  <div class="ci-plot">
+    <svg id="ciSvg" viewBox="0 0 680 200"></svg>
+  </div>
+</div>
+
+<div class="options" id="options">
+  <button class="opt-btn" data-opt="A"><span class="opt-label">A</span><span>there is a 95% chance that the odds ratio is 5.5 and 5% chance that it is between 3.2 and 7.8</span></button>
+  <button class="opt-btn" data-opt="B"><span class="opt-label">B</span><span>at least 5% of smokers develop lung cancer</span></button>
+  <button class="opt-btn" data-opt="C"><span class="opt-label">C</span><span>5% of smokers account for 7.8% of newly diagnosed lung cancers</span></button>
+  <button class="opt-btn" data-opt="D"><span class="opt-label">D</span><span>there is a 95% chance that the true value of the odds ratio is between 3.2 and 7.8</span></button>
+  <button class="opt-btn" data-opt="E"><span class="opt-label">E</span><span>there is on average a 5.5% increased risk for lung cancer among smokers</span></button>
+</div>
+
+<div class="verdict-panel" id="panel">
+  <p style="color:var(--faint)">← Click an option to see what it actually means — and whether it's right.</p>
+</div>
+
+<div class="footnote">
+  <b>The practical CI interpretation:</b> "If we repeated this study 100 times with fresh samples, about 95 of those CIs would capture the true OR." Most exam boards accept "95% chance the true OR is between 3.2 and 7.8" as the MC answer because it matches the Bayesian intuition clinicians actually use — even though strict frequentists say the CI describes the procedure, not a probability on any one interval.<br>
+  <b>The null line (OR = 1)</b> is far to the left — the CI doesn't touch it, so the association is statistically significant.
+</div>
+
+</div>
+
+<script>
+let fontScale = 1.0;
+
+const rulings = {
+  A: { verdict:'red', title:'Confuses the estimate with the interval',
+    text:'The 95% CI is about a <b>range</b> for the true OR, not about "95% chance the OR itself is 5.5." The point estimate 5.5 is a single number from this sample — no probability attaches to it. The CI says "the true OR likely falls somewhere in this range."' },
+  B: { verdict:'red', title:'Confuses CI with incidence / prevalence',
+    text:'A CI for an odds ratio is about the <b>strength of association</b> between smoking and cancer, not about how many people get the disease. 5% is just the alpha level (100% − 95% = 5%), not a disease rate.' },
+  C: { verdict:'red', title:'Nonsensical mash-up of numbers',
+    text:'The 5% is the α level (complement of confidence) and 7.8 is the upper CI bound. These two numbers do not represent "share of disease" or "smokers accounting for cases." This option is pure statistical word salad.' },
+  D: { verdict:'green', title:'Correct — the practical interpretation of a 95% CI',
+    text:'This is what clinicians <b>actually</b> mean. Strict frequentists say "we are 95% confident" (not "95% chance"), but on the exam and in practice, this option captures the idea: the true value is almost certainly somewhere in that interval. If the null (OR=1) is outside the CI, the result is statistically significant at α = 0.05.' },
+  E: { verdict:'red', title:'Misreads odds ratio as absolute risk increase',
+    text:'OR = 5.5 means the <b>odds</b> are 5.5× higher — not "5.5%." An absolute risk increase of 5.5 percentage points would be a completely different statistic (attributable risk). Ratios and percentages are not interchangeable.' }
+};
+
+function drawCI(){
+  const svg = document.getElementById('ciSvg');
+  const W=680, H=200, padL=80, padR=40, padT=40, padB=60;
+  const pW=W-padL-padR, pH=H-padT-padB;
+
+  // Log scale: log10 from 0 to log10(10) = 1
+  const logMin=-0.3, logMax=1.0;
+  function xPx(val){ return padL + (Math.log10(Math.max(0.3,val)) - logMin)/(logMax-logMin)*pW; }
+
+  const estX=xPx(5.5), ciLoX=xPx(3.2), ciHiX=xPx(7.8), nullX=xPx(1);
+  const centerY=H-padB-40;
+
+  let s='';
+
+  // Baseline
+  s+=`<line x1="${padL}" y1="${centerY}" x2="${W-padR}" y2="${centerY}" stroke="#d4d4d1" stroke-width="1.2"/>`;
+
+  // Tick marks — log scale
+  const ticks=[0.5,1,2,3,4,5,6,7,8,9,10];
+  ticks.forEach(v=>{
+    const x=xPx(v);
+    s+=`<line x1="${x}" y1="${centerY-10}" x2="${x}" y2="${centerY+10}" stroke="#b8b6b0" stroke-width="0.8"/>`;
+    s+=`<text x="${x}" y="${centerY+30}" text-anchor="middle" font-size="${Math.round(11*fontScale)}" fill="#6b6b6b" font-weight="500">${v}</text>`;
+  });
+
+  // Axis label
+  s+=`<text x="${padL+pW/2}" y="${centerY+50}" text-anchor="middle" font-size="${Math.round(12*fontScale)}" fill="#1a1a2e" font-weight="600">Odds Ratio (log scale)</text>`;
+
+  // Null line (OR=1)
+  s+=`<line x1="${nullX}" y1="${padT}" x2="${nullX}" y2="${centerY-20}" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4,4"/>`;
+  s+=`<text x="${nullX}" y="${padT+14}" text-anchor="middle" font-size="${Math.round(10*fontScale)}" font-weight="700" fill="#9ca3af">Null (OR=1)</text>`;
+  s+=`<text x="${nullX}" y="${padT+26}" text-anchor="middle" font-size="${Math.round(8*fontScale)}" fill="#9ca3af">Not significant</text>`;
+
+  // CI whisker (gray bar behind)
+  s+=`<line x1="${ciLoX}" y1="${centerY}" x2="${ciHiX}" y2="${centerY}" stroke="#2563eb" stroke-width="8" stroke-linecap="round" opacity="0.15"/>`;
+  s+=`<line x1="${ciLoX}" y1="${centerY-14}" x2="${ciLoX}" y2="${centerY+14}" stroke="#2563eb" stroke-width="2.5"/>`;
+  s+=`<line x1="${ciHiX}" y1="${centerY-14}" x2="${ciHiX}" y2="${centerY+14}" stroke="#2563eb" stroke-width="2.5"/>`;
+
+  // Point estimate
+  s+=`<rect x="${estX-7}" y="${centerY-7}" width="14" height="14" rx="3" fill="#1a1a2e"/>`;
+  s+=`<text x="${estX}" y="${centerY-18}" text-anchor="middle" font-size="${Math.round(12*fontScale)}" font-weight="800" fill="#1a1a2e">OR = 5.5</text>`;
+
+  // CI bounds labeled
+  s+=`<text x="${ciLoX}" y="${centerY+44}" text-anchor="middle" font-size="${Math.round(11*fontScale)}" font-weight="700" fill="#2563eb">3.2</text>`;
+  s+=`<text x="${ciHiX}" y="${centerY+44}" text-anchor="middle" font-size="${Math.round(11*fontScale)}" font-weight="700" fill="#2563eb">7.8</text>`;
+  s+=`<text x="${(ciLoX+ciHiX)/2}" y="${centerY+14}" text-anchor="middle" font-size="${Math.round(10*fontScale)}" font-weight="600" fill="#2563eb">95% CI</text>`;
+
+  // Significance check — CI entirely above 1
+  const sigX=xPx(2.5);
+  s+=`<text x="${sigX}" y="${padT+18}" text-anchor="middle" font-size="${Math.round(10*fontScale)}" font-weight="700" fill="#16a34a">CI entirely above 1 → significant</text>`;
+
+  svg.innerHTML=s;
+}
+
+function selectOption(key){
+  document.querySelectorAll('.opt-btn').forEach(b=>{
+    b.classList.remove('selected','green','red');
+  });
+  const btn=document.querySelector(`.opt-btn[data-opt="${key}"]`);
+  if(!btn) return;
+  btn.classList.add('selected');
+  const r=rulings[key];
+  btn.classList.add(r.verdict==='green'?'green':'red');
+
+  const panel=document.getElementById('panel');
+  const badgeClass=r.verdict==='green'?'verdict-green':'verdict-red';
+  panel.innerHTML=
+    `<span class="verdict-badge ${badgeClass}">${r.title}</span>`+
+    `<p style="margin:4px 0 0;">${r.text}</p>`;
+}
+
+document.getElementById('options').addEventListener('click',e=>{
+  const btn=e.target.closest('.opt-btn');
+  if(!btn) return;
+  selectOption(btn.dataset.opt);
+});
+
+document.getElementById('font-slider').addEventListener('input',function(){
+  fontScale=this.value/10;
+  document.getElementById('font-display').textContent=fontScale.toFixed(1)+'×';
+  document.documentElement.style.fontSize=(fontScale*100)+'%';
+  drawCI();
+});
+
+drawCI();
+selectOption('D');
+</script>
+</body>
+</html>

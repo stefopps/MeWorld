@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Q96 — PPV Curve: Which Feature Confirms Diagnosis?</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root { --bg:#ffffff; --card:#faf8f4; --ink:#111111; --sub:#6b6b6b; --faint:#9ca3af; --line:#e5e0d8;
+    --green:#16a34a; --red:#dc2626; --purple:#A98BFF; --purple-dark:#7D5CFF; --purple-light:#C8B5FF; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--ink); padding:24px 28px 60px; }
+  .wrap { max-width:920px; margin:0 auto; }
+
+  .eyebrow { font-size:.6875rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:4px; }
+  h1 { font-size:1.25rem; font-weight:700; letter-spacing:-.01em; margin-bottom:6px; line-height:1.3; }
+  .sub { font-size:.8125rem; color:var(--sub); line-height:1.55; margin-bottom:16px; max-width:78ch; }
+  .sub b { color:var(--ink); }
+
+  .master-controls { margin-bottom:14px; padding:10px 16px; background:var(--card); border:1px solid var(--line); border-radius:12px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .ctrl-group { display:flex; align-items:center; gap:8px; }
+  .ctrl-group label { color:var(--sub); white-space:nowrap; font-weight:500; font-size:.75rem; }
+  .ctrl-group input[type=range] { width:120px; accent-color:var(--purple-dark); }
+  .ctrl-group .val { font-weight:700; font-size:.8125rem; min-width:32px; text-align:right; color:var(--purple-dark); }
+
+  .stage { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 20px; margin-bottom:12px; }
+  .chart-wrap { position:relative; width:100%; height:340px; }
+  .chart-wrap canvas { width:100% !important; height:100% !important; touch-action:none; }
+
+  .mini-legend { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; justify-content:center; }
+  .mini-legend .chip { display:flex; align-items:center; gap:5px; font-size:.6875rem; font-weight:600; color:var(--sub); opacity:.6; transition:opacity .15s; cursor:pointer; user-select:none; }
+  .mini-legend .chip:hover { opacity:1; }
+  .mini-legend .chip.selected { opacity:1; }
+  .mini-legend .chip .dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+
+  .options { display:grid; gap:7px; margin-bottom:10px; }
+  .opt-btn { background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 14px; text-align:left; font-size:.75rem; cursor:pointer; transition:all .15s; display:flex; gap:10px; align-items:flex-start; line-height:1.45; font-family:'Inter',-apple-system,sans-serif; }
+  .opt-btn:hover { border-color:#C8B5FF; background:rgba(169,139,255,.04); }
+  .opt-btn.selected { border-color:var(--purple-dark); background:rgba(169,139,255,.06); }
+  .opt-btn.green { border-color:var(--green); background:#f0fdf4; }
+  .opt-btn.red { border-color:var(--red); background:#fef2f2; }
+  .opt-label { font-weight:700; font-size:.75rem; color:var(--faint); min-width:20px; padding-top:1px; }
+
+  .verdict-panel { padding:12px 16px; background:var(--card); border:1px solid var(--line); border-radius:12px; font-size:.8125rem; line-height:1.55; color:var(--ink); min-height:50px; }
+  .verdict-badge { display:inline-block; font-size:.625rem; font-weight:600; padding:3px 10px; border-radius:6px; margin-bottom:6px; }
+  .verdict-green { background:#eaf3de; color:#27500a; }
+  .verdict-red { background:#fcebeb; color:#791f1f; }
+
+  /* Sn/Sp bars */
+  .snsp-section { padding:4px 0; }
+  .snsp-title { font-size:.625rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--sub); margin-bottom:6px; }
+  .snsp-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; font-size:.6875rem; }
+  .snsp-row .bm-label { width:140px; font-weight:700; color:var(--ink); flex-shrink:0; font-size:.6875rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .snsp-row .bar-wrap { flex:1; display:flex; flex-direction:column; gap:2px; }
+  .snsp-row .bar { height:8px; border-radius:4px; min-width:2px; transition:width .2s; }
+  .snsp-row .bar.sn { background:var(--purple-light); }
+  .snsp-row .bar.sp { background:var(--purple-dark); }
+  .snsp-row .pct { width:56px; text-align:right; font-weight:600; flex-shrink:0; font-size:.625rem; color:var(--sub); line-height:1.35; }
+
+  /* 2×2 icon grid */
+  .grid-section { margin-top:10px; }
+  .grid-section .grid-title { font-size:.75rem; font-weight:700; color:var(--ink); margin-bottom:2px; }
+  .grid-section .grid-sub { font-size:.6875rem; color:var(--sub); margin-bottom:6px; }
+  #iconGrid { display:grid; grid-template-columns:repeat(25,1fr); gap:2px; margin-bottom:6px; }
+  .grid-legend { display:flex; gap:14px; flex-wrap:wrap; font-size:.625rem; color:var(--sub); }
+  .grid-legend span { display:flex; align-items:center; gap:4px; }
+  .grid-legend .swatch { display:inline-block; width:9px; height:9px; border-radius:2px; }
+  .grid-summary { margin-top:6px; font-size:.75rem; line-height:1.5; color:var(--ink); }
+
+  .footnote { margin-top:12px; font-size:.625rem; color:var(--faint); line-height:1.6; border-top:1px solid var(--line); padding-top:10px; }
+
+  /* Sn/Sp floating HUD */
+  .snsp-hud { position:fixed; right:28px; top:28px; z-index:500; background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,.10); padding:12px 14px; min-width:260px; max-width:320px; user-select:none; }
+  .snsp-hud .hud-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; cursor:grab; }
+  .snsp-hud .hud-header:active { cursor:grabbing; }
+  .snsp-hud .hud-header .hud-title { font-size:.625rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--sub); flex:1; }
+  .snsp-hud .hud-close { background:none; border:none; cursor:pointer; color:var(--faint); font-size:14px; padding:2px; border-radius:4px; display:flex; align-items:center; line-height:1; }
+  .snsp-hud .hud-close:hover { color:var(--ink); background:rgba(0,0,0,.05); }
+  .snsp-hud .snsp-row .bm-label { width:120px; }
+  .snsp-hud .snsp-row .pct { width:52px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="eyebrow">Question 96 · SpPin — Confirmatory Test</div>
+<h1>Which feature of the prostate biopsy makes it an ideal test to <em>confirm</em> the diagnosis?</h1>
+<p class="sub"><b>73-year-old man, elevated PSA — prostate biopsy vs histology gold standard.</b> There is only <b>one</b> test in this scenario (biopsy), but the question asks <em>which property</em> makes it ideal for confirmation. To answer that, we compare <b>five hypothetical versions</b> of the same test — each with different sensitivity and specificity — so you can see which Sn/Sp profile produces the highest PPV. <b>The correct profile for confirmation</b> must maximize <b>specificity</b> (SpPin: high <b>Sp</b>ecificity rules <b>IN</b>). <b>Drag the prevalence handle on the chart</b> — watch which curve stays highest on PPV at any prevalence. The gold standard (histology) is the reference — it is not one of the curves.</p>
+
+<div class="master-controls">
+  <div class="ctrl-group"><label>Prevalence</label><input type="range" id="prev-slider" min="1" max="50" value="10" step="1"><span class="val" id="prev-display">10%</span></div>
+  <div class="ctrl-group"><label>Font</label><input type="range" id="font-slider" min="8" max="18" value="10" step="1"><span class="val" id="font-display">1.0x</span></div>
+</div>
+
+<div class="stage">
+  <div class="chart-wrap"><canvas id="ppvChart"></canvas></div>
+  <div class="mini-legend" id="legend"></div>
+</div>
+
+<div class="stage">
+  <div class="grid-section">
+    <div class="grid-title">100 patients at <span id="iconPrevLabel">10%</span> prevalence, tested with <span id="iconBmLabel">Test C</span></div>
+    <div class="grid-sub">Green = true positive, Red = false positive, Gold = false negative, Gray = true negative. The ratio of green to (green+red) IS the PPV.</div>
+    <div id="iconGrid"></div>
+    <div class="grid-legend">
+      <span><span class="swatch" style="background:#16a34a"></span>True positive</span>
+      <span><span class="swatch" style="background:#dc2626"></span>False positive</span>
+      <span><span class="swatch" style="background:#f59e0b"></span>False negative</span>
+      <span><span class="swatch" style="background:#d4d4d8"></span>True negative</span>
+    </div>
+    <div class="grid-summary" id="iconSummary"></div>
+  </div>
+</div>
+
+<div class="snsp-hud" id="snsp-hud">
+  <div class="hud-header" id="hud-header">
+    <span class="hud-title">Sn/Sp by Test</span>
+    <button class="hud-close" onclick="closeSnSpHud()" title="Close">×</button>
+  </div>
+  <div id="snsp-hud-bars"></div>
+</div>
+
+<div class="options" id="options">
+  <button class="opt-btn" data-opt="A"><span class="opt-label">A</span><span>it is painless</span></button>
+  <button class="opt-btn" data-opt="B"><span class="opt-label">B</span><span>it is highly sensitive</span></button>
+  <button class="opt-btn" data-opt="C"><span class="opt-label">C</span><span>it is highly specific</span></button>
+  <button class="opt-btn" data-opt="D"><span class="opt-label">D</span><span>complications from the procedure are rare</span></button>
+  <button class="opt-btn" data-opt="E"><span class="opt-label">E</span><span>it is highly precise</span></button>
+</div>
+
+<div class="verdict-panel" id="panel"><p style="color:var(--faint)">Click an option to see why it is right or wrong — the PPV curves above will confirm.</p></div>
+
+<div class="footnote">
+  <b>The rule:</b> Screening needs high <b>sensitivity</b> (SnNout — catch everyone). Confirming needs high <b>specificity</b> (SpPin — rarely wrong when positive). Test C (Sp=97%) stays highest on PPV across all prevalence levels — that is the SpPin principle in action.
+</div>
+
+</div>
+
+<script>
+var fontScale = 1.0;
+var chart = null;
+var hiddenIds = new Set();
+var isDraggingPrev = false;
+
+var biomarkers = [
+  { id:'TST1', label:'Test A — High Sensitivity',   sn:0.95, sp:0.45, color:'#C8B5FF', colorHex:'#C8B5FF' },
+  { id:'TST2', label:'Test B — Moderate',           sn:0.80, sp:0.75, color:'#A98BFF', colorHex:'#A98BFF' },
+  { id:'TST3', label:'Test C — High Specificity',   sn:0.65, sp:0.97, color:'#7D5CFF', colorHex:'#7D5CFF' },
+  { id:'TST4', label:'Test D — Mod-High Specificity',sn:0.55, sp:0.90, color:'#6B4FD4', colorHex:'#6B4FD4' },
+  { id:'TST5', label:'Test E — Moderate Sensitivity',sn:0.85, sp:0.60, color:'#4B2E8C', colorHex:'#4B2E8C' }
+];
+
+function renderLegend(){
+  var legend = document.getElementById('legend');
+  legend.innerHTML = '';
+  biomarkers.forEach(function(bm){
+    var chip = document.createElement('div');
+    chip.className = 'chip' + (hiddenIds.has(bm.id) ? '' : ' selected');
+    chip.innerHTML = '<span class="dot" style="background:'+bm.colorHex+'"></span>' + bm.label + ' (Sn='+Math.round(bm.sn*100)+'%, Sp='+Math.round(bm.sp*100)+'%)' + (hiddenIds.has(bm.id) ? ' — hidden' : '');
+    chip.onclick = function(){
+      if(hiddenIds.has(bm.id)) hiddenIds.delete(bm.id); else hiddenIds.add(bm.id);
+      renderLegend();
+      drawChart();
+    };
+    legend.appendChild(chip);
+  });
+  var resetChip = document.createElement('div');
+  resetChip.className = 'chip'; resetChip.style.opacity = '1';
+  resetChip.textContent = 'Show all';
+  resetChip.onclick = function(){ hiddenIds.clear(); renderLegend(); drawChart(); };
+  legend.appendChild(resetChip);
+}
+
+var rulings = {
+  A: { verdict:'red', title:'Painless is irrelevant to diagnostic accuracy',
+    text:'Whether a test is painless affects <b>patient acceptance</b>, not its ability to confirm a diagnosis. The ideal confirmatory test is defined by its <b>specificity</b> — how rarely it falsely labels healthy people as diseased (SpPin: high <b>Sp</b>ecificity rules <b>IN</b>).' },
+  B: { verdict:'red', title:'High sensitivity is for SCREENING, not confirming',
+    text:'<b>SnNout:</b> high <b>Sn</b>sitivity rules <b>OUT</b>. A highly sensitive test is ideal for <b>screening</b> — catching nearly everyone with disease. But it produces many false positives because sensitivity says nothing about specificity. A confirmatory test needs to minimize false positives (= high specificity).' },
+  C: { verdict:'green', title:'Correct — highly specific tests confirm diagnosis',
+    text:'<b>SpPin:</b> high <b>Sp</b>ecificity rules <b>IN</b>. A test with high specificity produces very few false positives — when it says positive, you can be confident the patient truly has the disease. Prostate biopsy has extremely high specificity because histology rarely misidentifies normal tissue as cancer. <b>Drag the prevalence slider and watch Test C (Sp=97%) stay highest on PPV across all prevalence levels.</b>' },
+  D: { verdict:'red', title:'Rare complications are about safety, not diagnostic power',
+    text:'A test can be extremely safe and still be useless for confirming a diagnosis if its specificity is low. Safety and diagnostic accuracy are <b>separate test properties</b>. The question asks what makes a test <b>diagnostically ideal for confirmation</b> — and that is specificity.' },
+  E: { verdict:'red', title:'Precision means reproducibility, not diagnostic accuracy',
+    text:'<b>Precision = reliability = reproducibility.</b> A precise test gives the same result every time, but that result could be wrong every time. Precision does not tell you whether positive results actually indicate disease — that is <b>PPV</b>, which is driven by <b>specificity</b>. Do not confuse precision (consistency) with specificity (ruling out the healthy).' }
+};
+
+function renderSnSpBars(){
+  var wrap = document.getElementById('snsp-hud-bars');
+  wrap.innerHTML = '';
+  biomarkers.forEach(function(bm){
+    var row = document.createElement('div');
+    row.className = 'snsp-row';
+    row.innerHTML =
+      '<span class="bm-label" style="color:'+bm.colorHex+'">'+bm.label+'</span>'+
+      '<div class="bar-wrap">'+
+        '<div class="bar sn" style="width:'+(bm.sn*100)+'%"></div>'+
+        '<div class="bar sp" style="width:'+(bm.sp*100)+'%"></div>'+
+      '</div>'+
+      '<span class="pct">Sn '+Math.round(bm.sn*100)+'%<br>Sp '+Math.round(bm.sp*100)+'%</span>';
+    wrap.appendChild(row);
+  });
+}
+
+function closeSnSpHud(){
+  document.getElementById('snsp-hud').style.display = 'none';
+}
+
+(function initSnSpHudDrag(){
+  var hud = document.getElementById('snsp-hud');
+  var head = document.getElementById('hud-header');
+  if (!hud || !head) return;
+  var startX, startY, initX, initY;
+  head.onmousedown = function(e){
+    if (e.target.tagName === 'BUTTON') return;
+    e.preventDefault();
+    startX = e.clientX; startY = e.clientY;
+    initX = hud.offsetLeft; initY = hud.offsetTop;
+    function onMove(ev){
+      hud.style.left = (initX + ev.clientX - startX) + 'px';
+      hud.style.top = (initY + ev.clientY - startY) + 'px';
+      hud.style.right = 'auto';
+    }
+    function onUp(){
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  };
+})();
+
+function ppvPct(sn, sp, prev){
+  var d = sn*prev + (1-sp)*(1-prev);
+  return d === 0 ? 0 : (sn*prev)/d * 100;
+}
+
+function renderIconGrid(selectedKey){
+  var mapping = {A:'TST1',B:'TST2',C:'TST3',D:'TST4',E:'TST5'};
+  var bmId = mapping[selectedKey] || 'TST3';
+  var bm = biomarkers.find(function(b){ return b.id === bmId; });
+  var prev = parseFloat(document.getElementById('prev-slider').value)/100;
+
+  var diseased = Math.round(prev*100);
+  var healthy = 100 - diseased;
+  var tp = Math.round(diseased * bm.sn);
+  var fn = diseased - tp;
+  var tn = Math.round(healthy * bm.sp);
+  var fp = healthy - tn;
+
+  document.getElementById('iconPrevLabel').textContent = Math.round(prev*100)+'%';
+  document.getElementById('iconBmLabel').textContent = bm.label;
+
+  var cells = [];
+  for (var i=0; i<tp; i++) cells.push('#16a34a');
+  for (var i=0; i<fn; i++) cells.push('#f59e0b');
+  for (var i=0; i<fp; i++) cells.push('#dc2626');
+  for (var i=0; i<tn; i++) cells.push('#d4d4d8');
+
+  var grid = document.getElementById('iconGrid');
+  grid.innerHTML = '';
+  cells.forEach(function(c){
+    var d = document.createElement('div');
+    d.style.aspectRatio = '1';
+    d.style.borderRadius = '3px';
+    d.style.background = c;
+    grid.appendChild(d);
+  });
+
+  var ppv = tp+fp === 0 ? 0 : (tp/(tp+fp)*100);
+  document.getElementById('iconSummary').innerHTML =
+    'Out of 100 patients, <b>'+diseased+'</b> actually have prostate cancer and <b>'+healthy+'</b> do not. '+bm.label+' flags <b>'+(tp+fp)+'</b> people positive — only <b>'+tp+'</b> of them truly have cancer, the other <b>'+fp+'</b> are false alarms driven by its '+Math.round((1-bm.sp)*100)+'% false-positive rate. PPV = '+ppv.toFixed(0)+'%.<br><b>SpPin:</b> the higher the specificity, the fewer false positives, the higher the PPV — confirmation requires minimizing false alarms.';
+}
+
+function drawChart(){
+  var prev = parseFloat(document.getElementById('prev-slider').value)/100;
+  var fs = fontScale;
+
+  var ctx = document.getElementById('ppvChart').getContext('2d');
+  if (chart) chart.destroy();
+
+  var nPoints = 101;
+  var prevValues = [];
+  for (var i=0; i<nPoints; i++) prevValues.push((i/(nPoints-1)*100).toFixed(0)+'%');
+
+  var datasets = [];
+  biomarkers.forEach(function(bm, idx){
+    var ppvVals = [];
+    for (var i=0; i<nPoints; i++){
+      ppvVals.push(ppvPct(bm.sn, bm.sp, i/(nPoints-1)));
+    }
+    datasets.push({
+      label: bm.label + ' (Sn='+Math.round(bm.sn*100)+'%, Sp='+Math.round(bm.sp*100)+'%)',
+      data: ppvVals,
+      borderColor: bm.colorHex,
+      backgroundColor: 'transparent',
+      borderWidth: bm.id === 'TST3' ? 3.5 : 2,
+      pointRadius: 0,
+      tension: 0.3,
+      fill: false,
+      hidden: hiddenIds.has(bm.id)
+    });
+  });
+
+  // Compute PPV at current prevalence for each biomarker
+  var ppvsAtPrev = biomarkers.map(function(bm){ return ppvPct(bm.sn, bm.sp, prev); });
+  var xPrevalence = prev * 100;
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: prevValues, datasets: datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            font: { family: 'Inter', size: Math.round(9*fs), weight: '600' },
+            color: '#4b5563',
+            usePointStyle: true,
+            pointStyleWidth: 7,
+            padding: 8,
+            generateLabels: function(ch){
+              return ch.data.datasets.map(function(d,i){
+                return { text: d.label, fillStyle: d.borderColor, strokeStyle: d.borderColor, lineWidth: 2, hidden: false, index: i };
+              });
+            }
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0,0,0,.8)',
+          titleFont: { family: 'Inter', size: Math.round(10*fs) },
+          bodyFont: { family: 'Inter', size: Math.round(9*fs) },
+          displayColors: false
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Prevalence', font: { family:'Inter', size:Math.round(10*fs), weight:'600' }, color:'#4b5563' },
+          ticks: { font: { family:'Inter', size:Math.round(9*fs) }, color:'#9ca3af', callback: function(v){ return v+'%'; }, maxTicksLimit: 12 },
+          grid: { color: 'rgba(0,0,0,.04)' },
+          min: 0, max: 50
+        },
+        y: {
+          title: { display: true, text: 'PPV (%)', font: { family:'Inter', size:Math.round(10*fs), weight:'600' }, color:'#4b5563' },
+          ticks: { font: { family:'Inter', size:Math.round(9*fs) }, color:'#9ca3af', callback: function(v){ return v+'%'; } },
+          grid: { color: 'rgba(0,0,0,.04)' },
+          min: 0, max: 100
+        }
+      }
+    },
+    plugins: [{
+      id: 'prevLine',
+      afterDraw: function(c){
+        if (!c.scales.x || !c.scales.y) return;
+        var x = c.scales.x.getPixelForValue(xPrevalence);
+        var top = c.scales.y.getPixelForValue(100);
+        var bottom = c.scales.y.getPixelForValue(0);
+
+        c.ctx.save();
+        c.ctx.beginPath();
+        c.ctx.setLineDash([4,4]);
+        c.ctx.strokeStyle = 'rgba(0,0,0,.25)';
+        c.ctx.lineWidth = 1;
+        c.ctx.moveTo(x, top);
+        c.ctx.lineTo(x, bottom);
+        c.ctx.stroke();
+        c.ctx.setLineDash([]);
+        c.ctx.restore();
+
+        // PPV dots at current prevalence
+        ppvsAtPrev.forEach(function(ppv, i){
+          var bm = biomarkers[i];
+          if (hiddenIds.has(bm.id)) return;
+          var y = c.scales.y.getPixelForValue(ppv);
+          c.ctx.beginPath();
+          c.ctx.arc(x, y, bm.id === 'TST3' ? 7 : 4, 0, Math.PI*2);
+          c.ctx.fillStyle = bm.colorHex;
+          c.ctx.fill();
+          c.ctx.strokeStyle = '#fff';
+          c.ctx.lineWidth = 1.5;
+          c.ctx.stroke();
+
+          // Label only TST3 and the nearest competitors
+          if (bm.id === 'TST3' || i === 3) {
+            c.ctx.font = Math.round(9*fs)+'px Inter';
+            c.ctx.fontWeight = '700';
+            c.ctx.fillStyle = bm.colorHex;
+            c.ctx.textAlign = 'left';
+            c.ctx.fillText(bm.label.split(' — ')[0] + '=' + ppv.toFixed(0)+'%', x + 10, y + 4);
+          }
+        });
+
+        // Prevalence label at bottom
+        c.ctx.font = Math.round(10*fs)+'px Inter';
+        c.ctx.fontWeight = '700';
+        c.ctx.fillStyle = '#374151';
+        c.ctx.textAlign = 'center';
+        c.ctx.fillText(Math.round(prev*100)+'% prevalence', x, bottom + 14);
+
+        // Draggable handle at top
+        c.ctx.save();
+        c.ctx.beginPath();
+        c.ctx.arc(x, top - 2, isDraggingPrev ? 9 : 7, 0, Math.PI*2);
+        c.ctx.fillStyle = isDraggingPrev ? '#7D5CFF' : '#111111';
+        c.ctx.fill();
+        c.ctx.strokeStyle = '#fff';
+        c.ctx.lineWidth = 2;
+        c.ctx.stroke();
+        c.ctx.restore();
+        c._prevHandleX = x;
+        c._prevHandleY = top - 2;
+      }
+    }]
+  });
+}
+
+function getPrevFromClientX(clientX){
+  var canvas = document.getElementById('ppvChart');
+  var rect = canvas.getBoundingClientRect();
+  var val = chart.scales.x.getValueForPixel(clientX - rect.left);
+  return Math.max(0, Math.min(50, val));
+}
+
+function setPrevalence(pct){
+  var rounded = Math.round(pct);
+  document.getElementById('prev-slider').value = rounded;
+  document.getElementById('prev-display').textContent = rounded+'%';
+  var sel = document.querySelector('.opt-btn.selected');
+  drawChart();
+  renderIconGrid(sel ? sel.dataset.opt : null);
+}
+
+// Draggable prevalence on chart
+(function(){
+  var canvas = document.getElementById('ppvChart');
+  canvas.addEventListener('pointerdown', function(e){
+    if (!chart || !chart._prevHandleX) return;
+    var rect = canvas.getBoundingClientRect();
+    var dx = (e.clientX-rect.left)-chart._prevHandleX, dy = (e.clientY-rect.top)-chart._prevHandleY;
+    if (Math.sqrt(dx*dx+dy*dy) < 18){
+      isDraggingPrev = true;
+      canvas.setPointerCapture(e.pointerId);
+      canvas.style.cursor = 'grabbing';
+      drawChart();
+    }
+  });
+  canvas.addEventListener('pointermove', function(e){
+    if (!isDraggingPrev){
+      if (chart && chart._prevHandleX){
+        var rect = canvas.getBoundingClientRect();
+        var dx = (e.clientX-rect.left)-chart._prevHandleX, dy = (e.clientY-rect.top)-chart._prevHandleY;
+        canvas.style.cursor = Math.sqrt(dx*dx+dy*dy) < 18 ? 'grab' : 'default';
+      }
+      return;
+    }
+    setPrevalence(getPrevFromClientX(e.clientX));
+  });
+  canvas.addEventListener('pointerup', function(){ isDraggingPrev = false; canvas.style.cursor = 'default'; drawChart(); });
+  canvas.addEventListener('pointercancel', function(){ isDraggingPrev = false; canvas.style.cursor = 'default'; });
+})();
+
+function selectOption(key){
+  var btns = document.querySelectorAll('.opt-btn');
+  for (var i=0; i<btns.length; i++) btns[i].classList.remove('selected','green','red');
+  var btn = document.querySelector('.opt-btn[data-opt="'+key+'"]');
+  if (!btn) return;
+  btn.classList.add('selected');
+  var r = rulings[key];
+  btn.classList.add(r.verdict==='green'?'green':'red');
+
+  var panel = document.getElementById('panel');
+  var bc = r.verdict==='green'?'verdict-green':'verdict-red';
+  panel.innerHTML = '<span class="verdict-badge '+bc+'">'+r.title+'</span><p style="margin:4px 0 0;">'+r.text+'</p>';
+
+  drawChart();
+  renderIconGrid(key);
+}
+
+// Init
+document.getElementById('prev-slider').addEventListener('input', function(){
+  document.getElementById('prev-display').textContent = this.value+'%';
+  var sel = document.querySelector('.opt-btn.selected');
+  drawChart();
+  renderIconGrid(sel ? sel.dataset.opt : null);
+});
+
+document.getElementById('font-slider').addEventListener('input', function(){
+  fontScale = this.value/10;
+  document.getElementById('font-display').textContent = fontScale.toFixed(1)+'x';
+  drawChart();
+});
+
+// ── Double-click to reset prevalance slider to default ──
+document.getElementById('prev-slider').addEventListener('dblclick', function(){
+  this.value = 10;
+  document.getElementById('prev-display').textContent = '10%';
+  var sel = document.querySelector('.opt-btn.selected');
+  drawChart();
+  renderIconGrid(sel ? sel.dataset.opt : null);
+});
+
+document.getElementById('options').addEventListener('click', function(e){
+  var btn = e.target.closest('.opt-btn');
+  if (!btn) return;
+  selectOption(btn.dataset.opt);
+});
+
+renderLegend();
+renderSnSpBars();
+selectOption('C');
+</script>
+</body>
+</html>

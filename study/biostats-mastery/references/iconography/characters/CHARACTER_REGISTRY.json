@@ -1,0 +1,46 @@
+{
+  "characters": [
+    {
+      "id": "treatment",
+      "file": "character-treatment.png",
+      "slug": "treatment",
+      "role": "Treatment arm / intervention group",
+      "appearance": "Purple rounded creature with white medical-cross shield, big eyes, small smile",
+      "use_cases": [
+        "Treatment group in RCTs",
+        "Active intervention arm",
+        "Drug efficacy illustrations",
+        "Experimental group"
+      ],
+      "pair_with": "subject"
+    },
+    {
+      "id": "subject",
+      "file": "character-subject.png",
+      "slug": "subject",
+      "role": "Study subject / patient / population member",
+      "appearance": "Lighter lavender/white rounded creature sitting, big eyes, small smile",
+      "use_cases": [
+        "Study population member",
+        "Patient in cohort",
+        "Control group (untreated)",
+        "Individual observation in dataset"
+      ],
+      "pair_with": "treatment"
+    }
+  ],
+  "style_match": "3D_STYLE_LOCK.md",
+  "color_palette": {
+    "primary": "#A98BFF",
+    "dark": "#7D5CFF",
+    "light": "#C8B5FF",
+    "white": "#FFFFFF"
+  },
+  "teaching_concepts": {
+    "rct": "treatment (intervention) vs subject (control)",
+    "cohort": "subject × N (exposed) vs subject × N (unexposed)",
+    "case_control": "subject × N (cases) vs subject × N (controls)",
+    "risk": "treatment character with extra subjects appearing",
+    "survival": "treatment character + heart icon"
+  }
+}

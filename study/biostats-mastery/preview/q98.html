@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Q98 — PPV & NPV: Which Depend on Prevalence?</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root { --bg:#ffffff; --card:#faf8f4; --ink:#111111; --sub:#6b6b6b; --faint:#9ca3af; --line:#e5e0d8;
+    --green:#16a34a; --red:#dc2626; --purple:#A98BFF; --purple-dark:#7D5CFF; --purple-light:#C8B5FF;
+    --ppv:#A98BFF; --npv:#7D5CFF; --sn:#C8B5FF; --sp:#d4d4d8; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:#111111; padding:20px 24px; height:100vh; overflow:hidden; }
+  .wrap { max-width:1400px; margin:0 auto; height:100%; display:flex; flex-direction:column; }
+
+  .eyebrow { font-size:.6875rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:2px; }
+  h1 { font-size:1.1rem; font-weight:700; letter-spacing:-.01em; margin-bottom:4px; line-height:1.3; }
+  .sub { font-size:.75rem; color:var(--sub); line-height:1.45; margin-bottom:10px; max-width:100ch; }
+  .sub b { color:var(--ink); }
+
+  .layout { display:flex; gap:16px; flex:1; min-height:0; }
+  .layout-main { flex:1.6; display:flex; flex-direction:column; min-width:0; min-height:0; }
+  .layout-side { flex:1; min-width:300px; max-width:360px; display:flex; flex-direction:column; gap:10px; overflow-y:auto; min-height:0; }
+
+  .master-controls { padding:10px 14px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+  .ctrl-group { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .ctrl-group:last-child { margin-bottom:0; }
+  .ctrl-group label { color:var(--sub); white-space:nowrap; font-weight:500; font-size:.75rem; width:64px; }
+  .ctrl-group input[type=range] { flex:1; accent-color:var(--purple-dark); }
+  .ctrl-group .val { font-weight:700; font-size:.8125rem; min-width:32px; text-align:right; color:var(--purple-dark); }
+
+  .stage { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 18px; flex:1; display:flex; flex-direction:column; min-height:0; }
+  .chart-wrap { position:relative; width:100%; flex:1; min-height:0; }
+  .chart-wrap canvas { width:100% !important; height:100% !important; touch-action:none; }
+
+  .measure-legend { display:flex; gap:16px; flex-wrap:wrap; margin-top:8px; justify-content:center; font-size:.6875rem; color:var(--sub); }
+  .measure-legend .ml-item { display:flex; align-items:center; gap:5px; }
+  .measure-legend .ml-dot { display:inline-block; width:12px; height:4px; border-radius:2px; }
+  .measure-legend .ml-dot.curve { width:18px; height:3px; border-radius:2px; }
+  .measure-legend .ml-dot.dashed { border-top-style:dashed; height:0; }
+
+  .options { display:flex; flex-direction:column; gap:6px; }
+  .opt-btn { display:flex; align-items:flex-start; gap:10px; padding:9px 12px; border:1.5px solid var(--line); border-radius:8px; background:#fff; cursor:pointer; text-align:left; font-family:inherit; font-size:.75rem; color:var(--ink); transition:all .15s; }
+  .opt-btn:hover { border-color:var(--purple-light); background:#faf5ff; }
+  .opt-btn.selected { border-color:var(--purple-dark); background:#f3edff; }
+  .opt-btn.correct { border-color:var(--green); background:#f0fdf4; }
+  .opt-btn.wrong { border-color:var(--red); background:#fef2f2; }
+  .opt-label { font-weight:800; font-size:.6875rem; color:var(--sub); min-width:16px; padding-top:1px; }
+  .opt-btn.selected .opt-label { color:var(--purple-dark); }
+  .opt-btn.correct .opt-label { color:var(--green); }
+  .opt-btn.wrong .opt-label { color:var(--red); }
+
+  .verdict-panel { padding:10px 14px; border-radius:10px; border:1.5px solid var(--line); background:var(--card); font-size:.75rem; line-height:1.5; color:var(--ink); }
+  .verdict-panel .vt { font-weight:700; font-size:.8125rem; margin-bottom:4px; }
+  .verdict-panel.green { border-color:var(--green); background:#f0fdf4; }
+  .verdict-panel.green .vt { color:var(--green); }
+  .verdict-panel.red { border-color:var(--red); background:#fef2f2; }
+  .verdict-panel.red .vt { color:var(--red); }
+
+  .footnote { font-size:.625rem; color:var(--faint); line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="eyebrow">Question 98 · PPV/NPV — Prevalence Dependence</div>
+<h1>Which features of a test depend on the prevalence of the disease in the population?</h1>
+<p class="sub"><b>55-year-old woman, negative screening mammogram.</b> There is only <b>one</b> test in this scenario (mammography, Sn&nbsp;=&nbsp;85%, Sp&nbsp;=&nbsp;90%). <b>Drag the handle</b> directly on the chart (or the slider) — watch PPV and NPV move along their curves while sensitivity and specificity stay flat. The ones that move are the answer.</p>
+
+<div class="layout">
+  <div class="layout-main">
+    <div class="stage">
+      <div class="chart-wrap"><canvas id="ppvChart"></canvas></div>
+      <div class="measure-legend" id="measure-legend"></div>
+    </div>
+  </div>
+
+  <div class="layout-side">
+    <div class="master-controls">
+      <div class="ctrl-group"><label>Prevalence</label><input type="range" id="prev-slider" min="1" max="100" value="10" step="1"><span class="val" id="prev-display">10%</span></div>
+      <div class="ctrl-group"><label>Font</label><input type="range" id="font-slider" min="8" max="18" value="10" step="1"><span class="val" id="font-display">1.0×</span></div>
+    </div>
+
+    <div class="options" id="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-label">A</span><span>sensitivity and specificity</span></button>
+      <button class="opt-btn" data-opt="B"><span class="opt-label">B</span><span>positive and negative predictive values</span></button>
+      <button class="opt-btn" data-opt="C"><span class="opt-label">C</span><span>sensitivity and positive predictive value</span></button>
+      <button class="opt-btn" data-opt="D"><span class="opt-label">D</span><span>specificity and accuracy</span></button>
+      <button class="opt-btn" data-opt="E"><span class="opt-label">E</span><span>precision and negative predictive value</span></button>
+    </div>
+
+    <div class="verdict-panel" id="panel"><p style="color:var(--faint)">Click an option to see why it is right or wrong — then drag the prevalence handle to test it yourself.</p></div>
+
+    <div class="footnote" id="footnote">
+      <b>The rule:</b> PPV and NPV are <b>prevalence-dependent</b> — they change with the population you test. Sensitivity and specificity are <b>inherent test properties</b> — they stay constant regardless of disease prevalence. A negative mammogram is more reassuring in a screening population (low prevalence, high NPV) than in a high-risk diagnostic clinic.
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ── Embedded question data ──
+// PPV base: sn:0.85 sp:0.90
+var SENSITIVITY = 0.85;
+var SPECIFICITY = 0.90;
+
+var rulings = {
+  A: { verdict:'red', title:'Sensitivity and specificity do NOT depend on prevalence',
+    text:'Both are <b>inherent test properties</b>. Sensitivity (how well the test catches diseased people) and specificity (how well it rules out healthy people) are fixed for a given test — they do not change with how common the disease is. <b>Slide the prevalence slider:</b> the flat dashed lines at 85% and 90% never move.' },
+  B: { verdict:'green', title:'Correct — PPV and NPV are the ONLY prevalence-dependent measures',
+    text:'PPV (positive predictive value) and NPV (negative predictive value) both change with prevalence. <b>Slide the prevalence slider and watch:</b> as prevalence rises, PPV rises (curve goes up); as prevalence falls, NPV rises (curve goes down). The solid purple curves move — the dashed sensitivity/specificity lines stay flat. That visual gap between "moving" and "still" IS the answer.' },
+  C: { verdict:'red', title:'Only PPV depends on prevalence — sensitivity does not',
+    text:'Sensitivity is fixed (it does not change with the population tested), but PPV does. This option mixes a fixed measure with a variable one. Both must depend on prevalence for the answer to be correct.' },
+  D: { verdict:'red', title:'Accuracy changes with prevalence, but specificity does not',
+    text:'Specificity is fixed (it is an inherent test property). Accuracy (total correct ÷ total tested) does change with prevalence — but the question asks for the pair of features where <b>both</b> depend on prevalence. Only PPV and NPV share that property.' },
+  E: { verdict:'red', title:'Precision is fixed — only NPV depends on prevalence',
+    text:'Precision (reproducibility / reliability) is an inherent test property and does not depend on prevalence. NPV does depend on prevalence. This pair mixes fixed with variable — the question requires both to be prevalence-dependent.' }
+};
+
+// ── Chart state ──
+var chart = null;
+var fontScale = 1.0;
+var selectedOption = null;
+
+// ── Math ──
+function ppvPct(sn, sp, prev){
+  var d = sn*prev + (1-sp)*(1-prev);
+  return d === 0 ? 0 : (sn*prev)/d * 100;
+}
+function npvPct(sn, sp, prev){
+  var d = (1-sn)*prev + sp*(1-prev);
+  return d === 0 ? 0 : (sp*(1-prev))/d * 100;
+}
+
+// ── Render measure legend (highlights based on selected option) ──
+function renderMeasureLegend(){
+  var wrap = document.getElementById('measure-legend');
+  var hl = 'ppvnpv'; // default
+  if (selectedOption){
+    var map = {A:'snsp', B:'ppvnpv', C:'snppv', D:'spacc', E:'precnpv'};
+    hl = map[selectedOption] || 'ppvnpv';
+  }
+
+  var items = [
+    { id:'ppv', label:'PPV — prevalence-dependent', cls:'curve', color:'var(--ppv)', hl:['ppvnpv','snppv'] },
+    { id:'npv', label:'NPV — prevalence-dependent', cls:'curve', color:'var(--npv)', hl:['ppvnpv','precnpv'] },
+    { id:'sn', label:'Sensitivity — fixed (85%)', cls:'dashed', color:'var(--sn)', hl:['snsp','snppv'] },
+    { id:'sp', label:'Specificity — fixed (90%)', cls:'dashed', color:'var(--sp)', hl:['snsp','spacc'] }
+  ];
+
+  wrap.innerHTML = '';
+  items.forEach(function(item){
+    var div = document.createElement('div');
+    div.className = 'ml-item';
+    var isActive = item.hl.includes(hl);
+    var opacity = isActive ? '1' : '0.4';
+    var weight = isActive ? '700' : '400';
+
+    if (item.cls === 'curve'){
+      div.innerHTML = '<span class="ml-dot curve" style="background:'+item.color+';opacity:'+opacity+'"></span>'+
+        '<span style="font-weight:'+weight+';opacity:'+opacity+'">'+item.label+'</span>';
+    } else {
+      div.innerHTML = '<span style="display:inline-block;width:20px;border-top:2px dashed '+item.color+';opacity:'+opacity+'"></span>'+
+        '<span style="font-weight:'+weight+';opacity:'+opacity+'">'+item.label+'</span>';
+    }
+    wrap.appendChild(div);
+  });
+}
+
+// ── Draw chart ──
+function drawChart(){
+  var prev = parseFloat(document.getElementById('prev-slider').value)/100;
+  var fs = fontScale;
+  var ctx = document.getElementById('ppvChart').getContext('2d');
+  if (chart) chart.destroy();
+
+  var nPoints = 101;
+  var ppvVals = [], npvVals = [], snVals = [], spVals = [];
+  for (var i=0; i<nPoints; i++){
+    var p = i/(nPoints-1);
+    ppvVals.push({ x:p, y:ppvPct(SENSITIVITY, SPECIFICITY, p) });
+    npvVals.push({ x:p, y:npvPct(SENSITIVITY, SPECIFICITY, p) });
+    snVals.push({ x:p, y:SENSITIVITY*100 });
+    spVals.push({ x:p, y:SPECIFICITY*100 });
+  }
+
+  var currentPPV = ppvPct(SENSITIVITY, SPECIFICITY, prev);
+  var currentNPV = npvPct(SENSITIVITY, SPECIFICITY, prev);
+
+  // Determine highlight state
+  var hl = 'ppvnpv';
+  if (selectedOption){
+    var map = {A:'snsp', B:'ppvnpv', C:'snppv', D:'spacc', E:'precnpv'};
+    hl = map[selectedOption] || 'ppvnpv';
+  }
+
+  var isPPVactive = ['ppvnpv','snppv'].includes(hl);
+  var isNPVactive = ['ppvnpv','precnpv'].includes(hl);
+  var isSnActive = ['snsp','snppv'].includes(hl);
+  var isSpActive = ['snsp','spacc'].includes(hl);
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: 'PPV',
+          data: ppvVals,
+          borderColor: isPPVactive ? '#A98BFF' : '#d4c8f0',
+          backgroundColor: 'transparent',
+          borderWidth: isPPVactive ? 3 : 1.5,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: false,
+          parsing: false,
+          order: 1
+        },
+        {
+          label: 'NPV',
+          data: npvVals,
+          borderColor: isNPVactive ? '#7D5CFF' : '#d4c8f0',
+          backgroundColor: 'transparent',
+          borderWidth: isNPVactive ? 3 : 1.5,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: false,
+          parsing: false,
+          order: 1
+        },
+        {
+          label: 'Sensitivity (85%)',
+          data: snVals,
+          borderColor: isSnActive ? '#C8B5FF' : '#e8e0f8',
+          backgroundColor: 'transparent',
+          borderWidth: isSnActive ? 2.5 : 1.5,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false,
+          parsing: false,
+          order: 2
+        },
+        {
+          label: 'Specificity (90%)',
+          data: spVals,
+          borderColor: isSpActive ? '#b0b0b0' : '#e0e0e0',
+          backgroundColor: 'transparent',
+          borderWidth: isSpActive ? 2.5 : 1.5,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false,
+          parsing: false,
+          order: 2
+        },
+        // Vertical prevalence line
+        {
+          label: 'Current prevalence',
+          data: [{x:prev, y:0}, {x:prev, y:100}],
+          borderColor: '#6b6b6b',
+          backgroundColor: 'transparent',
+          borderWidth: 1,
+          borderDash: [3, 5],
+          pointRadius: 0,
+          fill: false,
+          showLine: true,
+          parsing: false,
+          order: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            font: { family: 'Inter', size: Math.round(9*fs), weight: '600' },
+            color: '#4b5563',
+            usePointStyle: true,
+            pointStyleWidth: 7,
+            padding: 8,
+            generateLabels: function(ch){
+              var labels = [];
+              var names = ['PPV (prevalence-dependent)', 'NPV (prevalence-dependent)', 'Sensitivity (fixed)', 'Specificity (fixed)'];
+              var colors = [isPPVactive?'#A98BFF':'#d4c8f0', isNPVactive?'#7D5CFF':'#d4c8f0', isSnActive?'#C8B5FF':'#e8e0f8', isSpActive?'#b0b0b0':'#e0e0e0'];
+              var widths = [isPPVactive?3:1.5, isNPVactive?3:1.5, isSnActive?2.5:1.5, isSpActive?2.5:1.5];
+              for (var i=0; i<4; i++){
+                labels.push({ text: names[i], fillStyle: colors[i], strokeStyle: colors[i], lineWidth: widths[i], hidden: false, index: i });
+              }
+              return labels;
+            }
+          }
+        },
+        tooltip: { enabled: false }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          min: 0, max: 1,
+          title: { display: true, text: 'Prevalence', font: { family:'Inter', size:Math.round(9*fs), weight:'600' }, color:'#6b6b6b' },
+          ticks: { callback: function(v){ return (v*100).toFixed(0)+'%'; }, font:{ family:'Inter', size:Math.round(8*fs) }, stepSize:0.1 },
+          grid: { color:'#f0ebe0' }
+        },
+        y: {
+          min: 0, max: 100,
+          title: { display: true, text: '%', font: { family:'Inter', size:Math.round(9*fs), weight:'600' }, color:'#6b6b6b' },
+          ticks: { callback: function(v){ return v+'%'; }, font:{ family:'Inter', size:Math.round(8*fs) }, stepSize:20 },
+          grid: { color:'#f0ebe0' }
+        }
+      }
+    },
+    plugins: [{
+      id: 'prevalenceMarker',
+      afterDraw: function(chart){
+        var ctx = chart.ctx;
+        var xScale = chart.scales.x;
+        var yScale = chart.scales.y;
+        var prev = parseFloat(document.getElementById('prev-slider').value)/100;
+
+        var xPx = xScale.getPixelForValue(prev);
+        var ppvY = yScale.getPixelForValue(currentPPV);
+        var npvY = yScale.getPixelForValue(currentNPV);
+
+        ctx.save();
+        // PPV marker at current prevalence
+        if (isPPVactive){
+          ctx.beginPath();
+          ctx.arc(xPx, ppvY, 5, 0, 2*Math.PI);
+          ctx.fillStyle = '#A98BFF';
+          ctx.fill();
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.fillStyle = '#A98BFF';
+          ctx.font = '700 ' + Math.round(8.5*fs) + 'px Inter';
+          ctx.textAlign = 'left';
+          ctx.fillText('PPV ' + currentPPV.toFixed(0) + '%', xPx+10, ppvY+4);
+        }
+
+        // NPV marker
+        if (isNPVactive){
+          ctx.beginPath();
+          ctx.arc(xPx, npvY, 5, 0, 2*Math.PI);
+          ctx.fillStyle = '#7D5CFF';
+          ctx.fill();
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.fillStyle = '#7D5CFF';
+          ctx.font = '700 ' + Math.round(8.5*fs) + 'px Inter';
+          ctx.textAlign = 'left';
+          ctx.fillText('NPV ' + currentNPV.toFixed(0) + '%', xPx+10, npvY+4);
+        }
+
+        // Sn marker
+        if (isSnActive){
+          var snY = yScale.getPixelForValue(SENSITIVITY*100);
+          ctx.beginPath();
+          ctx.arc(xPx, snY, 5, 0, 2*Math.PI);
+          ctx.fillStyle = '#C8B5FF';
+          ctx.fill();
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.fillStyle = '#6b6b6b';
+          ctx.font = '700 ' + Math.round(8.5*fs) + 'px Inter';
+          ctx.textAlign = 'left';
+          ctx.fillText('Sn 85% (fixed)', xPx+10, snY+4);
+        }
+
+        // Sp marker
+        if (isSpActive){
+          var spY = yScale.getPixelForValue(SPECIFICITY*100);
+          ctx.beginPath();
+          ctx.arc(xPx, spY, 5, 0, 2*Math.PI);
+          ctx.fillStyle = '#b0b0b0';
+          ctx.fill();
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.fillStyle = '#6b6b6b';
+          ctx.font = '700 ' + Math.round(8.5*fs) + 'px Inter';
+          ctx.textAlign = 'left';
+          ctx.fillText('Sp 90% (fixed)', xPx+10, spY+4);
+        }
+
+        ctx.restore();
+
+        // Draggable handle at the top of the vertical prevalence line
+        var handleY = yScale.getPixelForValue(100);
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(xPx, handleY - 2, window.__draggingPrev ? 9 : 7, 0, 2*Math.PI);
+        ctx.fillStyle = window.__draggingPrev ? '#7D5CFF' : '#111111';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+        chart.__handleX = xPx;
+        chart.__handleY = handleY - 2;
+      }
+    }]
+  });
+}
+
+// ── Direct drag on the chart's prevalence handle ──
+window.__draggingPrev = false;
+(function wirePrevDrag(){
+  var canvas = document.getElementById('ppvChart');
+  canvas.style.touchAction = 'none';
+
+  function prevFromClientX(clientX){
+    var rect = canvas.getBoundingClientRect();
+    var val = chart.scales.x.getValueForPixel(clientX - rect.left);
+    return Math.max(0.01, Math.min(1, val));
+  }
+
+  canvas.addEventListener('pointerdown', function(e){
+    if (!chart || chart.__handleX === undefined) return;
+    var rect = canvas.getBoundingClientRect();
+    var px = e.clientX - rect.left, py = e.clientY - rect.top;
+    var dx = px - chart.__handleX, dy = py - chart.__handleY;
+    if (Math.sqrt(dx*dx + dy*dy) < 18){
+      window.__draggingPrev = true;
+      canvas.setPointerCapture(e.pointerId);
+      canvas.style.cursor = 'grabbing';
+      drawChart();
+    }
+  });
+  canvas.addEventListener('pointermove', function(e){
+    if (!window.__draggingPrev){
+      if (chart && chart.__handleX !== undefined){
+        var rect = canvas.getBoundingClientRect();
+        var px = e.clientX - rect.left, py = e.clientY - rect.top;
+        var dx = px - chart.__handleX, dy = py - chart.__handleY;
+        canvas.style.cursor = Math.sqrt(dx*dx + dy*dy) < 18 ? 'grab' : 'default';
+      }
+      return;
+    }
+    var pct = Math.round(prevFromClientX(e.clientX) * 100);
+    document.getElementById('prev-slider').value = pct;
+    document.getElementById('prev-display').textContent = pct + '%';
+    drawChart();
+  });
+  canvas.addEventListener('pointerup', function(){
+    window.__draggingPrev = false;
+    canvas.style.cursor = 'default';
+    drawChart();
+  });
+  canvas.addEventListener('pointercancel', function(){
+    window.__draggingPrev = false;
+    canvas.style.cursor = 'default';
+  });
+})();
+
+// ── Option selection ──
+function selectOption(label){
+  selectedOption = label;
+  // Update buttons
+  var btns = document.querySelectorAll('.opt-btn');
+  btns.forEach(function(b){
+    b.classList.remove('selected','correct','wrong');
+    if (b.dataset.opt === label){
+      b.classList.add('selected');
+      if (label === 'B') b.classList.add('correct');
+      else b.classList.add('wrong');
+    }
+  });
+
+  // Update verdict panel
+  var panel = document.getElementById('panel');
+  var r = rulings[label];
+  panel.className = 'verdict-panel ' + r.verdict;
+  panel.innerHTML = '<div class="vt">' + r.title + '</div><p>' + r.text + '</p>';
+
+  // Update footnote
+  var footnote = document.getElementById('footnote');
+  footnote.innerHTML = '<b>The rule:</b> PPV and NPV are <b>prevalence-dependent</b> — they change with the population you test. Sensitivity and specificity are <b>inherent test properties</b> — they stay constant regardless of disease prevalence. A negative mammogram is more reassuring in a screening population (low prevalence, high NPV) than in a high-risk diagnostic clinic.';
+  if (label === 'B'){
+    footnote.innerHTML += ' <b style="color:var(--green)">Correct — slide the prevalence handle and watch PPV and NPV move while Sn and Sp stay flat.</b>';
+  }
+
+  renderMeasureLegend();
+  drawChart();
+}
+
+// ── Event listeners ──
+document.getElementById('prev-slider').addEventListener('input', function(){
+  document.getElementById('prev-display').textContent = this.value + '%';
+  drawChart();
+});
+
+document.getElementById('font-slider').addEventListener('input', function(){
+  fontScale = this.value/10;
+  document.getElementById('font-display').textContent = fontScale.toFixed(1)+'x';
+  drawChart();
+});
+
+document.getElementById('options').addEventListener('click', function(e){
+  var btn = e.target.closest('.opt-btn');
+  if (!btn) return;
+  selectOption(btn.dataset.opt);
+});
+
+// ── Init ──
+renderMeasureLegend();
+drawChart();
+selectOption('B');
+</script>
+</body>
+</html>

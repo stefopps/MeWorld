@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Q85 — Relative Risk CI Interpretation: RR = 1.12 (0.98–1.18)</title>
+<style>
+  :root { --bg:#f3efe8; --card:#faf8f4; --ink:#1a1a2e; --sub:#6b6b6b; --faint:#a0a0a0; --line:#dcd5cc;
+    --green:#16a34a; --red:#dc2626; --blue:#2563eb; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--ink); padding:28px 24px 60px; }
+  .wrap { max-width:880px; margin:0 auto; }
+
+  .eyebrow { font-size:.6875rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:4px; }
+  h1 { font-size:1.35rem; font-weight:700; letter-spacing:-.01em; margin-bottom:6px; }
+  .sub { font-size:.8125rem; color:var(--sub); line-height:1.55; margin-bottom:18px; max-width:72ch; }
+  .sub b { color:var(--ink); }
+
+  .master-controls { margin-bottom:16px; padding:10px 16px; background:var(--card); border:1px solid var(--line); border-radius:12px; display:flex; align-items:center; gap:14px; }
+  .master-controls .ci-summary { font-size:.75rem; font-weight:600; color:var(--ink); flex:1; }
+  .ctrl-group { display:flex; align-items:center; gap:6px; }
+  .ctrl-group label { color:var(--sub); white-space:nowrap; font-weight:500; font-size:.75rem; }
+  .ctrl-group input[type=range] { width:80px; accent-color:var(--ink); }
+  .ctrl-group .val { font-weight:700; font-size:.8125rem; min-width:32px; text-align:right; }
+
+  .stage { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:24px 28px; margin-bottom:14px; }
+  .ci-plot { width:100%; max-width:700px; margin:0 auto; }
+  .ci-plot svg { display:block; width:100%; }
+
+  .options { display:grid; gap:8px; margin-bottom:12px; }
+  .opt-btn { background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px; text-align:left; font-size:.8125rem; cursor:pointer; transition:all .15s; display:flex; gap:10px; align-items:flex-start; line-height:1.45; font-family:'Inter',-apple-system,sans-serif; }
+  .opt-btn:hover { border-color:#93c5fd; background:#eff6ff; }
+  .opt-btn.selected { border-color:var(--blue); background:#eff6ff; }
+  .opt-btn.green { border-color:var(--green); background:#f0fdf4; }
+  .opt-btn.red { border-color:var(--red); background:#fef2f2; }
+  .opt-label { font-weight:700; font-size:.75rem; color:var(--faint); min-width:20px; padding-top:1px; }
+
+  .verdict-panel { padding:14px 18px; background:var(--card); border:1px solid var(--line); border-radius:12px; font-size:.8125rem; line-height:1.55; color:var(--ink); min-height:60px; }
+  .verdict-badge { display:inline-block; font-size:.6875rem; font-weight:600; padding:3px 10px; border-radius:6px; margin-bottom:8px; }
+  .verdict-green { background:#eaf3de; color:#27500a; }
+  .verdict-red { background:#fcebeb; color:#791f1f; }
+
+  .footnote { margin-top:16px; font-size:.6875rem; color:var(--faint); line-height:1.7; border-top:1px solid var(--line); padding-top:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="eyebrow">Question 85 · CI Interpretation — Relative Risk</div>
+<h1>What does RR = 1.12 (95% CI 0.98–1.18) tell us?</h1>
+<p class="sub"><b>Cohort study:</b> Smoking vs mantle cell lymphoma over 10 years. RR = 1.12, 95% CI 0.98–1.18. The <b>null value for relative risk is 1.0</b> (no association). <b>Click each option</b> — the CI plot shows whether the interval crosses the null.</p>
+
+<div class="master-controls">
+  <div class="ci-summary">RR = 1.12 · 95% CI [0.98, 1.18] · Null = 1.0</div>
+  <div class="ctrl-group"><label>Font</label><input type="range" id="font-slider" min="8" max="18" value="10" step="1"><span class="val" id="font-display">1.0×</span></div>
+</div>
+
+<div class="stage">
+  <div class="ci-plot">
+    <svg id="ciSvg" viewBox="0 0 680 220"></svg>
+  </div>
+</div>
+
+<div class="options" id="options">
+  <button class="opt-btn" data-opt="A"><span class="opt-label">A</span><span>no significant association was found</span></button>
+  <button class="opt-btn" data-opt="B"><span class="opt-label">B</span><span>smoking increases the risk of mantle cell lymphoma development</span></button>
+  <button class="opt-btn" data-opt="C"><span class="opt-label">C</span><span>smoking decreases the risk of mantle cell lymphoma development</span></button>
+  <button class="opt-btn" data-opt="D"><span class="opt-label">D</span><span>a confounder is present</span></button>
+  <button class="opt-btn" data-opt="E"><span class="opt-label">E</span><span>smoking increases risk in some patients and decreases it in others</span></button>
+</div>
+
+<div class="verdict-panel" id="panel">
+  <p style="color:var(--faint)">Click an option to see what it actually means and whether it is right.</p>
+</div>
+
+<div class="footnote">
+  <b>The CI significance test on a ratio scale:</b> If the 95% CI <b>includes 1.0</b> (the null value for RR/OR/HR), the result is <b>NOT</b> statistically significant. If the entire CI is above 1.0 → significant positive association. If the entire CI is below 1.0 → significant protective effect.<br>
+  <b>This CI [0.98, 1.18] crosses 1.0</b> — the data are compatible with an RR of 1 (no effect), a protective effect (RR 0.98), or an increase (RR 1.18). Not enough evidence to reject the null.
+</div>
+
+</div>
+
+<script>
+var fontScale = 1.0;
+
+var rulings = {
+  A: { verdict:'green', title:'Correct — no significant association',
+    text:'The 95% CI [0.98, 1.18] <b>crosses 1.0</b> — the null value for relative risk. When the CI includes 1.0, we cannot reject the null hypothesis that RR = 1 (no association). The result is not statistically significant. The point estimate of 1.12 suggests a possible 12% increase, but the study lacked power to detect this small effect.' },
+  B: { verdict:'red', title:'Not supported — CI crosses 1.0',
+    text:'The CI includes values both above AND below 1.0 (0.98 to 1.18). You cannot conclude smoking <b>increases</b> risk when the data are also compatible with a protective effect (RR less than 1.0). The evidence is insufficient to rule out the null.' },
+  C: { verdict:'red', title:'Not supported — CI crosses 1.0',
+    text:'The CI includes values above 1.0 (up to 1.18), so a protective/decreased-risk conclusion is equally unsupported. The data are compatible with increased, decreased, or no effect.' },
+  D: { verdict:'red', title:'No evidence of confounding in the data given',
+    text:'The question provides only a single crude RR with a CI. Confounding is a study design issue (uncontrolled third variable), not a conclusion from the CI alone. Nothing in this question supports invoking a confounder.' },
+  E: { verdict:'red', title:'No evidence of effect modification',
+    text:'Effect modification (different risk in different subgroups) requires <b>stratified</b> results — you would need separate RRs for subgroups. A single overall RR with one CI cannot show that the effect direction varies between subgroups.' }
+};
+
+function drawCI(){
+  var svg = document.getElementById('ciSvg');
+  var W=680, H=220, padL=70, padR=40, padT=42, padB=60;
+  var pW=W-padL-padR;
+
+  // Ratio scale: linear from 0.4 to 2.0 (centered on 1.0)
+  var rMin=0.4, rMax=2.0;
+  function xPx(val){ return padL + (val - rMin)/(rMax - rMin)*pW; }
+
+  var estX=xPx(1.12), ciLoX=xPx(0.98), ciHiX=xPx(1.18), nullX=xPx(1.0);
+  var centerY=H-padB-35;
+  var fs = fontScale;
+
+  var s='';
+
+  // Baseline
+  s+='<line x1="'+padL+'" y1="'+centerY+'" x2="'+(W-padR)+'" y2="'+centerY+'" stroke="#d4d4d1" stroke-width="1.2"/>';
+
+  // Tick marks
+  var ticks=[0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.4,1.6,1.8,2.0];
+  ticks.forEach(function(v){
+    var x=xPx(v);
+    var isMajor = v === 1.0 || v % 0.5 === 0;
+    var len = isMajor ? 10 : 6;
+    s+='<line x1="'+x+'" y1="'+(centerY-len)+'" x2="'+x+'" y2="'+(centerY+len)+'" stroke="'+(v===1.0?'#9ca3af':'#c4bfb5')+'" stroke-width="'+(isMajor?1.2:0.8)+'"/>';
+    s+='<text x="'+x+'" y="'+(centerY+30)+'" text-anchor="middle" font-size="'+Math.round(11*fs)+'" fill="'+(v===1.0?'#4b5563':'#9ca3af')+'" font-weight="'+(v===1.0?'700':'400')+'">'+v.toFixed(v===1.0?1:1)+'</text>';
+  });
+
+  // Axis label
+  s+='<text x="'+(padL+pW/2)+'" y="'+(centerY+50)+'" text-anchor="middle" font-size="'+Math.round(12*fs)+'" fill="#1a1a2e" font-weight="600">Relative Risk</text>';
+
+  // Null line (RR=1.0)
+  s+='<line x1="'+nullX+'" y1="'+(padT + 6)+'" x2="'+nullX+'" y2="'+(centerY-18)+'" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="5,4"/>';
+  s+='<rect x="'+(nullX-34)+'" y="'+(padT+2)+'" width="68" height="18" rx="4" fill="rgba(156,163,175,0.12)"/>';
+  s+='<text x="'+nullX+'" y="'+(padT+15)+'" text-anchor="middle" font-size="'+Math.round(10*fs)+'" font-weight="700" fill="#6b7280">Null (RR = 1)</text>';
+
+  // CI whisker
+  s+='<line x1="'+ciLoX+'" y1="'+centerY+'" x2="'+ciHiX+'" y2="'+centerY+'" stroke="#2563eb" stroke-width="8" stroke-linecap="round" opacity="0.15"/>';
+  s+='<line x1="'+ciLoX+'" y1="'+(centerY-14)+'" x2="'+ciLoX+'" y2="'+(centerY+14)+'" stroke="#2563eb" stroke-width="2.5"/>';
+  s+='<line x1="'+ciHiX+'" y1="'+(centerY-14)+'" x2="'+ciHiX+'" y2="'+(centerY+14)+'" stroke="#2563eb" stroke-width="2.5"/>';
+
+  // Point estimate
+  s+='<rect x="'+(estX-7)+'" y="'+(centerY-7)+'" width="14" height="14" rx="3" fill="#1a1a2e"/>';
+  s+='<text x="'+estX+'" y="'+(centerY-18)+'" text-anchor="middle" font-size="'+Math.round(12*fs)+'" font-weight="800" fill="#1a1a2e">RR = 1.12</text>';
+
+  // CI labels
+  s+='<text x="'+ciLoX+'" y="'+(centerY+44)+'" text-anchor="middle" font-size="'+Math.round(11*fs)+'" font-weight="700" fill="#2563eb">0.98</text>';
+  s+='<text x="'+ciHiX+'" y="'+(centerY+44)+'" text-anchor="middle" font-size="'+Math.round(11*fs)+'" font-weight="700" fill="#2563eb">1.18</text>';
+  s+='<text x="'+((ciLoX+ciHiX)/2)+'" y="'+(centerY+18)+'" text-anchor="middle" font-size="'+Math.round(10*fs)+'" font-weight="600" fill="#2563eb">95% CI</text>';
+
+  // Crosses-null indicator
+  s+='<circle cx="'+nullX+'" cy="'+centerY+'" r="4" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>';
+  s+='<text x="'+nullX+'" y="'+(centerY-22)+'" text-anchor="middle" font-size="'+Math.round(9*fs)+'" font-weight="700" fill="#ef4444">1.0 inside CI</text>';
+
+  // Not significant label
+  s+='<text x="'+xPx(1.08)+'" y="'+(padT+15)+'" text-anchor="start" font-size="'+Math.round(9*fs)+'" font-weight="700" fill="#ef4444">CI crosses null — NOT significant</text>';
+
+  svg.innerHTML=s;
+}
+
+function selectOption(key){
+  var btns = document.querySelectorAll('.opt-btn');
+  for (var i=0; i<btns.length; i++) { btns[i].classList.remove('selected','green','red'); }
+  var btn=document.querySelector('.opt-btn[data-opt="'+key+'"]');
+  if(!btn) return;
+  btn.classList.add('selected');
+  var r=rulings[key];
+  btn.classList.add(r.verdict==='green'?'green':'red');
+
+  var panel=document.getElementById('panel');
+  var badgeClass=r.verdict==='green'?'verdict-green':'verdict-red';
+  panel.innerHTML=
+    '<span class="verdict-badge '+badgeClass+'">'+r.title+'</span>'+
+    '<p style="margin:4px 0 0;">'+r.text+'</p>';
+}
+
+document.getElementById('options').addEventListener('click',function(e){
+  var btn=e.target.closest('.opt-btn');
+  if(!btn) return;
+  selectOption(btn.dataset.opt);
+});
+
+document.getElementById('font-slider').addEventListener('input',function(){
+  fontScale=this.value/10;
+  document.getElementById('font-display').textContent=fontScale.toFixed(1)+'x';
+  drawCI();
+});
+
+drawCI();
+selectOption('A');
+</script>
+</body>
+</html>

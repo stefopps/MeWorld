@@ -137,6 +137,35 @@ input:checked+.toggle-slider:before{transform:translateX(18px)}
 .sp-tour-auto-label { font-size: .5rem; color: #9ca3af; margin-left: 4px; }
 .option-image-badge{font-size:.5625rem;color:#7c3aed;background:#f5f3ff;padding:4px 10px;border-radius:4px;border:1px solid #ede9fe}
 
+/* ── Concept Map (α/β/power/p-value) ── */
+.concept-map-wrap { padding:8px 0; }
+.concept-map-wrap .cm-master-ctrls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:8px 14px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:10px; margin-bottom:10px; }
+.concept-map-wrap .cm-legend { display:flex; gap:14px; padding-bottom:6px; border-bottom:1px solid #e5e7eb; margin-bottom:6px; font-size:.5625rem; color:#6b7280; letter-spacing:.03em; }
+.concept-map-wrap .cm-legend-dot { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:3px; vertical-align:middle; }
+.concept-map-wrap .cm-sliders { display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+.concept-map-wrap .cm-sliders label { font-size:.6875rem; color:#6b7280; font-weight:500; white-space:nowrap; }
+.concept-map-wrap .cm-sliders input[type=range] { width:80px; accent-color:#2563eb; }
+.concept-map-wrap .cm-sliders .cm-val { font-weight:700; font-size:.75rem; min-width:34px; text-align:right; font-variant-numeric:tabular-nums; }
+.concept-map-wrap .cm-panels { display:grid; grid-template-columns:1fr 44px 1fr; gap:0; align-items:start; margin-bottom:8px; }
+.concept-map-wrap .cm-panel { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:12px 10px 6px; }
+.concept-map-wrap .cm-panel-label { font-size:.5625rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#9ca3af; margin-bottom:2px; }
+.concept-map-wrap .cm-panel h3 { font-size:.75rem; font-weight:700; color:#1a1a2e; margin-bottom:2px; }
+.concept-map-wrap .cm-panel p { font-size:.625rem; color:#6b7280; line-height:1.45; margin-bottom:6px; }
+.concept-map-wrap .cm-panel svg { display:block; width:100%; }
+.concept-map-wrap .cm-connector { display:flex; flex-direction:column; align-items:center; justify-content:center; padding-top:50px; gap:6px; }
+.concept-map-wrap .cm-conn-label { font-size:.5rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#9ca3af; text-align:center; writing-mode:vertical-rl; line-height:1.4; }
+.concept-map-wrap .cm-stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:8px; }
+.concept-map-wrap .cm-stat-card { background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:6px 8px; text-align:center; }
+.concept-map-wrap .cm-stat-card .cm-stat-label { display:block; font-size:.5625rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#9ca3af; margin-bottom:2px; }
+.concept-map-wrap .cm-stat-card .cm-stat-num { font-size:1rem; font-weight:800; font-feature-settings:"tnum"; }
+.concept-map-wrap .cm-stat-card .cm-stat-note { font-size:.5rem; color:#9ca3af; margin-top:1px; }
+.concept-map-wrap .cm-verdict { margin-top:8px; text-align:center; padding:8px; font-size:.75rem; font-weight:600; border-radius:8px; }
+.concept-map-wrap .cm-verdict.sig { background:rgba(220,38,38,.06); color:#991b1b; }
+.concept-map-wrap .cm-verdict.nosig { background:rgba(0,0,0,.03); color:#6b7280; }
+.concept-map-wrap .cm-explain { margin-top:8px; padding:8px 12px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; font-size:.625rem; color:#6b7280; line-height:1.5; }
+.concept-map-wrap .cm-explain b { color:#1a1a2e; }
+.concept-map-wrap .cm-footnote { margin-top:12px; font-size:.625rem; color:#9ca3af; line-height:1.6; border-top:1px solid #e5e7eb; padding-top:10px; }
+
 /* ── Floating card — the command center ── */
 .float-card{position:absolute;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border:1px solid #e5e7eb;border-radius:10px;min-width:140px;box-shadow:0 2px 16px rgba(0,0,0,.06);user-select:none;overflow:visible;cursor:grab;display:flex;flex-direction:column}
 .float-card:active{cursor:default}
@@ -307,6 +336,58 @@ body.chat-docked .float-card:not(.docked) {
 .chat-msg-attending .chat-heading{font-size:1.1em;font-weight:600;color:#1e1b4b;margin:.4em 0 .2em 0;line-height:1.3}
 .chat-msg-attending .inline-code{background:#ede9fe;color:#6d28d9;font-size:.85em;padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono','Cascadia Code',monospace}
 .chat-msg-student p{margin:0;line-height:1.45}
+
+/* ══ Companion Panel (PPV & ROC Reference) ══ */
+.companion-btn{background:none;border:1px solid #e5e7eb;cursor:pointer;color:#9ca3af;font-size:14px;padding:6px 10px;border-radius:6px;display:flex;align-items:center;gap:5px;font-family:'Inter',sans-serif;font-size:.6875rem;font-weight:600;transition:all .15s}
+.companion-btn:hover{color:#7D5CFF;border-color:#C8B5FF;background:rgba(169,139,255,.06)}
+.companion-btn.active{color:#7D5CFF;border-color:#7D5CFF;background:rgba(169,139,255,.1)}
+.companion-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:300;display:none;pointer-events:none;transition:opacity .2s}
+.companion-backdrop.open{display:block;pointer-events:auto}
+.companion-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:820px;max-width:94vw;max-height:88vh;background:#FFFFFF;border:2px solid #e5e0d8;border-radius:16px;box-shadow:0 8px 48px rgba(0,0,0,.15);z-index:301;display:none;flex-direction:column;overflow:hidden}
+.companion-overlay.open{display:flex}
+.companion-hdr{display:flex;align-items:center;padding:10px 16px;background:#FFFFFF;border-bottom:1px solid #e5e0d8;cursor:grab;user-select:none;gap:10px;flex-shrink:0}
+.companion-hdr:active{cursor:grabbing}
+.companion-hdr .co-title{font-size:.6875rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7D5CFF;margin-right:auto}
+.companion-hdr .co-icon{font-size:16px;color:#A98BFF}
+.companion-close{background:none;border:none;cursor:pointer;color:#6b6b6b;font-size:16px;padding:4px;border-radius:6px;display:flex;align-items:center}
+.companion-close:hover{color:#1a1a2e;background:rgba(0,0,0,.05)}
+.co-tabs{display:flex;gap:0;border-bottom:1px solid #e5e0d8;padding:0 16px;background:#FFFFFF;flex-shrink:0}
+.co-tab{padding:8px 14px;font-size:.6875rem;font-weight:600;color:#6b6b6b;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;font-family:'Inter',-apple-system,sans-serif}
+.co-tab:hover{color:#1a1a2e}
+.co-tab.active{color:#7D5CFF;border-bottom-color:#7D5CFF}
+.co-body{display:none;flex:1;overflow-y:auto;min-height:0}
+.co-body.active{display:flex;flex-direction:column}
+.co-dual-grid{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.co-chart-cell{padding:14px;position:relative;display:flex;flex-direction:column}
+.co-chart-cell:first-child{border-right:1px solid #e5e0d8}
+.co-cell-label{font-size:.5625rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7D5CFF;margin-bottom:6px}
+.co-cell-wrap{flex:1;position:relative;min-height:0}
+.co-cell-wrap canvas{width:100%!important;height:100%!important}
+.co-footer{padding:10px 16px;background:#FFFFFF;border-top:1px solid #e5e0d8;display:flex;align-items:center;gap:14px;flex-shrink:0}
+.co-ctrl{display:flex;align-items:center;gap:8px;flex:1}
+.co-ctrl label{font-size:.6875rem;font-weight:600;color:#6b6b6b;white-space:nowrap;min-width:64px}
+.co-ctrl input[type=range]{flex:1;accent-color:#7D5CFF;max-width:200px}
+.co-ctrl .co-val{font-weight:700;font-size:.75rem;min-width:32px;text-align:right;color:#7D5CFF}
+.co-snsp{padding:8px 16px 14px 16px;background:#FFFFFF;border-top:1px solid #e5e0d8}
+.co-snsp-title{font-size:.625rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b6b6b;margin-bottom:8px}
+.co-snsp-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;font-size:.6875rem}
+.co-snsp-row .co-bm{width:50px;font-weight:700;color:#1a1a2e;flex-shrink:0}
+.co-snsp-row .co-bar-wrap{flex:1;display:flex;flex-direction:column;gap:2px}
+.co-snsp-row .co-bar{height:8px;border-radius:4px;min-width:2px;transition:width .2s}
+.co-snsp-row .co-bar.sn{background:#A98BFF}
+.co-snsp-row .co-bar.sp{background:#7D5CFF}
+.co-snsp-row .co-pct{width:44px;text-align:right;font-weight:600;flex-shrink:0;font-size:.625rem;color:#6b6b6b;line-height:1.35}
+.co-story{padding:8px 16px 12px 16px;background:rgba(169,139,255,.06);border-top:1px solid #e5e0d8;font-size:.625rem;color:#6b6b6b;line-height:1.55;flex-shrink:0}
+.co-story b{color:#7D5CFF}
+.co-accent{position:absolute;border-radius:8px;opacity:.45;pointer-events:none;z-index:0;background:#A98BFF}
+.co-resize-handle{position:absolute;right:0;top:0;bottom:0;width:8px;cursor:ew-resize;z-index:10}
+.co-resize-handle::after{content:'';position:absolute;right:2px;top:30%;bottom:30%;width:3px;border-radius:2px;background:transparent;transition:background .15s}
+.co-resize-handle:hover::after{background:#C8B5FF}
+.co-font-ctrl{display:flex;align-items:center;gap:6px;margin-left:auto}
+.co-font-ctrl label{font-size:.625rem;color:#6b6b6b;white-space:nowrap}
+.co-font-ctrl input[type=range]{width:60px;accent-color:#7D5CFF}
+/* end companion */
+
 </style>
 </head>
 <body>
@@ -334,6 +415,9 @@ body.chat-docked .float-card:not(.docked) {
     <button class="pivot-toggle" id="pivot-toggle" onclick="togglePivotMode()" title="Pivot Mode: 42 curated concept anchors in progressive sequence">
       <i class="ti ti-target pivot-icon"></i>
       <span id="pivot-toggle-label">Pivot</span>
+    </button>
+    <button class="companion-btn" id="companion-btn" onclick="toggleCompanionPanel()" title="PPV &amp; ROC Reference">
+      <i class="ti ti-chart-dots-3"></i> Reference
     </button>
   </div>
 
@@ -1332,7 +1416,7 @@ function updateQuizGraph(){
 
   // Show the right canvas/control for this type
   const htmlTypes = ['contingencyTable','biasDiagram','studyDesignGrid','phaseTimeline','dag','decisionTree','spaghettiPlot',
-    'secantTangent','hazardSecant','cltGraph'];
+    'secantTangent','hazardSecant','cltGraph','conceptMap'];
 
   if (['bar','bar-multigroup'].includes(gt)) {
     const barCanvas = document.getElementById('chart-quiz-bar');
@@ -1443,6 +1527,8 @@ function updateQuizGraph(){
     renderHazardSecant(q, renderBg);
   } else if (gt==='cltGraph') {
     renderCLTDemo(q, renderBg);
+  } else if (gt==='conceptMap') {
+    renderConceptMap(q, renderBg);
   }
 }
 
@@ -4328,6 +4414,179 @@ function renderCLTDemo(q, bg) {
   });
   ro.observe(div);
 }
+
+// ── Concept Map — α, β, Power & p-value interactive two-panel explorer ──
+function renderConceptMap(q, bg) {
+  const div = document.getElementById('chart-quiz-html');
+  if (!div) return;
+  div.style.display = '';
+  div.style.overflow = 'auto';
+  div.style.maxHeight = 'calc(100vh - 280px)';
+
+  const W=380, H=240, padL=42, padR=18, padT=24, padB=38;
+  const pW=W-padL-padR, pH=H-padT-padB;
+  const xMin=-3.5, xMax=3.8;
+  function xPx(x){ return padL+(x-xMin)/(xMax-xMin)*pW; }
+  function yPx(yf){ return H-padB - yf*pH; }
+  function cdf(x){ const z=x/Math.SQRT2, t=1/(1+0.3275911*Math.abs(z)); return 0.5*(1+(x>=0?1:-1)*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-z*z))); }
+  function zAlpha(a){ let lo=-5,hi=5; for(let i=0;i<50;i++){let m=(lo+hi)/2; if(1-cdf(m)>a)lo=m;else hi=m;} return (lo+hi)/2; }
+
+  let alpha=bg.alpha!=null?bg.alpha:0.05, zObs=bg.zObs!=null?bg.zObs:0.00, d=bg.d!=null?bg.d:0.00;
+
+  const colors = {
+    bg:'#f5f5f5', card:'#fff', ink:'#1a1a2e', sub:'#6b7280', faint:'#9ca3af', line:'#e5e7eb',
+    accent:'#dc2626', curve:'#1a1a2e', ribbon:'rgba(220,38,38,0.12)',
+    beta:'rgba(217,119,6,0.11)', power:'rgba(22,163,74,0.11)',
+    betaText:'#b45309', powerText:'#15803d'
+  };
+
+  function curvePts(mean,sd,steps){
+    const pts=[], step=(xMax-xMin)/steps;
+    for(let x=xMin;x<=xMax;x+=step) pts.push({x,y:Math.exp(-0.5*((x-mean)/sd)**2)/(sd*Math.sqrt(2*Math.PI))/Math.exp(0)/(Math.sqrt(2*Math.PI))});
+    return pts;
+  }
+  const nullC=curvePts(0,1,300);
+
+  function drawMeans(dVal){
+    const x0=xPx(0), xD=xPx(dVal);
+    const r=4, rInner=1.6;
+    const baseY=H-padB, arrowY=yPx(0.03);
+    let h='';
+    const nullPeakY=yPx(1), altPeakY=yPx(Math.exp(-0.5*(dVal-dVal)**2)/(Math.sqrt(2*Math.PI))/Math.exp(0)/(Math.sqrt(2*Math.PI)));
+    h+=`<line x1="${x0}" y1="${baseY}" x2="${x0}" y2="${nullPeakY}" stroke="${colors.ink}" stroke-width="0.5" stroke-dasharray="2,3" opacity="0.4"/>`;
+    h+=`<line x1="${xD}" y1="${baseY}" x2="${xD}" y2="${altPeakY}" stroke="${colors.ink}" stroke-width="0.5" stroke-dasharray="2,3" opacity="0.4"/>`;
+    h+=`<circle cx="${x0}" cy="${baseY}" r="${r}" fill="${colors.ink}"/><circle cx="${x0}" cy="${baseY}" r="${rInner}" fill="${colors.card}"/>`;
+    h+=`<text x="${x0}" y="${baseY+13}" text-anchor="middle" font-size="7" font-weight="700" fill="${colors.ink}">μ = 0</text>`;
+    h+=`<circle cx="${xD}" cy="${baseY}" r="${r}" fill="${colors.ink}"/><circle cx="${xD}" cy="${baseY}" r="${rInner}" fill="${colors.card}"/>`;
+    h+=`<text x="${xD}" y="${baseY+13}" text-anchor="middle" font-size="7" font-weight="700" fill="${colors.ink}">μ = ${dVal.toFixed(2)}</text>`;
+    h+=`<defs><marker id="cmMeanArrow" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="${colors.ink}"/></marker></defs>`;
+    h+=`<line x1="${x0+r+1}" y1="${arrowY}" x2="${Math.max(x0+r+2,xD-r-1)}" y2="${arrowY}" stroke="${colors.ink}" stroke-width="1" marker-end="url(#cmMeanArrow)"/>`;
+    h+=`<text x="${(x0+xD)/2}" y="${arrowY-4}" text-anchor="middle" font-size="7.5" font-weight="700" fill="${colors.ink}">d = ${dVal.toFixed(2)}</text>`;
+    return h;
+  }
+
+  function renderA(){
+    const za=zAlpha(alpha), zaPx=xPx(za);
+    let h='';
+    h+=`<line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#d1d5db" stroke-width="0.75"/>`;
+    const altC=curvePts(d,1,300);
+    h+=`<path d="M${altC.map(p=>`${xPx(p.x).toFixed(1)},${yPx(p.y).toFixed(1)}`).join('L')}" fill="none" stroke="#9ca3af" stroke-width="0.6" stroke-dasharray="3,5"/>`;
+    h+=`<path d="M${nullC.map(p=>`${xPx(p.x).toFixed(1)},${yPx(p.y).toFixed(1)}`).join('L')}" fill="none" stroke="${colors.curve}" stroke-width="1.5"/>`;
+    h+=`<path d="M${zaPx.toFixed(1)},${H-padB} `;
+    for(const p of nullC){ if(p.x>=za) h+=`L${xPx(p.x).toFixed(1)},${yPx(p.y).toFixed(1)} `; }
+    h+=`L${xPx(xMax).toFixed(1)},${H-padB} Z" fill="${colors.ribbon}" stroke="none"/>`;
+    h+=`<path d="M${nullC.map(p=>`${xPx(p.x).toFixed(1)},${yPx(p.y).toFixed(1)}`).join('L')}" fill="none" stroke="${colors.curve}" stroke-width="1.5"/>`;
+    h+=drawMeans(d);
+    // Knife blade at threshold
+    h+=`<line x1="${zaPx}" y1="${yPx(1)-10}" x2="${zaPx}" y2="${H-padB}" stroke="${colors.ink}" stroke-width="1.2" stroke-dasharray="2,4" opacity="0.6"/>`;
+    h+=`<polygon points="${zaPx-7},${yPx(1)-10} ${zaPx+7},${yPx(1)-10} ${zaPx},${yPx(1)+4}" fill="${colors.ink}"/>`;
+    h+=`<circle cx="${zaPx}" cy="${H-padB}" r="3" fill="${colors.ink}"/>`;
+    h+=`<text x="${zaPx}" y="${yPx(1)+14}" text-anchor="middle" font-size="7.5" font-weight="700" fill="${colors.ink}">α = ${(alpha*100).toFixed(1)}%</text>`;
+    h+=`<text x="${zaPx}" y="${yPx(1)+25}" text-anchor="middle" font-size="6" fill="${colors.faint}">THRESHOLD</text>`;
+    h+=`<text x="${zaPx}" y="${H-padB-8}" text-anchor="middle" font-size="6.5" font-weight="600" fill="${colors.ink}">z<sub>α</sub> = ${za.toFixed(2)}</text>`;
+    h+=`<text x="${xPx(0)}" y="${yPx(1)-5}" text-anchor="middle" font-size="8.5" font-weight="700" fill="${colors.ink}">H₀: μ = 0</text>`;
+    if(d>0) h+=`<text x="${xPx(d)}" y="${yPx(Math.exp(-0.5*(d-d)**2)/(Math.sqrt(2*Math.PI))/Math.exp(0)/(Math.sqrt(2*Math.PI)))-4}" text-anchor="middle" font-size="8" font-weight="700" fill="#9ca3af">H₁: μ = ${d.toFixed(2)}</text>`;
+    document.getElementById('cm-svgA').innerHTML=h;
+  }
+
+  function renderB(){
+    const za=zAlpha(alpha), zaPx=xPx(za), zObsPx=xPx(zObs);
+    const altC=curvePts(d,1,300);
+    const pval=1-cdf(zObs), sig=zObs>za;
+    let h='';
+    h+=`<line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#d1d5db" stroke-width="0.75"/>`;
+    if(d>0){
+      h+=`<path d="M${xPx(xMin).toFixed(1)},${H-padB} `;
+      for(const p of altC){ if(p.x<=za) h+=`L${xPx(p.x).toFixed(1)},${yPx(p.y).toFixed(1)} `; }
+      h+=`L${zaPx.toFixed(1)},${H-padB} Z" fill="${colors.beta}" stroke="none"/>`;
+      h+=`<path d="M${zaPx.toFixed(1)},${H-padB} `;
+      for(const p of altC){ if(p.x>=za) h+=`L${xPx(p.x).toFixed(1)},${yPx(p.y).toFixed(1)} `; }
+      h+=`L${xPx(xMax).toFixed(1)},${H-padB} Z" fill="${colors.power}" stroke="none"/>`;
+    }
+    h+=`<path d="M${zObsPx.toFixed(1)},${H-padB} `;
+    for(const p of nullC){ if(p.x>=zObs) h+=`L${xPx(p.x).toFixed(1)},${yPx(p.y).toFixed(1)} `; }
+    h+=`L${xPx(xMax).toFixed(1)},${H-padB} Z" fill="${colors.ribbon}" stroke="none"/>`;
+    h+=`<path d="M${altC.map(p=>`${xPx(p.x).toFixed(1)},${yPx(p.y).toFixed(1)}`).join('L')}" fill="none" stroke="#9ca3af" stroke-width="0.7" stroke-dasharray="3,5"/>`;
+    h+=`<path d="M${nullC.map(p=>`${xPx(p.x).toFixed(1)},${yPx(p.y).toFixed(1)}`).join('L')}" fill="none" stroke="${colors.curve}" stroke-width="1.5"/>`;
+    h+=drawMeans(d);
+    if(d>0){
+      const betaVal=cdf(za-d);
+      h+=`<text x="${xPx(Math.min(za-0.3,d-0.2))}" y="${yPx(0.1)}" text-anchor="middle" font-size="6" font-weight="700" fill="${colors.betaText}">β = ${(betaVal*100).toFixed(0)}%</text>`;
+      h+=`<text x="${xPx(Math.min(za-0.3,d-0.2))}" y="${yPx(0.1)+9}" text-anchor="middle" font-size="4.5" fill="${colors.betaText}" opacity="0.7">Type II</text>`;
+      const plx = za<d ? xPx((za+d)/2) : xPx(Math.max(za+0.3,d+0.2));
+      h+=`<text x="${plx}" y="${yPx(0.06)}" text-anchor="middle" font-size="6" font-weight="700" fill="${colors.powerText}">1−β = ${((1-betaVal)*100).toFixed(0)}%</text>`;
+      h+=`<text x="${plx}" y="${yPx(0.06)+9}" text-anchor="middle" font-size="4.5" fill="${colors.powerText}" opacity="0.7">Power</text>`;
+    }
+    h+=`<circle cx="${zObsPx}" cy="${H-padB}" r="4" fill="${colors.accent}"/><circle cx="${zObsPx}" cy="${H-padB}" r="1.8" fill="${colors.card}"/>`;
+    h+=`<text x="${zObsPx}" y="${H-padB-9}" text-anchor="middle" font-size="7" font-weight="700" fill="${colors.accent}">z<sub>obs</sub> = ${zObs.toFixed(2)}</text>`;
+    h+=`<line x1="${zaPx}" y1="${padT}" x2="${zaPx}" y2="${H-padB}" stroke="${colors.ink}" stroke-width="0.4" stroke-dasharray="2,6" opacity="0.3"/>`;
+    h+=`<polygon points="${zaPx-4},${padT} ${zaPx+4},${padT} ${zaPx},${padT+8}" fill="${colors.ink}" opacity="0.3"/>`;
+    h+=`<text x="${zaPx}" y="${padT+18}" text-anchor="middle" font-size="5.5" fill="${colors.ink}" opacity="0.35">α ref</text>`;
+    h+=`<text x="${xPx((za+zObs)/2)}" y="${yPx(0.08)}" text-anchor="middle" font-size="7.5" font-weight="700" fill="${sig?colors.accent:colors.sub}">${sig?'z<sub>obs</sub> > z<sub>α</sub> → sig.':'z<sub>obs</sub> ≤ z<sub>α</sub> → n.s.'}</text>`;
+    const midX=(zaPx+zObsPx)/2;
+    h+=`<path d="M${zaPx},${H-padB-5} Q${midX},${yPx(0.14)} ${zObsPx},${H-padB-5}" fill="none" stroke="${colors.ink}" stroke-width="0.4" stroke-dasharray="2,3" opacity="0.35"/>`;
+    h+=`<text x="${xPx(0)}" y="${yPx(1)-5}" text-anchor="middle" font-size="8.5" font-weight="700" fill="${colors.ink}">H₀: μ = 0</text>`;
+    if(d>0) h+=`<text x="${xPx(d)}" y="${yPx(Math.exp(-0.5*(d-d)**2)/(Math.sqrt(2*Math.PI))/Math.exp(0)/(Math.sqrt(2*Math.PI)))-4}" text-anchor="middle" font-size="8" font-weight="700" fill="#9ca3af">H₁: μ = ${d.toFixed(2)}</text>`;
+    document.getElementById('cm-svgB').innerHTML=h;
+    const betaVal=cdf(za-d);
+    document.getElementById('cm-val-alpha').textContent=(alpha*100).toFixed(1)+'%';
+    document.getElementById('cm-val-beta').textContent=(betaVal*100).toFixed(0)+'%';
+    document.getElementById('cm-val-power').textContent=((1-betaVal)*100).toFixed(0)+'%';
+    document.getElementById('cm-val-pval').textContent=pval<0.001?pval.toExponential(1):(pval*100).toFixed(2)+'%';
+    const vd=document.getElementById('cm-verdict');
+    vd.className='cm-verdict '+(sig?'sig':'nosig');
+    vd.textContent=sig ? `Reject H₀ — p < α. Result is statistically significant.` : `Fail to reject H₀ — p ≥ α. Not significant at this α.`;
+  }
+
+  function renderBoth(){ renderA(); renderB(); }
+
+  const controlHTML = `
+  <div class="concept-map-wrap">
+    <div class="cm-master-ctrls">
+      <div class="cm-legend">
+        <span><span class="cm-legend-dot" style="background:rgba(220,38,38,0.4)"></span> α / p-value</span>
+        <span><span class="cm-legend-dot" style="background:rgba(217,119,6,0.35)"></span> β (Type II)</span>
+        <span><span class="cm-legend-dot" style="background:rgba(22,163,74,0.35)"></span> Power (1−β)</span>
+        <span style="margin-left:auto;color:#9ca3af;font-size:.5625rem;">← drag sliders — both panels update →</span>
+      </div>
+      <div class="cm-sliders">
+        <label>α</label><input type="range" id="cm-alpha" min="1" max="50" value="${Math.round(alpha*100)}" step="0.5"><span class="cm-val" id="cm-alpha-disp">${(alpha*100).toFixed(1)}%</span>
+        <span style="color:#e5e7eb">|</span>
+        <label>z<sub>obs</sub></label><input type="range" id="cm-zobs" min="0" max="38" value="${Math.round(zObs*10)}" step="0.5"><span class="cm-val" id="cm-zobs-disp">${zObs.toFixed(2)}</span>
+        <span style="color:#e5e7eb">|</span>
+        <label>d</label><input type="range" id="cm-d" min="0" max="20" value="${Math.round(d*10)}" step="0.5"><span class="cm-val" id="cm-d-disp">${d.toFixed(2)}</span>
+      </div>
+    </div>
+    <div class="cm-panels">
+      <div class="cm-panel"><div class="cm-panel-label">Panel A — BEFORE data</div><h3>α: the pre-set rejection region</h3><p>Red ribbon = α. If H₀ is true, this is the false-positive chance.</p><svg id="cm-svgA" viewBox="0 0 ${W} ${H}" style="max-width:400px"></svg></div>
+      <div class="cm-connector"><span class="cm-conn-label">SAME</span><svg width="36" height="8" viewBox="0 0 36 8"><line x1="4" y1="4" x2="32" y2="4" stroke="#d1d5db" stroke-width="0.6" stroke-dasharray="3,3"/></svg><span class="cm-conn-label">NULL</span></div>
+      <div class="cm-panel"><div class="cm-panel-label">Panel B — AFTER data</div><h3>p-value, β, & Power</h3><p><span style="color:#dc2626">Red</span> = p-value · <span style="color:#b45309">Amber</span> = β · <span style="color:#15803d">Green</span> = power</p><svg id="cm-svgB" viewBox="0 0 ${W} ${H}" style="max-width:400px"></svg></div>
+    </div>
+    <div class="cm-stat-row">
+      <div class="cm-stat-card"><span class="cm-stat-label">Type I (α)</span><div class="cm-stat-num" style="color:${colors.ink}" id="cm-val-alpha">—</div><div class="cm-stat-note">false positive</div></div>
+      <div class="cm-stat-card"><span class="cm-stat-label">Type II (β)</span><div class="cm-stat-num" style="color:${colors.betaText}" id="cm-val-beta">—</div><div class="cm-stat-note">false negative</div></div>
+      <div class="cm-stat-card"><span class="cm-stat-label">Power (1−β)</span><div class="cm-stat-num" style="color:${colors.powerText}" id="cm-val-power">—</div><div class="cm-stat-note">true positive</div></div>
+      <div class="cm-stat-card"><span class="cm-stat-label">p-value</span><div class="cm-stat-num" style="color:${colors.accent}" id="cm-val-pval">—</div><div class="cm-stat-note">area right of z<sub>obs</sub></div></div>
+    </div>
+    <div class="cm-verdict" id="cm-verdict"></div>
+    <div class="cm-explain">
+      <b>Start here:</b> All sliders at zero. Pull each one at a time:<br>
+      <b>Move α only</b> — β and power change (wider/narrower gate), p-value does not.<br>
+      <b>Move z<sub>obs</sub> only</b> — p-value changes, α/β/power do not (α was committed before data).<br>
+      <b>Move d only</b> — β shrinks and power grows as distributions pull apart; p-value unaffected.
+    </div>
+    <div class="cm-footnote">Glaser, <i>High-Yield Biostatistics</i> (4th Ed), Ch 3 · Brase &amp; Brase, <i>Understandable Statistics</i> (13th Ed), Ch 8.2</div>
+  </div>`;
+
+  div.innerHTML = controlHTML;
+
+  document.getElementById('cm-alpha').addEventListener('input',function(){ alpha=this.value/100; document.getElementById('cm-alpha-disp').textContent=(alpha*100).toFixed(1)+'%'; renderBoth(); });
+  document.getElementById('cm-zobs').addEventListener('input',function(){ zObs=this.value/10; document.getElementById('cm-zobs-disp').textContent=zObs.toFixed(2); renderBoth(); });
+  document.getElementById('cm-d').addEventListener('input',function(){ d=this.value/10; document.getElementById('cm-d-disp').textContent=d.toFixed(2); renderBoth(); });
+
+  renderBoth();
+}
+
 function renderSpaghettiPlot(q, bg) {
   const div = document.getElementById('chart-quiz-html');
   if (!div) return;
@@ -5780,6 +6039,10 @@ Correct answer: option ${q.options[q.correct].label} (index ${q.correct})
     const reply = data.choices?.[0]?.message?.content?.trim() || 'No response.';
 
     if (thinkDiv) thinkDiv.remove();
+    // Guard: discard stale response if user navigated away during API call.
+    // Prevents Q79's LLM response from overwriting Q80's chat panel and
+    // cross-contaminating the global chatHistory variable.
+    if (qIdx !== currentQ) return;
     if (!followUpText && !forceRefresh) {
       const cached = loadAttendingCache();
       cached[cacheKey] = reply;
@@ -5794,6 +6057,8 @@ Correct answer: option ${q.options[q.correct].label} (index ${q.correct})
     autoFitCard();
   } catch (e) {
     if (thinkDiv) thinkDiv.remove();
+    // Suppress stale error if user navigated away during API call
+    if (qIdx !== currentQ) return;
     renderChatPanel(qIdx);
     const errEl = document.createElement('div');
     errEl.className = 'chat-msg-attending';
@@ -5887,6 +6152,216 @@ document.querySelectorAll('#card-quiz .card-tab').forEach(btn => {
     switchCardTab(this.getAttribute('data-tab'));
   });
 });
+</script>
+<!-- ══ Companion Panel ══ -->
+<div class="companion-backdrop" id="companion-backdrop" onclick="closeCompanionPanel()"></div>
+<div class="companion-overlay" id="companion-overlay">
+  <div class="co-accent" style="top:20px;left:22px;width:56px;height:56px;transform:rotate(10deg)"></div>
+  <div class="co-accent" style="top:10px;right:44px;width:40px;height:40px;border-radius:50%;transform:rotate(-8deg)"></div>
+  <div class="co-accent" style="bottom:180px;right:70px;width:46px;height:36px;transform:rotate(14deg)"></div>
+  <div class="co-resize-handle" id="co-resize-handle"></div>
+
+  <div class="companion-hdr" id="co-drag-hdr">
+    <i class="ti ti-chart-dots-3 co-icon"></i>
+    <span class="co-title">PPV & ROC Reference</span>
+    <button class="companion-close" onclick="closeCompanionPanel()"><i class="ti ti-x"></i></button>
+  </div>
+
+  <div class="co-tabs">
+    <button class="co-tab active" data-co-tab="ppv">PPV Curve</button>
+    <button class="co-tab" data-co-tab="roc">ROC Space</button>
+    <button class="co-tab" data-co-tab="dual">Compare</button>
+  </div>
+
+  <div class="co-body active" id="co-body-ppv">
+    <div style="padding:14px 14px 8px 14px"><div style="position:relative;height:240px"><canvas id="co-ppv-canvas"></canvas></div></div>
+    <div class="co-snsp" id="co-snsp-ppv"></div>
+    <div class="co-story"><b>Micro story:</b> High <b>specificity</b> (SpPin) pushes PPV up — CHF5 rules <b>IN</b> CHF. High <b>sensitivity</b> (SnNout) pushes NPV up — CHF2 rules <b>OUT</b>. Drag the prevalence slider or the handle on the chart.</div>
+  </div>
+  <div class="co-body" id="co-body-roc">
+    <div style="padding:14px 14px 8px 14px"><div style="position:relative;height:240px"><canvas id="co-roc-canvas"></canvas></div></div>
+    <div class="co-snsp" id="co-snsp-roc"></div>
+    <div class="co-story"><b>Micro story:</b> ROC measures <b>inherent discrimination</b> — independent of prevalence. Each biomarker is one point. Upper-left = best. CHF2 is near the top-left despite low PPV — different questions, different tools.</div>
+  </div>
+  <div class="co-body" id="co-body-dual">
+    <div class="co-dual-grid">
+      <div class="co-chart-cell">
+        <div class="co-cell-label">PPV vs Prevalence</div>
+        <div class="co-cell-wrap"><canvas id="co-ppv-dual-canvas"></canvas></div>
+      </div>
+      <div class="co-chart-cell">
+        <div class="co-cell-label">ROC (Sn vs 1−Sp)</div>
+        <div class="co-cell-wrap"><canvas id="co-roc-dual-canvas"></canvas></div>
+      </div>
+    </div>
+    <div class="co-story"><b>Compare:</b> PPV drops as prevalence falls — every test looks "bad" at low prevalence. ROC stays still — it is the <b>test's fingerprint</b>, unchanged by how rare the disease is. Drag the slider: PPV shifts, ROC does not.</div>
+  </div>
+
+  <div class="co-footer">
+    <div class="co-ctrl">
+      <label>Prevalence</label>
+      <input type="range" id="co-prev-slider" min="1" max="50" value="10" step="1">
+      <span class="co-val" id="co-prev-display">10%</span>
+    </div>
+    <div class="co-font-ctrl">
+      <label>Font</label>
+      <input type="range" id="co-font-slider" min="8" max="16" value="10" step="1">
+      <span class="co-val" id="co-font-display" style="color:#6b6b6b;font-weight:600">1.0x</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* ══ Companion Panel: PPV & ROC Reference ══ */
+  var coBio = [
+    { id:'CHF1', label:'CHF1', sn:0.67, sp:0.72 },
+    { id:'CHF2', label:'CHF2', sn:0.95, sp:0.56 },
+    { id:'CHF3', label:'CHF3', sn:0.81, sp:0.81 },
+    { id:'CHF4', label:'CHF4', sn:0.50, sp:0.89 },
+    { id:'CHF5', label:'CHF5', sn:0.58, sp:0.93 }
+  ];
+  var coCol = ['#C8B5FF','#A98BFF','#7D5CFF','#6B4FD4','#4B2E8C'];
+  var coFs = 1.0;
+  var coCharts = {};
+  var coDragging = false;
+
+  function coPpv(sn,sp,prev){ var d=sn*prev+(1-sp)*(1-prev); return d===0?0:(sn*prev)/d*100; }
+  function coPrev(){ return parseFloat(document.getElementById('co-prev-slider').value)/100; }
+
+  function coRenderSnSp(containerId){
+    var el=document.getElementById(containerId); if(!el)return;
+    el.innerHTML='<div class="co-snsp-title">Sensitivity & Specificity</div>'+
+      coBio.map(function(bm,i){
+        return '<div class="co-snsp-row">'+
+          '<span class="co-bm" style="color:'+coCol[i]+'">'+bm.label+'</span>'+
+          '<div class="co-bar-wrap">'+
+            '<div class="co-bar sn" style="width:'+(bm.sn*100)+'%"></div>'+
+            '<div class="co-bar sp" style="width:'+(bm.sp*100)+'%"></div>'+
+          '</div>'+
+          '<span class="co-pct">Sn '+Math.round(bm.sn*100)+'%<br>Sp '+Math.round(bm.sp*100)+'%</span>'+
+        '</div>';
+      }).join('');
+  }
+
+  function coBuildPpv(canvasId, key){
+    var prev=coPrev(), fs=coFs;
+    var ctx=document.getElementById(canvasId).getContext('2d');
+    if(coCharts[key]) coCharts[key].destroy();
+    var n=101, labels=[];
+    for(var i=0;i<n;i++) labels.push((i/(n-1)*100).toFixed(0)+'%');
+    var ds=coBio.map(function(bm,i){
+      var d=[]; for(var j=0;j<n;j++) d.push(coPpv(bm.sn,bm.sp,j/(n-1)));
+      return {label:bm.label+' (Sn='+Math.round(bm.sn*100)+'%, Sp='+Math.round(bm.sp*100)+'%)',data:d,borderColor:coCol[i],backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:.3};
+    });
+    var ch=new Chart(ctx,{type:'line',data:{labels:labels,datasets:ds},
+      options:{responsive:true,maintainAspectRatio:false,animation:false,
+        plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:9},usePointStyle:true,pointStyleWidth:7,padding:6,color:'#6b6b6b'}},
+          tooltip:{backgroundColor:'rgba(0,0,0,.8)',titleFont:{family:'Inter',size:10},bodyFont:{family:'Inter',size:9}}},
+        scales:{x:{title:{display:true,text:'Prevalence',font:{family:'Inter',size:10},color:'#4b5563'},ticks:{font:{family:'Inter',size:9},color:'#9ca3af',maxTicksLimit:8},grid:{color:'rgba(0,0,0,.04)'},min:0,max:50},
+          y:{title:{display:true,text:'PPV (%)',font:{family:'Inter',size:10},color:'#4b5563'},ticks:{font:{family:'Inter',size:9},color:'#9ca3af',callback:function(v){return v+'%'}},grid:{color:'rgba(0,0,0,.04)'},min:0,max:100}}},
+      plugins:[{id:'coPrevLine',afterDraw:function(c){
+        if(!c.scales.x)return; var x=c.scales.x.getPixelForValue(prev*100);
+        c.ctx.save(); c.ctx.beginPath(); c.ctx.setLineDash([4,4]);
+        c.ctx.strokeStyle='rgba(0,0,0,.2)'; c.ctx.lineWidth=1;
+        c.ctx.moveTo(x,c.scales.y.getPixelForValue(100)); c.ctx.lineTo(x,c.scales.y.getPixelForValue(0)); c.ctx.stroke(); c.ctx.setLineDash([]);
+        coBio.forEach(function(bm,i){var y=c.scales.y.getPixelForValue(coPpv(bm.sn,bm.sp,prev));c.ctx.beginPath();c.ctx.arc(x,y,4,0,Math.PI*2);c.ctx.fillStyle=coCol[i];c.ctx.fill();c.ctx.strokeStyle='#fff';c.ctx.lineWidth=1;c.ctx.stroke();});
+        c.ctx.beginPath();c.ctx.arc(x,c.scales.y.getPixelForValue(100)-2,7,0,Math.PI*2);c.ctx.fillStyle='#7D5CFF';c.ctx.fill();c.ctx.strokeStyle='#fff';c.ctx.lineWidth=2;c.ctx.stroke();
+        c._coPvX=x;c._coPvY=c.scales.y.getPixelForValue(100)-2;c.ctx.restore();
+      }}]});
+    coCharts[key]=ch; return ch;
+  }
+
+  function coBuildRoc(canvasId, key){
+    var fs=coFs;
+    var ctx=document.getElementById(canvasId).getContext('2d');
+    if(coCharts[key]) coCharts[key].destroy();
+    var pts=coBio.map(function(bm,i){return {x:(1-bm.sp)*100,y:bm.sn*100,label:bm.label,color:coCol[i]};});
+    var ch=new Chart(ctx,{type:'scatter',data:{datasets:[{label:'Biomarkers',data:pts,backgroundColor:coCol,borderColor:coCol,pointRadius:7,pointHoverRadius:12,borderWidth:2},{label:'Random',data:[{x:0,y:0},{x:100,y:100}],borderColor:'rgba(0,0,0,.15)',borderDash:[6,4],borderWidth:1.5,pointRadius:0,showLine:true,fill:false}]},
+      options:{responsive:true,maintainAspectRatio:false,animation:false,
+        plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:9},usePointStyle:true,pointStyleWidth:7,padding:6,color:'#6b6b6b',generateLabels:function(ch){return ch.data.datasets[0].data.map(function(p,i){return {text:p.label+' (Sn='+Math.round(p.y)+'%, Sp='+Math.round(100-p.x)+'%)',fillStyle:p.color,strokeStyle:p.color,lineWidth:0,hidden:false,index:i};});}}},
+          tooltip:{callbacks:{label:function(ctx){var p=ctx.raw;return p.label+': Sn='+Math.round(p.y)+'%, Sp='+Math.round(100-p.x)+'%';}},backgroundColor:'rgba(0,0,0,.8)',titleFont:{family:'Inter',size:10},bodyFont:{family:'Inter',size:9}}},
+        scales:{x:{title:{display:true,text:'1 - Specificity (%)',font:{family:'Inter',size:10},color:'#4b5563'},ticks:{font:{family:'Inter',size:9},color:'#9ca3af',maxTicksLimit:8},grid:{color:'rgba(0,0,0,.04)'},min:0,max:100},
+          y:{title:{display:true,text:'Sensitivity (%)',font:{family:'Inter',size:10},color:'#4b5563'},ticks:{font:{family:'Inter',size:9},color:'#9ca3af',maxTicksLimit:8},grid:{color:'rgba(0,0,0,.04)'},min:0,max:100}}},
+      plugins:[{id:'coRocLabel',afterDraw:function(c){if(!c.scales.x)return;c.ctx.save();c.ctx.font='7px Inter';c.ctx.fontWeight='600';c.ctx.fillStyle='#7D5CFF';c.ctx.fillText('Upper-left = Best',c.scales.x.getPixelForValue(12),c.scales.y.getPixelForValue(92));c.ctx.fillStyle='#9ca3af';c.ctx.fillText('Diagonal = Random',c.scales.x.getPixelForValue(52),c.scales.y.getPixelForValue(48));c.ctx.restore();}}]});
+    coCharts[key]=ch; return ch;
+  }
+
+  function coDrawAll(){
+    coBuildPpv('co-ppv-canvas','ppv');
+    coBuildPpv('co-ppv-dual-canvas','ppvDual');
+    coBuildRoc('co-roc-canvas','roc');
+    coBuildRoc('co-roc-dual-canvas','rocDual');
+  }
+
+  function coSwitchTab(tab){
+    document.querySelectorAll('.co-tab').forEach(function(b){b.classList.toggle('active',b.dataset.coTab===tab);});
+    document.querySelectorAll('.co-body').forEach(function(b){b.classList.toggle('active',b.id==='co-body-'+tab);});
+    if(tab==='ppv') coBuildPpv('co-ppv-canvas','ppv');
+    if(tab==='roc') coBuildRoc('co-roc-canvas','roc');
+    if(tab==='dual'){coBuildPpv('co-ppv-dual-canvas','ppvDual');coBuildRoc('co-roc-dual-canvas','rocDual');}
+  }
+
+  // Hook tab clicks
+  document.querySelector('.co-tabs').addEventListener('click',function(e){
+    var btn=e.target.closest('.co-tab'); if(!btn)return; coSwitchTab(btn.dataset.coTab);
+  });
+
+  // Sliders
+  document.getElementById('co-prev-slider').addEventListener('input',function(){
+    document.getElementById('co-prev-display').textContent=this.value+'%';
+    coBuildPpv('co-ppv-canvas','ppv'); coBuildPpv('co-ppv-dual-canvas','ppvDual');
+  });
+  document.getElementById('co-font-slider').addEventListener('input',function(){
+    coFs=this.value/10; document.getElementById('co-font-display').textContent=coFs.toFixed(1)+'x'; coDrawAll();
+  });
+
+  // Drag prevalence on PPV canvases
+  function coGetPvX(clientX,canvasId){
+    var ch=coCharts[canvasId==='co-ppv-canvas'?'ppv':'ppvDual']; if(!ch||!ch.scales.x)return 0;
+    var r=document.getElementById(canvasId).getBoundingClientRect();
+    return ch.scales.x.getValueForPixel(clientX-r.left);
+  }
+  ['co-ppv-canvas','co-ppv-dual-canvas'].forEach(function(cid){
+    var cvs=document.getElementById(cid);
+    cvs.addEventListener('pointerdown',function(e){
+      var ch=coCharts[cid==='co-ppv-canvas'?'ppv':'ppvDual']; if(!ch||!ch._coPvX)return;
+      var r=cvs.getBoundingClientRect(),dx=(e.clientX-r.left)-ch._coPvX,dy=(e.clientY-r.top)-ch._coPvY;
+      if(Math.sqrt(dx*dx+dy*dy)<16){coDragging=true;cvs.setPointerCapture(e.pointerId);cvs.style.cursor='grabbing';}
+    });
+    cvs.addEventListener('pointermove',function(e){
+      if(!coDragging){var ch=coCharts[cid==='co-ppv-canvas'?'ppv':'ppvDual'];if(ch&&ch._coPvX){var r=cvs.getBoundingClientRect(),dx=(e.clientX-r.left)-ch._coPvX,dy=(e.clientY-r.top)-ch._coPvY;cvs.style.cursor=Math.sqrt(dx*dx+dy*dy)<16?'grab':'default';}return;}
+      var v=Math.max(0,Math.min(50,coGetPvX(e.clientX,cid)));
+      document.getElementById('co-prev-slider').value=Math.round(v);
+      document.getElementById('co-prev-display').textContent=Math.round(v)+'%';
+      coBuildPpv('co-ppv-canvas','ppv'); coBuildPpv('co-ppv-dual-canvas','ppvDual');
+    });
+    cvs.addEventListener('pointerup',function(){coDragging=false;cvs.style.cursor='default';});
+    cvs.addEventListener('pointercancel',function(){coDragging=false;cvs.style.cursor='default';});
+  });
+
+  // Init
+  coRenderSnSp('co-snsp-ppv'); coRenderSnSp('co-snsp-roc');
+  coDrawAll(); coSwitchTab('ppv');
+
+  // ── Expose toggle / close ──
+  window.toggleCompanionPanel = function(){
+    var overlay=document.getElementById('companion-overlay');
+    var backdrop=document.getElementById('companion-backdrop');
+    var btn=document.getElementById('companion-btn');
+    if(overlay.classList.contains('open')){
+      overlay.classList.remove('open'); backdrop.classList.remove('open'); btn.classList.remove('active');
+    } else {
+      overlay.classList.add('open'); backdrop.classList.add('open'); btn.classList.add('active');
+      coDrawAll();
+    }
+  };
+  window.closeCompanionPanel = function(){
+    document.getElementById('companion-overlay').classList.remove('open');
+    document.getElementById('companion-backdrop').classList.remove('open');
+    document.getElementById('companion-btn').classList.remove('active');
+  };
+})();
 </script>
 </body>
 </html>

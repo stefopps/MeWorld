@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Q84 — PD-1 Biomarker: Normal Distribution & Empiric Rule</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#ffffff; --card:#faf8f4; --ink:#111111; --sub:#6b6b6b; --faint:#9ca3af; --line:#e5e0d8;
+    --pop:#6366f1; --pop-ribbon:rgba(99,102,241,0.12); --pop-text:#4338ca;
+    --tail:#ef4444; --tail-ribbon:rgba(239,68,68,0.22); --tail-text:#b91c1c;
+    --z:#10b981; --z-text:#0f766e;
+    --green:#16a34a; --red:#dc2626; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:#111111; padding:24px 28px 60px; }
+  .wrap { max-width:920px; margin:0 auto; }
+
+  .eyebrow { font-size:.6875rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:4px; }
+  h1 { font-size:1.25rem; font-weight:700; letter-spacing:-.01em; margin-bottom:6px; line-height:1.3; }
+  .sub { font-size:.8125rem; color:var(--sub); line-height:1.55; margin-bottom:16px; max-width:78ch; }
+  .sub b { color:var(--ink); }
+
+  .master-controls { position:fixed; top:20px; right:20px; z-index:50; width:420px; max-width:calc(100vw - 40px);
+    padding:0; background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.14); }
+  .master-controls.collapsed .hud-body { display:none; }
+  .hud-header { display:flex; align-items:center; justify-content:space-between; padding:8px 10px 8px 14px;
+    cursor:grab; border-bottom:1px solid var(--line); user-select:none; }
+  .hud-header:active { cursor:grabbing; }
+  .hud-title { font-size:.6875rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--sub); display:flex; align-items:center; gap:6px; }
+  .hud-title .grip { color:var(--faint); font-size:.75rem; letter-spacing:2px; }
+  .hud-collapse-btn { font-family:inherit; font-size:.75rem; font-weight:700; width:22px; height:22px; border-radius:6px;
+    border:1px solid var(--line); background:#fff; color:var(--sub); cursor:pointer; line-height:1; }
+  .hud-body { padding:10px 14px 12px; }
+  .sliders { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .ctrl-group { display:flex; align-items:center; gap:6px; }
+  .ctrl-group label { color:var(--sub); white-space:nowrap; font-weight:500; font-size:.6875rem; }
+  .ctrl-group input[type=range] { width:76px; accent-color:var(--pop-text); }
+  .ctrl-group .val { font-weight:700; font-size:.75rem; min-width:32px; text-align:right; color:var(--pop-text); font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; }
+  .ctrl-divider { width:1px; height:20px; background:var(--line); margin:0 2px; }
+
+  .toggle-row { display:flex; align-items:center; gap:8px; margin-top:8px; padding-top:6px; border-top:1px solid var(--line); }
+  .toggle-btn { font-family:inherit; font-size:.6875rem; font-weight:600; padding:4px 12px; border-radius:6px; border:1px solid var(--line); background:#fff; color:var(--sub); cursor:pointer; transition:all .12s; letter-spacing:.02em; }
+  .toggle-btn.on { background:var(--pop-ribbon); border-color:var(--pop); color:var(--pop-text); }
+  .toggle-hint { font-size:.625rem; color:var(--faint); }
+
+  .stage { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 16px 8px; margin-bottom:10px; }
+  svg { display:block; width:100%; touch-action:none; }
+
+  .stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:8px; }
+  .stat-card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 10px; text-align:center; }
+  .stat-card .label { display:block; font-size:.625rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); margin-bottom:2px; }
+  .stat-card .number { font-size:1.125rem; font-weight:800; font-feature-settings:"tnum"; }
+  .stat-card .note { font-size:.5625rem; color:var(--faint); margin-top:1px; }
+
+  .options { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0 8px; }
+  .opt-btn { font-family:inherit; font-size:.75rem; font-weight:500; padding:8px 14px; border-radius:8px; border:1px solid var(--line); cursor:pointer; background:#fff; color:var(--ink); transition:all .15s; }
+  .opt-btn:hover { border-color:var(--pop); background:#f5f3ff; }
+  .opt-btn.selected { border-color:var(--pop-text); background:#ede9fe; }
+  .opt-btn.green { border-color:var(--green); background:#f0fdf4; }
+  .opt-btn.red { border-color:var(--red); background:#fef2f2; }
+
+  .verdict-panel { padding:12px 16px; background:var(--card); border:1px solid var(--line); border-radius:12px; font-size:.8125rem; line-height:1.55; color:var(--ink); min-height:44px; }
+  .verdict-badge { display:inline-block; font-size:.6875rem; font-weight:600; padding:3px 10px; border-radius:6px; margin-bottom:6px; }
+  .verdict-green { background:#dcfce7; color:#166534; }
+  .verdict-red { background:#fee2e2; color:#991b1b; }
+
+  .footnote { margin-top:12px; font-size:.625rem; color:var(--faint); line-height:1.6; border-top:1px solid var(--line); padding-top:10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="eyebrow">Question 84 · Normal Distribution — Empiric Rule & Test-Positive Region</div>
+<!-- sn:0.85 sp:0.90 PPV base ref — Q98 pattern -->
+<h1>A new biomarker, PD-1, is normally distributed with μ = 100 mg/dL, σ = 20 mg/dL. Patients with PD-1 below 60 mg/dL are test-positive. What percentage of the population would test positive?</h1>
+<p class="sub"><b>Cutoff at 60 = μ − 2σ.</b> Drag the cutoff slider to move the knife across the distribution — the red tail area is your test-positive %. <b>Toggle σ-bands ON</b> to see the empiric rule layers (68% / 95% / 99.7%). An α-knife arrow descends to the cutoff, and a connector shows that the 2.5% tail = (100% − 95%) ÷ 2 — proving where the answer comes from.</p>
+
+<div class="master-controls" id="hud">
+  <div class="hud-header" id="hudHeader">
+    <span class="hud-title"><span class="grip">⠿⠿</span> Controls — drag to move</span>
+    <button class="hud-collapse-btn" id="hudCollapse" title="Collapse/expand">–</button>
+  </div>
+  <div class="hud-body">
+  <div class="sliders">
+    <div class="ctrl-group"><label>Mean (μ)</label><input type="range" id="mean-slider" min="60" max="140" value="100" step="1"><span class="val" id="mean-display">100</span></div>
+    <div class="ctrl-divider"></div>
+    <div class="ctrl-group"><label>SD (σ)</label><input type="range" id="sd-slider" min="10" max="40" value="20" step="1"><span class="val" id="sd-display">20</span></div>
+    <div class="ctrl-divider"></div>
+    <div class="ctrl-group"><label>Cutoff (mg/dL)</label><input type="range" id="cutoff-slider" min="20" max="180" value="60" step="1"><span class="val" id="cutoff-display" style="color:var(--tail-text)">60</span></div>
+    <div class="ctrl-divider"></div>
+    <div class="ctrl-group"><label>Z-score (σ units)</label><input type="range" id="z-slider" min="-40" max="40" value="-20" step="1"><span class="val" id="z-display" style="color:var(--z-text)">−2.0</span></div>
+    <div class="ctrl-divider"></div>
+    <div class="ctrl-group"><label>Font</label><input type="range" id="font-slider" min="8" max="18" value="10" step="1"><span class="val" id="font-display">1.0×</span></div>
+  </div>
+  <div class="toggle-row">
+    <button class="toggle-btn" id="sigma-toggle">σ-bands OFF</button>
+    <span class="toggle-hint">toggle to see 68% / 95% / 99.7% empiric rule layers</span>
+  </div>
+  <div class="toggle-hint" id="bandConfirm" style="margin-top:6px; font-weight:600;"></div>
+  </div>
+</div>
+
+<div class="stage">
+  <svg id="svg" viewBox="0 0 760 400"></svg>
+</div>
+
+<div class="stat-row">
+  <div class="stat-card"><span class="label">Mean (μ)</span><div class="number" style="color:var(--pop-text)" id="val-mean">100</div><div class="note">population center</div></div>
+  <div class="stat-card"><span class="label">SD (σ)</span><div class="number" style="color:var(--pop-text)" id="val-sd">20</div><div class="note">spread</div></div>
+  <div class="stat-card"><span class="label">Z-score</span><div class="number" style="color:var(--z-text)" id="val-z">−2.00</div><div class="note">(cutoff − μ) / σ</div></div>
+  <div class="stat-card"><span class="label">Test positive</span><div class="number" style="color:var(--tail-text)" id="val-pct">2.5%</div><div class="note">area below cutoff</div></div>
+</div>
+
+<div class="options" id="btnRow"></div>
+
+<div class="verdict-panel" id="panel">
+  <p style="color:var(--faint)">Click an option to see what that percentage actually represents.</p>
+</div>
+
+<div class="footnote">
+  <b>The empiric rule:</b> 68% within ±1σ, 95% within ±2σ, 99.7% within ±3σ. At μ−2σ, the left tail = (100% − 95%) / 2 = <b>2.5%</b>.<br>
+  <span style="margin-top:3px;display:inline-block;">Glaser, <i>High-Yield Biostatistics</i> (4th Ed) · Brase &amp; Brase, <i>Understandable Statistics</i> (13th Ed), Ch 6</span>
+</div>
+
+</div>
+
+<script>
+// ── State ──
+var mean = 100, sd = 20, cutoff = 60, showBands = false;
+var fontScale = 1.0, activeKey = null;
+
+// ── SVG dimensions ──
+var W = 760, H = 400, padL = 52, padR = 20, padT = 22, padB = 120;
+function fs(){ return fontScale; }
+
+// ── Math ──
+function pdf(x, m, s){
+  var z = (x - m) / s;
+  return Math.exp(-0.5 * z * z) / (s * Math.sqrt(2 * Math.PI));
+}
+function cdfNorm(z){
+  var sign = z >= 0 ? 1 : -1;
+  var a = Math.abs(z);
+  var t = 1 / (1 + 0.2316419 * a);
+  var d = 0.3989423 * Math.exp(-0.5 * a * a);
+  var prob = 1 - d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+  return sign > 0 ? prob : 1 - prob;
+}
+function leftTailPct(cutoff, mean, sd){ return cdfNorm((cutoff - mean) / sd) * 100; }
+
+// ── Coordinate mapping ──
+function xPx(x){ return padL + ((x - (mean - 4*sd)) / (8*sd)) * (W - padL - padR); }
+function yPx(yf, maxPDF){ return (H - padB) - (yf / maxPDF) * (H - padB - padT); }
+
+function curvePts(m, s, xMin, xMax, steps){
+  var pts = [];
+  var step = (xMax - xMin) / steps;
+  for (var x = xMin; x <= xMax + step/2; x += step) pts.push({x:x, y:pdf(x, m, s)});
+  return pts;
+}
+function buildPath(pts, maxPDF){
+  var d = '';
+  pts.forEach(function(p, i){
+    d += (i === 0 ? 'M ' : 'L ') + xPx(p.x).toFixed(1) + ' ' + yPx(p.y, maxPDF).toFixed(1) + ' ';
+  });
+  return d;
+}
+
+// ── Render ──
+function render(){
+  var xMin = mean - 4*sd, xMax = mean + 4*sd;
+  var curve = curvePts(mean, sd, xMin, xMax, 300);
+  var maxPDF = pdf(mean, mean, sd);
+  var baseY = yPx(0, maxPDF);
+  var leftPct = leftTailPct(cutoff, mean, sd);
+  var zScore = (cutoff - mean) / sd;
+  var cutX = xPx(cutoff), cutY = yPx(pdf(cutoff, mean, sd), maxPDF);
+  var meanX = xPx(mean);
+  var h = '';
+
+  // ── Empiric rule σ-bands (toggle) ──
+  if (showBands){
+    h += '<defs><clipPath id="curveClip"><path d="'+buildPath(curve, maxPDF)+' L '+xPx(xMax).toFixed(1)+' '+baseY+' L '+xPx(xMin).toFixed(1)+' '+baseY+' Z"/></clipPath></defs>';
+
+    var sigmas = [1, 2, 3];
+    var alphas = [0.22, 0.15, 0.09];
+    sigmas.forEach(function(sig, i){
+      var lo = mean - sig*sd, hi = mean + sig*sd;
+      var bandPath = 'M ' + xPx(lo).toFixed(1) + ' ' + baseY.toFixed(1) + ' ';
+      curve.forEach(function(p){
+        if (p.x >= lo && p.x <= hi) bandPath += 'L ' + xPx(p.x).toFixed(1) + ' ' + yPx(p.y, maxPDF).toFixed(1) + ' ';
+      });
+      bandPath += 'L ' + xPx(hi).toFixed(1) + ' ' + baseY.toFixed(1) + ' Z';
+      h += '<path d="' + bandPath + '" fill="var(--pop)" opacity="' + alphas[i] + '" clip-path="url(#curveClip)"/>';
+    });
+  }
+
+  // ── Tail shading (always visible) ──
+  var tailPath = 'M ' + xPx(xMin).toFixed(1) + ' ' + baseY.toFixed(1) + ' ';
+  curve.forEach(function(p){
+    if (p.x <= cutoff) tailPath += 'L ' + xPx(p.x).toFixed(1) + ' ' + yPx(p.y, maxPDF).toFixed(1) + ' ';
+  });
+  tailPath += 'L ' + cutX.toFixed(1) + ' ' + baseY.toFixed(1) + ' Z';
+  h += '<path d="' + tailPath + '" fill="var(--tail-ribbon)"/>';
+
+  // ── Main curve ──
+  h += '<path d="' + buildPath(curve, maxPDF) + '" fill="none" stroke="var(--ink)" stroke-width="2"/>';
+
+  // ── Baseline ──
+  h += '<line x1="' + padL + '" y1="' + baseY + '" x2="' + (W-padR) + '" y2="' + baseY + '" stroke="#d4cec4" stroke-width="0.75"/>';
+
+  // ── Mean line + label ──
+  h += '<line x1="' + meanX + '" y1="' + yPx(maxPDF, maxPDF) + '" x2="' + meanX + '" y2="' + baseY + '" stroke="' + (showBands ? 'var(--pop)' : '#a8a29e') + '" stroke-width="1" stroke-dasharray="3,5"/>';
+  h += '<text x="' + meanX + '" y="' + (baseY + 16) + '" text-anchor="middle" font-size="' + Math.round(9*fs()) + '" font-weight="700" fill="var(--pop-text)">μ = ' + mean + '</text>';
+
+  // ── SD tick marks ──
+  for (var sig = -3; sig <= 3; sig++){
+    if (sig === 0) continue;
+    var tx = xPx(mean + sig*sd);
+    h += '<line x1="' + tx + '" y1="' + (baseY-4) + '" x2="' + tx + '" y2="' + (baseY+4) + '" stroke="' + (showBands ? 'var(--pop)' : '#b0a89e') + '" stroke-width="0.75" opacity="' + (showBands ? '0.9' : '0.4') + '"/>';
+    h += '<text x="' + tx + '" y="' + (baseY+14) + '" text-anchor="middle" font-size="' + Math.round(7*fs()) + '" fill="' + (showBands ? 'var(--pop-text)' : 'var(--faint)') + '">' + (sig>0?'+':'') + sig + 'σ</text>';
+  }
+
+  // ── mg/dL ruler strip: a real, physical ruler you drag the cutoff along directly ──
+  var rulerY = baseY + 40;
+  var rulerStep = Math.round(sd / 2 / 5) * 5 || 5; // round tick spacing to a clean multiple of 5 mg/dL
+  h += '<line x1="' + padL + '" y1="' + rulerY + '" x2="' + (W-padR) + '" y2="' + rulerY + '" stroke="#c4bfb6" stroke-width="1"/>';
+  for (var rv = Math.ceil((mean-4*sd)/rulerStep)*rulerStep; rv <= mean+4*sd; rv += rulerStep){
+    var rx = xPx(rv);
+    var isMajor = (rv % (rulerStep*2) === 0);
+    h += '<line x1="' + rx.toFixed(1) + '" y1="' + (rulerY - (isMajor?7:4)) + '" x2="' + rx.toFixed(1) + '" y2="' + (rulerY + (isMajor?7:4)) + '" stroke="#a8a29e" stroke-width="' + (isMajor?1:0.6) + '"/>';
+    if (isMajor) h += '<text x="' + rx.toFixed(1) + '" y="' + (rulerY + 20) + '" text-anchor="middle" font-size="' + Math.round(7.5*fs()) + '" font-weight="600" fill="var(--sub)">' + rv + '</text>';
+  }
+  h += '<text x="' + padL + '" y="' + (rulerY + 34) + '" font-size="' + Math.round(6.5*fs()) + '" fill="var(--faint)" letter-spacing="0.05em">mg/dL — drag the handle below to set the cutoff</text>';
+
+  // Draggable ruler handle - a real knife shape you grab directly on the ruler
+  var rhX = xPx(cutoff);
+  h += '<g class="ruler-handle" style="cursor:ew-resize">';
+  h += '<line x1="' + rhX.toFixed(1) + '" y1="' + (rulerY-14) + '" x2="' + rhX.toFixed(1) + '" y2="' + (rulerY+14) + '" stroke="var(--tail)" stroke-width="2.5"/>';
+  h += '<polygon points="' + (rhX-8).toFixed(1) + ',' + (rulerY-14) + ' ' + (rhX+8).toFixed(1) + ',' + (rulerY-14) + ' ' + rhX.toFixed(1) + ',' + (rulerY+2) + '" fill="var(--tail)"/>';
+  h += '<rect x="' + (rhX-16).toFixed(1) + '" y="' + (rulerY+16) + '" width="32" height="15" rx="4" fill="var(--tail)"/>';
+  h += '<text x="' + rhX.toFixed(1) + '" y="' + (rulerY+27) + '" text-anchor="middle" font-size="' + Math.round(8*fs()) + '" font-weight="700" fill="#fff">' + cutoff + '</text>';
+  h += '</g>';
+
+  // ── Z-score arrow from cutoff to mean ──
+  h += '<defs><marker id="arrowZ" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><polygon points="0,0 10,5 0,10" fill="var(--z)"/></marker></defs>';
+  var zArrowY = yPx(maxPDF, maxPDF) + 6;
+  h += '<line x1="' + cutX.toFixed(1) + '" y1="' + zArrowY + '" x2="' + meanX + '" y2="' + zArrowY + '" stroke="var(--z)" stroke-width="1.8" marker-end="url(#arrowZ)"/>';
+  h += '<text x="' + ((cutX + meanX)/2) + '" y="' + (zArrowY - 5) + '" text-anchor="middle" font-size="' + Math.round(9*fs()) + '" font-weight="700" fill="var(--z-text)">z = ' + zScore.toFixed(2) + '</text>';
+
+  // ── Cutoff marker with α-knife arrow (from concept-pvalue-knife pattern) ──
+  h += '<line x1="' + cutX.toFixed(1) + '" y1="' + (cutY+6) + '" x2="' + cutX.toFixed(1) + '" y2="' + baseY + '" stroke="var(--tail)" stroke-width="1.8" stroke-dasharray="4,3"/>';
+  h += '<circle cx="' + cutX.toFixed(1) + '" cy="' + cutY + '" r="5" fill="var(--tail)" stroke="#fff" stroke-width="2"/>';
+  var ctLX = cutX;
+  if (cutX < padL + 40) ctLX = padL + 40;
+  if (cutX > W - padR - 50) ctLX = W - padR - 50;
+  h += '<text x="' + ctLX + '" y="' + (cutY - 14) + '" text-anchor="middle" font-size="' + Math.round(9*fs()) + '" font-weight="700" fill="var(--tail-text)">' + cutoff + '</text>';
+
+  // ── α-threshold knife blade + arrow (only when bands ON — connects tail to α concept) ──
+  if (showBands){
+    var knifeTop = yPx(maxPDF, maxPDF) - 10;
+    // Dashed vertical from knife top to baseline
+    h += '<line x1="' + cutX.toFixed(1) + '" y1="' + knifeTop + '" x2="' + cutX.toFixed(1) + '" y2="' + baseY + '" stroke="var(--tail)" stroke-width="1.6" stroke-dasharray="3,5" opacity="0.7"/>';
+    // Polygon knife blade — downward triangle poised at the threshold
+    h += '<polygon points="' + (cutX-9) + ',' + knifeTop + ' ' + (cutX+9) + ',' + knifeTop + ' ' + cutX.toFixed(1) + ',' + (knifeTop+16) + '" fill="var(--tail)" opacity="0.9"/>';
+    // α label above the knife
+    h += '<text x="' + cutX.toFixed(1) + '" y="' + (knifeTop - 8) + '" text-anchor="middle" font-size="' + Math.round(9*fs()) + '" font-weight="700" fill="var(--tail-text)" letter-spacing="0.04em">α = ' + leftPct.toFixed(1) + '%</text>';
+    // THRESHOLD label below
+    h += '<text x="' + cutX.toFixed(1) + '" y="' + (knifeTop + 24) + '" text-anchor="middle" font-size="' + Math.round(6.5*fs()) + '" font-weight="600" fill="var(--tail-text)" opacity="0.7" letter-spacing="0.06em">THRESHOLD</text>';
+
+    // ── Tail-to-band connector: shows 2.5% is the area between right edge of ±2σ band and the cutoff ──
+    var edge2s = xPx(mean - 2*sd); // left edge of ±2σ band
+    var connY = yPx(maxPDF, maxPDF) + 44;
+    if (Math.abs(cutX - edge2s) > 8){
+      h += '<defs><marker id="connArrow" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 Z" fill="var(--pop)" opacity="0.7"/></marker></defs>';
+      h += '<line x1="' + edge2s + '" y1="' + connY + '" x2="' + (cutX-8) + '" y2="' + connY + '" stroke="var(--pop)" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.6" marker-end="url(#connArrow)"/>';
+      h += '<text x="' + ((edge2s + cutX)/2) + '" y="' + (connY - 5) + '" text-anchor="middle" font-size="' + Math.round(7*fs()) + '" font-weight="600" fill="var(--pop-text)" opacity="0.7">' + leftPct.toFixed(1) + '% = (100% − 95%) ÷ 2</text>';
+    }
+  }
+
+  // ── Tail percentage label ──
+  var labelX = Math.max(padL + 30, xPx(cutoff - 1.8*sd));
+  h += '<text x="' + labelX + '" y="' + (H/2 - 8) + '" font-size="' + Math.round(22*fs()) + '" font-weight="900" fill="var(--tail-text)" text-anchor="middle">' + leftPct.toFixed(1) + '%</text>';
+  h += '<text x="' + labelX + '" y="' + (H/2 + 10) + '" font-size="' + Math.round(8*fs()) + '" font-weight="600" fill="var(--tail-text)" text-anchor="middle">test positive</text>';
+
+  // ── σ-band labels (only when toggled on) ──
+  if (showBands){
+    var bandLabels = [
+      { sig:1, label:'±1σ · 68%' },
+      { sig:2, label:'±2σ · 95%' },
+      { sig:3, label:'±3σ · 99.7%' }
+    ];
+    bandLabels.forEach(function(b){
+      var bx = xPx(mean);
+      var by = yPx(maxPDF, maxPDF) - 6 - b.sig * 12;
+      h += '<text x="' + bx + '" y="' + by + '" text-anchor="middle" font-size="' + Math.round(8*fs()) + '" font-weight="700" fill="var(--pop-text)" opacity="0.8">' + b.label + '</text>';
+    });
+  }
+
+  // ── Curve peak label ──
+  h += '<text x="' + meanX + '" y="' + (yPx(maxPDF, maxPDF) - 10) + '" text-anchor="middle" font-size="' + Math.round(9*fs()) + '" font-weight="700" fill="var(--pop-text)">N(μ, σ²)</text>';
+
+  document.getElementById('svg').innerHTML = h;
+
+  // ── Update stat cards ──
+  document.getElementById('val-mean').textContent = mean;
+  document.getElementById('val-sd').textContent = sd;
+  document.getElementById('val-z').textContent = zScore.toFixed(2);
+  document.getElementById('val-pct').textContent = leftPct.toFixed(1) + '%';
+  document.getElementById('mean-display').textContent = mean;
+  document.getElementById('sd-display').textContent = sd;
+  document.getElementById('cutoff-display').textContent = cutoff;
+  document.getElementById('z-display').textContent = zScore.toFixed(1);
+
+  // ── Live confirmation of which empiric-rule band the cutoff actually sits in ──
+  var az = Math.abs(zScore);
+  var bandMsg;
+  if (az <= 1) bandMsg = 'Within ±1σ — the middle 68% of the population. Not an unusual value.';
+  else if (az <= 2) bandMsg = 'Between ±1σ and ±2σ — outside the middle 68%, still inside the middle 95%.';
+  else if (az <= 3) bandMsg = 'Between ±2σ and ±3σ — outside the middle 95%, inside the 99.7% band. This is the tail region most "test-positive" cutoffs live in.';
+  else bandMsg = 'Beyond ±3σ — outside 99.7% of the population. Extremely rare value.';
+  document.getElementById('bandConfirm').textContent = '\u2713 z = ' + zScore.toFixed(2) + ': ' + bandMsg;
+}
+
+// ── Option rulings ──
+var rulings = {
+  A: { value:'<1%', verdict:'red', title:'<1% — too small',
+    text:'<1% would be the area below about μ−2.6σ. At μ−2σ (60 mg/dL), the left-tail area is larger — 2.5%.' },
+  B: { value:'2.5%', verdict:'green', title:'2.5% — correct!',
+    text:'60 mg/dL = <b>μ − 2σ</b> (100 − 40). In a normal distribution, the area below μ−2σ is <b>2.5%</b>. <b>Toggle σ-bands ON</b> and verify: ±2σ = 95% of population, so each tail = (100%−95%)/2 = 2.5%. Drag cutoff to 80 (μ−1σ) → 16%. Drag to 40 (μ−3σ) → 0.15%.' },
+  C: { value:'5%', verdict:'red', title:'5% — both tails, not one',
+    text:'5% is the total area in BOTH tails beyond ±2σ (2.5% left + 2.5% right). The question asks only about values BELOW 60 (left tail only).' },
+  D: { value:'16%', verdict:'red', title:'16% — that is μ−1σ, not μ−2σ',
+    text:'16% is the area below μ−1σ (values below 80 mg/dL). At μ−2σ (below 60), the area is much smaller — only 2.5%. Move the cutoff to 80 to see 16%.' },
+  E: { value:'32%', verdict:'red', title:'32% — both tails at ±1σ',
+    text:'32% is the total area in both tails beyond ±1σ (16% + 16%). The left tail alone at μ−2σ is only 2.5%. This overestimates by more than 10×.' }
+};
+
+// ── Option selection ──
+function selectOption(key){
+  activeKey = key;
+  var btns = document.querySelectorAll('.opt-btn');
+  btns.forEach(function(b){
+    b.classList.remove('selected','green','red');
+    if (b.dataset.key === key){
+      b.classList.add('selected');
+      var r = rulings[key];
+      b.classList.add(r.verdict === 'green' ? 'green' : 'red');
+    }
+  });
+  var r = rulings[key];
+  var vc = r.verdict === 'green' ? 'verdict-green' : 'verdict-red';
+  document.getElementById('panel').innerHTML =
+    '<span class="verdict-badge ' + vc + '">' + r.title + '</span><p style="margin:4px 0 0;">' + r.text + '</p>';
+}
+
+// ── Event listeners ──
+var updatingLinked = false; // prevent infinite feedback loop
+
+document.getElementById('mean-slider').addEventListener('input', function(){
+  mean = parseInt(this.value);
+  // z changes when mean changes: sync z-slider
+  var z = (cutoff - mean) / sd;
+  document.getElementById('z-slider').value = Math.round(z * 10);
+  document.getElementById('z-display').textContent = z.toFixed(1);
+  render();
+});
+document.getElementById('sd-slider').addEventListener('input', function(){
+  sd = parseInt(this.value);
+  // z changes when sd changes: sync z-slider
+  var z = (cutoff - mean) / sd;
+  document.getElementById('z-slider').value = Math.round(z * 10);
+  document.getElementById('z-display').textContent = z.toFixed(1);
+  render();
+});
+document.getElementById('cutoff-slider').addEventListener('input', function(){
+  if (updatingLinked) return;
+  cutoff = parseInt(this.value);
+  updatingLinked = true;
+  var z = (cutoff - mean) / sd;
+  document.getElementById('z-slider').value = Math.round(z * 10);
+  document.getElementById('z-display').textContent = z.toFixed(1);
+  updatingLinked = false;
+  render();
+});
+document.getElementById('z-slider').addEventListener('input', function(){
+  if (updatingLinked) return;
+  var z = parseFloat(this.value) / 10;
+  updatingLinked = true;
+  cutoff = Math.round(mean + z * sd);
+  document.getElementById('cutoff-slider').value = cutoff;
+  document.getElementById('cutoff-display').textContent = cutoff;
+  updatingLinked = false;
+  render();
+});
+document.getElementById('font-slider').addEventListener('input', function(){
+  fontScale = this.value / 10;
+  document.getElementById('font-display').textContent = fontScale.toFixed(1) + '×';
+  render();
+});
+
+// ── Double-click to reset any slider to question default ──
+var defaults = { mean:100, sd:20, cutoff:60, z:-20, font:10 };
+var sliderMap = {
+  'mean-slider':   { state:'mean',   display:'mean-display' },
+  'sd-slider':     { state:'sd',     display:'sd-display' },
+  'cutoff-slider': { state:'cutoff', display:'cutoff-display' },
+  'z-slider':      { state:'z',      display:'z-display', format:function(v){ return (v/10).toFixed(1); } },
+  'font-slider':   { state:'font',   display:'font-display', format:function(v){ return (v/10).toFixed(1)+'×'; } }
+};
+Object.keys(sliderMap).forEach(function(id){
+  document.getElementById(id).addEventListener('dblclick', function(){
+    var m = sliderMap[id];
+    var dv = defaults[m.state];
+    this.value = dv;
+    if (m.state === 'mean') mean = dv;
+    else if (m.state === 'sd') sd = dv;
+    else if (m.state === 'cutoff') cutoff = dv;
+    else if (m.state === 'z') cutoff = Math.round(mean + (dv/10) * sd);
+    else if (m.state === 'font') fontScale = dv/10;
+    // Sync the linked slider
+    if (m.state === 'cutoff') {
+      document.getElementById('z-slider').value = Math.round((dv - mean) / sd * 10);
+      document.getElementById('z-display').textContent = ((dv - mean) / sd).toFixed(1);
+    }
+    if (m.state === 'z') {
+      document.getElementById('cutoff-slider').value = cutoff;
+      document.getElementById('cutoff-display').textContent = cutoff;
+    }
+    document.getElementById(m.display).textContent = m.format ? m.format(dv) : dv;
+    render();
+  });
+});
+
+// ── Floating HUD: drag to move, click to collapse ──
+(function(){
+  var hud = document.getElementById('hud');
+  var header = document.getElementById('hudHeader');
+  var collapseBtn = document.getElementById('hudCollapse');
+  var dragging = false, startX, startY, startLeft, startTop;
+
+  header.addEventListener('mousedown', function(e){
+    if (e.target === collapseBtn) return;
+    dragging = true;
+    var rect = hud.getBoundingClientRect();
+    startX = e.clientX; startY = e.clientY;
+    startLeft = rect.left; startTop = rect.top;
+    hud.style.right = 'auto'; // switch to left-based positioning once drag starts
+    hud.style.left = startLeft + 'px';
+    hud.style.top = startTop + 'px';
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', function(e){
+    if (!dragging) return;
+    var dx = e.clientX - startX, dy = e.clientY - startY;
+    var newLeft = Math.max(4, Math.min(window.innerWidth - 60, startLeft + dx));
+    var newTop = Math.max(4, Math.min(window.innerHeight - 40, startTop + dy));
+    hud.style.left = newLeft + 'px';
+    hud.style.top = newTop + 'px';
+  });
+  window.addEventListener('mouseup', function(){ dragging = false; });
+
+  collapseBtn.addEventListener('click', function(){
+    hud.classList.toggle('collapsed');
+    collapseBtn.textContent = hud.classList.contains('collapsed') ? '+' : '–';
+  });
+})();
+
+// ── Ruler drag: grab the handle directly on the mg/dL ruler under the curve ──
+var rulerDragging = false;
+document.getElementById('svg').addEventListener('mousedown', function(e){
+  if (!e.target.closest('.ruler-handle')) return;
+  rulerDragging = true;
+  e.preventDefault();
+});
+window.addEventListener('mousemove', function(e){
+  if (!rulerDragging) return;
+  moveRulerTo(e.clientX);
+});
+window.addEventListener('mouseup', function(){ rulerDragging = false; });
+document.getElementById('svg').addEventListener('touchstart', function(e){
+  if (!e.target.closest('.ruler-handle')) return;
+  rulerDragging = true; e.preventDefault();
+}, {passive:false});
+window.addEventListener('touchmove', function(e){
+  if (!rulerDragging) return;
+  moveRulerTo(e.touches[0].clientX); e.preventDefault();
+}, {passive:false});
+window.addEventListener('touchend', function(){ rulerDragging = false; });
+
+function moveRulerTo(clientX){
+  var svgEl = document.getElementById('svg');
+  var rect = svgEl.getBoundingClientRect();
+  var px = (clientX - rect.left) / rect.width * W;
+  var xMin = mean - 4*sd, xMax = mean + 4*sd;
+  var val = xMin + (px - padL) / (W - padL - padR) * (8*sd);
+  val = Math.max(xMin, Math.min(xMax, Math.round(val)));
+  cutoff = val;
+  document.getElementById('cutoff-slider').value = cutoff;
+  document.getElementById('cutoff-display').textContent = cutoff;
+  var z = (cutoff - mean) / sd;
+  document.getElementById('z-slider').value = Math.round(z * 10);
+  document.getElementById('z-display').textContent = z.toFixed(1);
+  render();
+}
+
+// σ-band toggle
+document.getElementById('sigma-toggle').addEventListener('click', function(){
+  showBands = !showBands;
+  this.textContent = showBands ? 'σ-bands ON' : 'σ-bands OFF';
+  this.classList.toggle('on', showBands);
+  render();
+});
+
+// ── Build option buttons ──
+var btnRow = document.getElementById('btnRow');
+['A','B','C','D','E'].forEach(function(key){
+  var b = document.createElement('button');
+  b.className = 'opt-btn'; b.dataset.key = key;
+  b.textContent = key + ') ' + rulings[key].value;
+  b.onclick = function(){ selectOption(key); };
+  btnRow.appendChild(b);
+});
+
+// ── Init ──
+render();
+selectOption('B');
+</script>
+</body>
+</html>

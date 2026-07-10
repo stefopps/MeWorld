@@ -1971,12 +1971,42 @@
       ],
       "annotation": "I² = 0% → consistent results across all trials",
       "i2HighRows": [
-        {"label":"Trial 1 (n=620)", "estimate":1.55, "ciLow":1.21, "ciHigh":1.99},
-        {"label":"Trial 2 (n=840)", "estimate":0.72, "ciLow":0.52, "ciHigh":0.99},
-        {"label":"Trial 3 (n=720)", "estimate":1.41, "ciLow":1.08, "ciHigh":1.85},
-        {"label":"Trial 4 (n=910)", "estimate":0.68, "ciLow":0.49, "ciHigh":0.94},
-        {"label":"Trial 5 (n=710)", "estimate":1.32, "ciLow":0.98, "ciHigh":1.78},
-        {"label":"Pooled — I² ≈ 82%", "estimate":1.10, "ciLow":0.82, "ciHigh":1.48}
+        {
+          "label": "Trial 1 (n=620)",
+          "estimate": 1.55,
+          "ciLow": 1.21,
+          "ciHigh": 1.99
+        },
+        {
+          "label": "Trial 2 (n=840)",
+          "estimate": 0.72,
+          "ciLow": 0.52,
+          "ciHigh": 0.99
+        },
+        {
+          "label": "Trial 3 (n=720)",
+          "estimate": 1.41,
+          "ciLow": 1.08,
+          "ciHigh": 1.85
+        },
+        {
+          "label": "Trial 4 (n=910)",
+          "estimate": 0.68,
+          "ciLow": 0.49,
+          "ciHigh": 0.94
+        },
+        {
+          "label": "Trial 5 (n=710)",
+          "estimate": 1.32,
+          "ciLow": 0.98,
+          "ciHigh": 1.78
+        },
+        {
+          "label": "Pooled — I² ≈ 82%",
+          "estimate": 1.1,
+          "ciLow": 0.82,
+          "ciHigh": 1.48
+        }
       ]
     },
     "explanation": "I² = 0% means the studies are tapping into the same signal. The variation between them is what you'd expect from sampling error alone. This strengthens the meta-analysis: the pooled estimate represents a common effect, not an average of apples and oranges.",
@@ -2889,7 +2919,10 @@
         "graph": {
           "title": "The 'difference in significance' fallacy",
           "annotation": "One significant, one not ≠ the groups differ. You must test the interaction — not compare p-values.",
-          "highlight": ["Men", "Women"],
+          "highlight": [
+            "Men",
+            "Women"
+          ],
           "verdict": "red",
           "verdictTitle": "A — mixing up two different questions",
           "verdictText": "This compares each subgroup's own p-value to 0.05, one at a time. Men clear that bar, women don't. But that's not the same question as \"does the drug work differently by sex?\" — for that you need the interaction test, which is p = 0.14 here, not significant.",
@@ -2907,7 +2940,9 @@
         "graph": {
           "title": "Subgroup × Sex Interaction Test",
           "annotation": "p_interaction = 0.14 — the difference between men and women is not statistically significant.",
-          "highlight": ["overlap"],
+          "highlight": [
+            "overlap"
+          ],
           "verdict": "green",
           "verdictTitle": "B — correct: the interaction test says no",
           "verdictText": "The interaction p-value (0.14) directly tests whether the Men and Women hazard ratios differ from each other. It's not significant, so the gap between HR 0.68 and HR 0.95 is consistent with random noise. Look at the confidence intervals below — they overlap heavily.",
@@ -2925,7 +2960,9 @@
         "graph": {
           "title": "Clinical vs Statistical Significance",
           "annotation": "HR 0.68 vs 0.95 is a large numerical gap — but the interaction test says it could be sampling error.",
-          "highlight": ["overlap"],
+          "highlight": [
+            "overlap"
+          ],
           "verdict": "amber",
           "verdictTitle": "C — jumping to \"clinically different\" too fast",
           "verdictText": "Maybe there IS a real biological difference by sex — but this trial's data can't support that claim. With interaction p = 0.14 and overlapping CIs, you don't have evidence for it yet. Calling it \"clinically meaningful\" here is speculation dressed as a finding.",
@@ -2961,7 +2998,9 @@
         "graph": {
           "title": "Crossing 1.0 ≠ Harm",
           "annotation": "HR = 0.95 = 5% reduction. p = 0.68 = 'compatible with no effect', not 'compatible with harm.'",
-          "highlight": ["Women"],
+          "highlight": [
+            "Women"
+          ],
           "verdict": "red",
           "verdictTitle": "E — misreading a confidence interval",
           "verdictText": "Women's CI (0.72 to 1.25) crossing 1.0 means \"not statistically distinguishable from no effect\" — not \"harmful.\" A CI crossing 1 tells you the true effect could be protective, neutral, or (rarely) mildly harmful — it does not point at harm specifically.",
@@ -2977,12 +3016,30 @@
     "baseGraph": {
       "type": "forestPlot",
       "title": "ReStatin — Subgroup Analysis: Men vs Women",
-      "nullLine": 1.0,
+      "nullLine": 1,
       "annotation": "p_interaction = 0.14 → no evidence of effect modification by sex",
       "rows": [
-        {"label":"Overall",    "estimate":0.72, "ciLow":0.60, "ciHigh":0.86, "pValue":0.0035},
-        {"label":"Men",        "estimate":0.68, "ciLow":0.55, "ciHigh":0.84, "pValue":0.0005},
-        {"label":"Women",      "estimate":0.95, "ciLow":0.72, "ciHigh":1.25, "pValue":0.68}
+        {
+          "label": "Overall",
+          "estimate": 0.72,
+          "ciLow": 0.6,
+          "ciHigh": 0.86,
+          "pValue": 0.0035
+        },
+        {
+          "label": "Men",
+          "estimate": 0.68,
+          "ciLow": 0.55,
+          "ciHigh": 0.84,
+          "pValue": 0.0005
+        },
+        {
+          "label": "Women",
+          "estimate": 0.95,
+          "ciLow": 0.72,
+          "ciHigh": 1.25,
+          "pValue": 0.68
+        }
       ]
     },
     "explanation": "Within-group significance tests don't test for BETWEEN-group differences. To compare subgroups, you need an interaction test. p_interaction = 0.14 means the difference between the male and female treatment effects is compatible with chance. Report the overall HR = 0.72 for both sexes until an interaction test says otherwise.",
@@ -3641,7 +3698,7 @@
     "baseGraph": {
       "type": "contingencyTable",
       "sn": 0.95,
-      "sp": 0.90,
+      "sp": 0.9,
       "prevalence": 0.05,
       "n": 1000,
       "tp": 48,
@@ -4149,53 +4206,59 @@
         "label": "A",
         "text": "Not clinically significant, not statistically significant.",
         "graph": {
-          "control": 0.05,
-          "treatment": 0.07
+          "d": 0.1,
+          "n": 75,
+          "rawLabel": "trivial effect"
         },
-        "desc": "<strong>p = 0.02 IS statistically significant.</strong> The bar graph shows a tiny difference — but the p-value alone would suggest it is not clinically meaningful. However the actual data shows 58% vs 17%, not the trivial gap this bar graph suggests."
+        "desc": "p = 0.02 IS statistically significant. The normal curves nearly overlap — a trivial effect that is both clinically meaningless AND not significant at any reasonable sample size. The actual data shows 58% vs 17%."
       },
       {
         "label": "B",
         "text": "Not clinically significant, but statistically significant.",
         "graph": {
-          "control": 0.05,
-          "treatment": 0.12
+          "d": 0.25,
+          "n": 100,
+          "rawLabel": "small effect"
         },
-        "desc": "<strong>p = 0.02 < 0.05 = statistically significant.</strong> But is 5 extra pain-free joints clinically meaningful? The bar graph shows a moderate gap. 7/12 = 58% vs 2/12 = 17%. Many clinicians would call this clinically significant, making this answer arguable but not the NBME intended choice."
+        "desc": "p = 0.02 < 0.05 = statistically significant. But the effect size here is small — the curves barely separate. In the actual trial: 7/12 (58%) vs 2/12 (17%) is a 41pp absolute improvement — most clinicians would call that clinically significant."
       },
       {
         "label": "C",
         "text": "Clinically significant, but not statistically significant.",
         "graph": {
-          "control": 0.02,
-          "treatment": 0.07
+          "d": 0.8,
+          "n": 12,
+          "rawLabel": "large d, underpowered"
         },
-        "desc": "<strong>p = 0.02 means statistically significant.</strong> This option reverses the boolean. The bar graph shows a real gap. p < 0.05 = reject null. Whether the gap is large enough to matter clinically is a separate judgment — but the statistical piece is settled."
+        "desc": "p = 0.02 means statistically significant. This option flips the boolean. The normal curves show a large separation, but with n=12 the study is underpowered — the p-value would NOT reach significance. In the actual 150-patient trial: p = 0.02, so the statistical piece is settled."
       },
       {
         "label": "D",
         "text": "Clinically significant AND statistically significant.",
         "graph": {
-          "control": 0.17,
-          "treatment": 0.58
+          "d": 0.66,
+          "n": 75,
+          "rawLabel": "duloxetine vs placebo"
         },
-        "desc": "<strong>Statistical: p = 0.02 < 0.05. Clinical: 7/12 (58%) vs 2/12 (17%) = 41pp absolute improvement.</strong> A large absolute difference in a disease where inflamed joints cause daily pain and disability. NBME answer key: both clinically and statistically significant. The effect size is substantial, and the p-value confirms it is unlikely to be noise."
+        "desc": "Statistical: p = 0.02 < 0.05. Clinical: 7/12 (58%) vs 2/12 (17%) = 41pp absolute improvement. A large absolute difference in a disease where inflamed joints cause daily pain and disability. NBME answer key: both clinically and statistically significant. The effect size is substantial, and the p-value confirms it is unlikely to be noise."
       },
       {
         "label": "E",
         "text": "Cannot determine clinical significance — the study did not pre-specify MCID.",
         "graph": {
-          "control": 0.17,
-          "treatment": 0.58
+          "d": 0.66,
+          "n": 75,
+          "rawLabel": "duloxetine vs placebo"
         },
-        "desc": "<strong>MCID is formally defined in some protocols, but NBME expects clinical judgment.</strong> The bar graph shows a large gap. 5 additional pain-free joints out of 12 inflamed at baseline is intuitively meaningful. NBME does not require pre-registered MCID to answer — they test your ability to distinguish statistical detectability from clinical worth."
+        "desc": "MCID is formally defined in some protocols, but NBME expects clinical judgment. The normal curves show the large separation from the actual data. 5 additional pain-free joints out of 12 inflamed at baseline is intuitively meaningful. NBME does not require pre-registered MCID to answer — they test your ability to distinguish statistical detectability from clinical worth."
       }
     ],
     "correct": 3,
     "baseGraph": {
       "type": "normal",
-      "control": 0.17,
-      "treatment": 0.58
+      "d": 0.66,
+      "n": 75,
+      "alpha": 0.05
     },
     "explanation": "p = 0.02 < 0.05 = statistically significant. 7/12 vs 2/12 = 41pp absolute improvement = clinically significant. NBME considers a 3.5x improvement in a disease with 12 inflamed joints at baseline to be clinically meaningful.",
     "trap": "Two separate questions, always: (1) Is p < 0.05? (2) Is the absolute difference large enough to matter? Tiny difference + large N = statistically significant but NOT clinically significant. Large difference + small N = clinically significant but NOT statistically significant. Both dimensions independently matter.",
@@ -4270,53 +4333,59 @@
         "label": "A",
         "text": "High false-positive rate range — Test A is higher on the right side, better sensitivity when specificity is sacrificed.",
         "graph": {
-          "control": 0.95,
-          "treatment": 0.85
+          "highlight": "right",
+          "aucA": 0.82,
+          "aucB": 0.81
         },
-        "desc": "<strong>Right side of ROC = high FPR, high sensitivity.</strong> If you tolerate many false positives, Test A catches more true cases. The bar graph shows higher sensitivity. Useful for outbreak screening where missing a case is worse than over-calling. But the NBME question asks about a SPECIFIC region where Test A outperforms."
+        "desc": "Right side of ROC = high FPR, high sensitivity. But Test A does NOT dominate here — the curves converge. Test B catches up at high FPR. The NBME question asks about the specific region where Test A truly outperforms."
       },
       {
         "label": "B",
         "text": "All ranges — Test A is uniformly better, making it the superior test at every threshold.",
         "graph": {
-          "control": 0.95,
-          "treatment": 0.85
+          "highlight": "full",
+          "aucA": 0.9,
+          "aucB": 0.75
         },
-        "desc": "<strong>If Test A dominated everywhere, the ROC curves would not cross or separate by region.</strong> The bar graph shows difference. The NBME question describes curves with different shapes in different regions — meaning each test excels in a different clinical scenario. Uniform superiority is incorrect."
+        "desc": "For uniform dominance, one curve would sit entirely above the other. These curves CROSS — each test beats the other in a different clinical region. Uniform superiority is incorrect for crossing curves."
       },
       {
         "label": "C",
         "text": "Low false-positive rate range — Test A curve rises steepest near the left axis, giving highest sensitivity at high specificity.",
         "graph": {
-          "control": 0.9,
-          "treatment": 0.7
+          "highlight": "left",
+          "aucA": 0.82,
+          "aucB": 0.78
         },
-        "desc": "<strong>Left side of ROC equals screening. Steep early rise = high sensitivity while keeping false positives low.</strong> The bar graph shows Test A with higher sensitivity at low FPR. This is ideal for low-prevalence screening where you want to minimize false alarms while catching most true cases. Test A dominates in this clinical niche."
+        "desc": "Left side of ROC = screening (high specificity, low false positives). Test A's curve rises steeply near the origin — it catches cases while keeping false alarms minimal. Ideal for low-prevalence screening. NBME answer: low FPR range.",
+        "correct": true
       },
       {
         "label": "D",
         "text": "Low sensitivity range — Test B is superior in that region, so Test A has no clinical advantage anywhere.",
         "graph": {
-          "control": 0.5,
-          "treatment": 0.7
+          "highlight": "low",
+          "aucA": 0.75,
+          "aucB": 0.78
         },
-        "desc": "<strong>If Test B is better at low sensitivity and Test A at low FPR, they serve different clinical purposes.</strong> The bar graph shows Test B higher in this range. Test A for screening (low FPR), Test B for ruling out disease (high sensitivity). The question asks where Test A is more accurate — and the low-FPR range IS Test A strength."
+        "desc": "Test B is better at low sensitivity (bottom region). But that doesn't erase Test A's screening advantage at low FPR. Different tests serve different clinical niches — both have value."
       },
       {
         "label": "E",
         "text": "Cannot be determined — ROC curves show discrimination only, not calibration or clinical utility at specific thresholds.",
         "graph": {
-          "control": 0.5,
-          "treatment": 0.5
+          "highlight": "none",
+          "aucA": 0.8,
+          "aucB": 0.8
         },
-        "desc": "<strong>Discrimination IS what ROC measures — and you CAN read test performance at specific operating points from the curve.</strong> The bar graph shows equal rates — wrong. The curve directly shows sensitivity at each FPR. Calibration is a separate test characteristic, not a reason to ignore the ROC comparison."
+        "desc": "Discrimination IS what ROC measures — and you CAN read test performance at specific operating points. Equal curves mean no difference. Calibration is a separate test characteristic, not a reason to ignore the ROC comparison."
       }
     ],
     "correct": 2,
     "baseGraph": {
       "type": "rocCurve",
-      "control": 0.9,
-      "treatment": 0.7
+      "aucA": 0.82,
+      "aucB": 0.78
     },
     "explanation": "ROC reading by region: left side (low FPR) = high-specificity screening. The curve with steeper rise near left axis excels at finding cases without over-calling. Test A dominates in the low-FPR range — correct for screening scenarios.",
     "trap": "Two ROC regions have different clinical meanings. Left = screening (minimize false positives). Right = case-finding (maximize sensitivity, accept false positives). A test that dominates in one region is not universally better. Read curves by region.",
@@ -4938,53 +5007,146 @@
         "label": "A",
         "text": "Mode — the most frequent value shifts dramatically when extreme outliers appear.",
         "graph": {
-          "control": 0.6,
-          "treatment": 0.6
-        },
-        "desc": "<strong>Mode is the LEAST affected by outliers.</strong> The bar graph shows stability. Even with two patients scoring 100, 98 others fall between 20-50. The most frequent value remains within 20-50. Mode only changes if the outlier becomes the most common value — which requires many more outliers than 2 out of 100."
+          "highlight": "mode"
+        }
       },
       {
         "label": "B",
         "text": "Mean — the arithmetic average is pulled toward the extreme values.",
         "graph": {
-          "control": 0.7,
-          "treatment": 0.7
-        },
-        "desc": "<strong>Mean = sum / n. Two scores of 100 add 200 to the sum when the rest are much lower.</strong> The bar graph shows a rightward shift. If the 98 patients average 35, the sum = 98×35 + 2×100 = 3,430 + 200 = 3,630. Mean = 36.3. Without outliers: 98×35 = 3,430, mean = 35.0. The two outliers dragged the mean up by 1.3 points — more than any other measure."
+          "highlight": "mean"
+        }
       },
       {
         "label": "C",
         "text": "Median — the middle value shifts because the extreme values change the ordering.",
         "graph": {
-          "control": 0.55,
-          "treatment": 0.55
-        },
-        "desc": "<strong>Median is LESS affected by outliers.</strong> The bar graph shows a small shift. In 100 sorted values, the median is the 50th value. Adding two extreme values at the top does NOT change which value is in the middle — unless there are so many outliers that the center shifts. With 98 regular values and 2 outliers, the median barely budges."
+          "highlight": "median"
+        }
       },
       {
         "label": "D",
         "text": "All three are equally affected — outliers change the entire distribution.",
         "graph": {
-          "control": 0.7,
-          "treatment": 0.7
-        },
-        "desc": "<strong>Outliers affect mean, median, and mode to DIFFERENT degrees.</strong> The bar graph shows equal effect — false. Mean > median > mode in sensitivity to outliers. A single extreme value can substantially change the mean but barely register in the median and not affect the mode at all. Understanding this relationship is critical for choosing the right summary statistic."
+          "highlight": "all"
+        }
       },
       {
         "label": "E",
         "text": "None is affected — measures of central tendency are robust to outliers by definition.",
         "graph": {
-          "control": 0.5,
-          "treatment": 0.5
-        },
-        "desc": "<strong>Measures of central tendency are NOT robust to outliers — especially the mean.</strong> The bar graph shows no change — incorrect. \"Robust\" in statistics means resistant to outliers. The median is considered robust. The mean is NOT robust. If you want a central tendency measure that outliers won't distort, report the median — not the mean."
+          "highlight": "none"
+        }
       }
     ],
     "correct": 1,
     "baseGraph": {
       "type": "dotplot",
-      "control": 0.7,
-      "treatment": 0.7
+      "values": [
+        29,
+        29,
+        29,
+        29,
+        29,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        31,
+        31,
+        31,
+        31,
+        31,
+        31,
+        31,
+        31,
+        31,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        33,
+        33,
+        33,
+        33,
+        33,
+        33,
+        33,
+        33,
+        34,
+        34,
+        34,
+        34,
+        34,
+        34,
+        35,
+        35,
+        35,
+        35,
+        35,
+        35,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        37,
+        37,
+        37,
+        37,
+        37,
+        37,
+        37,
+        38,
+        38,
+        38,
+        38,
+        39,
+        39,
+        39,
+        40,
+        40,
+        40,
+        41,
+        41,
+        41,
+        42,
+        42,
+        42,
+        43,
+        43,
+        43,
+        44,
+        44,
+        44,
+        45,
+        45,
+        45,
+        46,
+        46,
+        46,
+        47,
+        47,
+        47,
+        48,
+        48,
+        48,
+        100,
+        100
+      ],
+      "mean": 37.7,
+      "median": 35,
+      "mode": 32
     },
     "explanation": "Sensitivity to outliers: mean > median > mode. Mean is calculated from ALL values, so extreme observations pull it directly. Median only cares about the middle position. Mode only cares about frequency. Right-skewed data (positive outliers) shows: mode < median < mean.",
     "trap": "For skewed data, report the MEDIAN. The mean misleads — a few high rollers inflate the \"average.\" Right skew: mode < median < mean (tail points right). Left skew: mean < median < mode (tail points left). When you hear \"average household income\" vs \"median household income\" — median is almost always the honest number.",
@@ -5553,9 +5715,7 @@
         "label": "A",
         "desc": "Case fatality rate is the percentage of patients who die from the disease among those who have been affected. Considering that the patient wants to know how likely she is to survive the condition, the most valuable piece of information is the percentage of patients affected who end up dying, which is the case fatality rate. Relative risk is the risk of developing a disease among patients exposed to a risk factor divided by the risk in the unexposed (eg, it tells us that smokers are a certain number of times more likely to develop lung cancer compared to non-smokers). Attributable risk is the difference in risk between the two groups. Number needed to treat and number needed to harm refer to the number of patients who need to receive an intervention in order for 1 patient to be helped or harmed.",
         "graph": {
-          "control": 0.3,
-          "treatment": 0.15,
-          "placeholder": true
+          "patientMatch": false
         }
       },
       {
@@ -5563,9 +5723,7 @@
         "label": "B",
         "desc": "Case fatality rate is the percentage of patients who die from the disease among those who have been affected. Considering that the patient wants to know how likely she is to survive the condition, the most valuable piece of information is the percentage of patients affected who end up dying, which is the case fatality rate. Relative risk is the risk of developing a disease among patients exposed to a risk factor divided by the risk in the unexposed (eg, it tells us that smokers are a certain number of times more likely to develop lung cancer compared to non-smokers). Attributable risk is the difference in risk between the two groups. Number needed to treat and number needed to harm refer to the number of patients who need to receive an intervention in order for 1 patient to be helped or harmed.",
         "graph": {
-          "control": 0.3,
-          "treatment": 0.15,
-          "placeholder": true
+          "patientMatch": false
         }
       },
       {
@@ -5573,9 +5731,7 @@
         "label": "C",
         "desc": "Case fatality rate is the percentage of patients who die from the disease among those who have been affected. Considering that the patient wants to know how likely she is to survive the condition, the most valuable piece of information is the percentage of patients affected who end up dying, which is the case fatality rate. Relative risk is the risk of developing a disease among patients exposed to a risk factor divided by the risk in the unexposed (eg, it tells us that smokers are a certain number of times more likely to develop lung cancer compared to non-smokers). Attributable risk is the difference in risk between the two groups. Number needed to treat and number needed to harm refer to the number of patients who need to receive an intervention in order for 1 patient to be helped or harmed.",
         "graph": {
-          "control": 0.3,
-          "treatment": 0.15,
-          "placeholder": true
+          "patientMatch": false
         }
       },
       {
@@ -5583,9 +5739,7 @@
         "label": "D",
         "desc": "Case fatality rate is the percentage of patients who die from the disease among those who have been affected. Considering that the patient wants to know how likely she is to survive the condition, the most valuable piece of information is the percentage of patients affected who end up dying, which is the case fatality rate. Relative risk is the risk of developing a disease among patients exposed to a risk factor divided by the risk in the unexposed (eg, it tells us that smokers are a certain number of times more likely to develop lung cancer compared to non-smokers). Attributable risk is the difference in risk between the two groups. Number needed to treat and number needed to harm refer to the number of patients who need to receive an intervention in order for 1 patient to be helped or harmed.",
         "graph": {
-          "control": 0.3,
-          "treatment": 0.15,
-          "placeholder": true
+          "patientMatch": true
         }
       },
       {
@@ -5593,9 +5747,7 @@
         "label": "E",
         "desc": "Case fatality rate is the percentage of patients who die from the disease among those who have been affected. Considering that the patient wants to know how likely she is to survive the condition, the most valuable piece of information is the percentage of patients affected who end up dying, which is the case fatality rate. Relative risk is the risk of developing a disease among patients exposed to a risk factor divided by the risk in the unexposed (eg, it tells us that smokers are a certain number of times more likely to develop lung cancer compared to non-smokers). Attributable risk is the difference in risk between the two groups. Number needed to treat and number needed to harm refer to the number of patients who need to receive an intervention in order for 1 patient to be helped or harmed.",
         "graph": {
-          "control": 0.3,
-          "treatment": 0.15,
-          "placeholder": true
+          "patientMatch": false
         }
       }
     ],
@@ -5609,7 +5761,55 @@
     "concept": "case fatality rate",
     "difficulty": "intermediate",
     "baseGraph": {
-      "type": "bar"
+      "type": "conceptGrid",
+      "description": "Which epidemiological term answers the patient question about survival odds?",
+      "terms": {
+        "A": {
+          "name": "Number Needed to Treat",
+          "abbr": "NNT",
+          "formula": "1 ÷ ARR",
+          "icon": "ti ti-users",
+          "question": "How many patients must I treat to prevent ONE bad outcome?",
+          "patientMatch": false,
+          "note": "She is not asking about a treatment — she is asking about her odds."
+        },
+        "B": {
+          "name": "Number Needed to Harm",
+          "abbr": "NNH",
+          "formula": "1 ÷ ARI",
+          "icon": "ti ti-alert-triangle-filled",
+          "question": "How many patients must be exposed for ONE to be harmed?",
+          "patientMatch": false,
+          "note": "She is not asking about harm from a risk factor."
+        },
+        "C": {
+          "name": "Attributable Risk",
+          "abbr": "AR",
+          "formula": "Riskᵉˣᵖ − Riskᵘⁿᵉˣᵖ",
+          "icon": "ti ti-arrows-left-right",
+          "question": "How much of the risk is due to the exposure?",
+          "patientMatch": false,
+          "note": "AR compares two groups — she is asking about ONE group (diagnosed patients)."
+        },
+        "D": {
+          "name": "Case Fatality Rate",
+          "abbr": "CFR",
+          "formula": "Deaths ÷ Cases",
+          "icon": "ti ti-percentage",
+          "question": "Of those diagnosed, what proportion die?",
+          "patientMatch": true,
+          "note": "This is exactly what she asked: among patients like me, how many survive?"
+        },
+        "E": {
+          "name": "Relative Risk",
+          "abbr": "RR",
+          "formula": "Riskᵉˣᵖ ÷ Riskᵘⁿᵉˣᵖ",
+          "icon": "ti ti-divide",
+          "question": "How many TIMES more likely is one group versus another?",
+          "patientMatch": false,
+          "note": "RR compares two groups as a ratio — she wants a single-group proportion."
+        }
+      }
     },
     "correct": 3
   },
@@ -5683,9 +5883,9 @@
         "label": "A",
         "desc": "The confidence interval represents an interval where the true value most likely falls. There is a 95% chance that the true value falls within the 95% confidence interval. In order for results to be statistically significant, it is essential that it does not contain the value 1. In this case, the results are statistically significant and there is a 95% chance that the true odds ratio falls between 3.2 and 7.8.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "Confuses the estimate with the interval",
+          "text": "The 95% CI says nothing about \"95% chance the OR IS 5.5.\" The point estimate 5.5 is not itself subject to the 95% probability. The CI describes a range around the estimate."
         }
       },
       {
@@ -5693,9 +5893,9 @@
         "label": "B",
         "desc": "The confidence interval represents an interval where the true value most likely falls. There is a 95% chance that the true value falls within the 95% confidence interval. In order for results to be statistically significant, it is essential that it does not contain the value 1. In this case, the results are statistically significant and there is a 95% chance that the true odds ratio falls between 3.2 and 7.8.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "Confuses CI with incidence",
+          "text": "A confidence interval for an odds ratio does not tell you how many people develop disease. Incidence comes from cohort or cross-sectional data, not from CI bounds."
         }
       },
       {
@@ -5703,9 +5903,9 @@
         "label": "C",
         "desc": "The confidence interval represents an interval where the true value most likely falls. There is a 95% chance that the true value falls within the 95% confidence interval. In order for results to be statistically significant, it is essential that it does not contain the value 1. In this case, the results are statistically significant and there is a 95% chance that the true odds ratio falls between 3.2 and 7.8.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "Makes no statistical sense",
+          "text": "The numbers 5% and 7.8% come from different places. This mashes CI bounds with percentages into a nonsensical claim."
         }
       },
       {
@@ -5713,9 +5913,9 @@
         "label": "D",
         "desc": "The confidence interval represents an interval where the true value most likely falls. There is a 95% chance that the true value falls within the 95% confidence interval. In order for results to be statistically significant, it is essential that it does not contain the value 1. In this case, the results are statistically significant and there is a 95% chance that the true odds ratio falls between 3.2 and 7.8.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "green",
+          "title": "Best answer — captures the practical interpretation",
+          "text": "In frequentist terms: if we repeated the study 100 times, about 95 of the CIs would contain the true OR. Most exam boards accept this as the practical interpretation, though strictly it describes the procedure, not a probability on a single interval."
         }
       },
       {
@@ -5723,9 +5923,9 @@
         "label": "E",
         "desc": "The confidence interval represents an interval where the true value most likely falls. There is a 95% chance that the true value falls within the 95% confidence interval. In order for results to be statistically significant, it is essential that it does not contain the value 1. In this case, the results are statistically significant and there is a 95% chance that the true odds ratio falls between 3.2 and 7.8.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "Misreads odds ratio as absolute risk",
+          "text": "An OR of 5.5 is a ratio of odds, not \"5.5% increased risk.\" An OR of 5.5 means the odds are 5.5 times higher, not 5.5 percentage points higher."
         }
       }
     ],
@@ -5739,7 +5939,12 @@
     "concept": "confidence interval",
     "difficulty": "intermediate",
     "baseGraph": {
-      "type": "normal"
+      "type": "ciInterpreter",
+      "estimate": 5.5,
+      "ciLow": 3.2,
+      "ciHigh": 7.8,
+      "metric": "Odds Ratio",
+      "study": "Case-control: 200 lung cancer vs 200 controls"
     },
     "correct": 3
   },
@@ -5753,7 +5958,12 @@
         "label": "A",
         "desc": "The higher the specificity of the test, the better the test is for confirming the diagnosis. In contrast, the higher the sensitivity of the test, the better it is as a screening test. The goal of screening is to identify all patients with the condition, even at the expense of getting a number of false positive results. Confirmatory tests, on the other hand, are best when the rate of false positives is as low as possible, meaning that the patients who test positive very likely have the disease.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "CHF1 — low sensitivity AND low specificity",
+          "text": "Sn=67%, Sp=72%. A confirmatory test needs high specificity (few false positives). CHF1 has the second-lowest specificity. At 10% prevalence, PPV is only about 21% — nearly 4 out of 5 positive results are wrong.",
+          "sn": 0.67,
+          "sp": 0.72,
+          "biomarker": "CHF1"
         }
       },
       {
@@ -5761,7 +5971,12 @@
         "label": "B",
         "desc": "The higher the specificity of the test, the better the test is for confirming the diagnosis. In contrast, the higher the sensitivity of the test, the better it is as a screening test. The goal of screening is to identify all patients with the condition, even at the expense of getting a number of false positive results. Confirmatory tests, on the other hand, are best when the rate of false positives is as low as possible, meaning that the patients who test positive very likely have the disease.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "CHF2 — a SCREENING test, not a confirmatory test",
+          "text": "Sn=95%, Sp=56%. This is a classic screening profile: catch nearly everyone (high sensitivity) at the cost of many false positives (low specificity). It's the worst choice for confirmation — at 10% prevalence, PPV is only about 19%. Use this to RULE OUT, not rule in.",
+          "sn": 0.95,
+          "sp": 0.56,
+          "biomarker": "CHF2"
         }
       },
       {
@@ -5769,7 +5984,12 @@
         "label": "C",
         "desc": "The higher the specificity of the test, the better the test is for confirming the diagnosis. In contrast, the higher the sensitivity of the test, the better it is as a screening test. The goal of screening is to identify all patients with the condition, even at the expense of getting a number of false positive results. Confirmatory tests, on the other hand, are best when the rate of false positives is as low as possible, meaning that the patients who test positive very likely have the disease.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "CHF3 — balanced but not the best confirmatory test",
+          "text": "Sn=81%, Sp=81%. A decent all-around test, but for the specific task of confirming diagnosis, you want the highest specificity available. CHF5 beats it on Sp (93% vs 81%).",
+          "sn": 0.81,
+          "sp": 0.81,
+          "biomarker": "CHF3"
         }
       },
       {
@@ -5777,7 +5997,12 @@
         "label": "D",
         "desc": "The higher the specificity of the test, the better the test is for confirming the diagnosis. In contrast, the higher the sensitivity of the test, the better it is as a screening test. The goal of screening is to identify all patients with the condition, even at the expense of getting a number of false positive results. Confirmatory tests, on the other hand, are best when the rate of false positives is as low as possible, meaning that the patients who test positive very likely have the disease.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "CHF4 — high specificity but CHF5 is higher",
+          "text": "Sn=50%, Sp=89%. Strong specificity profile, and would be the best confirmatory test if CHF5 weren't available. But Sp=89% < Sp=93%. At 10% prevalence, CHF5's PPV is ~49% vs CHF4's ~36%.",
+          "sn": 0.5,
+          "sp": 0.89,
+          "biomarker": "CHF4"
         }
       },
       {
@@ -5785,7 +6010,12 @@
         "label": "E",
         "desc": "The higher the specificity of the test, the better the test is for confirming the diagnosis. In contrast, the higher the sensitivity of the test, the better it is as a screening test. The goal of screening is to identify all patients with the condition, even at the expense of getting a number of false positive results. Confirmatory tests, on the other hand, are best when the rate of false positives is as low as possible, meaning that the patients who test positive very likely have the disease.",
         "graph": {
-          "placeholder": true
+          "verdict": "green",
+          "title": "CHF5 — highest specificity = best confirmatory test",
+          "text": "Sn=58%, Sp=93%. A confirmatory test (rule IN) must minimize false positives. CHF5 has the highest specificity at 93% — meaning only 7% of people without CHF test positive. At low prevalence, this translates to the highest PPV of the five biomarkers. Drag the prevalence slider to see CHF5 dominate the top of the PPV chart.",
+          "sn": 0.58,
+          "sp": 0.93,
+          "biomarker": "CHF5"
         }
       }
     ],
@@ -5799,7 +6029,45 @@
     "concept": "confirmatory test",
     "difficulty": "intermediate",
     "baseGraph": {
-      "type": "ppvCurve"
+      "type": "ppvCurve",
+      "prevalence": 0.1,
+      "biomarkers": [
+        {
+          "id": "CHF1",
+          "label": "CHF1",
+          "sn": 0.67,
+          "sp": 0.72,
+          "color": "#9ca3af"
+        },
+        {
+          "id": "CHF2",
+          "label": "CHF2",
+          "sn": 0.95,
+          "sp": 0.56,
+          "color": "#f59e0b"
+        },
+        {
+          "id": "CHF3",
+          "label": "CHF3",
+          "sn": 0.81,
+          "sp": 0.81,
+          "color": "#6366f1"
+        },
+        {
+          "id": "CHF4",
+          "label": "CHF4",
+          "sn": 0.5,
+          "sp": 0.89,
+          "color": "#06b6d4"
+        },
+        {
+          "id": "CHF5",
+          "label": "CHF5",
+          "sn": 0.58,
+          "sp": 0.93,
+          "color": "#10b981"
+        }
+      ]
     },
     "correct": 4
   },
@@ -6003,7 +6271,10 @@
         "label": "A",
         "desc": "Mode refers to the most commonly encountered value. In this case only 108 shows up twice and, therefore, it is the mode. The average is approximately 106 (sum of the values divided by the number of measurements). The median is the value that falls in the middle of all the measurements, meaning that there is an equal number of measurements greater than, and lesser than the median.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "99 — the minimum, not the mode",
+          "text": "99 is the <b>lowest</b> reading in the set. Mode is the most frequent value, not the smallest. 99 appears only once.",
+          "value": 99
         }
       },
       {
@@ -6011,7 +6282,10 @@
         "label": "B",
         "desc": "Mode refers to the most commonly encountered value. In this case only 108 shows up twice and, therefore, it is the mode. The average is approximately 106 (sum of the values divided by the number of measurements). The median is the value that falls in the middle of all the measurements, meaning that there is an equal number of measurements greater than, and lesser than the median.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "105 — appears once, not the mode",
+          "text": "105 appears only once. The mode is 108 because it appears <b>twice</b> — more than any other value.",
+          "value": 105
         }
       },
       {
@@ -6019,7 +6293,10 @@
         "label": "C",
         "desc": "Mode refers to the most commonly encountered value. In this case only 108 shows up twice and, therefore, it is the mode. The average is approximately 106 (sum of the values divided by the number of measurements). The median is the value that falls in the middle of all the measurements, meaning that there is an equal number of measurements greater than, and lesser than the median.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "106 — the mean, not the mode",
+          "text": "106 (technically ~106.3) is the <b>mean</b> (average = 744 ÷ 7). But mode is the most <b>frequent</b> value, not the average. Mean and mode are different measures of central tendency.",
+          "value": 106
         }
       },
       {
@@ -6027,7 +6304,10 @@
         "label": "D",
         "desc": "Mode refers to the most commonly encountered value. In this case only 108 shows up twice and, therefore, it is the mode. The average is approximately 106 (sum of the values divided by the number of measurements). The median is the value that falls in the middle of all the measurements, meaning that there is an equal number of measurements greater than, and lesser than the median.",
         "graph": {
-          "placeholder": true
+          "verdict": "green",
+          "title": "108 — correct, the mode",
+          "text": "108 appears <b>twice</b> — more than any other reading. Mode = the most commonly encountered value. In this set: 99×1, 103×1, 105×1, 108×2, 110×1, 111×1. 108 wins with a frequency of 2.",
+          "value": 108
         }
       },
       {
@@ -6035,7 +6315,10 @@
         "label": "E",
         "desc": "Mode refers to the most commonly encountered value. In this case only 108 shows up twice and, therefore, it is the mode. The average is approximately 106 (sum of the values divided by the number of measurements). The median is the value that falls in the middle of all the measurements, meaning that there is an equal number of measurements greater than, and lesser than the median.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "111 — the maximum, not the mode",
+          "text": "111 is the <b>highest</b> reading in the set. Mode is the most frequent value, not the largest. 111 appears only once.",
+          "value": 111
         }
       }
     ],
@@ -6049,7 +6332,18 @@
     "concept": "mode",
     "difficulty": "basic",
     "baseGraph": {
-      "type": "dotplot"
+      "type": "dotplot",
+      "data": [
+        105,
+        108,
+        103,
+        99,
+        111,
+        108,
+        110
+      ],
+      "metric": "Blood Pressure",
+      "unit": "mg/dL"
     },
     "correct": 3
   },
@@ -6125,71 +6419,75 @@
   },
   {
     "id": 84,
-    "stem": "A new biomarker for COPD, PD1 has been discovered in a large academic hospital. Upon further investigation, it is discovered that among all individuals in the population, the values of PD1 are normally distributed, with the mean of 100 mg/dL and SD of 20 mg/dL. Patients with PD1 values less than 60 mg/dL are considered to have tested positive and are likely to be affected by COPD. What percentage of the population would test positive in that scenario: 2.5%",
+    "stem": "A new biomarker for COPD, PD1 has been discovered in a large academic hospital. Upon further investigation, it is discovered that among all individuals in the population, the values of PD1 are normally distributed, with the mean of 100 mg/dL and SD of 20 mg/dL. Patients with PD1 values less than 60 mg/dL are considered to have tested positive and are likely to be affected by COPD. What percentage of the population would test positive in that scenario?",
     "graph": "normal",
     "options": [
       {
-        "text": "<1%",
         "label": "A",
-        "desc": "PD values of 60 mg/dL correspond to 2 SDs below the mean (100-20*2). In normal distribution, approximately 68% of measurements fall within 1 SD of the mean. Therefore, around 16% fall outside of 1 SD from the mean on each side of the curve (32% in total). 95% of measurements fall within 2 SDs of the mean, which means that approximately 2.5% fall under 2 SDs below the mean. 99.7% of measurements fall within 3 SDs.",
+        "text": "<1%",
+        "desc": "PD values of 60 mg/dL correspond to 2 SDs below the mean (100 - 20 × 2). In a normal distribution, the 68-95-99.7 rule tells us how much of the area falls within 1, 2, and 3 standard deviations of the mean. Use the graph below to find the left-tail area.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "<1% — too small",
+          "text": "<1% would be the area below about 2.6 SD below the mean. At μ−2σ, the left-tail area is larger."
         }
       },
       {
-        "text": "2.5%",
         "label": "B",
-        "desc": "PD values of 60 mg/dL correspond to 2 SDs below the mean (100-20*2). In normal distribution, approximately 68% of measurements fall within 1 SD of the mean. Therefore, around 16% fall outside of 1 SD from the mean on each side of the curve (32% in total). 95% of measurements fall within 2 SDs of the mean, which means that approximately 2.5% fall under 2 SDs below the mean. 99.7% of measurements fall within 3 SDs.",
+        "text": "2.5%",
+        "desc": "PD values of 60 mg/dL correspond to 2 SDs below the mean (100 - 20 × 2). In a normal distribution, the 68-95-99.7 rule tells us how much of the area falls within 1, 2, and 3 standard deviations of the mean. Use the graph below to find the left-tail area.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "green",
+          "title": "2.5% — correct",
+          "text": "60 mg/dL = μ − 2σ (100 − 40). In a normal distribution, the area below μ−2σ is 2.5%. This is the empiric rule: 95% of values fall within ±2σ, leaving 2.5% in each tail."
         }
       },
       {
-        "text": "5%",
         "label": "C",
-        "desc": "PD values of 60 mg/dL correspond to 2 SDs below the mean (100-20*2). In normal distribution, approximately 68% of measurements fall within 1 SD of the mean. Therefore, around 16% fall outside of 1 SD from the mean on each side of the curve (32% in total). 95% of measurements fall within 2 SDs of the mean, which means that approximately 2.5% fall under 2 SDs below the mean. 99.7% of measurements fall within 3 SDs.",
+        "text": "5%",
+        "desc": "PD values of 60 mg/dL correspond to 2 SDs below the mean (100 - 20 × 2). In a normal distribution, the 68-95-99.7 rule tells us how much of the area falls within 1, 2, and 3 standard deviations of the mean. Use the graph below to find the left-tail area.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "5% — that is both tails combined",
+          "text": "5% is the total area in BOTH tails beyond ±2σ (2.5% left + 2.5% right = 5%). The question asks only about values BELOW 60 (left tail only)."
         }
       },
       {
-        "text": "16%",
         "label": "D",
-        "desc": "PD values of 60 mg/dL correspond to 2 SDs below the mean (100-20*2). In normal distribution, approximately 68% of measurements fall within 1 SD of the mean. Therefore, around 16% fall outside of 1 SD from the mean on each side of the curve (32% in total). 95% of measurements fall within 2 SDs of the mean, which means that approximately 2.5% fall under 2 SDs below the mean. 99.7% of measurements fall within 3 SDs.",
+        "text": "16%",
+        "desc": "PD values of 60 mg/dL correspond to 2 SDs below the mean (100 - 20 × 2). In a normal distribution, the 68-95-99.7 rule tells us how much of the area falls within 1, 2, and 3 standard deviations of the mean. Use the graph below to find the left-tail area.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "16% — that is the left-tail at μ−1σ",
+          "text": "16% is the area below μ−1σ (values below 80 mg/dL). At μ−2σ (values below 60), the area is much smaller — only 2.5%."
         }
       },
       {
-        "text": "32%",
         "label": "E",
-        "desc": "PD values of 60 mg/dL correspond to 2 SDs below the mean (100-20*2). In normal distribution, approximately 68% of measurements fall within 1 SD of the mean. Therefore, around 16% fall outside of 1 SD from the mean on each side of the curve (32% in total). 95% of measurements fall within 2 SDs of the mean, which means that approximately 2.5% fall under 2 SDs below the mean. 99.7% of measurements fall within 3 SDs.",
+        "text": "32%",
+        "desc": "PD values of 60 mg/dL correspond to 2 SDs below the mean (100 - 20 × 2). In a normal distribution, the 68-95-99.7 rule tells us how much of the area falls within 1, 2, and 3 standard deviations of the mean. Use the graph below to find the left-tail area.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "32% — that is both tails at μ−1σ",
+          "text": "32% is the total area in both tails beyond ±1σ (16% + 16%). The left tail alone at μ−2σ is 2.5%. This option is about 13× too large."
         }
       }
     ],
-    "explanation": "PD values of 60 mg/dL correspond to 2 SDs below the mean (100-20*2). In normal distribution, approximately 68% of measurements fall within 1 SD of the mean. Therefore, around 16% fall outside of 1 SD from the mean on each side of the curve (32% in total). 95% of measurements fall within 2 SDs of the mean, which means that approximately 2.5% fall under 2 SDs below the mean. 99.7% of measurements fall within 3 SDs.",
+    "explanation": "PD-1 is normally distributed with μ=100, σ=20. The cutoff is 60 = μ−2σ. In a normal distribution, 95% of values fall within ±2σ of the mean, leaving 5% in the tails (2.5% in each tail). Therefore 2.5% of the population would test positive (below 60 mg/dL). This is a direct application of the empiric rule.",
     "tags": [
       "biostatistics"
     ],
-    "trap": "68-95-99.7 rule: 68% within 1 SD, 95% within 2 SD, 99.7% within 3 SD — memorize these cutoffs",
+    "trap": "Students often confuse one-tail vs two-tail percentages (2.5% vs 5%) or choose 16% (μ−1σ area) when the cutoff is actually at μ−2σ.",
     "book_ref": "",
     "source": "mehlman",
     "concept": "normal distribution",
     "difficulty": "basic",
     "baseGraph": {
-      "type": "normal"
+      "type": "sdNormal",
+      "mean": 100,
+      "sd": 20,
+      "cutoff": 60,
+      "label": "PD-1 biomarker at μ−2σ"
     },
     "correct": 1
   },
@@ -6201,51 +6499,51 @@
       {
         "text": "no significant association was found",
         "label": "A",
-        "desc": "The 95% confidence interval is an interval within which 95% of the time the real value would fall. If the RR equals 1, no association between variables exists. In order for results to be considered statistically significant, the confidence interval must not contain the number 1 (as it implies no correlation). In this case, the 95% confidence interval is between 0.98 (small decrease in risk) and 1.18 (increased risk) - therefore, 1 falls within. A confounder is an external variable that is related to both the cause and effect and affects the results of the study (eg, if the smokers are more likely to also consume alcohol, it could be falsely concluded that smoking causes alcoholic fatty liver disease).",
+        "desc": "RR = 1.12 with 95% CI 0.98–1.18. The key question: does the CI cross the null value of 1.0? If yes, the result is not statistically significant. If no (entire CI above 1.0 or below 1.0), the result is significant.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "green",
+          "title": "Correct — no significant association",
+          "text": "The 95% CI [0.98, 1.18] <b>crosses 1.0</b> — the null value for relative risk. When the CI includes 1.0, we cannot reject the null hypothesis that RR = 1 (no association). The result is not statistically significant. Note: the point estimate of 1.12 suggests a possible 12% increase, but with only 200+200 subjects the study was underpowered to detect this small effect."
         }
       },
       {
         "text": "smoking increases the risk of mantle cell lymphoma development",
         "label": "B",
-        "desc": "The 95% confidence interval is an interval within which 95% of the time the real value would fall. If the RR equals 1, no association between variables exists. In order for results to be considered statistically significant, the confidence interval must not contain the number 1 (as it implies no correlation). In this case, the 95% confidence interval is between 0.98 (small decrease in risk) and 1.18 (increased risk) - therefore, 1 falls within. A confounder is an external variable that is related to both the cause and effect and affects the results of the study (eg, if the smokers are more likely to also consume alcohol, it could be falsely concluded that smoking causes alcoholic fatty liver disease).",
+        "desc": "RR = 1.12 with 95% CI 0.98–1.18. The key question: does the CI cross the null value of 1.0? If yes, the result is not statistically significant. If no (entire CI above 1.0 or below 1.0), the result is significant.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "Not supported — CI crosses 1.0",
+          "text": "The CI includes values both above AND below 1.0 (0.98–1.18). You cannot conclude smoking <b>increases</b> risk when the data are also compatible with a protective effect (RR < 1.0). The evidence is insufficient to rule out the null."
         }
       },
       {
         "text": "smoking decreases the risk of mantle cell lymphoma development",
         "label": "C",
-        "desc": "The 95% confidence interval is an interval within which 95% of the time the real value would fall. If the RR equals 1, no association between variables exists. In order for results to be considered statistically significant, the confidence interval must not contain the number 1 (as it implies no correlation). In this case, the 95% confidence interval is between 0.98 (small decrease in risk) and 1.18 (increased risk) - therefore, 1 falls within. A confounder is an external variable that is related to both the cause and effect and affects the results of the study (eg, if the smokers are more likely to also consume alcohol, it could be falsely concluded that smoking causes alcoholic fatty liver disease).",
+        "desc": "RR = 1.12 with 95% CI 0.98–1.18. The key question: does the CI cross the null value of 1.0? If yes, the result is not statistically significant. If no (entire CI above 1.0 or below 1.0), the result is significant.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "Not supported — CI crosses 1.0",
+          "text": "The CI includes values above 1.0 (up to 1.18), so a protective/decreased-risk conclusion is equally unsupported. The data are compatible with increased, decreased, or no effect."
         }
       },
       {
         "text": "a confounder is present",
         "label": "D",
-        "desc": "The 95% confidence interval is an interval within which 95% of the time the real value would fall. If the RR equals 1, no association between variables exists. In order for results to be considered statistically significant, the confidence interval must not contain the number 1 (as it implies no correlation). In this case, the 95% confidence interval is between 0.98 (small decrease in risk) and 1.18 (increased risk) - therefore, 1 falls within. A confounder is an external variable that is related to both the cause and effect and affects the results of the study (eg, if the smokers are more likely to also consume alcohol, it could be falsely concluded that smoking causes alcoholic fatty liver disease).",
+        "desc": "RR = 1.12 with 95% CI 0.98–1.18. The key question: does the CI cross the null value of 1.0? If yes, the result is not statistically significant. If no (entire CI above 1.0 or below 1.0), the result is significant.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "No evidence of confounding in the data given",
+          "text": "The question provides only a single crude RR with a CI. Confounding is a study design issue (uncontrolled third variable), not a conclusion from the CI alone. Nothing in this question supports invoking a confounder."
         }
       },
       {
         "text": "in some patients smoking increases, while in others it decreases the risk of mantle cell lymphoma development",
         "label": "E",
-        "desc": "The 95% confidence interval is an interval within which 95% of the time the real value would fall. If the RR equals 1, no association between variables exists. In order for results to be considered statistically significant, the confidence interval must not contain the number 1 (as it implies no correlation). In this case, the 95% confidence interval is between 0.98 (small decrease in risk) and 1.18 (increased risk) - therefore, 1 falls within. A confounder is an external variable that is related to both the cause and effect and affects the results of the study (eg, if the smokers are more likely to also consume alcohol, it could be falsely concluded that smoking causes alcoholic fatty liver disease).",
+        "desc": "RR = 1.12 with 95% CI 0.98–1.18. The key question: does the CI cross the null value of 1.0? If yes, the result is not statistically significant. If no (entire CI above 1.0 or below 1.0), the result is significant.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "No evidence of effect modification",
+          "text": "Effect modification (different risk in different subgroups) requires stratified results — you would need separate RRs for subgroups. A single overall RR and CI cannot show that the effect direction differs between subgroups."
         }
       }
     ],
@@ -6259,7 +6557,13 @@
     "concept": "confidence interval",
     "difficulty": "intermediate",
     "baseGraph": {
-      "type": "normal"
+      "type": "ciInterpreter",
+      "estimate": 1.12,
+      "ciLow": 0.98,
+      "ciHigh": 1.18,
+      "metric": "Relative Risk",
+      "nullValue": 1,
+      "study": "Smoking vs mantle cell lymphoma — 10-year cohort"
     },
     "correct": 0
   },
@@ -6888,7 +7192,9 @@
         "label": "A",
         "desc": "Specificity of the test refers to the probability that the test is negative when the disease is absent. Highly specific tests, therefore, have low false-positive rates. People who test positive can be considered affected by the condition. On the other hand, highly sensitive tests are used for screening as their main feature is the high probability that when the disease is present, the test will be positive (even at the expense of some false positive results). Highly precise tests produce results that are similar to each other. While clinical features of a test are taken into consideration when deciding to order it, they do not directly tell us how good a test is for either screening or disease confirmation. Furthermore, as far as diagnostic tests go, biopsies are neither among the least painful nor the least likely to cause complications.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "Painless is irrelevant to diagnostic accuracy",
+          "text": "Whether a test is painless affects <b>patient acceptance</b>, not its ability to confirm a diagnosis. The ideal confirmatory test is defined by its <b>specificity</b> — how rarely it falsely labels healthy people as diseased (SpPin: high <b>Sp</b>ecificity rules <b>IN</b>)."
         }
       },
       {
@@ -6896,7 +7202,9 @@
         "label": "B",
         "desc": "Specificity of the test refers to the probability that the test is negative when the disease is absent. Highly specific tests, therefore, have low false-positive rates. People who test positive can be considered affected by the condition. On the other hand, highly sensitive tests are used for screening as their main feature is the high probability that when the disease is present, the test will be positive (even at the expense of some false positive results). Highly precise tests produce results that are similar to each other. While clinical features of a test are taken into consideration when deciding to order it, they do not directly tell us how good a test is for either screening or disease confirmation. Furthermore, as far as diagnostic tests go, biopsies are neither among the least painful nor the least likely to cause complications.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "High sensitivity is for SCREENING, not confirming",
+          "text": "<b>SnNout:</b> high <b>Sn</b>sitivity rules <b>OUT</b>. A highly sensitive test is ideal for <b>screening</b> — catching nearly everyone with disease. But it produces many false positives because sensitivity says nothing about how many healthy people test positive. A confirmatory test needs to minimize false positives (= high specificity)."
         }
       },
       {
@@ -6904,7 +7212,9 @@
         "label": "C",
         "desc": "Specificity of the test refers to the probability that the test is negative when the disease is absent. Highly specific tests, therefore, have low false-positive rates. People who test positive can be considered affected by the condition. On the other hand, highly sensitive tests are used for screening as their main feature is the high probability that when the disease is present, the test will be positive (even at the expense of some false positive results). Highly precise tests produce results that are similar to each other. While clinical features of a test are taken into consideration when deciding to order it, they do not directly tell us how good a test is for either screening or disease confirmation. Furthermore, as far as diagnostic tests go, biopsies are neither among the least painful nor the least likely to cause complications.",
         "graph": {
-          "placeholder": true
+          "verdict": "green",
+          "title": "Correct — highly specific tests confirm diagnosis",
+          "text": "<b>SpPin:</b> high <b>Sp</b>ecificity rules <b>IN</b>. A test with high specificity produces very few false positives — when it says positive, you can be confident the patient truly has the disease. Prostate biopsy has extremely high specificity because histology rarely misidentifies normal tissue as cancer. <b>Drag the prevalence slider and watch Test C (Sp=97%) stay highest on PPV across all prevalence levels.</b>"
         }
       },
       {
@@ -6912,7 +7222,9 @@
         "label": "D",
         "desc": "Specificity of the test refers to the probability that the test is negative when the disease is absent. Highly specific tests, therefore, have low false-positive rates. People who test positive can be considered affected by the condition. On the other hand, highly sensitive tests are used for screening as their main feature is the high probability that when the disease is present, the test will be positive (even at the expense of some false positive results). Highly precise tests produce results that are similar to each other. While clinical features of a test are taken into consideration when deciding to order it, they do not directly tell us how good a test is for either screening or disease confirmation. Furthermore, as far as diagnostic tests go, biopsies are neither among the least painful nor the least likely to cause complications.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "Rare complications are about safety, not diagnostic power",
+          "text": "A test can be extremely safe and still be useless for confirming a diagnosis if its specificity is low. Safety and diagnostic accuracy are <b>separate test properties</b>. The question asks what makes a test <b>diagnostically ideal for confirmation</b> — and that is specificity."
         }
       },
       {
@@ -6920,7 +7232,9 @@
         "label": "E",
         "desc": "Specificity of the test refers to the probability that the test is negative when the disease is absent. Highly specific tests, therefore, have low false-positive rates. People who test positive can be considered affected by the condition. On the other hand, highly sensitive tests are used for screening as their main feature is the high probability that when the disease is present, the test will be positive (even at the expense of some false positive results). Highly precise tests produce results that are similar to each other. While clinical features of a test are taken into consideration when deciding to order it, they do not directly tell us how good a test is for either screening or disease confirmation. Furthermore, as far as diagnostic tests go, biopsies are neither among the least painful nor the least likely to cause complications.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "Precision means reproducibility, not diagnostic accuracy",
+          "text": "<b>Precision = reliability = reproducibility.</b> A precise test gives the same result every time, but that result could be wrong every time. Precision does not tell you whether positive results actually indicate disease — that is <b>PPV</b>, which is driven by <b>specificity</b>. Do not confuse precision (consistency) with specificity (ruling out the healthy)."
         }
       }
     ],
@@ -6934,7 +7248,50 @@
     "concept": "confirmatory test",
     "difficulty": "intermediate",
     "baseGraph": {
-      "type": "ppvCurve"
+      "type": "ppvCurve",
+      "biomarkers": [
+        {
+          "id": "TST1",
+          "label": "Test A — High Sensitivity",
+          "sn": 0.95,
+          "sp": 0.45,
+          "color": "#C8B5FF",
+          "colorHex": "#C8B5FF"
+        },
+        {
+          "id": "TST2",
+          "label": "Test B — Moderate",
+          "sn": 0.8,
+          "sp": 0.75,
+          "color": "#A98BFF",
+          "colorHex": "#A98BFF"
+        },
+        {
+          "id": "TST3",
+          "label": "Test C — High Specificity",
+          "sn": 0.65,
+          "sp": 0.97,
+          "color": "#7D5CFF",
+          "colorHex": "#7D5CFF"
+        },
+        {
+          "id": "TST4",
+          "label": "Test D — Mod-High Specificity",
+          "sn": 0.55,
+          "sp": 0.9,
+          "color": "#6B4FD4",
+          "colorHex": "#6B4FD4"
+        },
+        {
+          "id": "TST5",
+          "label": "Test E — Moderate Sensitivity",
+          "sn": 0.85,
+          "sp": 0.6,
+          "color": "#4B2E8C",
+          "colorHex": "#4B2E8C"
+        }
+      ],
+      "highlight": "TST3"
     },
     "correct": 2
   },
@@ -7010,61 +7367,75 @@
   },
   {
     "id": 98,
-    "stem": "A 55-year-old female presents to the clinic for her regular mammography screening test. She feels fine and has no current complaints. Her family history is non-contributory. The test result comes back negative. The physician explains the meaning of the negative test and the likelihood that she is indeed healthy. Which of the following features of a test depend on the prevalence of the disease in the population: sensitivity and specificity positive and negative predictive values sensitivity and positive predictive value specificity and accuracy precision and negative predictive value",
+    "stem": "A 55-year-old female presents to the clinic for her regular mammography screening test. She feels fine and has no current complaints. Her family history is non-contributory. The test result comes back negative. The physician explains the meaning of the negative test and the likelihood that she is indeed healthy. Which of the following features of a test depend on the prevalence of the disease in the population?",
     "graph": "ppvCurve",
     "options": [
       {
         "text": "sensitivity and specificity",
         "label": "A",
-        "desc": "The positive and negative predictive values of a test refer to the likelihood that people who test positive or negative are indeed positive or negative. Sensitivity and specificity tell us what the probability is that people who are positive or negative for the disease test positive or negative, respectively. Alongside accuracy and precision, they are inherent features of each individual test. PPV and NPV, on the other hand, depend on the prevalence of the disease in the population. Compare hypertension and silicosis for example. Considering how significantly more common hypertension is compared to silicosis, regardless of how people test for either condition, the likelihood that they are affected by hypertension is far higher. Therefore, the likelihood that those who test positive are affected is also higher.",
+        "desc": "Sensitivity and specificity are inherent properties of the test. They describe how well the test detects disease (Sn) and rules out the healthy (Sp) — but they do NOT change with how common the disease is in the population being tested.",
         "graph": {
-          "placeholder": true
+          "sn": 0.85,
+          "sp": 0.9,
+          "highlight": "snsp"
         }
       },
       {
         "text": "positive and negative predictive values",
         "label": "B",
-        "desc": "The positive and negative predictive values of a test refer to the likelihood that people who test positive or negative are indeed positive or negative. Sensitivity and specificity tell us what the probability is that people who are positive or negative for the disease test positive or negative, respectively. Alongside accuracy and precision, they are inherent features of each individual test. PPV and NPV, on the other hand, depend on the prevalence of the disease in the population. Compare hypertension and silicosis for example. Considering how significantly more common hypertension is compared to silicosis, regardless of how people test for either condition, the likelihood that they are affected by hypertension is far higher. Therefore, the likelihood that those who test positive are affected is also higher.",
+        "desc": "Correct. PPV and NPV are the ONLY measures that depend on prevalence. As prevalence rises, PPV rises (more true positives among positives). As prevalence falls, NPV rises (more true negatives among negatives). Sn and Sp stay fixed regardless of prevalence.",
         "graph": {
-          "placeholder": true
+          "sn": 0.85,
+          "sp": 0.9,
+          "highlight": "ppvnpv"
         }
       },
       {
         "text": "sensitivity and positive predictive value",
         "label": "C",
-        "desc": "The positive and negative predictive values of a test refer to the likelihood that people who test positive or negative are indeed positive or negative. Sensitivity and specificity tell us what the probability is that people who are positive or negative for the disease test positive or negative, respectively. Alongside accuracy and precision, they are inherent features of each individual test. PPV and NPV, on the other hand, depend on the prevalence of the disease in the population. Compare hypertension and silicosis for example. Considering how significantly more common hypertension is compared to silicosis, regardless of how people test for either condition, the likelihood that they are affected by hypertension is far higher. Therefore, the likelihood that those who test positive are affected is also higher.",
+        "desc": "Sensitivity is fixed (it does not depend on prevalence), but PPV does. This option mixes a prevalence-independent measure with a prevalence-dependent one.",
         "graph": {
-          "placeholder": true
+          "sn": 0.85,
+          "sp": 0.9,
+          "highlight": "snppv"
         }
       },
       {
         "text": "specificity and accuracy",
         "label": "D",
-        "desc": "The positive and negative predictive values of a test refer to the likelihood that people who test positive or negative are indeed positive or negative. Sensitivity and specificity tell us what the probability is that people who are positive or negative for the disease test positive or negative, respectively. Alongside accuracy and precision, they are inherent features of each individual test. PPV and NPV, on the other hand, depend on the prevalence of the disease in the population. Compare hypertension and silicosis for example. Considering how significantly more common hypertension is compared to silicosis, regardless of how people test for either condition, the likelihood that they are affected by hypertension is far higher. Therefore, the likelihood that those who test positive are affected is also higher.",
+        "desc": "Specificity is fixed and does not depend on prevalence. Accuracy (total correct / total tested) does change with prevalence, but the question asks for the pair of features that BOTH depend on prevalence — only PPV and NPV have that property.",
         "graph": {
-          "placeholder": true
+          "sn": 0.85,
+          "sp": 0.9,
+          "highlight": "spacc"
         }
       },
       {
         "text": "precision and negative predictive value",
         "label": "E",
-        "desc": "The positive and negative predictive values of a test refer to the likelihood that people who test positive or negative are indeed positive or negative. Sensitivity and specificity tell us what the probability is that people who are positive or negative for the disease test positive or negative, respectively. Alongside accuracy and precision, they are inherent features of each individual test. PPV and NPV, on the other hand, depend on the prevalence of the disease in the population. Compare hypertension and silicosis for example. Considering how significantly more common hypertension is compared to silicosis, regardless of how people test for either condition, the likelihood that they are affected by hypertension is far higher. Therefore, the likelihood that those who test positive are affected is also higher.",
+        "desc": "Precision (reproducibility) is an inherent test property and does not depend on prevalence. NPV does depend on prevalence. This option mixes prevalence-independent and prevalence-dependent measures.",
         "graph": {
-          "placeholder": true
+          "sn": 0.85,
+          "sp": 0.9,
+          "highlight": "precnpv"
         }
       }
     ],
-    "explanation": "The positive and negative predictive values of a test refer to the likelihood that people who test positive or negative are indeed positive or negative. Sensitivity and specificity tell us what the probability is that people who are positive or negative for the disease test positive or negative, respectively. Alongside accuracy and precision, they are inherent features of each individual test. PPV and NPV, on the other hand, depend on the prevalence of the disease in the population. Compare hypertension and silicosis for example. Considering how significantly more common hypertension is compared to silicosis, regardless of how people test for either condition, the likelihood that they are affected by hypertension is far higher. Therefore, the likelihood that those who test positive are affected is also higher.",
+    "explanation": "PPV and NPV are prevalence-dependent. Sensitivity and specificity are inherent test properties (they stay constant regardless of how common the disease is). When a 55-year-old woman gets a negative screening mammogram, the NPV tells her the likelihood she is truly disease-free — and that NPV is higher in a low-prevalence screening population than it would be in a high-risk diagnostic setting.",
     "tags": [
       "biostatistics"
     ],
-    "trap": "PPV changes with prevalence, sensitivity does not — they are fundamentally different concepts",
+    "trap": "PPV and NPV change with prevalence; sensitivity and specificity do not. Students often confuse these because all four are test characteristics — but only PPV and NPV are \"situational\" (they depend on the population), while Sn and Sp are \"built in\" to the test itself.",
     "book_ref": "",
     "source": "mehlman",
     "concept": "positive predictive value vs sensitivity",
     "difficulty": "intermediate",
     "baseGraph": {
-      "type": "ppvCurve"
+      "type": "ppvCurve",
+      "sn": 0.85,
+      "sp": 0.9,
+      "label": "Mammography",
+      "scenario": "Screening mammogram in a 55-year-old woman"
     },
     "correct": 1
   },
@@ -8338,9 +8709,9 @@
         "label": "A",
         "desc": "In order for the results of a study to be statistically significant, the confidence interval of the relative risk must not contain the number 1. RR of 1 implies that there is an equal risk of developing the condition between the two groups. As such, for as long as 1 falls within the confidence interval, the results cannot be considered statistically significant, regardless of what the high and low end of the interval are. RR<1 implies that the factor that was studied was protective, while the RR>1 implies that it is a risk factor. In this case, only the 1.5-1.8 confidence interval clearly shows a statistically significant increase in risk of pancreatic cancer development.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "RR < 1.0 — this is PROTECTIVE, not increase",
+          "text": "CI [0.3, 0.8] is <b>entirely below 1.0</b>. This suggests smoking <b>decreases</b> (protects against) pancreatic cancer — biologically implausible and <b>not</b> what the question asks. The student must distinguish increase (RR > 1.0) from decrease (RR < 1.0)."
         }
       },
       {
@@ -8348,9 +8719,9 @@
         "label": "B",
         "desc": "In order for the results of a study to be statistically significant, the confidence interval of the relative risk must not contain the number 1. RR of 1 implies that there is an equal risk of developing the condition between the two groups. As such, for as long as 1 falls within the confidence interval, the results cannot be considered statistically significant, regardless of what the high and low end of the interval are. RR<1 implies that the factor that was studied was protective, while the RR>1 implies that it is a risk factor. In this case, only the 1.5-1.8 confidence interval clearly shows a statistically significant increase in risk of pancreatic cancer development.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "Crosses 1.0 — not significant",
+          "text": "CI [0.5, 1.1] <b>crosses the null</b> (1.0). Even though the upper bound (1.1) is above 1.0, the lower bound (0.5) includes protective values. Cannot conclude a significant increase."
         }
       },
       {
@@ -8358,9 +8729,9 @@
         "label": "C",
         "desc": "In order for the results of a study to be statistically significant, the confidence interval of the relative risk must not contain the number 1. RR of 1 implies that there is an equal risk of developing the condition between the two groups. As such, for as long as 1 falls within the confidence interval, the results cannot be considered statistically significant, regardless of what the high and low end of the interval are. RR<1 implies that the factor that was studied was protective, while the RR>1 implies that it is a risk factor. In this case, only the 1.5-1.8 confidence interval clearly shows a statistically significant increase in risk of pancreatic cancer development.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "Crosses 1.0 — very wide, not significant",
+          "text": "CI [0.1, 3.6] is very wide and crosses 1.0. A wide CI indicates low precision and cannot rule out the null in either direction."
         }
       },
       {
@@ -8368,9 +8739,9 @@
         "label": "D",
         "desc": "In order for the results of a study to be statistically significant, the confidence interval of the relative risk must not contain the number 1. RR of 1 implies that there is an equal risk of developing the condition between the two groups. As such, for as long as 1 falls within the confidence interval, the results cannot be considered statistically significant, regardless of what the high and low end of the interval are. RR<1 implies that the factor that was studied was protective, while the RR>1 implies that it is a risk factor. In this case, only the 1.5-1.8 confidence interval clearly shows a statistically significant increase in risk of pancreatic cancer development.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "Crosses 1.0 — not significant",
+          "text": "CI [0.9, 2.5] crosses 1.0. You cannot claim significance when the data are compatible with an RR of 1.0 (no effect)."
         }
       },
       {
@@ -8378,9 +8749,9 @@
         "label": "E",
         "desc": "In order for the results of a study to be statistically significant, the confidence interval of the relative risk must not contain the number 1. RR of 1 implies that there is an equal risk of developing the condition between the two groups. As such, for as long as 1 falls within the confidence interval, the results cannot be considered statistically significant, regardless of what the high and low end of the interval are. RR<1 implies that the factor that was studied was protective, while the RR>1 implies that it is a risk factor. In this case, only the 1.5-1.8 confidence interval clearly shows a statistically significant increase in risk of pancreatic cancer development.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "green",
+          "title": "Correct — entirely above 1.0 = significant INCREASE",
+          "text": "CI [1.5, 1.8] is <b>entirely above 1.0</b>. This means we are 95% confident the true RR is between 1.5 and 1.8 — always above the null. This is the only option that clearly demonstrates a statistically significant increase in risk."
         }
       }
     ],
@@ -8394,7 +8765,44 @@
     "concept": "power",
     "difficulty": "advanced",
     "baseGraph": {
-      "type": "normal"
+      "type": "ciInterpreter",
+      "metric": "Relative Risk",
+      "nullValue": 1,
+      "study": "Smoking vs pancreatic cancer — 10-year cohort",
+      "multiCI": true,
+      "cis": [
+        {
+          "label": "A",
+          "ciLow": 0.3,
+          "ciHigh": 0.8,
+          "desc": "entirely below 1.0 → protective"
+        },
+        {
+          "label": "B",
+          "ciLow": 0.5,
+          "ciHigh": 1.1,
+          "desc": "crosses 1.0 → not significant"
+        },
+        {
+          "label": "C",
+          "ciLow": 0.1,
+          "ciHigh": 3.6,
+          "desc": "crosses 1.0 → not significant"
+        },
+        {
+          "label": "D",
+          "ciLow": 0.9,
+          "ciHigh": 2.5,
+          "desc": "crosses 1.0 → not significant"
+        },
+        {
+          "label": "E",
+          "ciLow": 1.5,
+          "ciHigh": 1.8,
+          "desc": "entirely above 1.0 → significant INCREASE"
+        }
+      ],
+      "correct": "E"
     },
     "correct": 4
   },
@@ -9068,9 +9476,9 @@
         "label": "A",
         "desc": "If the p value is <0.05 for a study outcome, there is less than a 5% chance that the result was due to chance alone. For clinical studies, the p value of 0.05 is generally used. Of the answer choices, only 0.04 is lower than 0.05.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "green",
+          "title": "Correct — p = 0.04",
+          "text": "The conventional significance threshold is <b>α = 0.05</b>. A p-value < 0.05 means the result is statistically significant — we reject the null hypothesis. RR = 2.2 with p = 0.04 indicates a significant increase in bladder cancer risk. The exact p is not derived from the RR alone (it depends on sample size and variance), but only choices below 0.05 indicate significance."
         }
       },
       {
@@ -9078,9 +9486,9 @@
         "label": "B",
         "desc": "If the p value is <0.05 for a study outcome, there is less than a 5% chance that the result was due to chance alone. For clinical studies, the p value of 0.05 is generally used. Of the answer choices, only 0.04 is lower than 0.05.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "p = 0.08 — not significant",
+          "text": "p = 0.08 is <b>above</b> the conventional α = 0.05 threshold. This would mean the result is NOT statistically significant, which is inconsistent with a strong estimate like RR = 2.2 in a well-powered study."
         }
       },
       {
@@ -9088,9 +9496,9 @@
         "label": "C",
         "desc": "If the p value is <0.05 for a study outcome, there is less than a 5% chance that the result was due to chance alone. For clinical studies, the p value of 0.05 is generally used. Of the answer choices, only 0.04 is lower than 0.05.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "p = 0.10 — not significant",
+          "text": "Same as above. p = 0.10 is far above 0.05. The key concept: <b>p < 0.05 = significant</b>, regardless of the RR magnitude. The RR gives effect size; the p-value tests whether we can rule out the null."
         }
       },
       {
@@ -9098,9 +9506,9 @@
         "label": "D",
         "desc": "If the p value is <0.05 for a study outcome, there is less than a 5% chance that the result was due to chance alone. For clinical studies, the p value of 0.05 is generally used. Of the answer choices, only 0.04 is lower than 0.05.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "p = 0.50 — far from significant",
+          "text": "p = 0.50 means the observed data are indistinguishable from chance — like a coin flip. This would be incompatible with a large RR like 2.2."
         }
       },
       {
@@ -9108,9 +9516,9 @@
         "label": "E",
         "desc": "If the p value is <0.05 for a study outcome, there is less than a 5% chance that the result was due to chance alone. For clinical studies, the p value of 0.05 is generally used. Of the answer choices, only 0.04 is lower than 0.05.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "p = 1.00 — impossible",
+          "text": "p = 1.00 would mean identical groups — impossible in real biomedical research. An RR of 2.2 cannot coexist with p = 1.0."
         }
       }
     ],
@@ -9124,7 +9532,13 @@
     "concept": "statistical significance",
     "difficulty": "intermediate",
     "baseGraph": {
-      "type": "normal"
+      "type": "ciInterpreter",
+      "estimate": 2.2,
+      "metric": "Relative Risk",
+      "nullValue": 1,
+      "study": "Smoking vs bladder cancer — retrospective cohort",
+      "showPvalueGuide": true,
+      "impliedSignificant": true
     },
     "correct": 0
   },
@@ -9508,7 +9922,9 @@
         "label": "A",
         "desc": "The relative risk of 1 implies that there is no association between long-term ibuprofen use and stomach cancer development. In order for results of a clinical study to be considered significant, the value 1 must not fall within the confidence interval as that would mean that there is <5% chance of there being no association. The RR values above 1 indicate that the factor that is being studied is associated with an increased incidence of the condition being studied, while values below 1 indicate that the opposite. In order for either of those conclusions to be reached, the entirety of the confidence interval must fall on the same side of the value 1.",
         "graph": {
-          "placeholder": true
+          "verdict": "green",
+          "title": "Correct — cannot conclude association",
+          "text": "The 95% CI [0.99, 1.08] <b>crosses 1.0</b> (the null value for RR). When the CI includes 1.0, the result is not statistically significant — we cannot reject the null hypothesis of no association. The point estimate 1.05 is compatible with a trivial or absent effect."
         }
       },
       {
@@ -9516,7 +9932,9 @@
         "label": "B",
         "desc": "The relative risk of 1 implies that there is no association between long-term ibuprofen use and stomach cancer development. In order for results of a clinical study to be considered significant, the value 1 must not fall within the confidence interval as that would mean that there is <5% chance of there being no association. The RR values above 1 indicate that the factor that is being studied is associated with an increased incidence of the condition being studied, while values below 1 indicate that the opposite. In order for either of those conclusions to be reached, the entirety of the confidence interval must fall on the same side of the value 1.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "Overstated — CI crosses 1.0",
+          "text": "A \"clear correlation\" cannot be claimed when the data are compatible with an RR of 1.0 (no effect — the null is inside the CI). The result did not reach statistical significance."
         }
       },
       {
@@ -9524,7 +9942,9 @@
         "label": "C",
         "desc": "The relative risk of 1 implies that there is no association between long-term ibuprofen use and stomach cancer development. In order for results of a clinical study to be considered significant, the value 1 must not fall within the confidence interval as that would mean that there is <5% chance of there being no association. The RR values above 1 indicate that the factor that is being studied is associated with an increased incidence of the condition being studied, while values below 1 indicate that the opposite. In order for either of those conclusions to be reached, the entirety of the confidence interval must fall on the same side of the value 1.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "Wrong direction — RR > 1.0",
+          "text": "A protective effect would mean RR < 1.0. The point estimate is 1.05 (above 1.0), and even if the CI dips slightly below 1.0 (to 0.99), the bulk of the evidence leans toward a small increase, not protection."
         }
       },
       {
@@ -9532,7 +9952,9 @@
         "label": "D",
         "desc": "The relative risk of 1 implies that there is no association between long-term ibuprofen use and stomach cancer development. In order for results of a clinical study to be considered significant, the value 1 must not fall within the confidence interval as that would mean that there is <5% chance of there being no association. The RR values above 1 indicate that the factor that is being studied is associated with an increased incidence of the condition being studied, while values below 1 indicate that the opposite. In order for either of those conclusions to be reached, the entirety of the confidence interval must fall on the same side of the value 1.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "No evidence of effect modification",
+          "text": "Effect modification requires stratified analysis — separate RRs for different subgroups. This study reports one overall RR. A single CI cannot show variation between subgroups."
         }
       },
       {
@@ -9540,7 +9962,9 @@
         "label": "E",
         "desc": "The relative risk of 1 implies that there is no association between long-term ibuprofen use and stomach cancer development. In order for results of a clinical study to be considered significant, the value 1 must not fall within the confidence interval as that would mean that there is <5% chance of there being no association. The RR values above 1 indicate that the factor that is being studied is associated with an increased incidence of the condition being studied, while values below 1 indicate that the opposite. In order for either of those conclusions to be reached, the entirety of the confidence interval must fall on the same side of the value 1.",
         "graph": {
-          "placeholder": true
+          "verdict": "red",
+          "title": "CI crosses null",
+          "text": "When the CI includes 1.0, the evidence does NOT favour causation over no association. \"Stronger evidence in favour of causation\" is the opposite of the correct conclusion."
         }
       }
     ],
@@ -9554,7 +9978,13 @@
     "concept": "retrospective cohort study",
     "difficulty": "intermediate",
     "baseGraph": {
-      "type": "studyDesignGrid"
+      "type": "ciInterpreter",
+      "estimate": 1.05,
+      "ciLow": 0.99,
+      "ciHigh": 1.08,
+      "metric": "Relative Risk",
+      "nullValue": 1,
+      "study": "Long-term ibuprofen vs stomach cancer — retrospective cohort"
     },
     "correct": 0
   },
@@ -11788,9 +12218,9 @@
         "label": "A",
         "desc": "The relative risk determines the risk of disease development in the exposed group versus that in the unexposed group. Values lower than 1 indicate that the factor being studied is protective. If the value is 1, it indicates that there is no statistically significant association between the variables being studied. The 95% confidence must not contain the value 1 in order for results to be statistically significant. When the confidence interval does not contain the value 1, it corresponds to the p value less than 0.05.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "green",
+          "title": "Correct — p = 0.03",
+          "text": "The CI [0.76, 0.96] <b>does NOT include 1.0</b> — the entire interval is below the null. This means the result is statistically significant at α = 0.05, which corresponds to <b>p < 0.05</b>. Of the given options, only 0.03 is less than 0.05. RR = 0.82 with p = 0.03 means aspirin significantly reduces CRC risk."
         }
       },
       {
@@ -11798,9 +12228,9 @@
         "label": "B",
         "desc": "The relative risk determines the risk of disease development in the exposed group versus that in the unexposed group. Values lower than 1 indicate that the factor being studied is protective. If the value is 1, it indicates that there is no statistically significant association between the variables being studied. The 95% confidence must not contain the value 1 in order for results to be statistically significant. When the confidence interval does not contain the value 1, it corresponds to the p value less than 0.05.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "p > 0.05 — would be non-significant",
+          "text": "A CI that excludes 1.0 (like this one) means <b>p < 0.05</b>. A p-value of 0.07 would be above the significance threshold and would be incompatible with this CI. When CI excludes null, p < 0.05; when CI includes null, p > 0.05."
         }
       },
       {
@@ -11808,9 +12238,9 @@
         "label": "C",
         "desc": "The relative risk determines the risk of disease development in the exposed group versus that in the unexposed group. Values lower than 1 indicate that the factor being studied is protective. If the value is 1, it indicates that there is no statistically significant association between the variables being studied. The 95% confidence must not contain the value 1 in order for results to be statistically significant. When the confidence interval does not contain the value 1, it corresponds to the p value less than 0.05.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "p > 0.05",
+          "text": "Same principle: if the CI excludes the null, we reject the null. p must be less than 0.05. 0.10 is too large."
         }
       },
       {
@@ -11818,9 +12248,9 @@
         "label": "D",
         "desc": "The relative risk determines the risk of disease development in the exposed group versus that in the unexposed group. Values lower than 1 indicate that the factor being studied is protective. If the value is 1, it indicates that there is no statistically significant association between the variables being studied. The 95% confidence must not contain the value 1 in order for results to be statistically significant. When the confidence interval does not contain the value 1, it corresponds to the p value less than 0.05.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "p = 0.50 — strong non-significance",
+          "text": "A p-value of 0.50 means the result is far from significant — equivalent to a CI that comfortably includes 1.0. The observed CI [0.76, 0.96] clearly excludes the null, so p is much smaller."
         }
       },
       {
@@ -11828,9 +12258,9 @@
         "label": "E",
         "desc": "The relative risk determines the risk of disease development in the exposed group versus that in the unexposed group. Values lower than 1 indicate that the factor being studied is protective. If the value is 1, it indicates that there is no statistically significant association between the variables being studied. The 95% confidence must not contain the value 1 in order for results to be statistically significant. When the confidence interval does not contain the value 1, it corresponds to the p value less than 0.05.",
         "graph": {
-          "d": 0.5,
-          "n": 64,
-          "placeholder": true
+          "verdict": "red",
+          "title": "p = 1.0 — impossible",
+          "text": "A p-value of 1.0 would mean the two groups are absolutely identical — impossible in a real study. With RR=0.82 and CI well below 1.0, the p-value must be much less than 0.05."
         }
       }
     ],
@@ -11844,7 +12274,13 @@
     "concept": "statistical significance",
     "difficulty": "intermediate",
     "baseGraph": {
-      "type": "normal"
+      "type": "ciInterpreter",
+      "estimate": 0.82,
+      "ciLow": 0.76,
+      "ciHigh": 0.96,
+      "metric": "Relative Risk",
+      "nullValue": 1,
+      "study": "Long-term aspirin vs colorectal cancer — retrospective cohort"
     },
     "correct": 0
   },
@@ -12264,6 +12700,28 @@
         "text": "Explore",
         "graph": {},
         "desc": "Drag to converge"
+      }
+    ]
+  },
+  {
+    "id": 182,
+    "stem": "α, β, Power & p-value — the four players in every hypothesis test",
+    "concept": "foundations",
+    "correct": 0,
+    "explanation": "α is set before data (false-positive budget). p-value is computed after (how extreme your result was). β is the false-negative zone under the alternative. Power = 1−β is ability to catch a real effect.",
+    "trap": "",
+    "baseGraph": {
+      "type": "conceptMap",
+      "alpha": 0.05,
+      "zObs": 0,
+      "d": 0
+    },
+    "options": [
+      {
+        "label": "A",
+        "text": "Explore",
+        "graph": {},
+        "desc": "Drag sliders — both panels update live"
       }
     ]
   }

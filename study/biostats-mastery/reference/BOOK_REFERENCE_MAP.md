@@ -1,11 +1,22 @@
 # Biostats Question Bank → Reference Book Map
 
-Two books in `reference/reference-books/`:
+Three resource categories in `reference/`:
 
-| Book | Best for |
-|------|----------|
-| **Understandable Statistics** (Brase & Brase, 13th Ed) | Core stats: distributions, CIs, hypothesis testing, t-tests, chi-square, ANOVA, correlation, regression |
-| **High-Yield Biostatistics** (Glaser, 4th Ed) | Medical stats: OR, RR, NNT, forest/funnel plots, meta-analysis, non-inferiority, validity, bias, screening (Sn/Sp/PPV/NPV), epidemiology |
+## Reference books (`reference/reference-books/`)
+
+| Book | File | Best for |
+|------|------|----------|
+| **Understandable Statistics** (Brase & Brase, 13th Ed) | `Understandable_statistics_KOS.pdf` | Core stats: distributions, CIs, hypothesis testing, t-tests, chi-square, ANOVA, correlation, regression |
+| **High-Yield Biostatistics** (Glaser, 4th Ed) | `High-yield-Glaser-Anthony-N-Biostatistics-epidemiology-and-public-health-Wolters-Kluwer-2014.pdf` | Medical stats: OR, RR, NNT, forest/funnel plots, meta-analysis, non-inferiority, validity, bias, screening (Sn/Sp/PPV/NPV), epidemiology |
+
+## Exam-style drug ad references (`reference/`)
+
+| File | Purpose |
+|------|---------|
+| **`example_drugad_item.pdf`** | Official USMLE-style drug advertisement item — shows the **exact format** Steve will see on the exam: ad on the left, multiple-choice questions on the right. Use as the gold standard for Q1–Q11 drug ad question design. |
+| **`Step3_Sample_Items.pdf`** | Official Step 3 sample items — broader exam format reference for question style, stem structure, and option wording. |
+
+Agents writing or reviewing drug ad questions (Q1–Q11): **open these PDFs first** before authoring. Match the ad density, table style, and question phrasing.
 
 ---
 
