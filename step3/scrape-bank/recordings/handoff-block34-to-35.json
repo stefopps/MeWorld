@@ -1,0 +1,212 @@
+{
+  "recordedAt": "2026-07-11T22:37:34.722Z",
+  "scraperVersion": "2026-07-11-playwright-v7",
+  "fromBlock": 34,
+  "toBlock": 35,
+  "success": true,
+  "note": null,
+  "startedAt": "2026-07-11T22:37:09.012Z",
+  "endedAt": "2026-07-11T22:37:34.722Z",
+  "totalMs": 25710,
+  "q1": {
+    "id": "1480",
+    "number": "1/ 50",
+    "preview": "A 35-year-old Hispanic woman presents to the clinic with persistent fatigue, ina"
+  },
+  "eventCount": 7,
+  "clickSequence": [
+    "End Block",
+    "Confirm",
+    "Confirm",
+    "End Review",
+    "Create Test",
+    "Begin Test"
+  ],
+  "clickTimingsMs": [
+    132,
+    3136,
+    3905,
+    15713,
+    18824,
+    22675
+  ],
+  "stepGapsMs": [
+    0,
+    3004,
+    769,
+    11808,
+    3111,
+    3851
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "at": "2026-07-11T22:37:09.144Z",
+      "sinceStartMs": 132,
+      "sincePreviousMs": 0,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "End Block",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "footer-button tools-button",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:499",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 2,
+      "at": "2026-07-11T22:37:12.148Z",
+      "sinceStartMs": 3136,
+      "sincePreviousMs": 3004,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Confirm",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "testPopupFooterButton testPopupPrimaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:499",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 3,
+      "at": "2026-07-11T22:37:12.917Z",
+      "sinceStartMs": 3905,
+      "sincePreviousMs": 769,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Confirm",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "testPopupFooterButton testPopupPrimaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/completetests",
+        "pathname": "/completetests",
+        "questionNumber": "1/ 0",
+        "questionId": "Question ID:499",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 4,
+      "at": "2026-07-11T22:37:24.725Z",
+      "sinceStartMs": 15713,
+      "sincePreviousMs": 11808,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "End Review",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "footer-button tools-button",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/completetests",
+        "pathname": "/completetests",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 5,
+      "at": "2026-07-11T22:37:27.836Z",
+      "sinceStartMs": 18824,
+      "sincePreviousMs": 3111,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Create Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "sidebarNavButton ",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 6,
+      "at": "2026-07-11T22:37:31.687Z",
+      "sinceStartMs": 22675,
+      "sincePreviousMs": 3851,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Begin Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "homepageFooterButton primaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 7,
+      "at": "2026-07-11T22:37:34.722Z",
+      "sinceStartMs": 25710,
+      "sincePreviousMs": 3035,
+      "kind": "system",
+      "action": "q1_ready",
+      "label": "Fresh Q1 ID 1480 @ 1/ 50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:1480",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    }
+  ]
+}

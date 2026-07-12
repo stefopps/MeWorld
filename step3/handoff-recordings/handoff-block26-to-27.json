@@ -1,0 +1,128 @@
+{
+  "recordedAt": "2026-07-11T21:35:35.344Z",
+  "scraperVersion": "2026-07-11-playwright-v7",
+  "fromBlock": 26,
+  "toBlock": 27,
+  "success": true,
+  "note": null,
+  "startedAt": "2026-07-11T21:34:57.326Z",
+  "endedAt": "2026-07-11T21:35:35.344Z",
+  "totalMs": 38016,
+  "q1": {
+    "id": "4328",
+    "number": "1/ 50",
+    "preview": "A 42-year-old woman presents to her primary care physician with complaints of in"
+  },
+  "eventCount": 4,
+  "clickSequence": [
+    "Login",
+    "Create Test",
+    "Begin Test"
+  ],
+  "clickTimingsMs": [
+    9236,
+    31090,
+    34428
+  ],
+  "stepGapsMs": [
+    0,
+    21854,
+    3338
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "at": "2026-07-11T21:35:06.564Z",
+      "sinceStartMs": 9236,
+      "sincePreviousMs": 0,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Login",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "loginButton loginPrimaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/",
+        "pathname": "/",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 2,
+      "at": "2026-07-11T21:35:28.418Z",
+      "sinceStartMs": 31090,
+      "sincePreviousMs": 21854,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Create Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "sidebarNavButton sidebarNavButtonSelected",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 3,
+      "at": "2026-07-11T21:35:31.756Z",
+      "sinceStartMs": 34428,
+      "sincePreviousMs": 3338,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Begin Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "homepageFooterButton primaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 4,
+      "at": "2026-07-11T21:35:35.344Z",
+      "sinceStartMs": 38016,
+      "sincePreviousMs": 3588,
+      "kind": "system",
+      "action": "q1_ready",
+      "label": "Fresh Q1 ID 4328 @ 1/ 50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:4328",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    }
+  ]
+}

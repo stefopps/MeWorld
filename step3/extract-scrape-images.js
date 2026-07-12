@@ -261,7 +261,11 @@ async function main() {
   console.log('\nDone.');
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+module.exports = { extractFromJson, sanitize, getQuestionFolder };
+
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

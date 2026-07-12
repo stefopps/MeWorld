@@ -1,0 +1,41 @@
+{
+  "recordedAt": "2026-07-12T03:06:19.262Z",
+  "scraperVersion": "2026-07-11-playwright-v7",
+  "fromBlock": 66,
+  "toBlock": 67,
+  "success": true,
+  "note": null,
+  "startedAt": "2026-07-12T03:05:58.321Z",
+  "endedAt": "2026-07-12T03:06:19.262Z",
+  "totalMs": 20942,
+  "q1": {
+    "id": "5371",
+    "number": "1/ 50",
+    "preview": "A 32-year-old woman with a family history of hereditary hemochromatosis presents"
+  },
+  "eventCount": 1,
+  "clickSequence": [],
+  "clickTimingsMs": [],
+  "stepGapsMs": [],
+  "events": [
+    {
+      "seq": 1,
+      "at": "2026-07-12T03:06:19.262Z",
+      "sinceStartMs": 20941,
+      "sincePreviousMs": 0,
+      "kind": "system",
+      "action": "q1_ready",
+      "label": "Fresh Q1 ID 5371 @ 1/ 50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5371",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    }
+  ]
+}

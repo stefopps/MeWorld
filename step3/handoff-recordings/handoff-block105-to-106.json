@@ -1,0 +1,100 @@
+{
+  "recordedAt": "2026-07-12T10:36:20.717Z",
+  "scraperVersion": "2026-07-11-playwright-v7",
+  "fromBlock": 105,
+  "toBlock": 106,
+  "success": true,
+  "note": null,
+  "startedAt": "2026-07-12T10:35:47.441Z",
+  "endedAt": "2026-07-12T10:36:20.717Z",
+  "totalMs": 33256,
+  "q1": {
+    "id": "5214",
+    "number": "1/ 50",
+    "preview": "A 45-year-old male construction worker presents to the clinic with persistent pa"
+  },
+  "eventCount": 3,
+  "clickSequence": [
+    "Create Test",
+    "Begin Test"
+  ],
+  "clickTimingsMs": [
+    25364,
+    29240
+  ],
+  "stepGapsMs": [
+    0,
+    3876
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "at": "2026-07-12T10:36:12.826Z",
+      "sinceStartMs": 25364,
+      "sincePreviousMs": 0,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Create Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "sidebarNavButton sidebarNavButtonSelected",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 2,
+      "at": "2026-07-12T10:36:16.702Z",
+      "sinceStartMs": 29240,
+      "sincePreviousMs": 3876,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Begin Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "homepageFooterButton primaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 3,
+      "at": "2026-07-12T10:36:20.717Z",
+      "sinceStartMs": 33255,
+      "sincePreviousMs": 4015,
+      "kind": "system",
+      "action": "q1_ready",
+      "label": "Fresh Q1 ID 5214 @ 1/ 50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5214",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    }
+  ]
+}

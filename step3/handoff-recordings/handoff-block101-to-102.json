@@ -1,0 +1,100 @@
+{
+  "recordedAt": "2026-07-12T08:59:54.550Z",
+  "scraperVersion": "2026-07-11-playwright-v7",
+  "fromBlock": 101,
+  "toBlock": 102,
+  "success": true,
+  "note": null,
+  "startedAt": "2026-07-12T08:59:21.045Z",
+  "endedAt": "2026-07-12T08:59:54.550Z",
+  "totalMs": 33498,
+  "q1": {
+    "id": "2776",
+    "number": "1/ 50",
+    "preview": "A 76-year-old woman with a history of hypertension and mild cognitive impairment"
+  },
+  "eventCount": 3,
+  "clickSequence": [
+    "Create Test",
+    "Begin Test"
+  ],
+  "clickTimingsMs": [
+    25546,
+    29433
+  ],
+  "stepGapsMs": [
+    0,
+    3887
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "at": "2026-07-12T08:59:46.598Z",
+      "sinceStartMs": 25546,
+      "sincePreviousMs": 0,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Create Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "sidebarNavButton sidebarNavButtonSelected",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 2,
+      "at": "2026-07-12T08:59:50.485Z",
+      "sinceStartMs": 29433,
+      "sincePreviousMs": 3887,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Begin Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "homepageFooterButton primaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 3,
+      "at": "2026-07-12T08:59:54.549Z",
+      "sinceStartMs": 33497,
+      "sincePreviousMs": 4064,
+      "kind": "system",
+      "action": "q1_ready",
+      "label": "Fresh Q1 ID 2776 @ 1/ 50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:2776",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    }
+  ]
+}

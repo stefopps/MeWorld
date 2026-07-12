@@ -1,0 +1,41 @@
+{
+  "recordedAt": "2026-07-12T02:57:44.752Z",
+  "scraperVersion": "2026-07-11-playwright-v7",
+  "fromBlock": 65,
+  "toBlock": 66,
+  "success": true,
+  "note": null,
+  "startedAt": "2026-07-12T02:57:23.767Z",
+  "endedAt": "2026-07-12T02:57:44.752Z",
+  "totalMs": 20985,
+  "q1": {
+    "id": "3623",
+    "number": "1/ 50",
+    "preview": "A 62-year-old retired mechanic presents with a 3-month history of intermittent e"
+  },
+  "eventCount": 1,
+  "clickSequence": [],
+  "clickTimingsMs": [],
+  "stepGapsMs": [],
+  "events": [
+    {
+      "seq": 1,
+      "at": "2026-07-12T02:57:44.752Z",
+      "sinceStartMs": 20985,
+      "sincePreviousMs": 0,
+      "kind": "system",
+      "action": "q1_ready",
+      "label": "Fresh Q1 ID 3623 @ 1/ 50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:3623",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    }
+  ]
+}

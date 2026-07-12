@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CCS QB iPhone Scraper Setup</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; max-width: 640px; margin: 0 auto; padding: 20px; line-height: 1.5; }
+    h1 { font-size: 1.3rem; }
+    code, pre { background: #f4f4f4; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+    pre { padding: 12px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
+    .step { margin: 1.2rem 0; padding: 12px; border-left: 4px solid #0a84ff; background: #f8fbff; }
+    a.bookmark { display: inline-block; background: #0a84ff; color: #fff; padding: 12px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <h1>Scrape CCS QB on iPhone</h1>
+  <p>iPhone Safari has no DevTools console. Use the <strong>Userscripts</strong> extension (recommended) or a bookmark.</p>
+
+  <div class="step">
+    <strong>Method A — Userscripts (best)</strong>
+    <ol>
+      <li>Install <strong>Userscripts</strong> from the App Store</li>
+      <li>iPhone <strong>Settings → Safari → Extensions → Userscripts</strong> → turn ON</li>
+      <li>On PC: copy <code>mobile-scrape.user.js</code> to iCloud Drive</li>
+      <li>Userscripts app → <strong>+</strong> → import from Files → pick the file</li>
+      <li>Open <code>qb.ccscases.com</code> → log in → start a block</li>
+      <li>A blue bar appears at the bottom → tap <strong>Scrape 50 (15 min)</strong></li>
+      <li>JSON downloads to <strong>Files → Downloads</strong></li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <strong>Method B — Safari bookmark (after GitHub push)</strong>
+    <ol>
+      <li>Push <code>step3/mobile-scrape.user.js</code> to GitHub</li>
+      <li>Create a bookmark named <strong>CCS Scrape</strong></li>
+      <li>Edit bookmark URL — paste the javascript: line below</li>
+      <li>On qb.ccscases.com, tap the bookmark</li>
+    </ol>
+    <pre id="bookmarklet">javascript:(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/stefopps/MeWorld@main/step3/mobile-scrape.user.js';document.head.appendChild(s);})();</pre>
+  </div>
+
+  <div class="step">
+    <strong>While scraping on iPhone</strong>
+    <ul>
+      <li>Keep Safari <strong>open and in foreground</strong></li>
+      <li>Turn off auto-lock (<strong>Settings → Display → Auto-Lock → Never</strong>) temporarily</li>
+      <li>Text only — no x-ray images (same as <code>ayText</code> on PC)</li>
+      <li>Use <strong>Stop</strong> if you get errors</li>
+      <li>Wait 30 min if the server blocks you</li>
+    </ul>
+  </div>
+
+  <p>File on PC: <code>C:\Users\steve\MeWorld\step3\mobile-scrape.user.js</code></p>
+</body>
+</html>

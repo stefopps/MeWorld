@@ -1,0 +1,100 @@
+{
+  "recordedAt": "2026-07-12T12:36:07.606Z",
+  "scraperVersion": "2026-07-11-playwright-v7",
+  "fromBlock": 118,
+  "toBlock": 119,
+  "success": true,
+  "note": null,
+  "startedAt": "2026-07-12T12:35:33.495Z",
+  "endedAt": "2026-07-12T12:36:07.606Z",
+  "totalMs": 34105,
+  "q1": {
+    "id": "5776",
+    "number": "1/ 39",
+    "preview": "A 38-year-old woman with a BMI of 41 kg/m² is referred to a multidisciplinary we"
+  },
+  "eventCount": 3,
+  "clickSequence": [
+    "Create Test",
+    "Begin Test"
+  ],
+  "clickTimingsMs": [
+    25305,
+    30023
+  ],
+  "stepGapsMs": [
+    0,
+    4718
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "at": "2026-07-12T12:35:58.806Z",
+      "sinceStartMs": 25305,
+      "sincePreviousMs": 0,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Create Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "sidebarNavButton sidebarNavButtonSelected",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 2,
+      "at": "2026-07-12T12:36:03.524Z",
+      "sinceStartMs": 30023,
+      "sincePreviousMs": 4718,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Begin Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "homepageFooterButton primaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 3,
+      "at": "2026-07-12T12:36:07.605Z",
+      "sinceStartMs": 34104,
+      "sincePreviousMs": 4081,
+      "kind": "system",
+      "action": "q1_ready",
+      "label": "Fresh Q1 ID 5776 @ 1/ 39",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 39",
+        "questionId": "Question ID:5776",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    }
+  ]
+}

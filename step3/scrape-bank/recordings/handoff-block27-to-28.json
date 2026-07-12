@@ -1,0 +1,100 @@
+{
+  "recordedAt": "2026-07-11T21:47:58.698Z",
+  "scraperVersion": "2026-07-11-playwright-v7",
+  "fromBlock": 27,
+  "toBlock": 28,
+  "success": true,
+  "note": null,
+  "startedAt": "2026-07-11T21:47:20.873Z",
+  "endedAt": "2026-07-11T21:47:58.698Z",
+  "totalMs": 37821,
+  "q1": {
+    "id": "2414",
+    "number": "1/ 50",
+    "preview": "A 68-year-old man with a history of chronic kidney disease requiring hemodialysi"
+  },
+  "eventCount": 3,
+  "clickSequence": [
+    "Create Test",
+    "Begin Test"
+  ],
+  "clickTimingsMs": [
+    30949,
+    34368
+  ],
+  "stepGapsMs": [
+    0,
+    3419
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "at": "2026-07-11T21:47:51.826Z",
+      "sinceStartMs": 30949,
+      "sincePreviousMs": 0,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Create Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "sidebarNavButton sidebarNavButtonSelected",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 2,
+      "at": "2026-07-11T21:47:55.245Z",
+      "sinceStartMs": 34368,
+      "sincePreviousMs": 3419,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Begin Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "homepageFooterButton primaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 3,
+      "at": "2026-07-11T21:47:58.698Z",
+      "sinceStartMs": 37821,
+      "sincePreviousMs": 3453,
+      "kind": "system",
+      "action": "q1_ready",
+      "label": "Fresh Q1 ID 2414 @ 1/ 50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:2414",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    }
+  ]
+}

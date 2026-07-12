@@ -1,0 +1,156 @@
+{
+  "recordedAt": "2026-07-11T19:38:55.898Z",
+  "scraperVersion": "2026-07-11-playwright-v6",
+  "fromBlock": 19,
+  "toBlock": 20,
+  "success": true,
+  "note": null,
+  "startedAt": "2026-07-11T19:37:59.530Z",
+  "endedAt": "2026-07-11T19:38:55.898Z",
+  "totalMs": 56363,
+  "q1": {
+    "id": "2265",
+    "number": "1/ 50",
+    "preview": "A 42-year-old man presents to the clinic with a 4-month history of profuse water"
+  },
+  "eventCount": 5,
+  "clickSequence": [
+    "Login",
+    "Incomplete Tests",
+    "Complete Tests",
+    "Review Test"
+  ],
+  "clickTimingsMs": [
+    29980,
+    34419,
+    39128,
+    53268
+  ],
+  "stepGapsMs": [
+    0,
+    4439,
+    4709,
+    14140
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "at": "2026-07-11T19:38:29.515Z",
+      "sinceStartMs": 29980,
+      "sincePreviousMs": 0,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Login",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "loginButton loginPrimaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/",
+        "pathname": "/",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 2,
+      "at": "2026-07-11T19:38:33.954Z",
+      "sinceStartMs": 34419,
+      "sincePreviousMs": 4439,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Incomplete Tests",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "sidebarNavButton ",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 3,
+      "at": "2026-07-11T19:38:38.663Z",
+      "sinceStartMs": 39128,
+      "sincePreviousMs": 4709,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Complete Tests",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "sidebarNavButton ",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/CompleteTests",
+        "pathname": "/CompleteTests",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 4,
+      "at": "2026-07-11T19:38:52.803Z",
+      "sinceStartMs": 53268,
+      "sincePreviousMs": 14140,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Review Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "primaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/CompleteTests",
+        "pathname": "/CompleteTests",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 5,
+      "at": "2026-07-11T19:38:55.896Z",
+      "sinceStartMs": 56361,
+      "sincePreviousMs": 3093,
+      "kind": "system",
+      "action": "q1_ready",
+      "label": "Fresh Q1 ID 2265 @ 1/ 50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/CompleteTests",
+        "pathname": "/CompleteTests",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:2265",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    }
+  ]
+}

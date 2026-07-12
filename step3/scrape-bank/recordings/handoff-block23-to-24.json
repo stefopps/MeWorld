@@ -1,0 +1,440 @@
+{
+  "recordedAt": "2026-07-11T20:51:31.223Z",
+  "scraperVersion": "2026-07-11-playwright-v6",
+  "fromBlock": 23,
+  "toBlock": 24,
+  "success": true,
+  "note": null,
+  "startedAt": "2026-07-11T20:12:32.941Z",
+  "endedAt": "2026-07-11T20:51:31.223Z",
+  "totalMs": 2338282,
+  "q1": {
+    "id": "5041",
+    "number": "1/ 50",
+    "preview": "A 62-year-old man presents to his primary care physician for a routine annual ph"
+  },
+  "eventCount": 19,
+  "clickSequence": [
+    "Close — I'll create the next batch",
+    "End Block",
+    "Confirm",
+    "End Review",
+    "Create Test",
+    "Begin Test"
+  ],
+  "clickTimingsMs": [
+    2247467,
+    2249095,
+    2250748,
+    2254482,
+    2256875,
+    2259215
+  ],
+  "stepGapsMs": [
+    264961,
+    1447,
+    1653,
+    3734,
+    2393,
+    2340
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "at": "2026-07-11T20:12:32.972Z",
+      "sinceStartMs": 31,
+      "sincePreviousMs": 0,
+      "kind": "system",
+      "action": "popup_waiting",
+      "label": "Waiting for popup close",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5153",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 2,
+      "at": "2026-07-11T20:27:33.188Z",
+      "sinceStartMs": 900247,
+      "sincePreviousMs": 900216,
+      "kind": "system",
+      "action": "popup_closed",
+      "label": "Popup closed — handoff grace starting",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5153",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 3,
+      "at": "2026-07-11T20:27:33.196Z",
+      "sinceStartMs": 900255,
+      "sincePreviousMs": 8,
+      "kind": "system",
+      "action": "grace_start",
+      "label": "Grace period 90s",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5153",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 4,
+      "at": "2026-07-11T20:29:03.199Z",
+      "sinceStartMs": 990258,
+      "sincePreviousMs": 90003,
+      "kind": "system",
+      "action": "grace_end",
+      "label": "Grace period ended — watching for Q1/50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5153",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 5,
+      "at": "2026-07-11T20:29:04.255Z",
+      "sinceStartMs": 991314,
+      "sincePreviousMs": 1056,
+      "kind": "system",
+      "action": "popup_waiting",
+      "label": "Waiting for popup close",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5153",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 6,
+      "at": "2026-07-11T20:44:04.524Z",
+      "sinceStartMs": 1891583,
+      "sincePreviousMs": 900269,
+      "kind": "system",
+      "action": "popup_closed",
+      "label": "Popup closed — handoff grace starting",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5153",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 7,
+      "at": "2026-07-11T20:44:04.530Z",
+      "sinceStartMs": 1891589,
+      "sincePreviousMs": 6,
+      "kind": "system",
+      "action": "grace_start",
+      "label": "Grace period 90s",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5153",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 8,
+      "at": "2026-07-11T20:45:34.550Z",
+      "sinceStartMs": 1981609,
+      "sincePreviousMs": 90020,
+      "kind": "system",
+      "action": "grace_end",
+      "label": "Grace period ended — watching for Q1/50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5153",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 9,
+      "at": "2026-07-11T20:45:35.447Z",
+      "sinceStartMs": 1982506,
+      "sincePreviousMs": 897,
+      "kind": "system",
+      "action": "popup_waiting",
+      "label": "Waiting for popup close",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5153",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 10,
+      "at": "2026-07-11T20:50:00.408Z",
+      "sinceStartMs": 2247467,
+      "sincePreviousMs": 264961,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Close — I'll create the next batch",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "ccs-popup-close-btn",
+      "fromPopup": true,
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5153",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 11,
+      "at": "2026-07-11T20:50:00.587Z",
+      "sinceStartMs": 2247646,
+      "sincePreviousMs": 179,
+      "kind": "system",
+      "action": "popup_closed",
+      "label": "Popup closed — handoff grace starting",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5153",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 12,
+      "at": "2026-07-11T20:50:00.589Z",
+      "sinceStartMs": 2247648,
+      "sincePreviousMs": 2,
+      "kind": "system",
+      "action": "grace_start",
+      "label": "Grace period 90s",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5153",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 13,
+      "at": "2026-07-11T20:50:02.036Z",
+      "sinceStartMs": 2249095,
+      "sincePreviousMs": 1447,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "End Block",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "footer-button tools-button",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5153",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 14,
+      "at": "2026-07-11T20:50:03.689Z",
+      "sinceStartMs": 2250748,
+      "sincePreviousMs": 1653,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Confirm",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "testPopupFooterButton testPopupPrimaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5153",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 15,
+      "at": "2026-07-11T20:50:07.423Z",
+      "sinceStartMs": 2254482,
+      "sincePreviousMs": 3734,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "End Review",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "footer-button tools-button",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/completetests",
+        "pathname": "/completetests",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 16,
+      "at": "2026-07-11T20:50:09.816Z",
+      "sinceStartMs": 2256875,
+      "sincePreviousMs": 2393,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Create Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "sidebarNavButton ",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 17,
+      "at": "2026-07-11T20:50:12.156Z",
+      "sinceStartMs": 2259215,
+      "sincePreviousMs": 2340,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Begin Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "homepageFooterButton primaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 18,
+      "at": "2026-07-11T20:51:30.349Z",
+      "sinceStartMs": 2337408,
+      "sincePreviousMs": 78193,
+      "kind": "system",
+      "action": "grace_end",
+      "label": "Grace period ended — watching for Q1/50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5041",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 19,
+      "at": "2026-07-11T20:51:31.223Z",
+      "sinceStartMs": 2338282,
+      "sincePreviousMs": 874,
+      "kind": "system",
+      "action": "q1_ready",
+      "label": "Fresh Q1 ID 5041 @ 1/ 50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:5041",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    }
+  ]
+}

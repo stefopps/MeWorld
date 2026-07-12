@@ -1,0 +1,100 @@
+{
+  "recordedAt": "2026-07-12T04:45:40.803Z",
+  "scraperVersion": "2026-07-11-playwright-v7",
+  "fromBlock": 72,
+  "toBlock": 73,
+  "success": true,
+  "note": null,
+  "startedAt": "2026-07-12T04:45:07.426Z",
+  "endedAt": "2026-07-12T04:45:40.803Z",
+  "totalMs": 33365,
+  "q1": {
+    "id": "4545",
+    "number": "1/ 50",
+    "preview": "A 62-year-old woman with a history of chronic heavy alcohol use (approximately 1"
+  },
+  "eventCount": 3,
+  "clickSequence": [
+    "Create Test",
+    "Begin Test"
+  ],
+  "clickTimingsMs": [
+    25451,
+    29315
+  ],
+  "stepGapsMs": [
+    0,
+    3864
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "at": "2026-07-12T04:45:32.889Z",
+      "sinceStartMs": 25451,
+      "sincePreviousMs": 0,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Create Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "sidebarNavButton sidebarNavButtonSelected",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 2,
+      "at": "2026-07-12T04:45:36.753Z",
+      "sinceStartMs": 29315,
+      "sincePreviousMs": 3864,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Begin Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "homepageFooterButton primaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 3,
+      "at": "2026-07-12T04:45:40.802Z",
+      "sinceStartMs": 33364,
+      "sincePreviousMs": 4049,
+      "kind": "system",
+      "action": "q1_ready",
+      "label": "Fresh Q1 ID 4545 @ 1/ 50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:4545",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    }
+  ]
+}

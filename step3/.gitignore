@@ -1,0 +1,16 @@
+# Secrets / local browser session — never commit
+ccs_credentials.json
+qb_browser_profile/
+node_modules/
+
+# Loose scrape dumps in step3 root (canonical copies live under scrape-bank/raw/)
+/scrape-playwright*.json
+/scrape-playwright*.jsonl
+
+# Allow the organized bank (overrides any broader ignore if added later)
+!scrape-bank/raw/
+!scrape-bank/raw/**
+
+# Optional bulky local postprocess trees (re-derivable)
+scrape-export/
+scrape-bank/exports/

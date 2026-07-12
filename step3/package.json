@@ -1,0 +1,17 @@
+{
+  "name": "ccs-qb-scraper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright scraper for qb.ccscases.com question blocks",
+  "scripts": {
+    "scrape": "node playwright-scrape-qb.js",
+    "scrape:loop": "node playwright-scrape-qb.js --loop --handoff --record-clicks --auto-start --start-block 6",
+    "scrape:auto": "node playwright-scrape-qb.js --loop --auto-next --auto-start --start-block 27",
+    "postprocess": "node postprocess-batch.js --batch 1 --batch-size 10",
+    "postprocess:all": "node postprocess-batch.js --all --batch-size 10",
+    "extract-images": "node extract-scrape-images.js"
+  },
+  "dependencies": {
+    "playwright": "^1.52.0"
+  }
+}

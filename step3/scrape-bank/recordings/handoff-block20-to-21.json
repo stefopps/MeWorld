@@ -1,0 +1,232 @@
+{
+  "recordedAt": "2026-07-11T19:50:51.300Z",
+  "scraperVersion": "2026-07-11-playwright-v6",
+  "fromBlock": 20,
+  "toBlock": 21,
+  "success": true,
+  "note": null,
+  "startedAt": "2026-07-11T19:43:57.091Z",
+  "endedAt": "2026-07-11T19:50:51.300Z",
+  "totalMs": 414209,
+  "q1": {
+    "id": "1616",
+    "number": "1/ 50",
+    "preview": "A research team develops a novel diagnostic screening tool for the detection of "
+  },
+  "eventCount": 9,
+  "clickSequence": [
+    "Close — I'll create the next batch",
+    "End Review",
+    "Create Test",
+    "Begin Test"
+  ],
+  "clickTimingsMs": [
+    323349,
+    325562,
+    332004,
+    338005
+  ],
+  "stepGapsMs": [
+    323250,
+    2023,
+    6442,
+    6001
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "at": "2026-07-11T19:43:57.190Z",
+      "sinceStartMs": 99,
+      "sincePreviousMs": 0,
+      "kind": "system",
+      "action": "popup_waiting",
+      "label": "Waiting for popup close",
+      "pageState": {
+        "url": "https://qb.ccscases.com/CompleteTests",
+        "pathname": "/CompleteTests",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:2265",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 2,
+      "at": "2026-07-11T19:49:20.440Z",
+      "sinceStartMs": 323349,
+      "sincePreviousMs": 323250,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Close — I'll create the next batch",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "ccs-popup-close-btn",
+      "fromPopup": true,
+      "pageState": {
+        "url": "https://qb.ccscases.com/CompleteTests",
+        "pathname": "/CompleteTests",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:2265",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 3,
+      "at": "2026-07-11T19:49:20.624Z",
+      "sinceStartMs": 323533,
+      "sincePreviousMs": 184,
+      "kind": "system",
+      "action": "popup_closed",
+      "label": "Popup closed — handoff grace starting",
+      "pageState": {
+        "url": "https://qb.ccscases.com/CompleteTests",
+        "pathname": "/CompleteTests",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:2265",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 4,
+      "at": "2026-07-11T19:49:20.630Z",
+      "sinceStartMs": 323539,
+      "sincePreviousMs": 6,
+      "kind": "system",
+      "action": "grace_start",
+      "label": "Grace period 90s",
+      "pageState": {
+        "url": "https://qb.ccscases.com/CompleteTests",
+        "pathname": "/CompleteTests",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:2265",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 5,
+      "at": "2026-07-11T19:49:22.653Z",
+      "sinceStartMs": 325562,
+      "sincePreviousMs": 2023,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "End Review",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "footer-button tools-button",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/CompleteTests",
+        "pathname": "/CompleteTests",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 6,
+      "at": "2026-07-11T19:49:29.095Z",
+      "sinceStartMs": 332004,
+      "sincePreviousMs": 6442,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Create Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "sidebarNavButton ",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 7,
+      "at": "2026-07-11T19:49:35.096Z",
+      "sinceStartMs": 338005,
+      "sincePreviousMs": 6001,
+      "kind": "click",
+      "tag": "BUTTON",
+      "label": "Begin Test",
+      "title": "",
+      "ariaLabel": "",
+      "href": "",
+      "id": "",
+      "className": "homepageFooterButton primaryButton",
+      "fromPopup": false,
+      "pageState": {
+        "url": "https://qb.ccscases.com/createtest",
+        "pathname": "/createtest",
+        "questionNumber": "",
+        "questionId": "",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": false,
+        "inTest": false
+      }
+    },
+    {
+      "seq": 8,
+      "at": "2026-07-11T19:50:50.423Z",
+      "sinceStartMs": 413332,
+      "sincePreviousMs": 75327,
+      "kind": "system",
+      "action": "grace_end",
+      "label": "Grace period ended — watching for Q1/50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:1616",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    },
+    {
+      "seq": 9,
+      "at": "2026-07-11T19:50:51.299Z",
+      "sinceStartMs": 414208,
+      "sincePreviousMs": 876,
+      "kind": "system",
+      "action": "q1_ready",
+      "label": "Fresh Q1 ID 1616 @ 1/ 50",
+      "pageState": {
+        "url": "https://qb.ccscases.com/test",
+        "pathname": "/test",
+        "questionNumber": "1/ 50",
+        "questionId": "Question ID:1616",
+        "modalOpen": false,
+        "modalSnippet": "",
+        "hasNext": true,
+        "inTest": true
+      }
+    }
+  ]
+}

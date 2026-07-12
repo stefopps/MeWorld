@@ -1,6 +1,606 @@
 // PASTE THIS ENTIRE FILE into DevTools Console (F12), then run:
 //   await scrapeFromOne(50)
-const SCRAPER_VERSION = '2026-07-10-v7';
+const SCRAPER_VERSION = '2026-07-11-v21';
+
+window.__scraperAbort = false;
+
+window.__scraperRateLimit = window.__scraperRateLimit || { until: 0, hits: 0 };
+window.__scraperPaceMs = window.__scraperPaceMs ?? 0;
+window.__humanMode = window.__humanMode ?? false;
+window.__humanPace = window.__humanPace ?? { minMs: 2200, maxMs: 5800 };
+window.__humanBurst = window.__humanBurst ?? { minMs: 2400, maxMs: 4500 };
+window.__humanRead = window.__humanRead ?? { msPerChar: 7, minMs: 1800, maxMs: 14000 };
+window.__humanProceed = window.__humanProceed ?? { beforeMs: [600, 1800], afterMs: [1200, 2800] };
+
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randBetween([min, max]) {
+  return randInt(min, max);
+}
+
+async function humanDelay(label) {
+  if (!window.__humanMode) {
+    if (window.__scraperPaceMs > 0) await new Promise((r) => setTimeout(r, window.__scraperPaceMs));
+    return;
+  }
+  const ms = randInt(window.__humanPace.minMs, window.__humanPace.maxMs);
+  if (label && ms >= 2800) console.log(`  … pause ${Math.round(ms / 1000)}s (${label})`);
+  await new Promise((r) => setTimeout(r, ms));
+}
+
+async function humanReadDelay(pageData, label = 'reading') {
+  if (!window.__humanMode) return;
+  const text = `${pageData?.question || ''}\n${pageData?.explanation || ''}`;
+  const chars = text.length;
+  const { msPerChar, minMs, maxMs } = window.__humanRead;
+  const ms = Math.min(maxMs, Math.max(minMs, Math.round(chars * msPerChar + randInt(-400, 1200))));
+  if (ms >= 2500) console.log(`  … ${label} ${Math.round(ms / 1000)}s`);
+  await new Promise((r) => setTimeout(r, ms));
+}
+
+async function humanMicroBreak() {
+  if (!window.__humanMode || Math.random() > 0.07) return;
+  const ms = randInt(7000, 16000);
+  console.log(`  … break ${Math.round(ms / 1000)}s`);
+  await new Promise((r) => setTimeout(r, ms));
+}
+
+function humanBurstMs(baseMs) {
+  if (!window.__humanMode) return baseMs;
+  return Math.max(baseMs, randInt(window.__humanBurst.minMs, window.__humanBurst.maxMs));
+}
+
+function humanIntervalMs(fallback = 80) {
+  return window.__humanMode ? randInt(70, 150) : fallback;
+}
+
+function formatElapsed(ms) {
+  const totalSec = Math.max(0, Math.round(ms / 1000));
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  if (m > 0) return `${m}m ${String(s).padStart(2, '0')}s`;
+  return `${s}s`;
+}
+
+/** Second arg <= 120 and < 1000 → minutes; otherwise burstMs */
+function isMinutesBudget(arg) {
+  return typeof arg === 'number' && arg > 0 && arg <= 120 && arg < 1000;
+}
+
+function computeTimingBudget(questionCount, totalMinutes) {
+  const totalMs = totalMinutes * 60 * 1000;
+  const perQ = Math.floor(totalMs / Math.max(1, questionCount));
+  const navOverheadMs = 900;
+  const burstMs = Math.max(1200, Math.min(Math.floor(perQ * 0.48), perQ - navOverheadMs - 300));
+  const paceMs = Math.max(300, perQ - burstMs - navOverheadMs);
+  return {
+    questionCount,
+    totalMinutes,
+    totalMs,
+    perQ,
+    burstMs,
+    paceMs,
+    formatted: formatElapsed(totalMs),
+    perQFormatted: formatElapsed(perQ),
+  };
+}
+
+function applyTimingBudget(budget) {
+  window.__humanMode = false;
+  window.__scraperPaceMs = budget.paceMs;
+  return budget;
+}
+
+function logTimingBudget(budget) {
+  console.log(
+    `Timing budget: ${budget.questionCount} Q in ${budget.totalMinutes} min (${budget.formatted} total, ~${budget.perQFormatted}/Q)`
+  );
+  console.log(`  burst=${budget.burstMs}ms  pace=${budget.paceMs}ms  (nav ~900ms/Q overhead)`);
+  if (budget.perQ < 5000) {
+    console.warn(`⚠ ${budget.perQFormatted}/Q is fast — may hit 429. Try ayText(${budget.questionCount}, ${Math.max(budget.totalMinutes + 3, 10)})`);
+  }
+}
+
+function restoreNativeFetch() {
+  if (window.__scraperOrigFetch) {
+    window.fetch = window.__scraperOrigFetch;
+  }
+}
+
+function setTextOnlyMode() {
+  window.__textOnlyMode = true;
+  window.__screenshotMode = false;
+  window.__fastScreenshot = false;
+  restoreNativeFetch();
+  return 'text-only';
+}
+
+function setJsonScrapeMode(options = {}) {
+  window.__textOnlyMode = false;
+  window.__screenshotMode = false;
+  window.__fastScreenshot = false;
+  window.__lightImageMode = options.light !== false;
+  installImageCaptureHooks();
+  return window.__lightImageMode ? 'json+images-light' : 'json+images-heavy';
+}
+
+function setHeavyImageMode() {
+  window.__lightImageMode = false;
+  return setJsonScrapeMode({ light: false });
+}
+
+function setScreenshotMode() {
+  window.__textOnlyMode = false;
+  window.__screenshotMode = true;
+  return 'screenshot';
+}
+
+function scraperMode() {
+  const mode = window.__screenshotMode
+    ? 'screenshot'
+    : window.__textOnlyMode
+      ? 'text-only'
+      : window.__lightImageMode
+        ? 'json+images-light'
+        : 'json+images-heavy';
+  console.log(`Mode: ${mode}`);
+  return mode;
+}
+
+function humanNavDelay() {
+  return window.__humanMode ? randInt(350, 900) : 400;
+}
+
+async function loadHtml2Canvas() {
+  if (window.html2canvas) return window.html2canvas;
+  const urls = [
+    'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js',
+    'https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js',
+  ];
+  let lastErr;
+  for (const url of urls) {
+    try {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = url;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+      if (window.html2canvas) return window.html2canvas;
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error('html2canvas failed to load');
+}
+
+function findScrollableContentEl() {
+  const prefer = ['.testWrapper', '.question-container', '#test'];
+  for (const sel of prefer) {
+    const el = document.querySelector(sel);
+    if (el && el.scrollHeight > el.clientHeight + 24) return el;
+  }
+  const test = document.querySelector('#test');
+  if (test) {
+    for (const el of test.querySelectorAll('*')) {
+      const st = getComputedStyle(el);
+      if (['auto', 'scroll', 'overlay'].includes(st.overflowY) && el.scrollHeight > el.clientHeight + 24) {
+        return el;
+      }
+    }
+  }
+  return document.querySelector('#test') || document.body;
+}
+
+async function snapElement(el, html2canvas, scale = 1) {
+  if (!el) return null;
+  await new Promise((r) => setTimeout(r, 80));
+  return html2canvas(el, {
+    scale,
+    useCORS: true,
+    allowTaint: true,
+    logging: false,
+    backgroundColor: '#ffffff',
+    ignoreElements: (node) => !!node?.closest?.('.Toastify, [class*="toast" i]'),
+  });
+}
+
+async function captureScrollerStitch(scroller, html2canvas, options = {}) {
+  const scale = options.scale ?? 1;
+  const sliceWaitMs = options.sliceWaitMs ?? 120;
+  const savedScroll = scroller.scrollTop;
+  scroller.scrollTop = 0;
+  await new Promise((r) => setTimeout(r, sliceWaitMs));
+
+  const width = scroller.scrollWidth || scroller.clientWidth;
+  const viewH = scroller.clientHeight;
+  const totalH = scroller.scrollHeight;
+  const slices = [];
+
+  for (let y = 0; y < totalH; y += viewH) {
+    scroller.scrollTop = y;
+    await new Promise((r) => setTimeout(r, sliceWaitMs));
+    const sliceCanvas = await html2canvas(scroller, {
+      scale,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+      width,
+      height: viewH,
+      windowWidth: width,
+      windowHeight: viewH,
+    });
+    const cropH = Math.min(viewH, totalH - y);
+    slices.push({ canvas: sliceCanvas, cropH });
+  }
+
+  scroller.scrollTop = savedScroll;
+
+  const out = document.createElement('canvas');
+  out.width = Math.round(width * scale);
+  out.height = Math.round(totalH * scale);
+  const ctx = out.getContext('2d');
+  let dy = 0;
+  for (const { canvas, cropH } of slices) {
+    const drawH = Math.min(Math.round(cropH * scale), canvas.height, out.height - dy);
+    ctx.drawImage(canvas, 0, 0, canvas.width, drawH, 0, dy, canvas.width, drawH);
+    dy += drawH;
+  }
+  return out;
+}
+
+function stitchCanvasesVertically(canvases) {
+  const parts = canvases.filter(Boolean);
+  if (!parts.length) return null;
+  const width = Math.max(...parts.map((c) => c.width));
+  const height = parts.reduce((n, c) => n + c.height, 0);
+  const out = document.createElement('canvas');
+  out.width = width;
+  out.height = height;
+  const ctx = out.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, width, height);
+  let y = 0;
+  for (const c of parts) {
+    ctx.drawImage(c, 0, y);
+    y += c.height;
+  }
+  return out;
+}
+
+/** CCS QB layout: fixed header + scrollable .testWrapper + footer — stitch all parts. */
+async function captureQBFullScreenshot(options = {}) {
+  const html2canvas = await loadHtml2Canvas();
+  const scale = options.scale ?? (options.fast ? 1 : Math.min(window.devicePixelRatio || 1, 2));
+  const test = document.querySelector('#test');
+
+  if (!test) {
+    return capturePageScreenshot({ ...options, fullPage: true });
+  }
+
+  const header = test.querySelector('.test-header, header');
+  const footer = test.querySelector('footer, .test-footer-wrapper');
+  const scroller = findScrollableContentEl();
+  const parts = [];
+
+  if (header) parts.push(await snapElement(header, html2canvas, scale));
+
+  if (scroller && scroller.scrollHeight > scroller.clientHeight + 24) {
+    parts.push(await captureScrollerStitch(scroller, html2canvas, { scale, sliceWaitMs: options.sliceWaitMs }));
+  } else {
+    const body = test.querySelector('.testWrapper') || scroller;
+    if (body) parts.push(await snapElement(body, html2canvas, scale));
+  }
+
+  if (footer) parts.push(await snapElement(footer, html2canvas, scale));
+
+  const stitched = stitchCanvasesVertically(parts);
+  if (!stitched) throw new Error('stitch failed');
+
+  return {
+    mediaType: 'image/png',
+    dataUrl: stitched.toDataURL('image/png'),
+    width: stitched.width,
+    height: stitched.height,
+    method: 'qb-scroll-stitch',
+    fullPage: true,
+    scrollHeight: scroller?.scrollHeight ?? null,
+  };
+}
+
+function getFullPageSize() {
+  const body = document.body;
+  const html = document.documentElement;
+  return {
+    width: Math.max(
+      body.scrollWidth,
+      body.offsetWidth,
+      html.clientWidth,
+      html.scrollWidth,
+      html.offsetWidth,
+      window.innerWidth
+    ),
+    height: Math.max(
+      body.scrollHeight,
+      body.offsetHeight,
+      html.clientHeight,
+      html.scrollHeight,
+      html.offsetHeight,
+      window.innerHeight
+    ),
+  };
+}
+
+function getScreenshotRoot(fullPage) {
+  if (fullPage) return document.documentElement;
+  return (
+    document.querySelector('#test') ||
+    document.querySelector('.testWrapper') ||
+    document.querySelector('.question-container') ||
+    document.body
+  );
+}
+
+async function capturePageScreenshot(options = {}) {
+  const fast = options.fast ?? window.__fastScreenshot ?? false;
+  const fullPage = options.fullPage ?? window.__fullPageScreenshot ?? fast;
+
+  if (fullPage && document.querySelector('#test')) {
+    const settle = options.settleMs ?? (fast ? 150 : 250);
+    await new Promise((r) => setTimeout(r, settle));
+    return captureQBFullScreenshot(options);
+  }
+
+  const html2canvas = await loadHtml2Canvas();
+  const root = getScreenshotRoot(fullPage);
+  const settle = options.settleMs ?? (fast ? 150 : window.__humanMode ? randInt(350, 700) : 250);
+  await new Promise((r) => setTimeout(r, settle));
+
+  const scale = options.scale ?? (fast ? 1 : Math.min(window.devicePixelRatio || 1, 2));
+  const opts = {
+    useCORS: true,
+    allowTaint: true,
+    logging: false,
+    scale,
+    backgroundColor: '#ffffff',
+    ignoreElements: (el) => !!el?.closest?.('.Toastify, [class*="toast" i]'),
+  };
+
+  if (fullPage) {
+    const { width, height } = getFullPageSize();
+    const scrollX = window.scrollX ?? window.pageXOffset ?? 0;
+    const scrollY = window.scrollY ?? window.pageYOffset ?? 0;
+    Object.assign(opts, {
+      width,
+      height,
+      windowWidth: width,
+      windowHeight: height,
+      scrollX: -scrollX,
+      scrollY: -scrollY,
+      x: 0,
+      y: 0,
+    });
+  }
+
+  const canvas = await html2canvas(root, opts);
+  return {
+    mediaType: 'image/png',
+    dataUrl: canvas.toDataURL('image/png'),
+    width: canvas.width,
+    height: canvas.height,
+    method: fullPage ? 'fullpage-screenshot' : fast ? 'html2canvas-fast' : 'html2canvas-region',
+    fullPage,
+    pageSize: fullPage ? getFullPageSize() : null,
+  };
+}
+
+function lightMeta() {
+  return {
+    capturedAt: new Date().toISOString(),
+    questionNumber: document.querySelector('.item-block')?.innerText?.trim() || '',
+    questionId: document.querySelector('.item-info span')?.innerText?.trim() || '',
+  };
+}
+
+function downloadPngNow(dataUrl, filename) {
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+/**
+ * Fast full-page screenshots for OCR later. No text scrape, no image hooks, no human delays.
+ * One PNG per question (captured on reveal screen — question + answers + explanation).
+ */
+async function fastScreenshotBlock(count = 50, options = {}) {
+  setScreenshotMode();
+  window.__fastScreenshot = true;
+  window.__fullPageScreenshot = options.fullPage ?? true;
+  window.__humanMode = false;
+  window.__scraperAbort = false;
+
+  const revealWaitMs = options.revealWaitMs ?? 850;
+  const proceedWaitMs = options.proceedWaitMs ?? 350;
+  const prefix = options.prefix ?? 'block';
+  const downloadNow = options.downloadNow ?? true;
+  const manifest = [];
+
+  console.log(`Fast FULL-PAGE screenshot: ${count} questions`);
+  console.log('Stop anytime: window.__scraperAbort = true');
+
+  await loadHtml2Canvas();
+
+  for (let i = 1; i <= count; i++) {
+    if (window.__scraperAbort) {
+      console.warn('Stopped by user (__scraperAbort)');
+      break;
+    }
+    await scraperPause(`Q${i}`);
+
+    const btn = document.querySelector('.next-button');
+    if (!btn) {
+      console.error('Next button not found');
+      break;
+    }
+
+    const beforeMeta = lightMeta();
+    btn.click();
+    console.log(`Next ${i}/${count}…`);
+    await new Promise((r) => setTimeout(r, revealWaitMs));
+
+    let shot;
+    try {
+      shot = await capturePageScreenshot({ fast: true, fullPage: true, settleMs: 150 });
+    } catch (e) {
+      console.warn(`Screenshot failed Q${i}:`, e.message);
+      manifest.push({ step: i, ...beforeMeta, error: e.message });
+      continue;
+    }
+
+    const meta = { step: i, ...lightMeta(), ...beforeMeta, screenshot: { w: shot.width, h: shot.height } };
+    const file = screenshotFilename(meta, prefix);
+    meta.file = file;
+
+    if (downloadNow) {
+      downloadPngNow(shot.dataUrl, file);
+    } else {
+      meta.dataUrl = shot.dataUrl;
+    }
+
+    manifest.push(meta);
+    console.log(`  ✓ ${file}`);
+
+    const proceed = document.querySelector('.button-container-light button');
+    if (proceed) {
+      proceed.click();
+      await new Promise((r) => setTimeout(r, proceedWaitMs));
+    }
+
+    const fromQ = parseQuestionNumber(beforeMeta.questionNumber);
+    if (fromQ !== null) {
+      await waitForQuestionChange(fromQ, 4000);
+    }
+  }
+
+  const output = {
+    scrapedAt: new Date().toISOString(),
+    mode: 'fast-screenshot-ocr',
+    scraperVersion: SCRAPER_VERSION,
+    count: manifest.length,
+    screens: manifest.map(({ dataUrl, ...rest }) => rest),
+  };
+
+  downloadJson(output, `${prefix}-manifest.json`);
+  console.log(`Done — ${manifest.length} screenshots, manifest downloaded`);
+  return output;
+}
+
+function enrichTextOnly(data) {
+  return {
+    ...data,
+    hasMedicalViewer: hasMedicalViewer(),
+    imageCount: 0,
+    hasImages: false,
+    images: [],
+    pngDataUrls: [],
+    textOnly: true,
+  };
+}
+
+async function enrichPageCapture(data) {
+  if (window.__textOnlyMode) return enrichTextOnly(data);
+  if (!window.__screenshotMode) {
+    return enrichWithImages(data);
+  }
+  try {
+    const shot = await capturePageScreenshot();
+    return {
+      ...data,
+      hasMedicalViewer: hasMedicalViewer(),
+      imageCount: 0,
+      hasImages: false,
+      images: [],
+      pngDataUrls: [],
+      screenshot: shot,
+      hasScreenshot: true,
+    };
+  } catch (e) {
+    console.warn('Screenshot failed:', e.message);
+    return { ...data, hasScreenshot: false, screenshotError: e.message };
+  }
+}
+
+function screenshotFilename(page, prefix = 'scrape') {
+  const q = parseQuestionNumber(page.questionNumber) || page.step || 0;
+  const id = normalizeQuestionId(page.questionId) || 'unknown';
+  return `${prefix}-q${String(q).padStart(2, '0')}-id${id}.png`;
+}
+
+async function flushScreenshotDownloads(pages, prefix = 'scrape') {
+  const withShots = pages.filter((p) => p.screenshot?.dataUrl);
+  if (!withShots.length) return 0;
+  console.log(`Downloading ${withShots.length} screenshots...`);
+  let n = 0;
+  for (const page of withShots) {
+    const a = document.createElement('a');
+    a.href = page.screenshot.dataUrl;
+    a.download = screenshotFilename(page, prefix);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    n += 1;
+    await new Promise((r) => setTimeout(r, 450));
+  }
+  console.log(`Downloaded ${n} PNG screenshots`);
+  return n;
+}
+
+function isRateLimited() {
+  return Date.now() < (window.__scraperRateLimit?.until || 0);
+}
+
+function noteRateLimitResponse(resp, url) {
+  if (!resp || resp.status !== 429) return false;
+  const rl = window.__scraperRateLimit;
+  const now = Date.now();
+
+  if (now - (rl.last429At || 0) < 4000) {
+    rl.until = Math.max(rl.until, now + 60000);
+    return true;
+  }
+
+  rl.last429At = now;
+  rl.hits += 1;
+  const backoff = Math.min(120000, 8000 * Math.pow(2, Math.min(rl.hits - 1, 4)));
+  rl.until = Math.max(rl.until, now + backoff);
+  console.warn(`429 on ${String(url || '').slice(0, 70)} — pause ${Math.round(backoff / 1000)}s (hit ${rl.hits})`);
+
+  if (rl.hits >= 3) {
+    window.__scraperAbort = true;
+    console.error('AUTO-STOPPED — server blocked you. Wait 30 min, hard refresh, paste script ONCE, then: await ayText(50, 15)');
+  }
+  return true;
+}
+
+async function scraperPause(reason) {
+  const wait = Math.max(0, (window.__scraperRateLimit?.until || 0) - Date.now());
+  if (wait > 0) {
+    console.warn(`Rate-limit cooldown: waiting ${Math.round(wait / 1000)}s${reason ? ` (${reason})` : ''}`);
+    await new Promise((r) => setTimeout(r, wait));
+  }
+}
+
+function scraperFetch(...args) {
+  const fn = window.__scraperOrigFetch || window.fetch.bind(window);
+  return fn(...args);
+}
 
 function extractAnswerDetails() {
   return [...document.querySelectorAll('.answers .questionDiv')].map((div, idx) => {
@@ -223,9 +823,28 @@ async function storeRasterBlob(url, blob, mediaType, meta = {}) {
   return entry;
 }
 
-function installImageCaptureHooks() {
-  if (window.__imageCaptureHooksInstalled) return;
-  window.__imageCaptureHooksInstalled = true;
+function installBlobCaptureHook() {
+  if (window.__blobHookInstalled) return;
+  if (!window.__scraperOrigCreateObjectURL) {
+    window.__scraperOrigCreateObjectURL = URL.createObjectURL.bind(URL);
+  }
+  URL.createObjectURL = function (blob) {
+    const url = window.__scraperOrigCreateObjectURL(blob);
+    if (blob instanceof Blob) {
+      storeRasterBlob(url, blob, blob.type, { source: 'createObjectURL' }).catch(() => {});
+    }
+    return url;
+  };
+  window.__blobHookInstalled = true;
+}
+
+function installFetchImageHooks() {
+  if (window.__fetchHookInstalled || window.__textOnlyMode || window.__lightImageMode) return;
+  installBlobCaptureHook();
+
+  if (!window.__scraperOrigFetch) {
+    window.__scraperOrigFetch = window.fetch.bind(window);
+  }
 
   function recordNetworkImage(url, mediaType) {
     if (!url || isSvgSrc(url)) return;
@@ -247,24 +866,15 @@ function installImageCaptureHooks() {
     });
   }
 
-  const origCreateObjectURL = URL.createObjectURL;
-  URL.createObjectURL = function (blob) {
-    const url = origCreateObjectURL.call(URL, blob);
-    if (blob instanceof Blob) {
-      storeRasterBlob(url, blob, blob.type, { source: 'createObjectURL' }).catch(() => {});
-    }
-    return url;
-  };
-
-  const origFetch = window.fetch;
   window.fetch = async function (...args) {
-    const resp = await origFetch.apply(this, args);
+    const req = args[0];
+    const url = typeof req === 'string' ? req : req?.url;
+    const resp = await window.__scraperOrigFetch(...args);
     try {
-      const req = args[0];
-      const url = typeof req === 'string' ? req : req?.url;
-      const ct = resp.headers.get('content-type') || '';
+      if (noteRateLimitResponse(resp, url)) return resp;
 
-      if (WEBAPI_MEDIA_RE.test(url || '')) {
+      const ct = resp.headers.get('content-type') || '';
+      if (resp.ok && WEBAPI_MEDIA_RE.test(url || '')) {
         const clone = resp.clone();
         clone
           .blob()
@@ -275,7 +885,7 @@ function installImageCaptureHooks() {
             })
           )
           .catch(() => {});
-      } else if (ct.startsWith('image/') && !isDecorativeImageUrl(url)) {
+      } else if (resp.ok && ct.startsWith('image/') && !isDecorativeImageUrl(url)) {
         recordNetworkImage(url, ct);
         const clone = resp.clone();
         clone
@@ -289,46 +899,65 @@ function installImageCaptureHooks() {
     return resp;
   };
 
-  const origOpen = XMLHttpRequest.prototype.open;
-  XMLHttpRequest.prototype.open = function (method, url, ...rest) {
-    this.addEventListener('load', function () {
-      try {
-        const ct = this.getResponseHeader('content-type') || '';
-        if (WEBAPI_MEDIA_RE.test(url || '')) {
-          const blob = this.response instanceof Blob ? this.response : new Blob([this.response], { type: ct });
-          storeRasterBlob(url, blob, ct, {
-            source: 'xhr-webapi',
-            questionId: parseQuestionIdFromApiUrl(url),
-          }).catch(() => {});
-        } else if (ct.startsWith('image/') && !isDecorativeImageUrl(url)) {
-          recordNetworkImage(url, ct);
+  if (!window.__scraperXhrHookInstalled) {
+    window.__scraperXhrHookInstalled = true;
+    const origOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+      this.addEventListener('load', function () {
+        try {
+          if (this.status === 429) {
+            noteRateLimitResponse({ status: 429 }, url);
+            return;
+          }
+          const ct = this.getResponseHeader('content-type') || '';
+          if (WEBAPI_MEDIA_RE.test(url || '')) {
+            const blob =
+              this.response instanceof Blob ? this.response : new Blob([this.response], { type: ct });
+            storeRasterBlob(url, blob, ct, {
+              source: 'xhr-webapi',
+              questionId: parseQuestionIdFromApiUrl(url),
+            }).catch(() => {});
+          } else if (ct.startsWith('image/') && !isDecorativeImageUrl(url)) {
+            recordNetworkImage(url, ct);
+          }
+        } catch (e) {
+          /* ignore */
         }
-      } catch (e) {
-        /* ignore */
-      }
-    });
-    return origOpen.call(this, method, url, ...rest);
-  };
-
-  try {
-    new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) {
-        if (entry.entryType !== 'resource') continue;
-        const name = entry.name || '';
-        if (isSvgSrc(name) || isDecorativeImageUrl(name)) continue;
-        if (
-          WEBAPI_MEDIA_RE.test(name) ||
-          /\.(png|jpe?g|webp|gif)(\?|$)/i.test(name) ||
-          name.startsWith('blob:') ||
-          entry.initiatorType === 'img'
-        ) {
-          recordNetworkImage(name, null);
-        }
-      }
-    }).observe({ type: 'resource', buffered: true });
-  } catch (e) {
-    /* ignore */
+      });
+      return origOpen.call(this, method, url, ...rest);
+    };
   }
+
+  if (!window.__scraperPerfObserverInstalled) {
+    window.__scraperPerfObserverInstalled = true;
+    try {
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          if (entry.entryType !== 'resource') continue;
+          const name = entry.name || '';
+          if (isSvgSrc(name) || isDecorativeImageUrl(name)) continue;
+          if (
+            WEBAPI_MEDIA_RE.test(name) ||
+            /\.(png|jpe?g|webp|gif)(\?|$)/i.test(name) ||
+            name.startsWith('blob:') ||
+            entry.initiatorType === 'img'
+          ) {
+            recordNetworkImage(name, null);
+          }
+        }
+      }).observe({ type: 'resource', buffered: true });
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  window.__fetchHookInstalled = true;
+}
+
+function installImageCaptureHooks() {
+  if (window.__textOnlyMode) return;
+  installBlobCaptureHook();
+  if (!window.__lightImageMode) installFetchImageHooks();
 }
 
 function hasMedicalViewer() {
@@ -961,8 +1590,14 @@ async function srcToImagePayload(src) {
   }
 
   if (WEBAPI_MEDIA_RE.test(src)) {
+    if (isRateLimited()) {
+      return { src, error: 'rate-limited', isImage: false };
+    }
     try {
-      const resp = await fetch(src, { credentials: 'include' });
+      const resp = await scraperFetch(src, { credentials: 'include' });
+      if (noteRateLimitResponse(resp, src)) {
+        return { src, error: 'rate-limited', isImage: false };
+      }
       const blob = await resp.blob();
       const stored = await storeRasterBlob(src, blob, resp.headers.get('content-type'), {
         source: 'webapi-fetch',
@@ -982,8 +1617,12 @@ async function srcToImagePayload(src) {
     }
   }
 
+  if (isRateLimited()) {
+    return { src, error: 'rate-limited', isImage: false };
+  }
+
   try {
-    const resp = await fetch(src, { credentials: 'include' });
+    const resp = await scraperFetch(src, { credentials: 'include' });
     const blob = await resp.blob();
     let mediaType = blob.type || resp.headers.get('content-type') || 'unknown';
     mediaType = mediaType.split(';')[0].trim();
@@ -1092,7 +1731,108 @@ function filterClinicalImages(images) {
     );
 }
 
+async function enrichWithImagesLight(data) {
+  installBlobCaptureHook();
+  const viewer = hasMedicalViewer();
+  if (!viewer) {
+    return {
+      ...data,
+      hasMedicalViewer: false,
+      images: [],
+      imageCount: 0,
+      hasImages: false,
+      pngDataUrls: [],
+    };
+  }
+
+  await new Promise((r) => setTimeout(r, 1400));
+  const seen = new Set();
+  const images = [];
+
+  for (const img of getVisibleBlobImgElements()) {
+    const src = img.currentSrc || img.src || '';
+    if (!src || seen.has(src)) continue;
+    let dataUrl = null;
+    if (__blobStore.has(src)) dataUrl = __blobStore.get(src).dataUrl;
+    if (!dataUrl) {
+      const drawn = await imgElementToDataUrl(img);
+      if (drawn?.dataUrl) dataUrl = drawn.dataUrl;
+      else if (typeof drawn === 'string') dataUrl = drawn;
+    }
+    if (!dataUrl) continue;
+    seen.add(src);
+    seen.add(dataUrl);
+    images.push({
+      type: 'blob-img',
+      source: 'light-dom',
+      src,
+      mediaType: 'image/png',
+      dataUrl,
+      isImage: true,
+      method: 'canvas-draw',
+    });
+  }
+
+  const gallery = findViewerRoot();
+  if (gallery) {
+    for (const canvas of queryAllDeep(gallery, 'canvas')) {
+      if (canvas.closest('button, [role="button"]') || !canvasHasContent(canvas)) continue;
+      const shot = await captureCanvasElement(canvas);
+      if (!shot?.dataUrl || seen.has(shot.dataUrl)) continue;
+      seen.add(shot.dataUrl);
+      images.push({ type: 'canvas', source: 'light-dom', ...shot, isImage: true });
+    }
+  }
+
+  if (!images.length && !isRateLimited()) {
+    const qid = getCurrentQuestionId();
+    if (qid) {
+      const apiUrl = `${location.origin}/getQuestionMedia.webapi?question_id=${encodeURIComponent(qid)}`;
+      try {
+        const resp = await scraperFetch(apiUrl, { credentials: 'include' });
+        if (!noteRateLimitResponse(resp, apiUrl) && resp.ok) {
+          const blob = await resp.blob();
+          const stored = await storeRasterBlob(apiUrl, blob, resp.headers.get('content-type'), {
+            source: 'light-webapi-once',
+            questionId: qid,
+          });
+          if (stored?.dataUrl) {
+            images.push({
+              type: 'webapi-once',
+              source: 'light-webapi-once',
+              src: apiUrl,
+              mediaType: stored.mediaType,
+              dataUrl: stored.dataUrl,
+              isImage: true,
+              method: 'webapi-fetch',
+            });
+          }
+        }
+      } catch (e) {
+        /* skip */
+      }
+    }
+  }
+
+  const pngImages = filterClinicalImages(images);
+  return {
+    ...data,
+    hasMedicalViewer: viewer,
+    images: pngImages,
+    imageCount: pngImages.length,
+    hasImages: pngImages.length > 0,
+    pngDataUrls: pngImages.map((i) => ({
+      mediaType: i.mediaType,
+      alt: i.alt || null,
+      type: i.type || null,
+      source: i.source || null,
+      dataUrl: i.dataUrl,
+    })),
+  };
+}
+
 async function enrichWithImages(data) {
+  if (window.__lightImageMode) return enrichWithImagesLight(data);
   installImageCaptureHooks();
   if (hasMedicalViewer()) {
     await waitForViewerImages(3000);
@@ -1140,17 +1880,131 @@ function pickBestSnapshot(snapshots) {
   );
 }
 
-function downloadJson(data, filename = 'scrape-output.json') {
-  const json = JSON.stringify(data, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(a.href);
-  return json;
+function slimPageForExport(page) {
+  return {
+    step: page.step,
+    action: page.action,
+    status: page.status,
+    revealCaptured: page.revealCaptured,
+    revealAtMs: page.revealAtMs,
+    advancedTo: page.advancedTo,
+    stuckOnQuestion: page.stuckOnQuestion,
+    capturedAt: page.capturedAt,
+    questionId: page.questionId,
+    questionNumber: page.questionNumber,
+    question: page.question,
+    answers: page.answers?.map(
+      ({ letter, text, hasImage, selected, flagged, struck, likelyCorrect, likelyIncorrect, votePercent }) => ({
+        letter,
+        text,
+        hasImage,
+        selected,
+        flagged,
+        struck,
+        likelyCorrect,
+        likelyIncorrect,
+        votePercent,
+      })
+    ),
+    explanation: page.explanation,
+    likelyCorrectAnswer: page.likelyCorrectAnswer,
+    hasReveal: page.hasReveal,
+    hasSelection: page.hasSelection,
+    hasCheckmarks: page.hasCheckmarks,
+    flagged: page.flagged,
+    hasMedicalViewer: page.hasMedicalViewer,
+    imageCount: page.imageCount,
+    hasImages: page.hasImages,
+    images: page.images?.map(({ type, source, alt, width, height, mediaType, src, method }) => ({
+      type,
+      source,
+      alt,
+      width,
+      height,
+      mediaType,
+      src: src ? String(src).slice(0, 200) : null,
+      method,
+    })),
+    pngDataUrls: page.pngDataUrls,
+    screenshot: page.screenshot
+      ? {
+          width: page.screenshot.width,
+          height: page.screenshot.height,
+          method: page.screenshot.method,
+          file: screenshotFilename(page),
+        }
+      : undefined,
+    hasScreenshot: page.hasScreenshot,
+  };
+}
+
+function prepareExportPayload(output, options = {}) {
+  const keepDebug = options.keepDebug ?? false;
+  return {
+    scrapedAt: output.scrapedAt,
+    scraperVersion: SCRAPER_VERSION,
+    direction: output.direction,
+    totalClicks: output.totalClicks,
+    pageCount: output.pageCount,
+    summary: output.summary,
+    pages: keepDebug ? output.pages : output.pages.map(slimPageForExport),
+  };
+}
+
+function stripInlineImages(payload) {
+  const stripped = {
+    ...payload,
+    pages: payload.pages.map((page) => ({
+      ...page,
+      pngDataUrls: undefined,
+      images: page.images?.map(({ dataUrl, ...rest }) => rest),
+    })),
+  };
+  stripped.summary = {
+    ...stripped.summary,
+    exportNote: 'Inline PNG data omitted — JSON was too large to stringify',
+  };
+  return stripped;
+}
+
+function downloadJson(data, filename = 'scrape-output.json', options = {}) {
+  const pretty = options.pretty ?? false;
+  let payload = data;
+  let json;
+
+  try {
+    json = pretty ? JSON.stringify(payload, null, 2) : JSON.stringify(payload);
+  } catch (e) {
+    console.warn('Export too large — retrying compact slim JSON:', e.message);
+    payload = prepareExportPayload(data, { keepDebug: false });
+    json = JSON.stringify(payload);
+  }
+
+  try {
+    if (!json) throw new Error('empty json');
+    const blob = new Blob([json], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+    return { json, payload, bytes: json.length, stripped: false };
+  } catch (e) {
+    console.warn('Download still too large — saving text-only JSON:', e.message);
+    payload = stripInlineImages(prepareExportPayload(data, { keepDebug: false }));
+    json = JSON.stringify(payload);
+    const blob = new Blob([json], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename.replace(/\.json$/i, '-text-only.json');
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+    return { json, payload, bytes: json.length, stripped: true };
+  }
 }
 
 async function copyJson(text) {
@@ -1174,13 +2028,15 @@ function parseQuestionNumber(str) {
   return Number.isFinite(n) ? n : null;
 }
 
-async function waitForQuestionChange(fromQ, timeoutMs = 2500) {
+async function waitForQuestionChange(fromQ, timeoutMs = 5000) {
   if (fromQ === null) return getCurrentQuestionNumber();
   const t0 = performance.now();
+  const pollMs = isRateLimited() ? 250 : 120;
   while (performance.now() - t0 < timeoutMs) {
+    if (isRateLimited()) await scraperPause('waiting for question change');
     const cur = getCurrentQuestionNumber();
     if (cur !== null && cur !== fromQ) return cur;
-    await new Promise((r) => setTimeout(r, 80));
+    await new Promise((r) => setTimeout(r, pollMs));
   }
   return getCurrentQuestionNumber();
 }
@@ -1190,11 +2046,19 @@ async function advanceAfterCapture(fromQ) {
   if (cur === fromQ) {
     const proceed = document.querySelector('.button-container-light button');
     if (proceed) {
+      if (window.__humanMode) {
+        await new Promise((r) => setTimeout(r, randBetween(window.__humanProceed.beforeMs)));
+      }
       proceed.click();
       console.log('  → Proceed to next item');
+      const afterMs = window.__humanMode
+        ? randBetween(window.__humanProceed.afterMs)
+        : 700;
+      await new Promise((r) => setTimeout(r, afterMs));
     }
   }
-  return waitForQuestionChange(fromQ, 2500);
+  await scraperPause('after proceed');
+  return waitForQuestionChange(fromQ, isRateLimited() ? 12000 : 8000);
 }
 
 async function goToQuestion(target = 1, delayMs = 200) {
@@ -1212,7 +2076,8 @@ async function goToQuestion(target = 1, delayMs = 200) {
     if (!btn) return current;
 
     btn.click();
-    await new Promise((r) => setTimeout(r, delayMs));
+    const waitMs = window.__humanMode ? randInt(Math.max(300, delayMs), Math.max(600, delayMs + 500)) : delayMs;
+    await new Promise((r) => setTimeout(r, waitMs));
   }
   return getCurrentQuestionNumber();
 }
@@ -1319,6 +2184,12 @@ function buildSummary(pages) {
 
 function printSummary(summary) {
   console.log('\n========== SCRAPE SUMMARY ==========');
+  if (summary.elapsedMs != null) {
+    console.log(`Elapsed:          ${summary.elapsedFormatted} (${summary.avgPerQuestionFormatted || '?'}/Q)`);
+    if (summary.targetMinutes) {
+      console.log(`Target:           ${summary.targetMinutes} min (${summary.onBudget ? 'on budget ✓' : 'over budget'})`);
+    }
+  }
   console.log(`Questions saved:  ${summary.questionsScraped}`);
   console.log(`Unique Qs:        ${summary.uniqueQuestionsCaptured} (Q${summary.startedOn} → Q${summary.endedOn})`);
   if (summary.expectedEnd && summary.endedOn < summary.expectedEnd) {
@@ -1351,6 +2222,7 @@ function printSummary(summary) {
 }
 
 async function scrapeRest(fromQ = 49, toQ = 50, burstMs = 1200) {
+  setJsonScrapeMode();
   const times = toQ - fromQ + 1;
   const filename = `scrape-output-q${fromQ}-${toQ}.json`;
   console.log(`Scraping Q${fromQ}–Q${toQ} → ${filename}`);
@@ -1358,48 +2230,357 @@ async function scrapeRest(fromQ = 49, toQ = 50, burstMs = 1200) {
   return clickNav('next', times, burstMs, 50, filename);
 }
 
-async function scrapeFromOne(questionCount = 50, burstMs = 900) {
-  console.log(`Fast scrape: ${questionCount} questions (~${Math.round(questionCount * burstMs / 1000)}s)...`);
-  await goToQuestion(1, 200);
-  return clickNav('next', questionCount, burstMs, 50);
+async function ayText(questionCount = 50, totalMinutes = 15, options = {}) {
+  setTextOnlyMode();
+  const budget = applyTimingBudget(computeTimingBudget(questionCount, totalMinutes));
+  logTimingBudget(budget);
+  return scrapeTextOnly(questionCount, budget.burstMs, { ...options, budget });
 }
 
-async function clickNav(direction = 'next', times = 49, burstMs = 900, intervalMs = 50, filename = 'scrape-output.json') {
+async function embedImagesInHtmlClone(liveRoot, cloneRoot) {
+  let embedded = 0;
+  let missed = 0;
+
+  const liveImgs = queryAllDeep(liveRoot, 'img').filter((img) => !isUiIcon(img));
+  const cloneImgs = queryAllDeep(cloneRoot, 'img').filter((img) => !isUiIcon(img));
+
+  for (let i = 0; i < liveImgs.length; i++) {
+    const live = liveImgs[i];
+    const clone = cloneImgs[i];
+    if (!clone) continue;
+    const src = live.currentSrc || live.src || '';
+    if (!src || isDecorativeImageUrl(src)) continue;
+
+    let payload = null;
+    if (src.startsWith('blob:') || live.naturalWidth >= 80) {
+      payload = await imgElementToDataUrl(live);
+    }
+    if (!payload && __blobStore.has(src)) payload = __blobStore.get(src).dataUrl;
+    if (!payload) {
+      const resolved = await srcToImagePayload(src);
+      payload = resolved?.dataUrl;
+    }
+    if (payload) {
+      clone.setAttribute('src', payload);
+      embedded += 1;
+    } else if (src.startsWith('blob:')) {
+      missed += 1;
+    }
+  }
+
+  const liveCanvases = queryAllDeep(liveRoot, 'canvas').filter(
+    (c) => !c.closest('button, [role="button"]') && canvasHasContent(c)
+  );
+  const cloneCanvases = queryAllDeep(cloneRoot, 'canvas').filter(
+    (c) => !c.closest('button, [role="button"]')
+  );
+
+  for (let i = 0; i < liveCanvases.length; i++) {
+    const shot = await captureCanvasElement(liveCanvases[i]);
+    const cloneCanvas = cloneCanvases[i];
+    if (!shot?.dataUrl || !cloneCanvas) continue;
+    const img = document.createElement('img');
+    img.src = shot.dataUrl;
+    img.width = liveCanvases[i].width;
+    img.height = liveCanvases[i].height;
+    if (cloneCanvas.className) img.className = cloneCanvas.className;
+    if (cloneCanvas.getAttribute('style')) img.setAttribute('style', cloneCanvas.getAttribute('style'));
+    cloneCanvas.replaceWith(img);
+    embedded += 1;
+  }
+
+  if (missed > 0 && hasMedicalViewer()) {
+    const qid = getCurrentQuestionId();
+    const apiUrl = `${location.origin}/getQuestionMedia.webapi?question_id=${encodeURIComponent(qid)}`;
+    const resolved = await srcToImagePayload(apiUrl);
+    if (resolved?.dataUrl) {
+      for (const clone of cloneImgs) {
+        const src = clone.getAttribute('src') || '';
+        if (src.startsWith('blob:') || !src.startsWith('data:image/')) {
+          clone.setAttribute('src', resolved.dataUrl);
+          embedded += 1;
+        }
+      }
+    }
+  }
+
+  return { embedded, missed };
+}
+
+async function buildQuestionHtmlSnapshot(options = {}) {
+  const test = document.querySelector('#test');
+  const meta = lightMeta();
+  const q = parseQuestionNumber(meta.questionNumber) || 0;
+  const id = normalizeQuestionId(meta.questionId) || 'unknown';
+
+  if (options.imageWaitMs !== 0) {
+    await new Promise((r) => setTimeout(r, options.imageWaitMs ?? 700));
+  }
+
+  const clone = test ? test.cloneNode(true) : null;
+  let imageStats = { embedded: 0, missed: 0 };
+  if (test && clone && typeof embedImagesInHtmlClone === 'function') {
+    imageStats = await embedImagesInHtmlClone(test, clone);
+  }
+
+  const css = [...document.querySelectorAll('link[rel="stylesheet"]')]
+    .map((l) => `<link rel="stylesheet" href="${l.href}">`)
+    .join('\n');
+  const bodyHtml = clone ? clone.outerHTML : document.body.innerHTML;
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>CCSQB Q${q} ID${id}</title>
+${css}
+</head><body>${bodyHtml}</body></html>`;
+  return {
+    filename: `ccsqb-q${String(q).padStart(2, '0')}-id${id}.html`,
+    html,
+    meta,
+    imageStats,
+  };
+}
+
+function downloadHtmlNow(html, filename) {
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+
+/** Automated "Save Page As" — one HTML file per question (after reveal). No image API hooks. */
+async function saveHtmlBlock(count = 50, totalMinutes = 10, options = {}) {
+  setTextOnlyMode();
+  window.__scraperAbort = false;
+  const budget = applyTimingBudget(computeTimingBudget(count, totalMinutes));
+  logTimingBudget(budget);
+  const revealWaitMs = options.revealWaitMs ?? budget.burstMs;
+  const proceedWaitMs = options.proceedWaitMs ?? 450;
+  const manifest = [];
+  const t0 = performance.now();
+
+  console.log(`Save HTML block: ${count} files (like Ctrl+S "Webpage, Complete" per question)`);
+  console.log('Saves AFTER reveal — includes explanation. X-ray blob: URLs may break offline.');
+
+  for (let i = 1; i <= count; i++) {
+    if (window.__scraperAbort) {
+      console.warn('Stopped');
+      break;
+    }
+    await scraperPause(`Q${i}`);
+
+    const btn = document.querySelector('.next-button');
+    if (!btn) {
+      console.error('Next button not found');
+      break;
+    }
+
+    btn.click();
+    console.log(`Next ${i}/${count}…`);
+    await new Promise((r) => setTimeout(r, revealWaitMs));
+
+    const snap = await buildQuestionHtmlSnapshot(options);
+    downloadHtmlNow(snap.html, snap.filename);
+    manifest.push({
+      step: i,
+      file: snap.filename,
+      imagesEmbedded: snap.imageStats?.embedded ?? 0,
+      imagesMissed: snap.imageStats?.missed ?? 0,
+      ...snap.meta,
+    });
+    const imgNote =
+      snap.imageStats?.embedded > 0
+        ? ` | ${snap.imageStats.embedded} img embedded`
+        : snap.imageStats?.missed > 0
+          ? ' | ⚠ exhibit image missed'
+          : '';
+    console.log(`  ✓ ${snap.filename}${imgNote} | ${formatElapsed(performance.now() - t0)}`);
+
+    const proceed = document.querySelector('.button-container-light button');
+    if (proceed) {
+      proceed.click();
+      await new Promise((r) => setTimeout(r, proceedWaitMs));
+    }
+
+    const fromQ = parseQuestionNumber(snap.meta.questionNumber);
+    if (fromQ !== null) await waitForQuestionChange(fromQ, 6000);
+  }
+
+  const elapsedMs = Math.round(performance.now() - t0);
+  const output = {
+    scrapedAt: new Date().toISOString(),
+    mode: 'html-save',
+    scraperVersion: SCRAPER_VERSION,
+    count: manifest.length,
+    elapsedFormatted: formatElapsed(elapsedMs),
+    files: manifest,
+  };
+  downloadJson(output, 'ccsqb-html-manifest.json');
+  console.log(`Done — ${manifest.length} HTML files in ${formatElapsed(elapsedMs)}`);
+  return output;
+}
+
+async function ayHtml(questionCount = 50, totalMinutes = 10, options = {}) {
+  return saveHtmlBlock(questionCount, totalMinutes, options);
+}
+
+async function scrapeTextOnly(questionCount = 50, burstOrMinutes = 2500, options = {}) {
+  setTextOnlyMode();
+
+  let burstMs = burstOrMinutes;
+  let budget = options.budget || null;
+
+  if (isMinutesBudget(burstOrMinutes)) {
+    budget = applyTimingBudget(computeTimingBudget(questionCount, burstOrMinutes));
+    burstMs = budget.burstMs;
+    logTimingBudget(budget);
+  }
+
+  if (budget) {
+    console.log(`Text-only JSON: ${questionCount} Q, budget ${budget.totalMinutes} min — no image downloads`);
+  } else {
+    console.log(`Text-only JSON: ${questionCount} questions — no image hooks, no PNGs`);
+  }
+  console.log('Output: scrape-text-output.json');
+
+  await goToQuestion(1, humanNavDelay());
+  return clickNav(
+    'next',
+    questionCount,
+    burstMs,
+    humanIntervalMs(80),
+    options.filename || 'scrape-text-output.json',
+    { budget, textOnly: true }
+  );
+}
+
+async function ay(questionCount = 50, totalMinutes = 20, options = {}) {
+  window.__lightImageMode = options.heavy ? false : true;
+  const budget = applyTimingBudget(computeTimingBudget(questionCount, totalMinutes));
+  logTimingBudget(budget);
+  if (window.__lightImageMode) {
+    console.log('Light image mode — blob hook only, no fetch doubling (safer vs 429)');
+  } else {
+    console.warn('Heavy image mode — may trigger 429; prefer default ay() or ayText()');
+  }
+  return scrapeFromOne(questionCount, budget.burstMs, { ...options, budget, keepMode: false });
+}
+
+async function scrapeFromOne(questionCount = 50, burstOrMinutes = 2500, options = {}) {
+  if (!options.keepMode) {
+    setJsonScrapeMode({ light: window.__lightImageMode !== false });
+  }
+
+  let burstMs = burstOrMinutes;
+  let budget = options.budget || null;
+
+  if (isMinutesBudget(burstOrMinutes)) {
+    budget = applyTimingBudget(computeTimingBudget(questionCount, burstOrMinutes));
+    burstMs = budget.burstMs;
+    logTimingBudget(budget);
+  }
+
+  if (!budget) {
+    const perQ = window.__humanMode
+      ? (window.__humanPace.minMs + window.__humanPace.maxMs) / 2 + burstMs
+      : burstMs + (window.__scraperPaceMs || 0);
+    const mode = window.__humanMode ? 'Human JSON scrape' : 'JSON scrape';
+    console.log(`${mode}: ${questionCount} questions (~${Math.round((questionCount * perQ) / 60000)} min)...`);
+  } else {
+    console.log(`JSON scrape: ${questionCount} questions, budget ${budget.totalMinutes} min`);
+  }
+  console.log('Output: scrape-output.json only (no block-q*.png files)');
+  await goToQuestion(1, humanNavDelay());
+  return clickNav('next', questionCount, burstMs, humanIntervalMs(80), 'scrape-output.json', { budget });
+}
+
+async function scrapeFromOneHuman(questionCount = 50, burstMs = 2500) {
+  window.__humanMode = true;
+  return scrapeFromOne(questionCount, burstMs);
+}
+
+async function scrapeFromOneScreenshot(questionCount = 50, burstMs = 2500) {
+  setScreenshotMode();
+  window.__humanMode = true;
+  console.log('Screenshot mode — no fetch/image hooks; captures visible page only');
+  const perQ = (window.__humanPace.minMs + window.__humanPace.maxMs) / 2 + burstMs;
+  console.log(`Screenshot scrape: ${questionCount} questions (~${Math.round((questionCount * perQ) / 60000)} min)...`);
+  await goToQuestion(1, humanNavDelay());
+  return clickNav('next', questionCount, burstMs, humanIntervalMs(80));
+}
+
+async function clickNav(direction = 'next', times = 49, burstMs = 900, intervalMs = 50, filename = 'scrape-output.json', runOptions = {}) {
   const selector =
     direction === 'previous' ? '.previous-button' : '.next-button';
+  const budget = runOptions.budget || null;
+  const t0 = performance.now();
 
   const pages = [];
-  const startData = await enrichWithImages(extractPageDataSync());
+  const startData = await enrichPageCapture(extractPageDataSync());
   pages.push({ step: 0, action: 'start', ...startData });
-  console.log(`Captured step 0 (${startData.imageCount} PNGs)`);
+  console.log(
+    `Captured step 0 (${startData.hasScreenshot ? 'screenshot' : startData.textOnly ? 'text-only' : `${startData.imageCount || 0} PNGs`})`
+  );
 
   for (let i = 1; i <= times; i++) {
+    if (window.__scraperAbort) {
+      console.warn('Stopped (__scraperAbort or 429 auto-stop)');
+      break;
+    }
+    await scraperPause('before question');
+    if (window.__scraperAbort) break;
+    if (!window.__textOnlyMode) {
+      await humanMicroBreak();
+      await humanDelay('between questions');
+    } else if (window.__scraperPaceMs > 0) {
+      const jitter = randInt(0, Math.min(2000, Math.floor(window.__scraperPaceMs * 0.25)));
+      await new Promise((r) => setTimeout(r, window.__scraperPaceMs + jitter));
+    }
+
     const btn = document.querySelector(selector);
     if (!btn) {
       console.error('Button not found:', selector);
       break;
     }
 
+    const pageSync = extractPageDataSync();
+    if (!window.__textOnlyMode) await humanReadDelay(pageSync, 'reading Q');
+
     // Capture CURRENT question BEFORE click (with your selections / flag)
-    const beforeClick = await enrichWithImages(extractPageDataSync());
-    const effectiveBurst = hasMedicalViewer() ? Math.max(burstMs, 2500) : burstMs;
+    const beforeClick = await enrichPageCapture(pageSync);
+    const effectiveBurst = window.__textOnlyMode
+      ? burstMs
+      : hasMedicalViewer()
+        ? humanBurstMs(Math.max(burstMs, 2800))
+        : humanBurstMs(burstMs);
+
+    if (window.__humanMode && !window.__textOnlyMode) {
+      await new Promise((r) => setTimeout(r, randInt(400, 1100)));
+    }
 
     btn.click();
     console.log(`Click ${i}/${times}...`);
 
     const allSnapshots = await captureBurst(intervalMs, effectiveBurst);
-    const first = await enrichWithImages(allSnapshots[0]);
-    const last = await enrichWithImages(allSnapshots[allSnapshots.length - 1]);
+    const first = allSnapshots[0];
+    const last = allSnapshots[allSnapshots.length - 1];
     const revealSync = allSnapshots.find((s) => s.hasReveal) || null;
     const reveal =
       revealSync && revealSync !== allSnapshots[0]
-        ? await enrichWithImages(revealSync)
+        ? window.__screenshotMode || window.__textOnlyMode || window.__lightImageMode
+          ? revealSync
+          : await enrichWithImages(revealSync)
         : first.hasReveal || first.hasImages
-          ? first
+          ? window.__screenshotMode || window.__textOnlyMode || window.__lightImageMode
+            ? first
+            : await enrichWithImages(first)
           : null;
 
     const snapshots = [first];
-    if (reveal && reveal !== first && reveal !== last) snapshots.push(reveal);
+    if (reveal && revealSync && revealSync !== first && revealSync !== last) snapshots.push(revealSync);
     if (last !== first) snapshots.push(last);
 
     const fromQ = parseQuestionNumber(beforeClick.questionNumber);
@@ -1444,28 +2625,73 @@ async function clickNav(direction = 'next', times = 49, burstMs = 900, intervalM
     if (i % 10 === 0 || i === times) {
       const imgs = beforeClick.imageCount || 0;
       const qLabel = beforeClick.questionNumber || `Q${fromQ}`;
+      const elapsed = formatElapsed(performance.now() - t0);
+      const eta =
+        budget && i > 0
+          ? formatElapsed(((performance.now() - t0) / i) * (times - i))
+          : null;
       console.log(
-        `Progress: ${i}/${times} (${qLabel}, ${imgs} clinical PNG${imgs === 1 ? '' : 's'})`
+        `Progress: ${i}/${times} (${qLabel}${window.__textOnlyMode ? ', text' : `, ${imgs} PNG${imgs === 1 ? '' : 's'}`}) | ${elapsed}${eta ? ` | ETA ${eta}` : ''}`
       );
     }
   }
 
+  const elapsedMs = Math.round(performance.now() - t0);
+  const clicksDone = Math.max(1, pages.length - 1);
   const summary = buildSummary(pages);
+  summary.elapsedMs = elapsedMs;
+  summary.elapsedFormatted = formatElapsed(elapsedMs);
+  summary.avgPerQuestionMs = Math.round(elapsedMs / clicksDone);
+  summary.avgPerQuestionFormatted = formatElapsed(summary.avgPerQuestionMs);
+  if (budget) {
+    summary.targetMinutes = budget.totalMinutes;
+    summary.targetMs = budget.totalMs;
+    summary.onBudget = elapsedMs <= budget.totalMs * 1.05;
+  }
   const output = {
     scrapedAt: new Date().toISOString(),
+    mode: runOptions.textOnly ? 'text-only' : window.__screenshotMode ? 'screenshot' : 'json+images',
     direction,
     totalClicks: pages.length - 1,
     pageCount: pages.length,
+    elapsedMs,
+    elapsedFormatted: summary.elapsedFormatted,
+    avgPerQuestionFormatted: summary.avgPerQuestionFormatted,
+    timingBudget: budget
+      ? {
+          totalMinutes: budget.totalMinutes,
+          burstMs: budget.burstMs,
+          paceMs: budget.paceMs,
+          onBudget: summary.onBudget,
+        }
+      : undefined,
     summary,
     pages,
   };
 
-  downloadJson(output, filename);
-  await copyJson(JSON.stringify(output, null, 2));
+  const exportPayload = prepareExportPayload(output);
+  const result = downloadJson(exportPayload, filename);
+  if (window.__screenshotMode) {
+    const pngPrefix = filename.replace(/\.json$/i, '');
+    await flushScreenshotDownloads(pages, pngPrefix);
+  }
+  if (result.bytes < 5_000_000) {
+    await copyJson(result.json);
+  } else {
+    console.warn(
+      'Clipboard skipped — JSON is',
+      Math.round(result.bytes / 1024),
+      'KB. Use the downloaded file.'
+    );
+  }
 
   printSummary(summary);
-  console.log(`SUCCESS — ${filename} downloaded`);
-  return output;
+  const label = result.stripped ? result.payload.summary?.exportNote || 'text-only export' : filename;
+  console.log(
+    `SUCCESS — ${filename} (${Math.round(result.bytes / 1024)} KB) in ${summary.elapsedFormatted}${summary.onBudget === false ? ' — over budget' : ''}`
+  );
+  if (result.stripped) console.warn(label);
+  return exportPayload;
 }
 
 if (window.__SCRAPER_VERSION && window.__SCRAPER_VERSION !== SCRAPER_VERSION) {
@@ -1476,12 +2702,12 @@ if (window.__SCRAPER_VERSION && window.__SCRAPER_VERSION !== SCRAPER_VERSION) {
 window.__SCRAPER_VERSION = SCRAPER_VERSION;
 
 console.log(`Scraper loaded: ${SCRAPER_VERSION}`);
-console.log('1) Refresh page OR clear console (Ctrl+L) before pasting');
-console.log('2) Paste this ENTIRE file once, then: await probeViewer() on an x-ray question');
-console.log('3) await scrapeFromOne(50)  |  missing tail: await scrapeRest(49, 50)');
-console.log('Debug: await downloadViewerPng()');
+console.log('SAFEST (text only):     await ayText(50, 15)  → scrape-text-output.json');
+console.log('JSON + images (light):  await ay(50, 20)       → scrape-output.json');
+console.log('If blocked: wait 30 min, hard refresh, paste ONCE, use ayText not ay');
+console.log('Stop: window.__scraperAbort = true');
 
-installImageCaptureHooks();
+setTextOnlyMode();
 
 async function probeViewer() {
   installImageCaptureHooks();
@@ -1637,5 +2863,316 @@ async function downloadViewerPng() {
   return best;
 }
 
+function getAllClickableButtons() {
+  return [...document.querySelectorAll('button, [role="button"]')];
+}
+
+function buttonLabel(el) {
+  return (el?.getAttribute('title') || el?.innerText || el?.textContent || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function describeButton(btn) {
+  if (!btn) return null;
+  const rect = btn.getBoundingClientRect();
+  return {
+    found: true,
+    label: buttonLabel(btn),
+    title: btn.getAttribute('title'),
+    disabled: !!btn.disabled,
+    visible: rect.width > 0 && rect.height > 0,
+    className: btn.className || '',
+    img: btn.querySelector('img')?.src?.split('/').pop() || null,
+  };
+}
+
+function findFooterButton(kind) {
+  const k = String(kind || '').toLowerCase();
+  const wantEnd = /end/.test(k);
+  const wantSuspend = /suspend|pause/.test(k);
+
+  for (const btn of getAllClickableButtons()) {
+    const label = buttonLabel(btn);
+    const title = btn.getAttribute('title') || '';
+    const src = btn.querySelector('img')?.src || '';
+
+    if (wantEnd && (/end block/i.test(label) || /end block/i.test(title) || /stop-icon/i.test(src))) {
+      return btn;
+    }
+    if (
+      wantSuspend &&
+      (/suspend block/i.test(label) || /suspend block/i.test(title) || /pause-icon/i.test(src))
+    ) {
+      return btn;
+    }
+  }
+  return null;
+}
+
+function getBlockControlState() {
+  const suspendBtn = findFooterButton('suspend');
+  const endBtn = findFooterButton('end');
+  return {
+    questionNumber: document.querySelector('.item-block')?.innerText?.trim() || null,
+    questionId: document.querySelector('.item-info span')?.innerText?.trim() || null,
+    onTestPage: !!document.querySelector('#test'),
+    suspend: describeButton(suspendBtn),
+    end: describeButton(endBtn),
+    footerButtons: [...document.querySelectorAll('footer button, .footer-button, .test-footer-wrapper button')]
+      .map(describeButton)
+      .filter(Boolean),
+  };
+}
+
+function findVisibleModalRoot() {
+  const modalRoot = document.getElementById('modal-root');
+  if (modalRoot && modalRoot.innerText.trim().length > 0) return modalRoot;
+
+  for (const el of document.querySelectorAll('[role="dialog"], [class*="modal" i]')) {
+    const rect = el.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0 && el.innerText.trim().length > 0) return el;
+  }
+  return null;
+}
+
+function findModalButtons() {
+  const modal = findVisibleModalRoot();
+  const scope = modal || document.body;
+  return [...scope.querySelectorAll('button, [role="button"], input[type="button"], input[type="submit"]')].filter(
+    (btn) => {
+      const rect = btn.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    }
+  );
+}
+
+function findButtonByText(scope, patterns) {
+  const regs = patterns.map((p) => (typeof p === 'string' ? new RegExp(p, 'i') : p));
+  for (const btn of scope.querySelectorAll('button, [role="button"]')) {
+    const text = buttonLabel(btn);
+    if (regs.some((re) => re.test(text))) return btn;
+  }
+  return null;
+}
+
+function probeModalState() {
+  const modal = findVisibleModalRoot();
+  if (!modal) return { open: false };
+  return {
+    open: true,
+    textPreview: modal.innerText.trim().slice(0, 400),
+    buttons: findModalButtons().map(describeButton),
+  };
+}
+
+async function probeBlockControls() {
+  const state = getBlockControlState();
+  console.log('\n========== BLOCK CONTROLS PROBE ==========');
+  console.log('version:', SCRAPER_VERSION);
+  console.table({
+    questionNumber: state.questionNumber,
+    questionId: state.questionId,
+    onTestPage: state.onTestPage,
+  });
+  console.log('\nSuspend Block — pause icon (Button #44):');
+  console.log(state.suspend || 'NOT FOUND');
+  console.log('\nEnd Block — stop icon (Button #45):');
+  console.log(state.end || 'NOT FOUND');
+  console.log('\nAll footer buttons:');
+  console.table(state.footerButtons);
+  const modal = probeModalState();
+  console.log('\nModal open:', modal.open);
+  if (modal.open) console.table(modal.buttons);
+  console.log('Try: await clickBlockAction("end", { dryRun: true })');
+  console.log('Then: await endBlock()  |  await suspendBlock()');
+  console.log('==========================================\n');
+  return state;
+}
+
+async function probeModal() {
+  const modal = probeModalState();
+  console.log('\n========== MODAL PROBE ==========');
+  if (!modal.open) {
+    console.log('No modal visible.');
+  } else {
+    console.log('Text preview:', modal.textPreview);
+    console.table(modal.buttons);
+  }
+  console.log('=================================\n');
+  return modal;
+}
+
+async function clickBlockAction(kind = 'end', options = {}) {
+  const dryRun = options.dryRun ?? false;
+  const btn = findFooterButton(kind);
+  if (!btn) {
+    console.error(`Block button not found: ${kind}`);
+    await probeBlockControls();
+    return { ok: false, error: 'button_not_found', kind };
+  }
+  if (btn.disabled) {
+    console.warn(`${kind} button is disabled`);
+    return { ok: false, error: 'button_disabled', kind, button: describeButton(btn) };
+  }
+  const label = buttonLabel(btn);
+  if (dryRun) {
+    console.log(`[dry run] Would click: ${label}`);
+    return { ok: true, dryRun: true, kind, label, button: describeButton(btn) };
+  }
+  btn.click();
+  console.log(`Clicked: ${label}`);
+  await new Promise((r) => setTimeout(r, 600));
+  return { ok: true, kind, label, modal: probeModalState() };
+}
+
+async function confirmOpenModal(patterns = ['yes', 'confirm', 'end block', 'ok', 'proceed', 'continue']) {
+  await new Promise((r) => setTimeout(r, 300));
+  const modal = findVisibleModalRoot();
+  const scope = modal || document;
+  const btn = findButtonByText(scope, patterns) || findButtonByText(document, patterns);
+  if (!btn) {
+    console.warn('No confirm button found — run await probeModal()');
+    await probeModal();
+    return { ok: false, error: 'confirm_not_found' };
+  }
+  btn.click();
+  const label = buttonLabel(btn);
+  console.log(`Confirmed modal: ${label}`);
+  await new Promise((r) => setTimeout(r, 800));
+  return { ok: true, clicked: label };
+}
+
+async function endBlock(options = {}) {
+  const confirm = options.confirm ?? true;
+  const dryRun = options.dryRun ?? false;
+  const click = await clickBlockAction('end', { dryRun });
+  if (!click.ok || dryRun) return click;
+  if (confirm) click.confirm = await confirmOpenModal();
+  click.after = getBlockControlState();
+  return click;
+}
+
+async function suspendBlock(options = {}) {
+  const confirm = options.confirm ?? true;
+  const dryRun = options.dryRun ?? false;
+  const click = await clickBlockAction('suspend', { dryRun });
+  if (!click.ok || dryRun) return click;
+  if (confirm) click.confirm = await confirmOpenModal(['yes', 'confirm', 'suspend', 'ok']);
+  return click;
+}
+
+async function waitForLeaveTestPage(timeoutMs = 15000) {
+  const t0 = performance.now();
+  while (performance.now() - t0 < timeoutMs) {
+    if (!document.querySelector('#test') || !document.querySelector('.next-button')) {
+      return {
+        left: true,
+        url: location.href,
+        preview: document.body.innerText.trim().slice(0, 250),
+      };
+    }
+    await new Promise((r) => setTimeout(r, 200));
+  }
+  return { left: false, url: location.href };
+}
+
+async function probeStartScreen() {
+  const buttons = getAllClickableButtons().map(describeButton).filter((b) => b?.visible);
+  const interesting = buttons.filter((b) =>
+    /block|start|create|new|practice|timed|resume|continue/i.test(b.label)
+  );
+  console.log('\n========== START / BLOCK MENU PROBE ==========');
+  console.log('url:', location.href);
+  console.log('Interesting buttons:');
+  console.table(interesting);
+  console.log('All visible buttons (first 30):');
+  console.table(buttons.slice(0, 30));
+  console.log('==============================================\n');
+  return { url: location.href, interesting, buttons };
+}
+
+async function clickStartNewBlock(options = {}) {
+  const dryRun = options.dryRun ?? false;
+  const patterns = [
+    'create block',
+    'new block',
+    'start block',
+    'create new block',
+    'start test',
+    'start practice',
+    'create test',
+  ];
+  for (const pat of patterns) {
+    const btn = findButtonByText(document, [pat]);
+    if (btn) {
+      const label = buttonLabel(btn);
+      if (dryRun) return { ok: true, dryRun: true, label };
+      btn.click();
+      console.log(`Clicked: ${label}`);
+      await new Promise((r) => setTimeout(r, 1500));
+      return { ok: true, label };
+    }
+  }
+  console.warn('No start/new block button found — run await probeStartScreen()');
+  await probeStartScreen();
+  return { ok: false, error: 'start_button_not_found' };
+}
+
+async function scrapeMultipleBlocks(blockCount = 2, questionsPerBlock = 50, burstMs = 1200) {
+  const results = [];
+  for (let b = 1; b <= blockCount; b++) {
+    console.log(`\n===== BLOCK ${b}/${blockCount} =====`);
+    const filename = `scrape-output-block${b}.json`;
+    const scrape = await clickNav('next', questionsPerBlock, burstMs, 50, filename);
+    results.push({ block: b, filename, summary: scrape.summary });
+
+    if (b >= blockCount) break;
+
+    const ended = await endBlock({ confirm: true });
+    if (!ended.ok) {
+      console.error('End block failed — stopping loop');
+      results.push({ block: b, loopStopped: 'end_block_failed', ended });
+      break;
+    }
+
+    const left = await waitForLeaveTestPage();
+    console.log('Left test page:', left.left, left.url);
+    const started = await clickStartNewBlock();
+    if (!started.ok) {
+      console.warn('Could not auto-start next block. Use probeStartScreen(), start manually, then scrape again.');
+      results.push({ block: b, loopStopped: 'start_block_failed', left, started });
+      break;
+    }
+
+    await new Promise((r) => setTimeout(r, 2000));
+    await goToQuestion(1, 200);
+  }
+  return results;
+}
+
 window.probeViewer = probeViewer;
 window.downloadViewerPng = downloadViewerPng;
+window.probeBlockControls = probeBlockControls;
+window.probeModal = probeModal;
+window.clickBlockAction = clickBlockAction;
+window.endBlock = endBlock;
+window.suspendBlock = suspendBlock;
+window.waitForLeaveTestPage = waitForLeaveTestPage;
+window.probeStartScreen = probeStartScreen;
+window.clickStartNewBlock = clickStartNewBlock;
+window.ay = ay;
+window.ayHtml = ayHtml;
+window.saveHtmlBlock = saveHtmlBlock;
+window.ayText = ayText;
+window.scrapeTextOnly = scrapeTextOnly;
+window.setTextOnlyMode = setTextOnlyMode;
+window.scrapeFromOneHuman = scrapeFromOneHuman;
+window.scrapeFromOneScreenshot = scrapeFromOneScreenshot;
+window.fastScreenshotBlock = fastScreenshotBlock;
+window.setJsonScrapeMode = setJsonScrapeMode;
+window.setScreenshotMode = setScreenshotMode;
+window.scraperMode = scraperMode;
+window.captureQBFullScreenshot = captureQBFullScreenshot;
+window.capturePageScreenshot = capturePageScreenshot;
+window.scrapeMultipleBlocks = scrapeMultipleBlocks;
