@@ -1,0 +1,615 @@
+{
+  "set": 30,
+  "storyFile": "set-30-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "fever · cholecystitis · appendicitis",
+  "recurringThread": "cholecystitis > appendicitis > uti/pyelonephritis > coagulopathy > ra/ctd > mi/acs > pancreatitis > pneumonia > sepsis",
+  "mainPath": [
+    "106",
+    "1386",
+    "4936",
+    "5395",
+    "5312",
+    "1171",
+    "905",
+    "1450",
+    "338",
+    "1734"
+  ],
+  "generatedAt": "2026-07-13T23:22:48.147Z",
+  "counts": {
+    "primary": 10,
+    "mimic": 10,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "106",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "1386",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "5167",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "5342",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "968",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "279",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "882",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "56",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "4936",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "5395",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "2436",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    },
+    {
+      "id": "1457",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    },
+    {
+      "id": "4890",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    },
+    {
+      "id": "5312",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 3"
+    },
+    {
+      "id": "1171",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 3"
+    },
+    {
+      "id": "1245",
+      "category": "mimic",
+      "why": "Differential door in scene 3"
+    },
+    {
+      "id": "905",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 4"
+    },
+    {
+      "id": "1450",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 4"
+    },
+    {
+      "id": "338",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 5"
+    },
+    {
+      "id": "1734",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 5"
+    }
+  ],
+  "edges": [
+    {
+      "source": "968",
+      "target": "106",
+      "kind": "scene"
+    },
+    {
+      "source": "968",
+      "target": "882",
+      "kind": "scene"
+    },
+    {
+      "source": "968",
+      "target": "1386",
+      "kind": "scene"
+    },
+    {
+      "source": "968",
+      "target": "5167",
+      "kind": "scene"
+    },
+    {
+      "source": "968",
+      "target": "279",
+      "kind": "scene"
+    },
+    {
+      "source": "968",
+      "target": "56",
+      "kind": "scene"
+    },
+    {
+      "source": "968",
+      "target": "5342",
+      "kind": "scene"
+    },
+    {
+      "source": "106",
+      "target": "882",
+      "kind": "scene"
+    },
+    {
+      "source": "106",
+      "target": "1386",
+      "kind": "scene"
+    },
+    {
+      "source": "106",
+      "target": "5167",
+      "kind": "scene"
+    },
+    {
+      "source": "106",
+      "target": "279",
+      "kind": "scene"
+    },
+    {
+      "source": "106",
+      "target": "56",
+      "kind": "scene"
+    },
+    {
+      "source": "106",
+      "target": "5342",
+      "kind": "scene"
+    },
+    {
+      "source": "882",
+      "target": "1386",
+      "kind": "scene"
+    },
+    {
+      "source": "882",
+      "target": "5167",
+      "kind": "scene"
+    },
+    {
+      "source": "882",
+      "target": "279",
+      "kind": "scene"
+    },
+    {
+      "source": "882",
+      "target": "56",
+      "kind": "scene"
+    },
+    {
+      "source": "882",
+      "target": "5342",
+      "kind": "scene"
+    },
+    {
+      "source": "1386",
+      "target": "5167",
+      "kind": "scene"
+    },
+    {
+      "source": "1386",
+      "target": "279",
+      "kind": "scene"
+    },
+    {
+      "source": "1386",
+      "target": "56",
+      "kind": "scene"
+    },
+    {
+      "source": "1386",
+      "target": "5342",
+      "kind": "scene"
+    },
+    {
+      "source": "5167",
+      "target": "279",
+      "kind": "scene"
+    },
+    {
+      "source": "5167",
+      "target": "56",
+      "kind": "scene"
+    },
+    {
+      "source": "5167",
+      "target": "5342",
+      "kind": "scene"
+    },
+    {
+      "source": "279",
+      "target": "56",
+      "kind": "scene"
+    },
+    {
+      "source": "279",
+      "target": "5342",
+      "kind": "scene"
+    },
+    {
+      "source": "56",
+      "target": "5342",
+      "kind": "scene"
+    },
+    {
+      "source": "2436",
+      "target": "5395",
+      "kind": "scene"
+    },
+    {
+      "source": "2436",
+      "target": "1457",
+      "kind": "scene"
+    },
+    {
+      "source": "2436",
+      "target": "4890",
+      "kind": "scene"
+    },
+    {
+      "source": "2436",
+      "target": "4936",
+      "kind": "scene"
+    },
+    {
+      "source": "5395",
+      "target": "1457",
+      "kind": "scene"
+    },
+    {
+      "source": "5395",
+      "target": "4890",
+      "kind": "scene"
+    },
+    {
+      "source": "5395",
+      "target": "4936",
+      "kind": "scene"
+    },
+    {
+      "source": "1457",
+      "target": "4890",
+      "kind": "scene"
+    },
+    {
+      "source": "1457",
+      "target": "4936",
+      "kind": "scene"
+    },
+    {
+      "source": "4890",
+      "target": "4936",
+      "kind": "scene"
+    },
+    {
+      "source": "5312",
+      "target": "1245",
+      "kind": "scene"
+    },
+    {
+      "source": "5312",
+      "target": "1171",
+      "kind": "scene"
+    },
+    {
+      "source": "1245",
+      "target": "1171",
+      "kind": "scene"
+    },
+    {
+      "source": "905",
+      "target": "1450",
+      "kind": "scene"
+    },
+    {
+      "source": "338",
+      "target": "1734",
+      "kind": "scene"
+    },
+    {
+      "source": "106",
+      "target": "1386",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "106",
+      "target": "4936",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "106",
+      "target": "5395",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "106",
+      "target": "5312",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "106",
+      "target": "1171",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "106",
+      "target": "905",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "106",
+      "target": "1450",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "106",
+      "target": "338",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "106",
+      "target": "1734",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1386",
+      "target": "4936",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1386",
+      "target": "5395",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1386",
+      "target": "5312",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1386",
+      "target": "1171",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1386",
+      "target": "905",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1386",
+      "target": "1450",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1386",
+      "target": "338",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1386",
+      "target": "1734",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4936",
+      "target": "5395",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4936",
+      "target": "5312",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4936",
+      "target": "1171",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4936",
+      "target": "905",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4936",
+      "target": "1450",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4936",
+      "target": "338",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4936",
+      "target": "1734",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5395",
+      "target": "5312",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5395",
+      "target": "1171",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5395",
+      "target": "905",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5395",
+      "target": "1450",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5395",
+      "target": "338",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5395",
+      "target": "1734",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5312",
+      "target": "1171",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5312",
+      "target": "905",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5312",
+      "target": "1450",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5312",
+      "target": "338",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5312",
+      "target": "1734",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1171",
+      "target": "905",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1171",
+      "target": "1450",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1171",
+      "target": "338",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1171",
+      "target": "1734",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "905",
+      "target": "1450",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "905",
+      "target": "338",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "905",
+      "target": "1734",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1450",
+      "target": "338",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1450",
+      "target": "1734",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "338",
+      "target": "1734",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

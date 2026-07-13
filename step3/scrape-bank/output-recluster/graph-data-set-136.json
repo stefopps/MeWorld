@@ -1,0 +1,120 @@
+{
+  "set": 136,
+  "storyFile": "set-136-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "fatigue · thyroid · anemia · heme",
+  "recurringThread": "thyroid > anemia",
+  "mainPath": [
+    "5247",
+    "1168",
+    "6131",
+    "2282"
+  ],
+  "generatedAt": "2026-07-13T23:22:48.973Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 2,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "5247",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "1168",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "2262",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "6131",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "2282",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "5016",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "1168",
+      "target": "5247",
+      "kind": "scene"
+    },
+    {
+      "source": "1168",
+      "target": "2262",
+      "kind": "scene"
+    },
+    {
+      "source": "5247",
+      "target": "2262",
+      "kind": "scene"
+    },
+    {
+      "source": "6131",
+      "target": "2282",
+      "kind": "scene"
+    },
+    {
+      "source": "6131",
+      "target": "5016",
+      "kind": "scene"
+    },
+    {
+      "source": "2282",
+      "target": "5016",
+      "kind": "scene"
+    },
+    {
+      "source": "5247",
+      "target": "1168",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5247",
+      "target": "6131",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5247",
+      "target": "2282",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1168",
+      "target": "6131",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1168",
+      "target": "2282",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "6131",
+      "target": "2282",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

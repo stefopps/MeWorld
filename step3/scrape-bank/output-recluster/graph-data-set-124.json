@@ -1,0 +1,160 @@
+{
+  "set": 124,
+  "storyFile": "set-124-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "edema · neuro",
+  "recurringThread": "neuro",
+  "mainPath": [
+    "586",
+    "301",
+    "5283",
+    "3368"
+  ],
+  "generatedAt": "2026-07-13T23:22:48.888Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 4,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "586",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "301",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "326",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "2562",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "5283",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "3368",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "5251",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    },
+    {
+      "id": "5316",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "586",
+      "target": "301",
+      "kind": "scene"
+    },
+    {
+      "source": "586",
+      "target": "326",
+      "kind": "scene"
+    },
+    {
+      "source": "586",
+      "target": "2562",
+      "kind": "scene"
+    },
+    {
+      "source": "301",
+      "target": "326",
+      "kind": "scene"
+    },
+    {
+      "source": "301",
+      "target": "2562",
+      "kind": "scene"
+    },
+    {
+      "source": "326",
+      "target": "2562",
+      "kind": "scene"
+    },
+    {
+      "source": "5283",
+      "target": "3368",
+      "kind": "scene"
+    },
+    {
+      "source": "5283",
+      "target": "5251",
+      "kind": "scene"
+    },
+    {
+      "source": "5283",
+      "target": "5316",
+      "kind": "scene"
+    },
+    {
+      "source": "3368",
+      "target": "5251",
+      "kind": "scene"
+    },
+    {
+      "source": "3368",
+      "target": "5316",
+      "kind": "scene"
+    },
+    {
+      "source": "5251",
+      "target": "5316",
+      "kind": "scene"
+    },
+    {
+      "source": "586",
+      "target": "301",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "586",
+      "target": "5283",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "586",
+      "target": "3368",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "301",
+      "target": "5283",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "301",
+      "target": "3368",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5283",
+      "target": "3368",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

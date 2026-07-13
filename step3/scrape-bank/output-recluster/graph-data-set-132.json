@@ -1,0 +1,160 @@
+{
+  "set": 132,
+  "storyFile": "set-132-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "joint pain · pancreatitis · anemia",
+  "recurringThread": "pancreatitis > anemia",
+  "mainPath": [
+    "1591",
+    "1109",
+    "1791",
+    "5744"
+  ],
+  "generatedAt": "2026-07-13T23:22:48.909Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 4,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "1591",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "1109",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "5711",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "5369",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "1791",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "5744",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "1204",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    },
+    {
+      "id": "5371",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "5369",
+      "target": "1109",
+      "kind": "scene"
+    },
+    {
+      "source": "5369",
+      "target": "5711",
+      "kind": "scene"
+    },
+    {
+      "source": "5369",
+      "target": "1591",
+      "kind": "scene"
+    },
+    {
+      "source": "1109",
+      "target": "5711",
+      "kind": "scene"
+    },
+    {
+      "source": "1109",
+      "target": "1591",
+      "kind": "scene"
+    },
+    {
+      "source": "5711",
+      "target": "1591",
+      "kind": "scene"
+    },
+    {
+      "source": "5744",
+      "target": "1204",
+      "kind": "scene"
+    },
+    {
+      "source": "5744",
+      "target": "5371",
+      "kind": "scene"
+    },
+    {
+      "source": "5744",
+      "target": "1791",
+      "kind": "scene"
+    },
+    {
+      "source": "1204",
+      "target": "5371",
+      "kind": "scene"
+    },
+    {
+      "source": "1204",
+      "target": "1791",
+      "kind": "scene"
+    },
+    {
+      "source": "5371",
+      "target": "1791",
+      "kind": "scene"
+    },
+    {
+      "source": "1591",
+      "target": "1109",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1591",
+      "target": "1791",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1591",
+      "target": "5744",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1109",
+      "target": "1791",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1109",
+      "target": "5744",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1791",
+      "target": "5744",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

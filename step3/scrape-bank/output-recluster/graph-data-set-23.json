@@ -1,0 +1,125 @@
+{
+  "set": 23,
+  "storyFile": "set-23-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "coagulopathy · substance",
+  "recurringThread": "coagulopathy > substance > psychosis/schizo",
+  "mainPath": [
+    "5773",
+    "4510",
+    "4437",
+    "4479"
+  ],
+  "generatedAt": "2026-07-13T23:22:47.987Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 2,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "5773",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "4510",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "4397",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "2725",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "4437",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "4479",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "5773",
+      "target": "4510",
+      "kind": "scene"
+    },
+    {
+      "source": "5773",
+      "target": "4397",
+      "kind": "scene"
+    },
+    {
+      "source": "5773",
+      "target": "2725",
+      "kind": "scene"
+    },
+    {
+      "source": "4510",
+      "target": "4397",
+      "kind": "scene"
+    },
+    {
+      "source": "4510",
+      "target": "2725",
+      "kind": "scene"
+    },
+    {
+      "source": "4397",
+      "target": "2725",
+      "kind": "scene"
+    },
+    {
+      "source": "4479",
+      "target": "4437",
+      "kind": "scene"
+    },
+    {
+      "source": "5773",
+      "target": "4510",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5773",
+      "target": "4437",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5773",
+      "target": "4479",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4510",
+      "target": "4437",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4510",
+      "target": "4479",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4437",
+      "target": "4479",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

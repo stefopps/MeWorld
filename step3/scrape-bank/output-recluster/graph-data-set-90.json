@@ -1,0 +1,240 @@
+{
+  "set": 90,
+  "storyFile": "set-90-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "chest pain · mi/acs · pe/dvt · heme",
+  "recurringThread": "mi/acs > pe/dvt > pneumonia > hf > cirrhosis/liver > pancreatitis",
+  "mainPath": [
+    "4918",
+    "1022",
+    "3013",
+    "4985"
+  ],
+  "generatedAt": "2026-07-13T23:22:48.779Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 7,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "4918",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "1022",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "3295",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "3177",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "1987",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "1244",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "3013",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "4985",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "2926",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    },
+    {
+      "id": "2907",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    },
+    {
+      "id": "4784",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "1987",
+      "target": "3295",
+      "kind": "scene"
+    },
+    {
+      "source": "1987",
+      "target": "1244",
+      "kind": "scene"
+    },
+    {
+      "source": "1987",
+      "target": "4918",
+      "kind": "scene"
+    },
+    {
+      "source": "1987",
+      "target": "3177",
+      "kind": "scene"
+    },
+    {
+      "source": "1987",
+      "target": "1022",
+      "kind": "scene"
+    },
+    {
+      "source": "3295",
+      "target": "1244",
+      "kind": "scene"
+    },
+    {
+      "source": "3295",
+      "target": "4918",
+      "kind": "scene"
+    },
+    {
+      "source": "3295",
+      "target": "3177",
+      "kind": "scene"
+    },
+    {
+      "source": "3295",
+      "target": "1022",
+      "kind": "scene"
+    },
+    {
+      "source": "1244",
+      "target": "4918",
+      "kind": "scene"
+    },
+    {
+      "source": "1244",
+      "target": "3177",
+      "kind": "scene"
+    },
+    {
+      "source": "1244",
+      "target": "1022",
+      "kind": "scene"
+    },
+    {
+      "source": "4918",
+      "target": "3177",
+      "kind": "scene"
+    },
+    {
+      "source": "4918",
+      "target": "1022",
+      "kind": "scene"
+    },
+    {
+      "source": "3177",
+      "target": "1022",
+      "kind": "scene"
+    },
+    {
+      "source": "3013",
+      "target": "4985",
+      "kind": "scene"
+    },
+    {
+      "source": "3013",
+      "target": "2926",
+      "kind": "scene"
+    },
+    {
+      "source": "3013",
+      "target": "4784",
+      "kind": "scene"
+    },
+    {
+      "source": "3013",
+      "target": "2907",
+      "kind": "scene"
+    },
+    {
+      "source": "4985",
+      "target": "2926",
+      "kind": "scene"
+    },
+    {
+      "source": "4985",
+      "target": "4784",
+      "kind": "scene"
+    },
+    {
+      "source": "4985",
+      "target": "2907",
+      "kind": "scene"
+    },
+    {
+      "source": "2926",
+      "target": "4784",
+      "kind": "scene"
+    },
+    {
+      "source": "2926",
+      "target": "2907",
+      "kind": "scene"
+    },
+    {
+      "source": "4784",
+      "target": "2907",
+      "kind": "scene"
+    },
+    {
+      "source": "4918",
+      "target": "1022",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4918",
+      "target": "3013",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4918",
+      "target": "4985",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1022",
+      "target": "3013",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1022",
+      "target": "4985",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3013",
+      "target": "4985",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "set": 29,
+  "storyFile": "set-29-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "anemia · coagulopathy · heme",
+  "recurringThread": "anemia > coagulopathy > hf > cirrhosis/liver > substance",
+  "mainPath": [
+    "2499",
+    "2719",
+    "3207",
+    "6243",
+    "4002",
+    "2941"
+  ],
+  "generatedAt": "2026-07-13T23:22:48.145Z",
+  "counts": {
+    "primary": 6,
+    "mimic": 1,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "2499",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "2719",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "2304",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "3207",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "6243",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "4002",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 3"
+    },
+    {
+      "id": "2941",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 3"
+    }
+  ],
+  "edges": [
+    {
+      "source": "2499",
+      "target": "2719",
+      "kind": "scene"
+    },
+    {
+      "source": "2499",
+      "target": "2304",
+      "kind": "scene"
+    },
+    {
+      "source": "2719",
+      "target": "2304",
+      "kind": "scene"
+    },
+    {
+      "source": "3207",
+      "target": "6243",
+      "kind": "scene"
+    },
+    {
+      "source": "4002",
+      "target": "2941",
+      "kind": "scene"
+    },
+    {
+      "source": "2499",
+      "target": "2719",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2499",
+      "target": "3207",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2499",
+      "target": "6243",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2499",
+      "target": "4002",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2499",
+      "target": "2941",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2719",
+      "target": "3207",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2719",
+      "target": "6243",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2719",
+      "target": "4002",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2719",
+      "target": "2941",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3207",
+      "target": "6243",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3207",
+      "target": "4002",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3207",
+      "target": "2941",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "6243",
+      "target": "4002",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "6243",
+      "target": "2941",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4002",
+      "target": "2941",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

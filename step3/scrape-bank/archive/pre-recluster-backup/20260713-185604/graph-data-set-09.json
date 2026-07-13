@@ -1,0 +1,3649 @@
+{
+  "set": 9,
+  "storyFile": "set-09-story-vb.html",
+  "source": "smart-classifier: likely-answer vs scene-differential terms. Master review recommended.",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "Headache — primary vs secondary vs thunderclap vs chronic",
+  "recurringThread": "",
+  "mainPath": [
+    "3726",
+    "3759",
+    "3629",
+    "3737",
+    "3680",
+    "3533",
+    "1310",
+    "3458",
+    "3724",
+    "3746"
+  ],
+  "generatedAt": "2026-07-13T12:25:17.158Z",
+  "counts": {
+    "primary": 10,
+    "mimic": 1,
+    "thread": 29
+  },
+  "nodes": [
+    {
+      "id": "3726",
+      "category": "primary",
+      "why": "Directly tests lumbar puncture — core diagnostic fork of Headache entry"
+    },
+    {
+      "id": "3646",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Headache entry to medication overuse territory across another scene"
+    },
+    {
+      "id": "3759",
+      "category": "primary",
+      "why": "Directly tests triptan — core diagnostic fork of Headache entry"
+    },
+    {
+      "id": "3483",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Headache entry to prophylaxis territory across another scene"
+    },
+    {
+      "id": "3629",
+      "category": "primary",
+      "why": "Directly tests headache — core diagnostic fork of Headache entry"
+    },
+    {
+      "id": "3757",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Headache entry to preventive territory across another scene"
+    },
+    {
+      "id": "3682",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Headache entry to giant cell territory across another scene"
+    },
+    {
+      "id": "3554",
+      "category": "mimic",
+      "why": "Differential look-alike in Headache entry: tests headache which mimics the core fork"
+    },
+    {
+      "id": "3737",
+      "category": "primary",
+      "why": "Directly tests subarachnoid — core diagnostic fork of Secondary headache"
+    },
+    {
+      "id": "4296",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Secondary headache to headache territory across another scene"
+    },
+    {
+      "id": "3701",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Secondary headache to headache territory across another scene"
+    },
+    {
+      "id": "3784",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Secondary headache to headache territory across another scene"
+    },
+    {
+      "id": "3771",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Secondary headache to headache territory across another scene"
+    },
+    {
+      "id": "759",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Secondary headache to headache territory across another scene"
+    },
+    {
+      "id": "3734",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Secondary headache to headache territory across another scene"
+    },
+    {
+      "id": "3680",
+      "category": "primary",
+      "why": "Directly tests angiography — core diagnostic fork of Secondary headache"
+    },
+    {
+      "id": "875",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Thunderclap to headache territory across another scene"
+    },
+    {
+      "id": "3533",
+      "category": "primary",
+      "why": "Directly tests encephalitis — core diagnostic fork of Thunderclap"
+    },
+    {
+      "id": "3661",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Thunderclap to headache territory across another scene"
+    },
+    {
+      "id": "5795",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Thunderclap to headache territory across another scene"
+    },
+    {
+      "id": "550",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Thunderclap to headache territory across another scene"
+    },
+    {
+      "id": "3666",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Thunderclap to meningitis territory across another scene"
+    },
+    {
+      "id": "3824",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Thunderclap to tension territory across another scene"
+    },
+    {
+      "id": "3489",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Thunderclap to tension territory across another scene"
+    },
+    {
+      "id": "1778",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Chronic and medication to temporal arteritis territory across another scene"
+    },
+    {
+      "id": "3743",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Chronic and medication to headache territory across another scene"
+    },
+    {
+      "id": "949",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Chronic and medication to headache territory across another scene"
+    },
+    {
+      "id": "3740",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Chronic and medication to headache territory across another scene"
+    },
+    {
+      "id": "1310",
+      "category": "primary",
+      "why": "Directly tests mass — core diagnostic fork of Chronic and medication"
+    },
+    {
+      "id": "3478",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Chronic and medication to headache territory across another scene"
+    },
+    {
+      "id": "1187",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Chronic and medication to headache territory across another scene"
+    },
+    {
+      "id": "3458",
+      "category": "primary",
+      "why": "Directly tests lumbar puncture — core diagnostic fork of Chronic and medication"
+    },
+    {
+      "id": "3813",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Imaging and red flags to headache territory across another scene"
+    },
+    {
+      "id": "3724",
+      "category": "primary",
+      "why": "Directly tests mass — core diagnostic fork of Imaging and red flags"
+    },
+    {
+      "id": "3755",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Imaging and red flags to tumor territory across another scene"
+    },
+    {
+      "id": "559",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Imaging and red flags to headache territory across another scene"
+    },
+    {
+      "id": "3494",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Imaging and red flags to headache territory across another scene"
+    },
+    {
+      "id": "3746",
+      "category": "primary",
+      "why": "Directly tests hydrocephalus — core diagnostic fork of Imaging and red flags"
+    },
+    {
+      "id": "3503",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Imaging and red flags to tension territory across another scene"
+    },
+    {
+      "id": "3464",
+      "category": "thread",
+      "why": "Cross-scene connection: bridges Imaging and red flags to headache territory across another scene"
+    }
+  ],
+  "edges": [
+    {
+      "source": "3726",
+      "target": "3646",
+      "kind": "scene"
+    },
+    {
+      "source": "3726",
+      "target": "3759",
+      "kind": "scene"
+    },
+    {
+      "source": "3726",
+      "target": "3483",
+      "kind": "scene"
+    },
+    {
+      "source": "3726",
+      "target": "3629",
+      "kind": "scene"
+    },
+    {
+      "source": "3726",
+      "target": "3757",
+      "kind": "scene"
+    },
+    {
+      "source": "3726",
+      "target": "3682",
+      "kind": "scene"
+    },
+    {
+      "source": "3726",
+      "target": "3554",
+      "kind": "scene"
+    },
+    {
+      "source": "3646",
+      "target": "3759",
+      "kind": "scene"
+    },
+    {
+      "source": "3646",
+      "target": "3483",
+      "kind": "scene"
+    },
+    {
+      "source": "3646",
+      "target": "3629",
+      "kind": "scene"
+    },
+    {
+      "source": "3646",
+      "target": "3757",
+      "kind": "scene"
+    },
+    {
+      "source": "3646",
+      "target": "3682",
+      "kind": "scene"
+    },
+    {
+      "source": "3646",
+      "target": "3554",
+      "kind": "scene"
+    },
+    {
+      "source": "3759",
+      "target": "3483",
+      "kind": "scene"
+    },
+    {
+      "source": "3759",
+      "target": "3629",
+      "kind": "scene"
+    },
+    {
+      "source": "3759",
+      "target": "3757",
+      "kind": "scene"
+    },
+    {
+      "source": "3759",
+      "target": "3682",
+      "kind": "scene"
+    },
+    {
+      "source": "3759",
+      "target": "3554",
+      "kind": "scene"
+    },
+    {
+      "source": "3483",
+      "target": "3629",
+      "kind": "scene"
+    },
+    {
+      "source": "3483",
+      "target": "3757",
+      "kind": "scene"
+    },
+    {
+      "source": "3483",
+      "target": "3682",
+      "kind": "scene"
+    },
+    {
+      "source": "3483",
+      "target": "3554",
+      "kind": "scene"
+    },
+    {
+      "source": "3629",
+      "target": "3757",
+      "kind": "scene"
+    },
+    {
+      "source": "3629",
+      "target": "3682",
+      "kind": "scene"
+    },
+    {
+      "source": "3629",
+      "target": "3554",
+      "kind": "scene"
+    },
+    {
+      "source": "3757",
+      "target": "3682",
+      "kind": "scene"
+    },
+    {
+      "source": "3757",
+      "target": "3554",
+      "kind": "scene"
+    },
+    {
+      "source": "3682",
+      "target": "3554",
+      "kind": "scene"
+    },
+    {
+      "source": "3737",
+      "target": "4296",
+      "kind": "scene"
+    },
+    {
+      "source": "3737",
+      "target": "3701",
+      "kind": "scene"
+    },
+    {
+      "source": "3737",
+      "target": "3784",
+      "kind": "scene"
+    },
+    {
+      "source": "3737",
+      "target": "3771",
+      "kind": "scene"
+    },
+    {
+      "source": "3737",
+      "target": "759",
+      "kind": "scene"
+    },
+    {
+      "source": "3737",
+      "target": "3734",
+      "kind": "scene"
+    },
+    {
+      "source": "3737",
+      "target": "3680",
+      "kind": "scene"
+    },
+    {
+      "source": "4296",
+      "target": "3701",
+      "kind": "scene"
+    },
+    {
+      "source": "4296",
+      "target": "3784",
+      "kind": "scene"
+    },
+    {
+      "source": "4296",
+      "target": "3771",
+      "kind": "scene"
+    },
+    {
+      "source": "4296",
+      "target": "759",
+      "kind": "scene"
+    },
+    {
+      "source": "4296",
+      "target": "3734",
+      "kind": "scene"
+    },
+    {
+      "source": "4296",
+      "target": "3680",
+      "kind": "scene"
+    },
+    {
+      "source": "3701",
+      "target": "3784",
+      "kind": "scene"
+    },
+    {
+      "source": "3701",
+      "target": "3771",
+      "kind": "scene"
+    },
+    {
+      "source": "3701",
+      "target": "759",
+      "kind": "scene"
+    },
+    {
+      "source": "3701",
+      "target": "3734",
+      "kind": "scene"
+    },
+    {
+      "source": "3701",
+      "target": "3680",
+      "kind": "scene"
+    },
+    {
+      "source": "3784",
+      "target": "3771",
+      "kind": "scene"
+    },
+    {
+      "source": "3784",
+      "target": "759",
+      "kind": "scene"
+    },
+    {
+      "source": "3784",
+      "target": "3734",
+      "kind": "scene"
+    },
+    {
+      "source": "3784",
+      "target": "3680",
+      "kind": "scene"
+    },
+    {
+      "source": "3771",
+      "target": "759",
+      "kind": "scene"
+    },
+    {
+      "source": "3771",
+      "target": "3734",
+      "kind": "scene"
+    },
+    {
+      "source": "3771",
+      "target": "3680",
+      "kind": "scene"
+    },
+    {
+      "source": "759",
+      "target": "3734",
+      "kind": "scene"
+    },
+    {
+      "source": "759",
+      "target": "3680",
+      "kind": "scene"
+    },
+    {
+      "source": "3734",
+      "target": "3680",
+      "kind": "scene"
+    },
+    {
+      "source": "875",
+      "target": "3533",
+      "kind": "scene"
+    },
+    {
+      "source": "875",
+      "target": "3661",
+      "kind": "scene"
+    },
+    {
+      "source": "875",
+      "target": "5795",
+      "kind": "scene"
+    },
+    {
+      "source": "875",
+      "target": "550",
+      "kind": "scene"
+    },
+    {
+      "source": "875",
+      "target": "3666",
+      "kind": "scene"
+    },
+    {
+      "source": "875",
+      "target": "3824",
+      "kind": "scene"
+    },
+    {
+      "source": "875",
+      "target": "3489",
+      "kind": "scene"
+    },
+    {
+      "source": "3533",
+      "target": "3661",
+      "kind": "scene"
+    },
+    {
+      "source": "3533",
+      "target": "5795",
+      "kind": "scene"
+    },
+    {
+      "source": "3533",
+      "target": "550",
+      "kind": "scene"
+    },
+    {
+      "source": "3533",
+      "target": "3666",
+      "kind": "scene"
+    },
+    {
+      "source": "3533",
+      "target": "3824",
+      "kind": "scene"
+    },
+    {
+      "source": "3533",
+      "target": "3489",
+      "kind": "scene"
+    },
+    {
+      "source": "3661",
+      "target": "5795",
+      "kind": "scene"
+    },
+    {
+      "source": "3661",
+      "target": "550",
+      "kind": "scene"
+    },
+    {
+      "source": "3661",
+      "target": "3666",
+      "kind": "scene"
+    },
+    {
+      "source": "3661",
+      "target": "3824",
+      "kind": "scene"
+    },
+    {
+      "source": "3661",
+      "target": "3489",
+      "kind": "scene"
+    },
+    {
+      "source": "5795",
+      "target": "550",
+      "kind": "scene"
+    },
+    {
+      "source": "5795",
+      "target": "3666",
+      "kind": "scene"
+    },
+    {
+      "source": "5795",
+      "target": "3824",
+      "kind": "scene"
+    },
+    {
+      "source": "5795",
+      "target": "3489",
+      "kind": "scene"
+    },
+    {
+      "source": "550",
+      "target": "3666",
+      "kind": "scene"
+    },
+    {
+      "source": "550",
+      "target": "3824",
+      "kind": "scene"
+    },
+    {
+      "source": "550",
+      "target": "3489",
+      "kind": "scene"
+    },
+    {
+      "source": "3666",
+      "target": "3824",
+      "kind": "scene"
+    },
+    {
+      "source": "3666",
+      "target": "3489",
+      "kind": "scene"
+    },
+    {
+      "source": "3824",
+      "target": "3489",
+      "kind": "scene"
+    },
+    {
+      "source": "1778",
+      "target": "3743",
+      "kind": "scene"
+    },
+    {
+      "source": "1778",
+      "target": "949",
+      "kind": "scene"
+    },
+    {
+      "source": "1778",
+      "target": "3740",
+      "kind": "scene"
+    },
+    {
+      "source": "1778",
+      "target": "1310",
+      "kind": "scene"
+    },
+    {
+      "source": "1778",
+      "target": "3478",
+      "kind": "scene"
+    },
+    {
+      "source": "1778",
+      "target": "1187",
+      "kind": "scene"
+    },
+    {
+      "source": "1778",
+      "target": "3458",
+      "kind": "scene"
+    },
+    {
+      "source": "3743",
+      "target": "949",
+      "kind": "scene"
+    },
+    {
+      "source": "3743",
+      "target": "3740",
+      "kind": "scene"
+    },
+    {
+      "source": "3743",
+      "target": "1310",
+      "kind": "scene"
+    },
+    {
+      "source": "3743",
+      "target": "3478",
+      "kind": "scene"
+    },
+    {
+      "source": "3743",
+      "target": "1187",
+      "kind": "scene"
+    },
+    {
+      "source": "3743",
+      "target": "3458",
+      "kind": "scene"
+    },
+    {
+      "source": "949",
+      "target": "3740",
+      "kind": "scene"
+    },
+    {
+      "source": "949",
+      "target": "1310",
+      "kind": "scene"
+    },
+    {
+      "source": "949",
+      "target": "3478",
+      "kind": "scene"
+    },
+    {
+      "source": "949",
+      "target": "1187",
+      "kind": "scene"
+    },
+    {
+      "source": "949",
+      "target": "3458",
+      "kind": "scene"
+    },
+    {
+      "source": "3740",
+      "target": "1310",
+      "kind": "scene"
+    },
+    {
+      "source": "3740",
+      "target": "3478",
+      "kind": "scene"
+    },
+    {
+      "source": "3740",
+      "target": "1187",
+      "kind": "scene"
+    },
+    {
+      "source": "3740",
+      "target": "3458",
+      "kind": "scene"
+    },
+    {
+      "source": "1310",
+      "target": "3478",
+      "kind": "scene"
+    },
+    {
+      "source": "1310",
+      "target": "1187",
+      "kind": "scene"
+    },
+    {
+      "source": "1310",
+      "target": "3458",
+      "kind": "scene"
+    },
+    {
+      "source": "3478",
+      "target": "1187",
+      "kind": "scene"
+    },
+    {
+      "source": "3478",
+      "target": "3458",
+      "kind": "scene"
+    },
+    {
+      "source": "1187",
+      "target": "3458",
+      "kind": "scene"
+    },
+    {
+      "source": "3813",
+      "target": "3724",
+      "kind": "scene"
+    },
+    {
+      "source": "3813",
+      "target": "3755",
+      "kind": "scene"
+    },
+    {
+      "source": "3813",
+      "target": "559",
+      "kind": "scene"
+    },
+    {
+      "source": "3813",
+      "target": "3494",
+      "kind": "scene"
+    },
+    {
+      "source": "3813",
+      "target": "3746",
+      "kind": "scene"
+    },
+    {
+      "source": "3813",
+      "target": "3503",
+      "kind": "scene"
+    },
+    {
+      "source": "3813",
+      "target": "3464",
+      "kind": "scene"
+    },
+    {
+      "source": "3724",
+      "target": "3755",
+      "kind": "scene"
+    },
+    {
+      "source": "3724",
+      "target": "559",
+      "kind": "scene"
+    },
+    {
+      "source": "3724",
+      "target": "3494",
+      "kind": "scene"
+    },
+    {
+      "source": "3724",
+      "target": "3746",
+      "kind": "scene"
+    },
+    {
+      "source": "3724",
+      "target": "3503",
+      "kind": "scene"
+    },
+    {
+      "source": "3724",
+      "target": "3464",
+      "kind": "scene"
+    },
+    {
+      "source": "3755",
+      "target": "559",
+      "kind": "scene"
+    },
+    {
+      "source": "3755",
+      "target": "3494",
+      "kind": "scene"
+    },
+    {
+      "source": "3755",
+      "target": "3746",
+      "kind": "scene"
+    },
+    {
+      "source": "3755",
+      "target": "3503",
+      "kind": "scene"
+    },
+    {
+      "source": "3755",
+      "target": "3464",
+      "kind": "scene"
+    },
+    {
+      "source": "559",
+      "target": "3494",
+      "kind": "scene"
+    },
+    {
+      "source": "559",
+      "target": "3746",
+      "kind": "scene"
+    },
+    {
+      "source": "559",
+      "target": "3503",
+      "kind": "scene"
+    },
+    {
+      "source": "559",
+      "target": "3464",
+      "kind": "scene"
+    },
+    {
+      "source": "3494",
+      "target": "3746",
+      "kind": "scene"
+    },
+    {
+      "source": "3494",
+      "target": "3503",
+      "kind": "scene"
+    },
+    {
+      "source": "3494",
+      "target": "3464",
+      "kind": "scene"
+    },
+    {
+      "source": "3746",
+      "target": "3503",
+      "kind": "scene"
+    },
+    {
+      "source": "3746",
+      "target": "3464",
+      "kind": "scene"
+    },
+    {
+      "source": "3503",
+      "target": "3464",
+      "kind": "scene"
+    },
+    {
+      "source": "3726",
+      "target": "3759",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3726",
+      "target": "3629",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3726",
+      "target": "3737",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3726",
+      "target": "3680",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3726",
+      "target": "3533",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3726",
+      "target": "1310",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3726",
+      "target": "3458",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3726",
+      "target": "3724",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3726",
+      "target": "3746",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3759",
+      "target": "3629",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3759",
+      "target": "3737",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3759",
+      "target": "3680",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3759",
+      "target": "3533",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3759",
+      "target": "1310",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3759",
+      "target": "3458",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3759",
+      "target": "3724",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3759",
+      "target": "3746",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3629",
+      "target": "3737",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3629",
+      "target": "3680",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3629",
+      "target": "3533",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3629",
+      "target": "1310",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3629",
+      "target": "3458",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3629",
+      "target": "3724",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3629",
+      "target": "3746",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3737",
+      "target": "3680",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3737",
+      "target": "3533",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3737",
+      "target": "1310",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3737",
+      "target": "3458",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3737",
+      "target": "3724",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3737",
+      "target": "3746",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3680",
+      "target": "3533",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3680",
+      "target": "1310",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3680",
+      "target": "3458",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3680",
+      "target": "3724",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3680",
+      "target": "3746",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3533",
+      "target": "1310",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3533",
+      "target": "3458",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3533",
+      "target": "3724",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3533",
+      "target": "3746",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1310",
+      "target": "3458",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1310",
+      "target": "3724",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1310",
+      "target": "3746",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3458",
+      "target": "3724",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3458",
+      "target": "3746",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3724",
+      "target": "3746",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3646",
+      "target": "3483",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3757",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3682",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "4296",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3701",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3784",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3771",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "759",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3734",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "875",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3661",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "5795",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "550",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3666",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3646",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3757",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3682",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "4296",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3701",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3784",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3771",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "759",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3734",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "875",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3661",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "5795",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "550",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3666",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3483",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3682",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "4296",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3701",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3784",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3771",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "759",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3734",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "875",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3661",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "5795",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "550",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3666",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3757",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "4296",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3701",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3784",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3771",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "759",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3734",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "875",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3661",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "5795",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "550",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3666",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3682",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3701",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3784",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3771",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "759",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3734",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "875",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3661",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "5795",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "550",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3666",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "4296",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3784",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3771",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "759",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3734",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "875",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3661",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "5795",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "550",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3666",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3701",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "3771",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "759",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "3734",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "875",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "3661",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "5795",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "550",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "3666",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3784",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "759",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "3734",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "875",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "3661",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "5795",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "550",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "3666",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3771",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "3734",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "875",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "3661",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "5795",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "550",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "3666",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "759",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "875",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "3661",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "5795",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "550",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "3666",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3734",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "3661",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "5795",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "550",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "3666",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "875",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "5795",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "550",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "3666",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3661",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "550",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "3666",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "5795",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "3666",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "550",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3666",
+      "target": "3824",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3666",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3666",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3666",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3666",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3666",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3666",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3666",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3666",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3666",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3666",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3666",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3666",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3666",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3824",
+      "target": "3489",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3824",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3824",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3824",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3824",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3824",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3824",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3824",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3824",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3824",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3824",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3824",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3824",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3489",
+      "target": "1778",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3489",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3489",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3489",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3489",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3489",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3489",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3489",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3489",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3489",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3489",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3489",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1778",
+      "target": "3743",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1778",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1778",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1778",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1778",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1778",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1778",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1778",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1778",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1778",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1778",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3743",
+      "target": "949",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3743",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3743",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3743",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3743",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3743",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3743",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3743",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3743",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3743",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "949",
+      "target": "3740",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "949",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "949",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "949",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "949",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "949",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "949",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "949",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "949",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3740",
+      "target": "3478",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3740",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3740",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3740",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3740",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3740",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3740",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3740",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3478",
+      "target": "1187",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3478",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3478",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3478",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3478",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3478",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3478",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1187",
+      "target": "3813",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1187",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1187",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1187",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1187",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "1187",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3813",
+      "target": "3755",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3813",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3813",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3813",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3813",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3755",
+      "target": "559",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3755",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3755",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3755",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "559",
+      "target": "3494",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "559",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "559",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3494",
+      "target": "3503",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3494",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    },
+    {
+      "source": "3503",
+      "target": "3464",
+      "kind": "thread",
+      "category": "thread"
+    }
+  ],
+  "character": {
+    "name": "Priya",
+    "age": 34,
+    "gender": "F",
+    "want": "to finish her dissertation without her brain interrupting her",
+    "need": "to stop intellectualizing symptoms and start treating them as real",
+    "flaw": "turns every headache into a differential diagnosis, then dismisses it as interesting but not urgent",
+    "ghost": "a professor who collapsed mid-lecture from an undiagnosed aneurysm",
+    "mentor": "Dr. Iwu",
+    "domain": "Headache — primary vs secondary vs thunderclap vs chronic",
+    "domainWant": "to understand what headache — primary vs secondary vs thunderclap vs chronic means for their life — not just the lab values",
+    "domainNeed": "to integrate this diagnosis with their existing health without letting each new finding become a separate identity"
+  }
+}

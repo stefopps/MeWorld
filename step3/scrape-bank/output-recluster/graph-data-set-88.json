@@ -1,0 +1,240 @@
+{
+  "set": 88,
+  "storyFile": "set-88-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "bleeding · gi",
+  "recurringThread": "gi > renal > heme > cardio > neuro > endo",
+  "mainPath": [
+    "3247",
+    "2695",
+    "1788",
+    "4772"
+  ],
+  "generatedAt": "2026-07-13T23:22:48.770Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 7,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "3247",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "2695",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "2656",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "2677",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "2208",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "241",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "1788",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "4772",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "3091",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    },
+    {
+      "id": "2644",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    },
+    {
+      "id": "2664",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "2656",
+      "target": "2677",
+      "kind": "scene"
+    },
+    {
+      "source": "2656",
+      "target": "2208",
+      "kind": "scene"
+    },
+    {
+      "source": "2656",
+      "target": "241",
+      "kind": "scene"
+    },
+    {
+      "source": "2656",
+      "target": "3247",
+      "kind": "scene"
+    },
+    {
+      "source": "2656",
+      "target": "2695",
+      "kind": "scene"
+    },
+    {
+      "source": "2677",
+      "target": "2208",
+      "kind": "scene"
+    },
+    {
+      "source": "2677",
+      "target": "241",
+      "kind": "scene"
+    },
+    {
+      "source": "2677",
+      "target": "3247",
+      "kind": "scene"
+    },
+    {
+      "source": "2677",
+      "target": "2695",
+      "kind": "scene"
+    },
+    {
+      "source": "2208",
+      "target": "241",
+      "kind": "scene"
+    },
+    {
+      "source": "2208",
+      "target": "3247",
+      "kind": "scene"
+    },
+    {
+      "source": "2208",
+      "target": "2695",
+      "kind": "scene"
+    },
+    {
+      "source": "241",
+      "target": "3247",
+      "kind": "scene"
+    },
+    {
+      "source": "241",
+      "target": "2695",
+      "kind": "scene"
+    },
+    {
+      "source": "3247",
+      "target": "2695",
+      "kind": "scene"
+    },
+    {
+      "source": "1788",
+      "target": "2664",
+      "kind": "scene"
+    },
+    {
+      "source": "1788",
+      "target": "4772",
+      "kind": "scene"
+    },
+    {
+      "source": "1788",
+      "target": "2644",
+      "kind": "scene"
+    },
+    {
+      "source": "1788",
+      "target": "3091",
+      "kind": "scene"
+    },
+    {
+      "source": "2664",
+      "target": "4772",
+      "kind": "scene"
+    },
+    {
+      "source": "2664",
+      "target": "2644",
+      "kind": "scene"
+    },
+    {
+      "source": "2664",
+      "target": "3091",
+      "kind": "scene"
+    },
+    {
+      "source": "4772",
+      "target": "2644",
+      "kind": "scene"
+    },
+    {
+      "source": "4772",
+      "target": "3091",
+      "kind": "scene"
+    },
+    {
+      "source": "2644",
+      "target": "3091",
+      "kind": "scene"
+    },
+    {
+      "source": "3247",
+      "target": "2695",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3247",
+      "target": "1788",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3247",
+      "target": "4772",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2695",
+      "target": "1788",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2695",
+      "target": "4772",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1788",
+      "target": "4772",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

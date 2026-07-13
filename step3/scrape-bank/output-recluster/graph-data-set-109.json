@@ -1,0 +1,185 @@
+{
+  "set": 109,
+  "storyFile": "set-109-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "chest pain · thyroid · cardio",
+  "recurringThread": "thyroid",
+  "mainPath": [
+    "973",
+    "1968",
+    "1904",
+    "1902"
+  ],
+  "generatedAt": "2026-07-13T23:22:48.839Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 5,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "973",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "1968",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "1831",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "1655",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "1754",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "1904",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "1902",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "1899",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    },
+    {
+      "id": "519",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "1655",
+      "target": "1968",
+      "kind": "scene"
+    },
+    {
+      "source": "1655",
+      "target": "1831",
+      "kind": "scene"
+    },
+    {
+      "source": "1655",
+      "target": "973",
+      "kind": "scene"
+    },
+    {
+      "source": "1655",
+      "target": "1754",
+      "kind": "scene"
+    },
+    {
+      "source": "1968",
+      "target": "1831",
+      "kind": "scene"
+    },
+    {
+      "source": "1968",
+      "target": "973",
+      "kind": "scene"
+    },
+    {
+      "source": "1968",
+      "target": "1754",
+      "kind": "scene"
+    },
+    {
+      "source": "1831",
+      "target": "973",
+      "kind": "scene"
+    },
+    {
+      "source": "1831",
+      "target": "1754",
+      "kind": "scene"
+    },
+    {
+      "source": "973",
+      "target": "1754",
+      "kind": "scene"
+    },
+    {
+      "source": "1904",
+      "target": "1902",
+      "kind": "scene"
+    },
+    {
+      "source": "1904",
+      "target": "519",
+      "kind": "scene"
+    },
+    {
+      "source": "1904",
+      "target": "1899",
+      "kind": "scene"
+    },
+    {
+      "source": "1902",
+      "target": "519",
+      "kind": "scene"
+    },
+    {
+      "source": "1902",
+      "target": "1899",
+      "kind": "scene"
+    },
+    {
+      "source": "519",
+      "target": "1899",
+      "kind": "scene"
+    },
+    {
+      "source": "973",
+      "target": "1968",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "973",
+      "target": "1904",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "973",
+      "target": "1902",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1968",
+      "target": "1904",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1968",
+      "target": "1902",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1904",
+      "target": "1902",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

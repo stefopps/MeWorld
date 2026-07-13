@@ -1,0 +1,140 @@
+{
+  "set": 138,
+  "storyFile": "set-138-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "fatigue · obgyn",
+  "recurringThread": "obgyn > neuro",
+  "mainPath": [
+    "85",
+    "5538",
+    "3952",
+    "4020"
+  ],
+  "generatedAt": "2026-07-13T23:20:53.493Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 3,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "85",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "5538",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "3865",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "111",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "3952",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "4020",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "4675",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "5538",
+      "target": "3865",
+      "kind": "scene"
+    },
+    {
+      "source": "5538",
+      "target": "111",
+      "kind": "scene"
+    },
+    {
+      "source": "5538",
+      "target": "85",
+      "kind": "scene"
+    },
+    {
+      "source": "3865",
+      "target": "111",
+      "kind": "scene"
+    },
+    {
+      "source": "3865",
+      "target": "85",
+      "kind": "scene"
+    },
+    {
+      "source": "111",
+      "target": "85",
+      "kind": "scene"
+    },
+    {
+      "source": "3952",
+      "target": "4020",
+      "kind": "scene"
+    },
+    {
+      "source": "3952",
+      "target": "4675",
+      "kind": "scene"
+    },
+    {
+      "source": "4020",
+      "target": "4675",
+      "kind": "scene"
+    },
+    {
+      "source": "85",
+      "target": "5538",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "85",
+      "target": "3952",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "85",
+      "target": "4020",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5538",
+      "target": "3952",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5538",
+      "target": "4020",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3952",
+      "target": "4020",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

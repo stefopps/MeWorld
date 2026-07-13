@@ -1,0 +1,125 @@
+{
+  "set": 141,
+  "storyFile": "set-141-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "hf · thyroid · renal",
+  "recurringThread": "hf > thyroid > substance > bowel obstruction",
+  "mainPath": [
+    "2257",
+    "4374",
+    "4269",
+    "2303"
+  ],
+  "generatedAt": "2026-07-13T23:20:53.533Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 2,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "2257",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "4374",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "2849",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "2374",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "4269",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "2303",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "2257",
+      "target": "2374",
+      "kind": "scene"
+    },
+    {
+      "source": "2257",
+      "target": "4374",
+      "kind": "scene"
+    },
+    {
+      "source": "2257",
+      "target": "2849",
+      "kind": "scene"
+    },
+    {
+      "source": "2374",
+      "target": "4374",
+      "kind": "scene"
+    },
+    {
+      "source": "2374",
+      "target": "2849",
+      "kind": "scene"
+    },
+    {
+      "source": "4374",
+      "target": "2849",
+      "kind": "scene"
+    },
+    {
+      "source": "4269",
+      "target": "2303",
+      "kind": "scene"
+    },
+    {
+      "source": "2257",
+      "target": "4374",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2257",
+      "target": "4269",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2257",
+      "target": "2303",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4374",
+      "target": "4269",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4374",
+      "target": "2303",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4269",
+      "target": "2303",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

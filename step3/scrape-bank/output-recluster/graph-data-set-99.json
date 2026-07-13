@@ -1,0 +1,210 @@
+{
+  "set": 99,
+  "storyFile": "set-99-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "chest pain · hf · cirrhosis/liver",
+  "recurringThread": "hf > cirrhosis/liver",
+  "mainPath": [
+    "4843",
+    "3615",
+    "2079",
+    "2726"
+  ],
+  "generatedAt": "2026-07-13T23:22:48.813Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 6,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "4843",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "3615",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "2107",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "4068",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "2182",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "2079",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "2726",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "382",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    },
+    {
+      "id": "1460",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    },
+    {
+      "id": "1954",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "4843",
+      "target": "3615",
+      "kind": "scene"
+    },
+    {
+      "source": "4843",
+      "target": "2107",
+      "kind": "scene"
+    },
+    {
+      "source": "4843",
+      "target": "4068",
+      "kind": "scene"
+    },
+    {
+      "source": "4843",
+      "target": "2182",
+      "kind": "scene"
+    },
+    {
+      "source": "3615",
+      "target": "2107",
+      "kind": "scene"
+    },
+    {
+      "source": "3615",
+      "target": "4068",
+      "kind": "scene"
+    },
+    {
+      "source": "3615",
+      "target": "2182",
+      "kind": "scene"
+    },
+    {
+      "source": "2107",
+      "target": "4068",
+      "kind": "scene"
+    },
+    {
+      "source": "2107",
+      "target": "2182",
+      "kind": "scene"
+    },
+    {
+      "source": "4068",
+      "target": "2182",
+      "kind": "scene"
+    },
+    {
+      "source": "2079",
+      "target": "2726",
+      "kind": "scene"
+    },
+    {
+      "source": "2079",
+      "target": "382",
+      "kind": "scene"
+    },
+    {
+      "source": "2079",
+      "target": "1460",
+      "kind": "scene"
+    },
+    {
+      "source": "2079",
+      "target": "1954",
+      "kind": "scene"
+    },
+    {
+      "source": "2726",
+      "target": "382",
+      "kind": "scene"
+    },
+    {
+      "source": "2726",
+      "target": "1460",
+      "kind": "scene"
+    },
+    {
+      "source": "2726",
+      "target": "1954",
+      "kind": "scene"
+    },
+    {
+      "source": "382",
+      "target": "1460",
+      "kind": "scene"
+    },
+    {
+      "source": "382",
+      "target": "1954",
+      "kind": "scene"
+    },
+    {
+      "source": "1460",
+      "target": "1954",
+      "kind": "scene"
+    },
+    {
+      "source": "4843",
+      "target": "3615",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4843",
+      "target": "2079",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4843",
+      "target": "2726",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3615",
+      "target": "2079",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3615",
+      "target": "2726",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2079",
+      "target": "2726",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

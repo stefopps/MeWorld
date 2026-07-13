@@ -1,0 +1,120 @@
+{
+  "set": 116,
+  "storyFile": "set-116-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "confusion · gi",
+  "recurringThread": "gi > renal > heme > endo > neuro",
+  "mainPath": [
+    "3800",
+    "2816",
+    "1128",
+    "3000"
+  ],
+  "generatedAt": "2026-07-13T23:22:48.870Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 2,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "3800",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "2816",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "2844",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "1128",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "3000",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "2932",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "2816",
+      "target": "2844",
+      "kind": "scene"
+    },
+    {
+      "source": "2816",
+      "target": "3800",
+      "kind": "scene"
+    },
+    {
+      "source": "2844",
+      "target": "3800",
+      "kind": "scene"
+    },
+    {
+      "source": "1128",
+      "target": "2932",
+      "kind": "scene"
+    },
+    {
+      "source": "1128",
+      "target": "3000",
+      "kind": "scene"
+    },
+    {
+      "source": "2932",
+      "target": "3000",
+      "kind": "scene"
+    },
+    {
+      "source": "3800",
+      "target": "2816",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3800",
+      "target": "1128",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3800",
+      "target": "3000",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2816",
+      "target": "1128",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2816",
+      "target": "3000",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1128",
+      "target": "3000",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

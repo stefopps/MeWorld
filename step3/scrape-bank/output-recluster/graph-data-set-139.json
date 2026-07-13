@@ -1,0 +1,125 @@
+{
+  "set": 139,
+  "storyFile": "set-139-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "fever · renal",
+  "recurringThread": "renal > heme > endo > id > gi",
+  "mainPath": [
+    "4909",
+    "5088",
+    "4493",
+    "4773"
+  ],
+  "generatedAt": "2026-07-13T23:20:53.493Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 2,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "4909",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "5088",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "4704",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "1286",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "4493",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "4773",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "5088",
+      "target": "4704",
+      "kind": "scene"
+    },
+    {
+      "source": "5088",
+      "target": "4909",
+      "kind": "scene"
+    },
+    {
+      "source": "5088",
+      "target": "1286",
+      "kind": "scene"
+    },
+    {
+      "source": "4704",
+      "target": "4909",
+      "kind": "scene"
+    },
+    {
+      "source": "4704",
+      "target": "1286",
+      "kind": "scene"
+    },
+    {
+      "source": "4909",
+      "target": "1286",
+      "kind": "scene"
+    },
+    {
+      "source": "4493",
+      "target": "4773",
+      "kind": "scene"
+    },
+    {
+      "source": "4909",
+      "target": "5088",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4909",
+      "target": "4493",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4909",
+      "target": "4773",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5088",
+      "target": "4493",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5088",
+      "target": "4773",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4493",
+      "target": "4773",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

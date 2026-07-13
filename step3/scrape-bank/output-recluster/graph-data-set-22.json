@@ -1,0 +1,125 @@
+{
+  "set": 22,
+  "storyFile": "set-22-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "coagulopathy · depression · heme",
+  "recurringThread": "coagulopathy > depression > thyroid",
+  "mainPath": [
+    "11",
+    "3833",
+    "2354",
+    "2404"
+  ],
+  "generatedAt": "2026-07-13T23:22:47.850Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 2,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "11",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "3833",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "680",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "5601",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "2354",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "2404",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "11",
+      "target": "3833",
+      "kind": "scene"
+    },
+    {
+      "source": "11",
+      "target": "680",
+      "kind": "scene"
+    },
+    {
+      "source": "11",
+      "target": "5601",
+      "kind": "scene"
+    },
+    {
+      "source": "3833",
+      "target": "680",
+      "kind": "scene"
+    },
+    {
+      "source": "3833",
+      "target": "5601",
+      "kind": "scene"
+    },
+    {
+      "source": "680",
+      "target": "5601",
+      "kind": "scene"
+    },
+    {
+      "source": "2354",
+      "target": "2404",
+      "kind": "scene"
+    },
+    {
+      "source": "11",
+      "target": "3833",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "11",
+      "target": "2354",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "11",
+      "target": "2404",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3833",
+      "target": "2354",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3833",
+      "target": "2404",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "2354",
+      "target": "2404",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "set": 142,
+  "storyFile": "set-142-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "hf · cardio",
+  "recurringThread": "hf",
+  "mainPath": [
+    "3605",
+    "5740",
+    "1870",
+    "5508"
+  ],
+  "generatedAt": "2026-07-13T23:19:06.018Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 1,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "3605",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "5740",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "5597",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "1870",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "5508",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "5740",
+      "target": "3605",
+      "kind": "scene"
+    },
+    {
+      "source": "5740",
+      "target": "5597",
+      "kind": "scene"
+    },
+    {
+      "source": "3605",
+      "target": "5597",
+      "kind": "scene"
+    },
+    {
+      "source": "1870",
+      "target": "5508",
+      "kind": "scene"
+    },
+    {
+      "source": "3605",
+      "target": "5740",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3605",
+      "target": "1870",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3605",
+      "target": "5508",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5740",
+      "target": "1870",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5740",
+      "target": "5508",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1870",
+      "target": "5508",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "set": 36,
+  "storyFile": "set-36-story-va.html",
+  "source": "project-based clustering v3 (iterative expansion + answer-cat overlap)",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "coagulopathy · preeclampsia/eclampsia · obgyn",
+  "recurringThread": "coagulopathy > preeclampsia/eclampsia",
+  "mainPath": [
+    "5448",
+    "4106",
+    "3937",
+    "4062"
+  ],
+  "generatedAt": "2026-07-13T23:22:48.202Z",
+  "counts": {
+    "primary": 4,
+    "mimic": 2,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "5448",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "4106",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 1"
+    },
+    {
+      "id": "6002",
+      "category": "mimic",
+      "why": "Differential door in scene 1"
+    },
+    {
+      "id": "3937",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "4062",
+      "category": "primary",
+      "why": "Core diagnostic fork: scene 2"
+    },
+    {
+      "id": "4051",
+      "category": "mimic",
+      "why": "Differential door in scene 2"
+    }
+  ],
+  "edges": [
+    {
+      "source": "5448",
+      "target": "4106",
+      "kind": "scene"
+    },
+    {
+      "source": "5448",
+      "target": "6002",
+      "kind": "scene"
+    },
+    {
+      "source": "4106",
+      "target": "6002",
+      "kind": "scene"
+    },
+    {
+      "source": "3937",
+      "target": "4062",
+      "kind": "scene"
+    },
+    {
+      "source": "3937",
+      "target": "4051",
+      "kind": "scene"
+    },
+    {
+      "source": "4062",
+      "target": "4051",
+      "kind": "scene"
+    },
+    {
+      "source": "5448",
+      "target": "4106",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5448",
+      "target": "3937",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "5448",
+      "target": "4062",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4106",
+      "target": "3937",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "4106",
+      "target": "4062",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "3937",
+      "target": "4062",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}
