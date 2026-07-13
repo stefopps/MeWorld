@@ -414,15 +414,15 @@
 
   /* Dock toggle tab — always visible on right edge */
   .dock-toggle {
-    position: fixed; z-index: 21; top: 50%; transform: translateY(-50%);
-    right: 0; width: 28px; height: 64px;
-    background: #f0f2f5; border: 1px solid var(--border); border-right: none;
+    position: fixed; z-index: 51; top: 50%; transform: translateY(-50%);
+    right: 14px; width: 28px; height: 64px;
+    background: #f0f2f5; border: 1px solid var(--border);
     border-radius: 8px 0 0 8px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     color: var(--muted); font-size: 0.85rem;
     transition: right 0.22s ease, background .15s;
   }
-  .cmd-dock.open ~ .dock-toggle { right: calc(var(--dock-w, 320px)); }
+  .cmd-dock.open ~ .dock-toggle { right: calc(var(--dock-w, 320px) + 14px); }
   .dock-toggle:hover { background: #e3e8ee; color: var(--ink); }
 
   /* Dock sections — individual control groups */
@@ -704,7 +704,7 @@
   [data-theme="dark"] .hud .btn-mic { background: #1f2230; color: var(--muted); }
   [data-theme="dark"] .hud .btn-mic:hover { background: #252840; }
   [data-theme="dark"] .cmd-dock { background: #13151d; border-color: var(--border); }
-  [data-theme="dark"] .cmd-dock .dock-toggle { background: #1a1d28; }
+  [data-theme="dark"] .dock-toggle { background: #1a1d28; }
   [data-theme="dark"] .dock-section select { background: #1a1d28; color: var(--ink); border-color: var(--border); }
   [data-theme="dark"] .dock-section button { background: #1f2230; color: var(--ink); border-color: var(--border); }
   [data-theme="dark"] .dock-section button:hover { background: #252840; }
@@ -1350,13 +1350,11 @@ function makeFloaterDraggable(el, storageKey) {
       el.style.transition = '';
       el.style.cursor = 'grab';
       el.dataset.dragged = '1';
-      // Save position
+      // Save position (debounced 40s)
       if (storageKey) {
-        try {
-          localStorage.setItem(storageKey, JSON.stringify({
-            left: el.style.left, top: el.style.top,
-          }));
-        } catch (_) {}
+        debouncedSave(storageKey, JSON.stringify({
+          left: el.style.left, top: el.style.top,
+        }));
       }
     };
     document.addEventListener('mousemove', onMove);
@@ -1428,14 +1426,29 @@ function hudStorageKey(hud) {
   return 'hud-pos-' + (currentSet || '0') + '-' + (hud.dataset.hudId || 'default');
 }
 
-function saveHudPosition(hud) {
+// ── 40-second debounced localStorage write (single timer, collects all pending) ─
+const _dsQueue = {};
+var _dsTimer = null;
+function debouncedSave(key, value) {
   try {
-    const key = hudStorageKey(hud);
-    localStorage.setItem(key, JSON.stringify({
-      left: hud.style.left, top: hud.style.top,
-      width: hud.style.width, height: hud.style.height,
-    }));
+    _dsQueue[key] = value;
+    if (_dsTimer) clearTimeout(_dsTimer);
+    _dsTimer = setTimeout(() => {
+      for (const k of Object.keys(_dsQueue)) {
+        try { localStorage.setItem(k, _dsQueue[k]); } catch (_) {}
+      }
+      Object.keys(_dsQueue).forEach(k => delete _dsQueue[k]);
+      _dsTimer = null;
+    }, 40000);
   } catch (_) {}
+}
+
+function saveHudPosition(hud) {
+  const key = hudStorageKey(hud);
+  debouncedSave(key, JSON.stringify({
+    left: hud.style.left, top: hud.style.top,
+    width: hud.style.width, height: hud.style.height,
+  }));
 }
 
 function restoreHudPosition(hud) {
@@ -1736,6 +1749,22 @@ function toggleLines() {
 })();
 
 // ── Four-layer reveal v2: pinned concept + independent toggles + nested drill ──
+// ── Lightweight markdown-to-HTML (handles **bold**, *italic*, `code`, newlines) ─
+function mdToHtml(text) {
+  if (!text) return '';
+  // Escape HTML first, then apply markdown rules
+  let html = esc(text);
+  // Bold (**text**)
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Italic (*text*)
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  // Inline code (`text`)
+  html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+  // Newlines to <br>
+  html = html.replace(/\n/g, '<br>');
+  return html;
+}
+
 // ── DeepSeek response logging ──────────────────────────────────────────────
 async function logDS(qid, type, prompt, systemPrompt, response) {
   try {
@@ -1789,7 +1818,8 @@ FORBIDDEN:
 - "Here's the breakdown", "Key point:", "What it does:", "For this patient:", "ED relevance:"
 - Bullet lists, numbered lists, or outline headers
 - Generic tutor voice disconnected from mechanism
-- Passive voice, hedging, "as an AI", breaking character`;
+- Passive voice, hedging, "as an AI", breaking character
+- Em dashes (—) — use commas or periods instead, never em dashes in any reply`;
 
   const prompt = `This CCS board question tests a clinical concept. Explain it from first principles — what mechanism is at work in the patient's body? Why does this finding or decision follow inevitably from the pathophysiology?
 
@@ -2102,12 +2132,12 @@ function wireReveal(container, d) {
       if (isOpen) {
         const triage = readTriage(qid);
         if (triage?.firstPrinciples) {
-          fpContent.textContent = triage.firstPrinciples;
+          fpContent.innerHTML = mdToHtml(triage.firstPrinciples);
         } else {
           fpContent.textContent = 'Teaching…';
           const fp = await fetchFirstPrinciples(d);
           if (fp) {
-            fpContent.textContent = fp;
+            fpContent.innerHTML = mdToHtml(fp);
             const t = readTriage(qid) || { concept: container.querySelector('#pcone-' + qid)?.textContent };
             t.firstPrinciples = fp;
             writeTriage(qid, t);
