@@ -1295,6 +1295,7 @@ Respond with only the single sentence. No preamble, no markdown.`;
     const concept = data.choices?.[0]?.message?.content?.trim() || '';
     if (concept) {
       resultDiv.innerHTML = '<strong>Core concept:</strong> ' + esc(concept);
+      logDS(node.id, 'distill', prompt, '', concept);
     } else {
       resultDiv.textContent = 'No concept returned — try again.';
     }
@@ -1417,7 +1418,7 @@ Respond with ONLY the narrative. No preamble.` }],
       if (!res.ok) { const err = await res.text(); throw new Error('HTTP ' + res.status); }
       const data = await res.json();
       const story = data.choices?.[0]?.message?.content?.trim() || '';
-      if (story) { textarea.value = story; finalText = story; status.textContent = 'Composed!'; }
+      if (story) { textarea.value = story; finalText = story; status.textContent = 'Composed!'; logDS(nodeId, 'compose', `Dictation: """${dictation}"""`, '', story); }
       else { status.textContent = 'Empty response — try more detail.'; }
     } catch (e) { status.textContent = 'Error: ' + e.message; }
     finally { composeBtn.disabled = false; }
@@ -1508,6 +1509,92 @@ function toggleLines() {
 })();
 
 // ── Four-layer reveal v2: pinned concept + independent toggles + nested drill ──
+// ── DeepSeek response logging ──────────────────────────────────────────────
+async function logDS(qid, type, prompt, systemPrompt, response) {
+  try {
+    await fetch('/api/log-deepseek', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        qid: String(qid), type, prompt: prompt.slice(0, 3000),
+        system_prompt: (systemPrompt || '').slice(0, 3000),
+        response: response.slice(0, 5000),
+        model: 'deepseek-chat',
+        ts: new Date().toISOString(),
+      }),
+    });
+  } catch (_) { /* non-critical — don't block UI */ }
+}
+
+async function fetchLogged(qid, type) {
+  try {
+    const res = await fetch('/api/deepseek-log?qid=' + encodeURIComponent(qid) + '&type=' + encodeURIComponent(type));
+    if (!res.ok) return null;
+    const entry = await res.json();
+    return entry?.response || null;
+  } catch (_) { return null; }
+}
+
+// ── First-principles layer: attending-voice explanation ──────────────────
+async function fetchFirstPrinciples(node) {
+  const key = localStorage.getItem('ds_api_key');
+  if (!key) return null;
+
+  // Check log for existing response first
+  const logged = await fetchLogged(node.id, 'firstPrinciples');
+  if (logged) return logged;
+
+  const ans = (node.answers || []).map(a => a.label + '. ' + cleanAnsText(a.text)).join(' | ');
+
+  const systemPrompt = `You are a brilliant senior attending physician who teaches by mechanism — not by memorization. Your learner is at the bedside. Reveal WHY through physiology, pathophysiology, and spatial/temporal patterns. Make them feel: "Of course — how could it be any other way?"
+
+Voice (mandatory):
+- Lead with mechanism — what is physically happening in this patient's body?
+- Spatial/temporal "why" when distribution, timing, or location matters.
+- Connect findings — one underlying process, not a catalog of unrelated facts.
+- Contrast with a look-alike when it sharpens the distinction.
+- Direct. Short sentences. Confident, never condescending. Joy in mechanism.
+- Visual/spatial language the learner can picture at the bedside.
+- 2–5 sentences unless the concept demands depth.
+- Wrap salient mechanistic anchors in **double asterisks** — the core pathophysiology, expected finding, rule-out, or bedside decision.
+
+FORBIDDEN:
+- "Here's the breakdown", "Key point:", "What it does:", "For this patient:", "ED relevance:"
+- Bullet lists, numbered lists, or outline headers
+- Generic tutor voice disconnected from mechanism
+- Passive voice, hedging, "as an AI", breaking character`;
+
+  const prompt = `This CCS board question tests a clinical concept. Explain it from first principles — what mechanism is at work in the patient's body? Why does this finding or decision follow inevitably from the pathophysiology?
+
+Question: """${node.question}"""
+Correct answer: ${node.likely || 'N/A'}
+Answer choices: ${ans}
+
+Respond as the attending. 2–5 sentences. Mechanism first. No preamble, no sign-off. Use **bold** for the key mechanism phrases.`;
+
+  try {
+    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt },
+        ],
+        temperature: 0.4, max_tokens: 300,
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const reply = (data.choices?.[0]?.message?.content?.trim() || '');
+    // Log it
+    logDS(node.id, 'firstPrinciples', prompt, systemPrompt, reply);
+    return reply;
+  } catch (_) { return null; }
+}
+
+// ── Four-layer reveal v2: pinned concept + independent toggles + nested drill ──
 const TRIAGE_PREFIX = 'triage-v1-';
 
 function readTriage(qid) {
@@ -1521,26 +1608,34 @@ function writeTriage(qid, data) {
 async function fetchConceptLine(node) {
   const key = localStorage.getItem('ds_api_key');
   if (!key) return null;
+
+  // Check log first
+  const logged = await fetchLogged(node.id, 'concept');
+  if (logged) return logged;
+
   const ans = (node.answers || []).map(a => a.label + '. ' + cleanAnsText(a.text)).join(' | ');
+  const prompt = `Given this CCS board question and its correct answer, distill the ONE core mechanism or clinical fact being tested. Maximum 12 words. Plain English, no jargon. One sentence.
+
+Question: """${node.question}"""
+Correct answer: ${node.likely || 'N/A'}
+Answer choices: ${ans}
+
+Respond with ONLY the concept line. No preamble.`;
   try {
     const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
       body: JSON.stringify({
         model: 'deepseek-chat',
-        messages: [{ role: 'user', content: `Given this CCS board question and its correct answer, distill the ONE core mechanism or clinical fact being tested. Maximum 12 words. Plain English, no jargon. One sentence.
-
-Question: """${node.question}"""
-Correct answer: ${node.likely || 'N/A'}
-Answer choices: ${ans}
-
-Respond with ONLY the concept line. No preamble.` }],
+        messages: [{ role: 'user', content: prompt }],
         temperature: 0.3, max_tokens: 30,
       }),
     });
     if (!res.ok) return null;
     const data = await res.json();
-    return (data.choices?.[0]?.message?.content?.trim() || '').slice(0, 120);
+    const line = (data.choices?.[0]?.message?.content?.trim() || '').slice(0, 120);
+    if (line) logDS(node.id, 'concept', prompt, '', line);
+    return line;
   } catch (_) { return null; }
 }
 
@@ -1571,6 +1666,15 @@ function buildRevealHTML(d) {
     <div class="ind-body" id="ib-full-${d.id}">
       <h3 style="margin:0 0 6px;font-size:0.88rem;font-weight:600;">${esc(stageLabel)}</h3>
       <p style="margin:0 0 10px;font-size:0.8rem;color:var(--ink);">${esc(d.storyText)}</p>
+    </div>
+
+    <div class="ind-toggle" id="it-firstpri-${d.id}">
+      <span class="toggle-dot"></span>
+      <span>First principles — brute force teaching</span>
+      <i class="ti ti-chevron-down toggle-chevron"></i>
+    </div>
+    <div class="ind-body" id="ib-firstpri-${d.id}">
+      <div class="layer2-body" id="fpbody-${d.id}" style="background:#fff5f0;border-color:#fcd3af;">Mechanism loading…</div>
     </div>
 
     <div class="ind-toggle" id="it-q-${d.id}">
@@ -1652,6 +1756,35 @@ function wireReveal(container, d) {
 
   // Show full beat
   toggleInd('it-full-' + qid, 'ib-full-' + qid);
+
+  // First principles — attending voice teaching
+  const fpToggle = container.querySelector('#it-firstpri-' + qid);
+  const fpBody = container.querySelector('#ib-firstpri-' + qid);
+  const fpContent = container.querySelector('#fpbody-' + qid);
+  if (fpToggle && fpBody && fpContent) {
+    fpToggle.onclick = async () => {
+      const isOpen = fpBody.classList.toggle('open');
+      fpToggle.querySelector('.toggle-chevron').className = 'ti ti-chevron-' + (isOpen ? 'up' : 'down') + ' toggle-chevron';
+      if (isOpen) {
+        const triage = readTriage(qid);
+        if (triage?.firstPrinciples) {
+          fpContent.textContent = triage.firstPrinciples;
+        } else {
+          fpContent.textContent = 'Teaching…';
+          const fp = await fetchFirstPrinciples(d);
+          if (fp) {
+            fpContent.textContent = fp;
+            const t = readTriage(qid) || { concept: container.querySelector('#pcone-' + qid)?.textContent };
+            t.firstPrinciples = fp;
+            writeTriage(qid, t);
+          } else {
+            fpContent.textContent = 'Could not generate — try refresh.';
+          }
+        }
+      }
+      resize();
+    };
+  }
 
   // Reveal question
   toggleInd('it-q-' + qid, 'ib-q-' + qid, () => {
@@ -2401,6 +2534,7 @@ Respond with ONLY the narrative. No preamble, no sign-off.`;
 
     const data = await res.json();
     const story = data.choices[0].message.content.trim();
+    logDS(selected[0]?.id || 'multi', 'generateStory', prompt, '', story);
     generatedStory = {
       set: currentSet,
       coreDiagnosis: GRAPH.meta.coreDiagnosis || '',
