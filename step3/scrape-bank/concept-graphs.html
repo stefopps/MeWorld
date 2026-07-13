@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/tabler-icons.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <style>
   :root {
@@ -37,6 +38,7 @@
     user-select: none;
   }
   .float-ctl-top { top: 10px; left: 12px; display: flex; align-items: center; gap: 10px; }
+  .float-ctl-top:active { cursor: grabbing; }
   .float-ctl select {
     font-family: inherit; font-size: 0.82rem; padding: 4px 8px;
     border: 1px solid var(--border); border-radius: 7px;
@@ -58,39 +60,453 @@
   .float-legend span { display:flex; align-items:center; gap:5px; }
   .dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
 
-  .float-progress {
-    position: fixed; z-index: 15; top: 18px; right: 16px;
-    display: flex; gap: 5px; flex-direction: column;
-  }
-  .float-progress .step {
-    width: 20px; height: 20px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.12);
-    display:flex; align-items:center; justify-content:center; font-size: 10px; color: var(--muted);
-    cursor: pointer; background: rgba(255,255,255,0.85);
-  }
-  .float-progress .step.done { background: var(--coral); border-color: var(--coral); color: #fff; font-weight:600; }
-  .float-progress .step:hover { border-color: var(--coral); }
-
   .float-slider {
     position: fixed; z-index: 15; bottom: 18px; left: 18px;
-    background: rgba(255,255,255,0.88); backdrop-filter: blur(6px);
-    border: 1px solid var(--border); border-radius: 9px;
-    padding: 8px 12px; font-size: 0.72rem; color: var(--muted);
-    display: flex; flex-direction: column; gap: 4px;
-    box-shadow: 0 2px 10px rgba(20,25,35,0.08);
+    padding: 0; font-size: 0.72rem; color: var(--muted);
+    display: flex; flex-direction: column; gap: 3px;
   }
-  .float-slider input[type=range] { width: 160px; }
-
-  .float-counts {
-    position: fixed; z-index: 15; bottom: 48px; left: 18px;
-    font-size: 0.72rem; color: var(--muted);
-    background: rgba(255,255,255,0.78); backdrop-filter: blur(4px);
-    border-radius: 7px; padding: 3px 8px;
-  }
+  .float-slider label { padding-left: 2px; }
+  .float-slider input[type=range] { width: 140px; }
 
   .float-zoom-hint {
     position: fixed; z-index: 15; bottom: 14px; left: 50%; transform: translateX(-50%);
     font-size: 0.65rem; color: rgba(107,118,134,0.55);
     letter-spacing: 0.02em;
+  }
+
+  /* ── Fit-to-view button ── */
+  .float-fit {
+    position: fixed; z-index: 15; top: 12px; right: 54px;
+    background: rgba(255,255,255,0.88); backdrop-filter: blur(6px);
+    border: 1px solid var(--border); border-radius: 7px;
+    padding: 6px 10px; font-size: 0.75rem; color: var(--ink);
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 2px 10px rgba(20,25,35,0.08);
+  }
+  .float-fit:hover { background: #eef3ff; border-color: var(--accent); }
+
+  /* ── Toggle-lines button ── */
+  .float-toggle {
+    position: fixed; z-index: 15; top: 12px; right: 140px;
+    background: rgba(255,255,255,0.88); backdrop-filter: blur(6px);
+    border: 1px solid var(--border); border-radius: 7px;
+    padding: 4px 7px; font-size: 1rem; color: var(--ink);
+    cursor: pointer; font-family: inherit; line-height: 1;
+    box-shadow: 0 2px 10px rgba(20,25,35,0.08);
+  }
+  .float-toggle:hover { background: #eef3ff; border-color: var(--accent); }
+  .float-toggle.on { color: var(--coral); border-color: var(--coral); }
+  .float-toggle.off { color: var(--muted); opacity: 0.5; }
+
+  /* ── Isolation banner ── */
+  .isolation-banner {
+    position: fixed; z-index: 16; top: 12px; left: 50%; transform: translateX(-50%);
+    background: rgba(239,68,68,0.92); backdrop-filter: blur(6px);
+    color: #fff; border-radius: 8px; padding: 6px 14px;
+    font-size: 0.75rem; display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 2px 12px rgba(239,68,68,0.3);
+    font-family: Inter, sans-serif; font-weight: 600;
+  }
+  .isolation-banner button {
+    font-family: inherit; font-size: 0.72rem; font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.4); color: #fff;
+    background: rgba(255,255,255,0.12); border-radius: 5px;
+    padding: 2px 10px; cursor: pointer;
+  }
+  .isolation-banner button:hover { background: rgba(255,255,255,0.25); }
+
+  /* ── Step-tracker rail (Fix #4) ── */
+  .spine-rail {
+    position: fixed; z-index: 16; bottom: 46px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 3px;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(6px);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 6px 14px; box-shadow: 0 2px 12px rgba(20,25,35,0.1);
+  }
+  .spine-rail .rail-label {
+    font-size: 0.65rem; color: var(--muted);
+    margin-right: 6px; letter-spacing: 0.02em; font-weight: 500;
+  }
+  .spine-rail .rail-dot {
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 1.5px solid var(--coral);
+    color: var(--coral); font-size: 9px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; background: #fff; transition: all .15s;
+  }
+  .spine-rail .rail-dot:hover, .spine-rail .rail-dot.active {
+    background: var(--coral); color: #fff; transform: scale(1.25);
+    box-shadow: 0 1px 6px rgba(216,85,47,0.3);
+  }
+  .spine-rail .rail-dash {
+    width: 10px; height: 1px; background: rgba(216,85,47,0.3);
+    margin: 0 1px;
+  }
+
+  /* ── First-use hint (Fix #6) ── */
+  .onboarding {
+    position: fixed; z-index: 18; bottom: 110px; left: 50%; transform: translateX(-50%);
+    background: #1e293b; color: #e2e8f0; border-radius: 10px;
+    padding: 10px 18px; font-size: 0.78rem; line-height: 1.5;
+    box-shadow: 0 4px 20px rgba(20,25,35,0.25);
+    display: flex; align-items: flex-start; gap: 12px; max-width: 420px;
+  }
+  .onboarding .ob-close {
+    background: none; border: none; color: #94a3b8; cursor: pointer;
+    font-size: 1rem; line-height: 1; padding: 0; margin-top: -2px;
+  }
+  .onboarding .ob-close:hover { color: #fff; }
+
+  /* ── Dictation section INSIDE the HUD ── */
+  .hud .dict-sect {
+    margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px;
+  }
+  .hud .dict-sect .dict-header {
+    display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+  }
+  .hud .dict-sect .dict-header .dict-label {
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--muted); font-weight: 600;
+  }
+  .hud .dict-sect textarea {
+    font-family: Inter, sans-serif; font-size: 0.72rem; line-height: 1.5;
+    border: 1px solid var(--border); border-radius: 7px; padding: 6px 8px;
+    resize: vertical; min-height: 60px; max-height: 150px; outline: none;
+    width: 100%; color: var(--ink);
+  }
+  .hud .dict-sect textarea:focus { border-color: var(--accent); }
+  .hud .dict-row { display: flex; gap: 6px; align-items: center; }
+  .hud .btn-mic {
+    width: 28px; height: 28px; border-radius: 50%; border: none;
+    cursor: pointer; font-size: 0.9rem; display: flex; align-items: center;
+    justify-content: center; transition: all .15s; flex-shrink: 0;
+    background: #eef2ff; color: var(--accent);
+  }
+  .hud .btn-mic:hover { background: #dde4ff; }
+  .hud .btn-mic.recording {
+    background: #fef2f2; color: #ef4444;
+    animation: pulse-mic .8s ease infinite alternate;
+  }
+  @keyframes pulse-mic {
+    from { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+    to   { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+  }
+  .hud .dict-interim {
+    font-size: 0.65rem; color: var(--muted); font-style: italic;
+    min-height: 16px; padding: 0 2px; overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; flex: 1;
+  }
+  .hud .dict-sect .btn-row { display: flex; gap: 6px; margin-top: 6px; }
+  .hud .dict-sect .btn-row button {
+    font-family: inherit; font-size: 0.68rem; font-weight: 600;
+    padding: 4px 8px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); background: #fff; color: var(--ink);
+  }
+  .hud .dict-sect .btn-row button:hover { background: #f0f3f7; }
+  .hud .dict-sect .btn-row button.primary {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+  }
+  .hud .dict-sect .btn-row button.primary:hover { background: #1d4ed8; }
+  .hud .dict-sect .btn-row button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .hud .dict-sect .dict-status { font-size: 0.62rem; color: var(--muted); margin-top: 4px; min-height: 12px; }
+
+  /* ── Distill concept ── */
+  .hud .distill-btn {
+    margin-top: 10px; width: 100%; padding: 6px 10px; border-radius: 7px;
+    border: 1px solid var(--teal); background: #fff; color: var(--teal);
+    font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+  .hud .distill-btn:hover { background: #eefaf3; }
+  .hud .distill-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .hud .distill-result {
+    margin-top: 8px; padding: 8px 10px; border-radius: 7px;
+    background: #edf7f0; border: 1px solid #b7e4c7;
+    color: #116932; font-size: 0.78rem; line-height: 1.5; display: none;
+  }
+
+  /* ── Milling tracker — 3-state study progress per concept ── */
+  .hud .mill-tracker {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
+  }
+  .hud .mill-tracker .mill-label {
+    font-size: 0.65rem; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.04em; font-weight: 600; white-space: nowrap;
+  }
+  .hud .mill-tracker .mill-icons { display: flex; gap: 2px; }
+  .hud .mill-tracker .mill-step {
+    cursor: pointer; padding: 3px 5px; border-radius: 4px;
+    font-size: 0.82rem; line-height: 1; color: var(--border);
+    transition: all .12s;
+  }
+  .hud .mill-tracker .mill-step:hover { color: var(--accent); background: #f0f4ff; }
+  .hud .mill-tracker .mill-step.active { color: var(--accent); }
+  .hud .mill-tracker[data-state="0"] .mill-step.s0 { color: var(--muted); }
+  .hud .mill-tracker[data-state="1"] .mill-step.s0,
+  .hud .mill-tracker[data-state="1"] .mill-step.s1 { color: #f59e0b; }
+  .hud .mill-tracker[data-state="2"] .mill-step.s0,
+  .hud .mill-tracker[data-state="2"] .mill-step.s1,
+  .hud .mill-tracker[data-state="2"] .mill-step.s2 { color: #16a34a; }
+  .hud .mill-tracker[data-state="1"] .mill-hint,
+  .hud .mill-tracker[data-state="2"] .mill-hint { color: var(--muted); }
+  .hud .mill-tracker .mill-hint {
+    font-size: 0.6rem; color: transparent; transition: color .2s;
+    margin-left: 2px;
+  }
+
+  /* ── Four-layer reveal v2: pinned concept + independent toggles ── */
+  .hud .pinned-concept {
+    padding: 10px 12px; border-radius: 8px;
+    border: 1px solid var(--border); background: #fafbfc;
+    margin-bottom: 8px;
+  }
+  .hud .pinned-concept .pc-top {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; margin-bottom: 6px;
+  }
+  .hud .pinned-concept .pc-label {
+    font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--muted); font-weight: 650;
+  }
+  .hud .pinned-concept .pc-refresh {
+    cursor: pointer; color: var(--muted); font-size: 0.8rem;
+    padding: 2px 4px; border-radius: 4px; border: none; background: none; line-height: 1;
+  }
+  .hud .pinned-concept .pc-refresh:hover { color: var(--accent); background: #eef3ff; }
+  .hud .pinned-concept .pc-refresh.spinning i { animation: spin 0.6s linear infinite; }
+  .hud .pinned-concept .pc-oneliner {
+    font-size: 0.85rem; font-weight: 650; color: var(--ink);
+    line-height: 1.45; margin-bottom: 8px; min-height: 20px;
+  }
+  .hud .pinned-concept .pc-oneliner.loading { color: var(--muted); font-style: italic; font-weight: 400; }
+
+  /* Approve / Needs work inline row */
+  .hud .pc-actions { display: flex; gap: 6px; }
+  .hud .pc-actions button {
+    font-family: inherit; font-size: 0.67rem; font-weight: 600;
+    padding: 3px 8px; border-radius: 5px; cursor: pointer; border: 1px solid;
+  }
+  .hud .pc-approve { background: #edf7f0; color: #116932; border-color: #b7e4c7; }
+  .hud .pc-approve:hover { background: #d6f0dd; }
+  .hud .pc-approve.flagged { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .hud .pc-needs-work { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+  .hud .pc-needs-work:hover { background: #fde68a; }
+  .hud .pc-needs-work.flagged { background: #f59e0b; color: #fff; border-color: #f59e0b; }
+
+  /* Independent toggles */
+  .hud .ind-toggle {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px; margin: 2px 0;
+    cursor: pointer; user-select: none; border-radius: 6px;
+    transition: background .12s; font-size: 0.72rem; color: var(--ink);
+  }
+  .hud .ind-toggle:hover { background: #f5f7fa; }
+  .hud .ind-toggle i.toggle-chevron { font-size: 0.62rem; color: var(--muted); margin-left: auto; }
+  .hud .ind-toggle .toggle-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    background: var(--muted); opacity: 0.5;
+  }
+  .hud .ind-body { display: none; margin-bottom: 6px; }
+  .hud .ind-body.open { display: block; }
+  .hud .ind-body .qwrap { margin-top: 0; padding-top: 0; border-top: none; }
+
+  /* Nested drill — sibling nodes expand inside this panel */
+  .hud .drill-item {
+    padding: 5px 8px; margin: 3px 0; border-radius: 5px;
+    background: #fff; border: 1px solid var(--border);
+    cursor: pointer; font-size: 0.7rem; line-height: 1.4;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .hud .drill-item:hover { border-color: var(--accent); background: #f8faff; }
+  .hud .drill-item .drill-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .hud .drill-nested {
+    margin: 4px 0 6px 12px; padding: 4px 8px;
+    border-left: 2px solid #d0ddfb; background: #f8faff;
+    border-radius: 0 6px 6px 0; display: none;
+  }
+  .hud .drill-nested.open { display: block; }
+  .hud .drill-nested .drill-nl-blurb {
+    font-size: 0.7rem; color: var(--ink); line-height: 1.4; cursor: pointer;
+  }
+  .hud .drill-nested .drill-nl-blurb:hover { color: var(--accent); }
+
+  /* ── Dock-reveal mode (node content inside the dock) ── */
+  .dock-reveal-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 0 8px; gap: 6px; border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .dock-reveal-nav .drn-back {
+    font-family: inherit; font-size: 0.68rem; font-weight: 600;
+    padding: 4px 8px; border-radius: 5px; border: 1px solid var(--border);
+    background: #fff; color: var(--ink); cursor: pointer;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .dock-reveal-nav .drn-back:hover { background: #f5f7fa; }
+  .dock-reveal-nav .drn-count {
+    font-size: 0.65rem; color: var(--muted); font-weight: 600;
+  }
+  .dock-reveal-nav .drn-arrows { display: flex; gap: 2px; }
+  .dock-reveal-nav .drn-arrows button {
+    font-family: inherit; font-size: 0.8rem; padding: 3px 7px;
+    border-radius: 5px; border: 1px solid var(--border);
+    background: #fff; color: var(--ink); cursor: pointer;
+    line-height: 1;
+  }
+  .dock-reveal-nav .drn-arrows button:hover:not(:disabled) { background: #eef3ff; border-color: var(--accent); }
+  .dock-reveal-nav .drn-arrows button:disabled { opacity: 0.35; cursor: default; }
+  .dock-reveal-content { flex: 1; overflow-y: auto; }
+  .dock-reveal-content .pinned-concept { margin-bottom: 8px; }
+  .dock-reveal-content .qwrap { margin-top: 6px; }
+  .dock-reveal-content .dict-sect { margin-top: 8px; }
+
+  /* ── Command dock — right-side slide-in panel (MeWorld pattern) ── */
+  .cmd-dock {
+    position: fixed; z-index: 20; top: 0; right: 0; bottom: 0;
+    width: 0; background: #fff; border-left: 1px solid var(--border);
+    box-shadow: -2px 0 16px rgba(20,25,35,0.1);
+    display: flex; flex-direction: column;
+    transition: width 0.22s ease;
+    overflow: hidden;
+  }
+  .cmd-dock.open { width: var(--dock-w, 320px); }
+  .cmd-dock .dock-resize-handle {
+    position: absolute; z-index: 2; top: 0; left: 0; bottom: 0;
+    width: 6px; cursor: col-resize;
+  }
+  .cmd-dock .dock-resize-handle:hover,
+  .cmd-dock .dock-resize-handle:active { background: rgba(37,99,235,0.1); }
+  .cmd-dock .dock-body {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 10px 12px 16px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  /* Collapse inner body when dock is closed so text doesn't overflow-bleed */
+  .cmd-dock:not(.open) .dock-body { display: none; }
+
+  /* Dock toggle tab — always visible on right edge */
+  .dock-toggle {
+    position: fixed; z-index: 21; top: 50%; transform: translateY(-50%);
+    right: 0; width: 28px; height: 64px;
+    background: #f0f2f5; border: 1px solid var(--border); border-right: none;
+    border-radius: 8px 0 0 8px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 0.85rem;
+    transition: right 0.22s ease, background .15s;
+  }
+  .cmd-dock.open ~ .dock-toggle { right: calc(var(--dock-w, 320px)); }
+  .dock-toggle:hover { background: #e3e8ee; color: var(--ink); }
+
+  /* Dock sections — individual control groups */
+  .dock-section {
+    padding: 6px 10px; border-radius: 8px; background: #f8f9fb;
+    border: 1px solid var(--border); font-size: 0.73rem;
+  }
+  .dock-section .dock-sec-title {
+    font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--muted); font-weight: 650; margin-bottom: 5px;
+  }
+  .dock-section select {
+    width: 100%; font-family: inherit; font-size: 0.75rem; padding: 4px 6px;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: #fff; color: var(--ink); outline: none;
+  }
+  .dock-section .set-info {
+    font-size: 0.65rem; color: var(--muted); margin-top: 3px;
+  }
+  .dock-section button {
+    font-family: inherit; font-size: 0.7rem; font-weight: 600;
+    padding: 5px 8px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); background: #fff; color: var(--ink);
+    width: 100%; text-align: left;
+  }
+  .dock-section button:hover { background: #f0f3f7; }
+  .dock-section .dock-btn-row { display: flex; gap: 6px; }
+  .dock-section .dock-btn-row button { flex: 1; text-align: center; }
+  .dock-section .dock-legend-row { display: flex; flex-direction: column; gap: 5px; }
+  .dock-section .dock-legend-row span { display: flex; align-items: center; gap: 6px; font-size: 0.68rem; }
+  .dock-legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .dock-section input[type=range] { width: 100%; margin-top: 4px; }
+
+  /* Graph area shifts right when dock is open */
+  .stage-board { transition: right 0.22s ease; }
+  .stage-board.dock-open { right: var(--dock-w, 320px); }
+
+  /* ── Settings gear ── */
+  .float-settings {
+    position: fixed; z-index: 15; top: 12px; right: 16px;
+    background: rgba(255,255,255,0.88); backdrop-filter: blur(6px);
+    border: 1px solid var(--border); border-radius: 7px;
+    padding: 3px 8px; font-size: 1rem; color: var(--ink);
+    cursor: pointer; font-family: inherit; line-height: 1;
+    box-shadow: 0 2px 10px rgba(20,25,35,0.08);
+  }
+  .float-settings:hover { background: #eef3ff; border-color: var(--accent); }
+
+  /* ── Settings popup ── */
+  .settings-popup {
+    position: fixed; z-index: 25; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 320px; background: #fff; border: 1px solid var(--border);
+    border-radius: 10px; box-shadow: 0 8px 30px rgba(20,25,35,0.18);
+    font-size: 0.78rem; color: var(--ink);
+  }
+  .settings-header {
+    background: #f0f2f5; border-bottom: 1px solid var(--border);
+    padding: 8px 12px; font-weight: 650; font-size: 0.82rem;
+    border-radius: 10px 10px 0 0;
+  }
+  .settings-body {
+    padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 6px;
+  }
+  .settings-label { font-weight: 600; color: var(--ink); font-size: 0.72rem; }
+  .settings-hint { font-size: 0.64rem; color: var(--muted); line-height: 1.4; }
+  .settings-popup input[type=password] {
+    font-family: inherit; font-size: 0.72rem; padding: 6px 8px;
+    border: 1px solid var(--border); border-radius: 6px; outline: none; width: 100%;
+  }
+  .settings-popup input:focus { border-color: var(--accent); }
+  .settings-popup button {
+    font-family: inherit; font-size: 0.74rem; font-weight: 600;
+    padding: 6px 12px; border-radius: 7px; cursor: pointer;
+    border: 1px solid var(--accent); background: #fff; color: var(--accent);
+  }
+  .settings-popup button:hover { background: #eef3ff; }
+  .settings-popup button.primary { background: var(--accent); color: #fff; }
+  .settings-popup button.primary:hover { background: #1d4ed8; }
+  .settings-popup button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .settings-popup .status { font-size: 0.65rem; color: var(--muted); min-height: 14px; }
+
+  /* ── Backdrop ── */
+  .settings-backdrop {
+    position: fixed; z-index: 24; inset: 0; background: rgba(0,0,0,0.15);
+  }
+
+  /* ── Marquee badge ── */
+  .marquee-badge {
+    position: fixed; z-index: 16; display: none;
+    background: rgba(216,85,47,0.92); backdrop-filter: blur(6px);
+    color: #fff; border-radius: 7px; padding: 6px 12px;
+    font-size: 0.75rem; font-weight: 600; font-family: Inter, sans-serif;
+    box-shadow: 0 3px 14px rgba(216,85,47,0.25);
+    cursor: default; pointer-events: auto;
+  }
+  .marquee-badge .sub { font-weight: 400; opacity: 0.8; margin-left: 6px; font-size: 0.68rem; }
+
+  /* ── D3 brush styling ── */
+  .brush .selection {
+    fill: rgba(37,99,235,0.12);
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    stroke-dasharray: 4 3;
+  }
+  .brush .overlay { cursor: crosshair; pointer-events: none; }
+  .brush.active .overlay { pointer-events: all; }
+  .g-node.marquee-selected circle {
+    stroke: #f59e0b; stroke-width: 3;
+    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.5));
   }
 
   .err {
@@ -198,6 +614,17 @@
   <div id="chart"></div>
 </div>
 
+<!-- Command dock — right-side slide-in panel -->
+<div class="cmd-dock" id="cmdDock">
+  <div class="dock-resize-handle" id="dockResizeHandle"></div>
+  <div class="dock-body" id="dockBody">
+    <!-- Controls are injected by JS -->
+  </div>
+</div>
+<div class="dock-toggle" id="dockToggle" title="Toggle command panel">
+  <i class="ti ti-layout-sidebar-right"></i>
+</div>
+
 <!-- Floating controls OVER the canvas -->
 <div class="float-ctl float-ctl-top">
   <h1>Concept graphs</h1>
@@ -207,21 +634,54 @@
   <span class="set-info" id="setInfo"></span>
 </div>
 
+<div class="float-fit" id="fitBtn" title="Fit all nodes in view"><i class="ti ti-maximize"></i>&nbsp;Fit to view</div>
+<button class="float-settings" id="settingsBtn" title="Settings"><i class="ti ti-settings"></i></button>
+<button class="float-toggle on" id="toggleLinesBtn" title="Toggle lines">—</button>
+<div class="isolation-banner" id="isolationBanner" style="display:none">
+  <span id="isoLabel">Isolated: —</span>
+  <button id="exitIsoBtn"><i class="ti ti-x"></i>&nbsp;Exit isolation</button>
+</div>
+
+<!-- Marquee selection badge -->
+<div class="marquee-badge" id="marqueeBadge">
+  <span id="marqueeCount">0</span><span class="sub">selected</span>
+  <div style="margin-top:4px;display:none;gap:4px;" id="marqueeActions">
+    <button id="genStoryBtn" class="primary">Generate story</button>
+    <button id="saveJsonBtn">Save JSON</button>
+  </div>
+</div>
+
+<!-- Settings popup (hidden by default) -->
+<div class="settings-popup" id="settingsPopup" style="display:none;">
+  <div class="settings-header">Settings</div>
+  <div class="settings-body">
+    <label class="settings-label">DeepSeek API Key</label>
+    <input type="password" id="dsApiKey" placeholder="Loading from server…" />
+    <div class="settings-hint">Key is loaded from the server. It stays in your browser's localStorage.</div>
+    <button id="settingsSave" class="primary" style="width:100%;margin-top:8px;">Save &amp; Close</button>
+    <div class="status" id="aiStatus" style="margin-top:6px;"></div>
+  </div>
+</div>
+
 <div class="float-legend">
   <span><span class="dot" style="background:var(--coral)"></span>Main spine</span>
   <span><span class="dot" style="background:var(--gray)"></span>Differential doors</span>
   <span><span class="dot" style="background:var(--teal)"></span>Thread (if present)</span>
 </div>
 
-<div class="float-progress" id="progress"></div>
+<div class="spine-rail" id="spineRail" style="display:none;"></div>
 
 <div class="float-slider">
   <span>Main spine only ↢ ⸻⸻⸻⸻⸻⸻ ⤡ Full map</span>
   <input type="range" id="revealSlider" min="0" max="100" value="100"/>
 </div>
 
-<div class="float-counts" id="counts">Pick a set above to load its concept graph.</div>
-<div class="float-zoom-hint" id="zoomHint">scroll to zoom &nbsp;·&nbsp; drag to pan &nbsp;·&nbsp; click nodes for details</div>
+<div class="float-zoom-hint" id="zoomHint">scroll zoom &nbsp;·&nbsp; drag pan &nbsp;·&nbsp; click node &nbsp;·&nbsp; Ctrl+click isolate &nbsp;·&nbsp; right-drag marquee</div>
+
+<div class="onboarding" id="onboarding">
+  <span><i class="ti ti-arrow-right"></i>&nbsp;<b>Coral numbers</b> = story spine in order. Tap one to start. <b>Gray dots</b> = comparison cases. <b>Green</b> = thematic thread.</span>
+  <button class="ob-close" id="obClose" title="Dismiss"><i class="ti ti-x"></i></button>
+</div>
 
 <div class="err" id="err"></div>
 
@@ -370,6 +830,15 @@ let stepLabel = null;
 let svg = null;
 let simulation = null;
 let currentSet = null;
+let zoomInstance = null;
+let zoomG = null;
+let selectedNodes = new Set();
+let generatedStory = null;
+let linesVisible = true;
+let isolatedNodeId = null; // null = full graph, string = isolated node QID
+let resizeObserver = null;
+let graphW = 0, graphH = 0; // reactive viewport dimensions (updated by ResizeObserver)
+let spineSet = new Set(); // QIDs of nodes in GRAPH.mainPath (module-level for isolation + drag)
 
 function esc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -379,7 +848,6 @@ function showErr(msg) {
   const el = document.getElementById('err');
   el.style.display = 'block';
   el.innerHTML = msg;
-  document.getElementById('counts').textContent = 'Failed to load data';
 }
 
 function hideErr() {
@@ -459,22 +927,36 @@ function joinGraph(meta, items, storyByQid) {
 }
 
 // ── UI helpers ────────────────────────────────────────────────────────────────
-function buildProgress() {
-  const wrap = document.getElementById('progress');
-  wrap.innerHTML = '';
+// ── Spine rail: horizontal story-order tracker at bottom center ──
+function buildSpineRail() {
+  const rail = document.getElementById('spineRail');
+  if (!GRAPH.mainPath || GRAPH.mainPath.length < 2) { rail.style.display = 'none'; return; }
+  rail.style.display = 'flex';
+  rail.innerHTML = '';
+  const lbl = document.createElement('span');
+  lbl.className = 'rail-label';
+  lbl.innerHTML = 'Story <i class="ti ti-arrow-right" style="font-size:0.65rem;"></i>';
+  rail.appendChild(lbl);
   GRAPH.mainPath.forEach((id, i) => {
-    const el = document.createElement('div');
-    el.className = 'step';
-    el.textContent = String(i + 1);
-    el.title = 'Spine step ' + (i + 1) + ' · QID ' + id + ' · Scene ' + (byId[id]?.sceneId || '?');
-    el.onclick = () => {
+    if (i > 0) {
+      const dash = document.createElement('span');
+      dash.className = 'rail-dash';
+      rail.appendChild(dash);
+    }
+    const dot = document.createElement('span');
+    dot.className = 'rail-dot';
+    dot.textContent = String(i + 1);
+    dot.title = 'Step ' + (i + 1) + ' · Scene ' + (byId[id]?.sceneId || '?');
+    dot.onclick = () => {
       const d = byId[id];
       if (!d) return;
-      const board = document.getElementById('board');
-      const rect = board.getBoundingClientRect();
-      openHud(d, { clientX: rect.left + (d.x || rect.width / 2), clientY: rect.top + (d.y || rect.height / 3) });
+      closeHud();
+      openHud(d, { clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 });
+      // Mark active step
+      rail.querySelectorAll('.rail-dot').forEach(d => d.classList.remove('active'));
+      dot.classList.add('active');
     };
-    wrap.appendChild(el);
+    rail.appendChild(dot);
   });
 }
 
@@ -482,7 +964,10 @@ function markProgress(d) {
   if (d.category !== 'primary') return;
   const idx = GRAPH.mainPath.indexOf(d.id);
   if (idx < 0) return;
-  document.querySelectorAll('.progress .step').forEach((el, i) => { el.classList.toggle('done', i <= idx); });
+  const rail = document.getElementById('spineRail');
+  if (rail) {
+    rail.querySelectorAll('.rail-dot').forEach((el, i) => { el.classList.toggle('active', i === idx); });
+  }
 }
 
 function closeHud() {
@@ -498,16 +983,70 @@ function cleanAnsText(text) {
   return String(text || '').replace(/\s*\(?[\d.]+%\)?\s*$/, '').trim();
 }
 
+function millState(qid) {
+  try { return parseInt(localStorage.getItem('mill-' + qid), 10) || 0; } catch (_) { return 0; }
+}
+function setMillState(qid, state) {
+  try { localStorage.setItem('mill-' + qid, state); } catch (_) {}
+  // Update both the HUD DOM and the graph node marker if currently open
+  const el = document.querySelector('.mill-tracker[data-qid="' + qid + '"]');
+  if (el) { el.dataset.state = state; updateMillHint(el, state); }
+  // Update the graph node dot color
+  if (svg) {
+    svg.selectAll('.g-node').each(function (d) {
+      if (String(d.id) === String(qid)) {
+        const c = d3.select(this).select('circle');
+        if (state === 2) c.attr('stroke', '#16a34a').attr('stroke-width', 3);
+        else if (state === 1) c.attr('stroke', '#f59e0b').attr('stroke-width', 2.5);
+        else c.attr('stroke', '#fff').attr('stroke-width', spineSet.has(String(d.id)) ? 2 : 1.4);
+      }
+    });
+  }
+}
+function updateMillHint(el, state) {
+  const hint = el.querySelector('.mill-hint');
+  if (!hint) return;
+  hint.textContent = state === 1 ? '— partial' : state === 2 ? '— drilled' : '';
+}
+
 function questionHTML(q) {
   const ans = (q.answers || []).map(a =>
     '<li><strong>' + esc(a.label) + '.</strong> ' + esc(cleanAnsText(a.text)) + '</li>'
   ).join('');
+  const state = millState(q.id);
+  const sid = esc(String(q.id));
   return `
     <div class="qwrap">
       <p style="font-size:0.8rem; white-space:pre-wrap;">${esc(q.question)}</p>
       <ul class="answers">${ans}</ul>
       ${q.likely ? '<button class="answer-toggle" type="button">Show Answer</button><div class="likely">Answer: ' + esc(q.likely) + '</div>' : ''}
       <details><summary>Explanation</summary><pre>${esc(q.explanation || '(none)')}</pre></details>
+      <div class="distill-result" id="distill-result-${q.id}"></div>
+      <button class="distill-btn" type="button" data-qid="${q.id}"><i class="ti ti-bulb"></i> Distill — what is this question teaching?</button>
+      <div class="mill-tracker" data-qid="${q.id}" data-state="${state}">
+        <span class="mill-label">Study progress</span>
+        <span class="mill-icons">
+          <span class="mill-step s0" data-mill="0" title="Untouched">○</span>
+          <span class="mill-step s1" data-mill="1" title="Partially milled">◐</span>
+          <span class="mill-step s2" data-mill="2" title="Thoroughly drilled">●</span>
+        </span>
+        <span class="mill-hint">${state === 1 ? '— partial' : state === 2 ? '— drilled' : ''}</span>
+      </div>
+      <div class="dict-sect">
+        <div class="dict-header">
+          <span class="dict-label"><i class="ti ti-microphone"></i>&nbsp;Dictate notes</span>
+        </div>
+        <div class="dict-row">
+          <button class="btn-mic" data-qid="${sid}" title="Toggle microphone"><i class="ti ti-microphone"></i></button>
+          <span class="dict-interim" id="dict-interim-${q.id}"></span>
+        </div>
+        <textarea id="dict-text-${q.id}" placeholder="Speak or type notes on this concept…"></textarea>
+        <div class="btn-row">
+          <button class="primary" id="dict-compose-${q.id}" data-qid="${q.id}" disabled>Compose story with AI</button>
+          <button id="dict-clear-${q.id}" data-qid="${q.id}">Clear</button>
+        </div>
+        <div class="dict-status" id="dict-status-${q.id}"></div>
+      </div>
     </div>`;
 }
 
@@ -519,7 +1058,7 @@ function makeHudDraggable(hud) {
 
   // ── Drag ──
   bar.addEventListener('mousedown', (e) => {
-    if (e.target.classList.contains('close')) return;
+    if (e.target.classList.contains('close') || e.target.closest('.close')) return;
     e.preventDefault();
     const startX = e.clientX, startY = e.clientY;
     const startLeft = parseInt(hud.style.left, 10) || 0;
@@ -539,6 +1078,75 @@ function makeHudDraggable(hud) {
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
   });
+}
+
+// ── Universal floater drag — makes any fixed/absolute floater draggable ─────
+// Works with left/right/bottom-anchored and centered (transform) floaters.
+// On drag: converts right/bottom anchors to left/top, strips transform,
+// saves position to localStorage.
+function makeFloaterDraggable(el, storageKey) {
+  if (!el) return;
+  const board = document.getElementById('board');
+  el.style.cursor = 'grab';
+  el.style.userSelect = 'none';
+
+  el.addEventListener('mousedown', (e) => {
+    // Don't drag if user clicked a button, select, input, or interactive child
+    if (e.target.closest('button, select, input, textarea, .close, .rail-dot')) return;
+    e.preventDefault();
+    el.style.transition = 'none';
+    el.style.cursor = 'grabbing';
+
+    // Convert current position (which may use right/bottom/transform) to pure left/top
+    const rect = el.getBoundingClientRect();
+    const boardRect = board.getBoundingClientRect();
+    const startLeft = rect.left - boardRect.left;
+    const startTop = rect.top - boardRect.top;
+    const startX = e.clientX, startY = e.clientY;
+
+    // Strip any transform or right/bottom anchors — switch to left/top only
+    el.style.left = startLeft + 'px';
+    el.style.top = startTop + 'px';
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+    el.style.transform = 'none';
+
+    const onMove = (ev) => {
+      const newLeft = startLeft + ev.clientX - startX;
+      const newTop = startTop + ev.clientY - startY;
+      el.style.left = Math.max(-el.offsetWidth / 2, Math.min(board.clientWidth - el.offsetWidth / 2, newLeft)) + 'px';
+      el.style.top = Math.max(-20, Math.min(board.clientHeight - 20, newTop)) + 'px';
+    };
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      el.style.transition = '';
+      el.style.cursor = 'grab';
+      el.dataset.dragged = '1';
+      // Save position
+      if (storageKey) {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify({
+            left: el.style.left, top: el.style.top,
+          }));
+        } catch (_) {}
+      }
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  // Restore saved position
+  if (storageKey) {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const p = JSON.parse(saved);
+        if (p.left) { el.style.left = p.left; el.style.right = 'auto'; el.style.transform = 'none'; }
+        if (p.top) { el.style.top = p.top; el.style.bottom = 'auto'; el.style.transform = 'none'; }
+      }
+    } catch (_) {}
+  }
 }
 
 function makeHudResizable(hud) {
@@ -624,6 +1232,495 @@ function wireAnswerToggle(hud) {
       btn.remove();
     };
   });
+  // Wire distill button
+  hud.querySelectorAll('.distill-btn').forEach(btn => {
+    btn.onclick = () => {
+      const qid = btn.dataset.qid;
+      if (!qid) return;
+      const node = byId[qid];
+      if (!node) return;
+      distillConcept(hud, node);
+    };
+  });
+  // Wire milling tracker
+  hud.querySelectorAll('.mill-step').forEach(step => {
+    step.onclick = () => {
+      const tracker = step.closest('.mill-tracker');
+      const qid = tracker.dataset.qid;
+      const newState = parseInt(step.dataset.mill, 10);
+      setMillState(qid, newState);
+    };
+  });
+}
+
+// ── Distill concept: extract the ONE core teaching from a question ─────
+async function distillConcept(hud, node) {
+  const key = localStorage.getItem('ds_api_key');
+  if (!key) { alert('Set your DeepSeek API key in Settings first.'); return; }
+
+  const resultDiv = hud.querySelector('#distill-result-' + node.id);
+  if (!resultDiv) return;
+  const btn = hud.querySelector('.distill-btn[data-qid="' + node.id + '"]');
+  if (btn) btn.disabled = true;
+
+  resultDiv.style.display = 'block';
+  resultDiv.textContent = 'Analyzing…';
+
+  const ans = (node.answers || []).map(a => a.label + '. ' + cleanAnsText(a.text)).join(' | ');
+  const prompt = `You are a medical educator distilling CCS board questions into their core teaching point.
+
+Given this question and its correct answer, state in ONE sentence what clinical concept this question is testing. Be specific and precise. Do NOT restate the question — extract the takeaway lesson.
+
+Question:
+"""${node.question}"""
+
+Correct answer: ${node.likely || 'N/A'}
+Answer choices: ${ans}
+
+Respond with only the single sentence. No preamble, no markdown.`;
+
+  try {
+    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.3,
+        max_tokens: 150,
+      }),
+    });
+    if (!res.ok) { const err = await res.text(); throw new Error('HTTP ' + res.status + ': ' + err.slice(0, 200)); }
+    const data = await res.json();
+    const concept = data.choices?.[0]?.message?.content?.trim() || '';
+    if (concept) {
+      resultDiv.innerHTML = '<strong>Core concept:</strong> ' + esc(concept);
+    } else {
+      resultDiv.textContent = 'No concept returned — try again.';
+    }
+  } catch (e) {
+    resultDiv.textContent = 'Error: ' + e.message.slice(0, 120);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+// ── Wire dictation (mic + textarea + compose) into a HUD ──────────────
+function wireHudDictation(hud, nodeId) {
+  const textarea = hud.querySelector('#dict-text-' + nodeId);
+  const micBtn = hud.querySelector('.btn-mic[data-qid="' + nodeId + '"]');
+  const interim = hud.querySelector('#dict-interim-' + nodeId);
+  const status = hud.querySelector('#dict-status-' + nodeId);
+  const composeBtn = hud.querySelector('#dict-compose-' + nodeId);
+  const clearBtn = hud.querySelector('#dict-clear-' + nodeId);
+  if (!textarea || !micBtn) return;
+
+  const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec = null;
+  let recording = false;
+  let finalText = '';
+
+  composeBtn.disabled = !textarea.value.trim();
+  if (!Ctor) { micBtn.style.display = 'none'; }
+
+  function initRec() {
+    if (!Ctor) return;
+    rec = new Ctor();
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.lang = 'en-US';
+    rec.onresult = (event) => {
+      let inter = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const r = event.results[i];
+        const txt = r[0]?.transcript || '';
+        if (r.isFinal) {
+          finalText += (finalText ? ' ' : '') + txt;
+          textarea.value = finalText;
+          composeBtn.disabled = !finalText.trim();
+        } else {
+          inter += txt;
+        }
+      }
+      interim.textContent = inter ? '… ' + inter : '';
+    };
+    rec.onerror = (event) => {
+      if (event.error === 'not-allowed') {
+        status.textContent = 'Microphone denied.';
+      }
+    };
+    rec.onend = () => {
+      if (recording) {
+        try { rec.start(); } catch (_) { stop(); }
+      }
+    };
+  }
+
+  function start() {
+    if (!Ctor) { status.textContent = 'Not supported in this browser.'; return; }
+    if (!rec) initRec();
+    recording = true;
+    finalText = textarea.value;
+    micBtn.classList.add('recording');
+    micBtn.querySelector('i').className = 'ti ti-player-stop';
+    status.textContent = 'Listening…';
+    interim.textContent = '';
+    try { rec.start(); } catch (e) { stop(); }
+  }
+
+  function stop() {
+    recording = false;
+    if (rec) { try { rec.stop(); } catch (_) {} }
+    micBtn.classList.remove('recording');
+    micBtn.querySelector('i').className = 'ti ti-microphone';
+    interim.textContent = '';
+    status.textContent = '';
+  }
+
+  micBtn.onclick = () => recording ? stop() : start();
+
+  textarea.addEventListener('input', () => {
+    finalText = textarea.value;
+    composeBtn.disabled = !textarea.value.trim();
+  });
+
+  clearBtn.onclick = () => {
+    textarea.value = '';
+    finalText = '';
+    composeBtn.disabled = true;
+    status.textContent = '';
+  };
+
+  composeBtn.onclick = async () => {
+    const key = localStorage.getItem('ds_api_key');
+    if (!key) { status.textContent = 'No API key. Open Settings.'; return; }
+    const dictation = textarea.value.trim();
+    if (!dictation) return;
+    composeBtn.disabled = true;
+    status.textContent = 'Composing…';
+    try {
+      const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [{ role: 'user', content: `You are a clinical educator. Turn this raw dictation into a polished clinical narrative (150-350 words). One continuous story, no bullets. Start like a case presentation.
+
+Raw dictation:
+"""${dictation}"""
+
+Respond with ONLY the narrative. No preamble.` }],
+          temperature: 0.7,
+          max_tokens: 800,
+        }),
+      });
+      if (!res.ok) { const err = await res.text(); throw new Error('HTTP ' + res.status); }
+      const data = await res.json();
+      const story = data.choices?.[0]?.message?.content?.trim() || '';
+      if (story) { textarea.value = story; finalText = story; status.textContent = 'Composed!'; }
+      else { status.textContent = 'Empty response — try more detail.'; }
+    } catch (e) { status.textContent = 'Error: ' + e.message; }
+    finally { composeBtn.disabled = false; }
+  };
+}
+
+// ── Node isolation: Ctrl+click a node to show only it + its 1-hop neighbors ──
+function applyIsolation() {
+  const banner = document.getElementById('isolationBanner');
+  const label = document.getElementById('isoLabel');
+  if (!isolatedNodeId) {
+    // Full graph — restore everything
+    banner.style.display = 'none';
+    if (nodeSel) nodeSel.style('display', null);
+    if (linkSel) linkSel.style('display', linesVisible ? null : 'none');
+    if (!linesVisible) { d3.selectAll('.primary-hit').style('display', 'none'); }
+    else { d3.selectAll('.primary-hit').style('display', null); }
+    d3.selectAll('.scene-halos').style('display', null);
+    document.getElementById('chart').classList.remove('isolated');
+    return;
+  }
+  // Hide scene halos in isolation mode
+  d3.selectAll('.scene-halos').style('display', 'none');
+  // Compute 1-hop neighborhood
+  const neighborhood = new Set([isolatedNodeId]);
+  for (const edge of GRAPH.edges) {
+    const s = String(edge.source), t = String(edge.target);
+    if (s === isolatedNodeId && t !== isolatedNodeId) neighborhood.add(t);
+    if (t === isolatedNodeId && s !== isolatedNodeId) neighborhood.add(s);
+  }
+  // Show banner
+  const isoNode = byId[isolatedNodeId];
+  label.textContent = 'Isolated: ' + (isoNode ? (isoNode.question || '').slice(0, 50) + '…' : isolatedNodeId);
+  banner.style.display = 'flex';
+  document.getElementById('chart').classList.add('isolated');
+  // Filter nodes
+  if (nodeSel) {
+    nodeSel.style('display', d => neighborhood.has(String(d.id)) ? null : 'none');
+  }
+  // Filter links: show only edges where both ends are in neighborhood
+  // BUT exclude spine↔spine edges (main story path) — only the node's
+  // direct subsets (mimics/threads) should be visible in isolation
+  if (linkSel) {
+    linkSel.style('display', d => {
+      if (!linesVisible) return 'none';
+      const s = String(typeof d.source === 'object' ? d.source.id : d.source);
+      const t = String(typeof d.target === 'object' ? d.target.id : d.target);
+      if (!neighborhood.has(s) || !neighborhood.has(t)) return 'none';
+      // Hide spine↔spine — only show subset edges radiating from isolated node
+      if (spineSet.has(s) && spineSet.has(t)) return 'none';
+      return null;
+    });
+  }
+  d3.selectAll('.primary-hit').style('display', d => {
+    if (!linesVisible) return 'none';
+    const s = String(typeof d.source === 'object' ? d.source.id : d.source);
+    const t = String(typeof d.target === 'object' ? d.target.id : d.target);
+    if (!neighborhood.has(s) || !neighborhood.has(t)) return 'none';
+    if (spineSet.has(s) && spineSet.has(t)) return 'none';
+    return null;
+  });
+}
+
+function exitIsolation() {
+  isolatedNodeId = null;
+  applyIsolation();
+}
+
+// Toggle lines on/off
+function toggleLines() {
+  linesVisible = !linesVisible;
+  const btn = document.getElementById('toggleLinesBtn');
+  btn.classList.toggle('on', linesVisible);
+  btn.classList.toggle('off', !linesVisible);
+  btn.textContent = linesVisible ? '—' : '╱';
+  if (linkSel) linkSel.style('display', linesVisible ? null : 'none');
+  if (!linesVisible) {
+    d3.selectAll('.primary-hit').style('display', 'none');
+  } else if (!isolatedNodeId) {
+    d3.selectAll('.primary-hit').style('display', null);
+  }
+}
+
+// Wire up buttons
+(function initGraphControls() {
+  document.getElementById('toggleLinesBtn').onclick = toggleLines;
+  document.getElementById('exitIsoBtn').onclick = exitIsolation;
+})();
+
+// ── Four-layer reveal v2: pinned concept + independent toggles + nested drill ──
+const TRIAGE_PREFIX = 'triage-v1-';
+
+function readTriage(qid) {
+  try { const raw = localStorage.getItem(TRIAGE_PREFIX + qid); if (raw) return JSON.parse(raw); } catch (_) {}
+  return null;
+}
+function writeTriage(qid, data) {
+  try { localStorage.setItem(TRIAGE_PREFIX + qid, JSON.stringify(data)); } catch (_) {}
+}
+
+async function fetchConceptLine(node) {
+  const key = localStorage.getItem('ds_api_key');
+  if (!key) return null;
+  const ans = (node.answers || []).map(a => a.label + '. ' + cleanAnsText(a.text)).join(' | ');
+  try {
+    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [{ role: 'user', content: `Given this CCS board question and its correct answer, distill the ONE core mechanism or clinical fact being tested. Maximum 12 words. Plain English, no jargon. One sentence.
+
+Question: """${node.question}"""
+Correct answer: ${node.likely || 'N/A'}
+Answer choices: ${ans}
+
+Respond with ONLY the concept line. No preamble.` }],
+        temperature: 0.3, max_tokens: 30,
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return (data.choices?.[0]?.message?.content?.trim() || '').slice(0, 120);
+  } catch (_) { return null; }
+}
+
+function buildRevealHTML(d) {
+  const triage = readTriage(d.id);
+  const line = triage?.concept || '';
+  const approved = triage?.approved === true;
+  const needsWork = triage?.needsWork === true;
+  const stageLabel = d.storyStage || 'Story beat';
+  return `
+    <div class="pinned-concept" data-qid="${esc(String(d.id))}">
+      <div class="pc-top">
+        <span class="pc-label"><i class="ti ti-brain"></i>&nbsp;Concept — what is being tested?</span>
+        <button class="pc-refresh" id="pcref-${d.id}" title="Regenerate"><i class="ti ti-refresh"></i></button>
+      </div>
+      <div class="pc-oneliner${line ? '' : ' loading'}" id="pcone-${d.id}">${line ? esc(line) : 'Distilling…'}</div>
+      <div class="pc-actions">
+        <button class="pc-approve${approved ? ' flagged' : ''}" id="pcapp-${d.id}"><i class="ti ti-check"></i>&nbsp;Approve</button>
+        <button class="pc-needs-work${needsWork ? ' flagged' : ''}" id="pcnw-${d.id}"><i class="ti ti-alert-triangle"></i>&nbsp;Needs work</button>
+      </div>
+    </div>
+
+    <div class="ind-toggle" id="it-full-${d.id}">
+      <span class="toggle-dot"></span>
+      <span>Show full beat</span>
+      <i class="ti ti-chevron-down toggle-chevron"></i>
+    </div>
+    <div class="ind-body" id="ib-full-${d.id}">
+      <h3 style="margin:0 0 6px;font-size:0.88rem;font-weight:600;">${esc(stageLabel)}</h3>
+      <p style="margin:0 0 10px;font-size:0.8rem;color:var(--ink);">${esc(d.storyText)}</p>
+    </div>
+
+    <div class="ind-toggle" id="it-q-${d.id}">
+      <span class="toggle-dot"></span>
+      <span>Reveal the question</span>
+      <i class="ti ti-chevron-down toggle-chevron"></i>
+    </div>
+    <div class="ind-body" id="ib-q-${d.id}">
+      ${questionHTML(d)}
+    </div>
+
+    <div class="ind-toggle" id="it-rel-${d.id}">
+      <span class="toggle-dot"></span>
+      <span>Related differentials</span>
+      <i class="ti ti-chevron-down toggle-chevron"></i>
+    </div>
+    <div class="ind-body" id="ib-rel-${d.id}" style="padding:4px 0;">
+      <div id="ibrel-items-${d.id}"></div>
+    </div>
+  `;
+}
+
+function wireReveal(container, d) {
+  const qid = d.id;
+  const refreshBtn = container.querySelector('#pcref-' + qid);
+  const oneLinerEl = container.querySelector('#pcone-' + qid);
+  const approveBtn = container.querySelector('#pcapp-' + qid);
+  const needsWorkBtn = container.querySelector('#pcnw-' + qid);
+
+  function resize() { requestAnimationFrame(() => { if (container.classList.contains('hud')) { container.style.height = container.scrollHeight + 'px'; saveHudPosition(container); } }); }
+
+  // Generate concept line on first view if missing
+  if (!readTriage(qid)?.concept) {
+    fetchConceptLine(d).then(l => {
+      if (l) { oneLinerEl.textContent = l; oneLinerEl.classList.remove('loading'); const t = readTriage(qid) || {}; t.concept = l; writeTriage(qid, t); }
+      else { oneLinerEl.textContent = 'Could not distill — try refresh.'; }
+    });
+  }
+
+  // Refresh
+  refreshBtn.onclick = async () => {
+    refreshBtn.classList.add('spinning');
+    oneLinerEl.textContent = 'Regenerating…';
+    oneLinerEl.classList.add('loading');
+    const l = await fetchConceptLine(d);
+    refreshBtn.classList.remove('spinning');
+    if (l) { oneLinerEl.textContent = l; oneLinerEl.classList.remove('loading'); const t = readTriage(qid) || {}; t.concept = l; writeTriage(qid, t); }
+    else { oneLinerEl.textContent = 'Failed — try again.'; }
+  };
+
+  // Approve / Needs work
+  approveBtn.onclick = () => {
+    const t = readTriage(qid) || { concept: oneLinerEl.textContent };
+    t.approved = !t.approved; t.needsWork = false;
+    writeTriage(qid, t);
+    approveBtn.classList.toggle('flagged', t.approved);
+    needsWorkBtn.classList.remove('flagged');
+  };
+  needsWorkBtn.onclick = () => {
+    const t = readTriage(qid) || { concept: oneLinerEl.textContent };
+    t.needsWork = !t.needsWork; t.approved = false;
+    writeTriage(qid, t);
+    needsWorkBtn.classList.toggle('flagged', t.needsWork);
+    approveBtn.classList.remove('flagged');
+  };
+
+  // Independent toggle helper
+  function toggleInd(toggleId, bodyId, onOpen) {
+    const tgl = container.querySelector('#' + toggleId);
+    const body = container.querySelector('#' + bodyId);
+    if (!tgl || !body) return;
+    tgl.onclick = () => {
+      const isOpen = body.classList.toggle('open');
+      tgl.querySelector('.toggle-chevron').className = 'ti ti-chevron-' + (isOpen ? 'up' : 'down') + ' toggle-chevron';
+      if (isOpen && onOpen) onOpen();
+      resize();
+    };
+  }
+
+  // Show full beat
+  toggleInd('it-full-' + qid, 'ib-full-' + qid);
+
+  // Reveal question
+  toggleInd('it-q-' + qid, 'ib-q-' + qid, () => {
+    wireAnswerToggle(container);
+    wireHudDictation(container, qid);
+  });
+
+  // Related differentials — with inline nested drill
+  const relToggle = container.querySelector('#it-rel-' + qid);
+  const relBody = container.querySelector('#ib-rel-' + qid);
+  if (relToggle && relBody) {
+    relToggle.onclick = () => {
+      const isOpen = relBody.classList.toggle('open');
+      relToggle.querySelector('.toggle-chevron').className = 'ti ti-chevron-' + (isOpen ? 'up' : 'down') + ' toggle-chevron';
+      if (isOpen && GRAPH) {
+        const itemsEl = container.querySelector('#ibrel-items-' + qid);
+        if (itemsEl && !itemsEl.children.length) {
+          const peers = GRAPH.nodes.filter(n =>
+            String(n.sceneId) === String(d.sceneId) && String(n.id) !== String(qid)
+          ).slice(0, 8);
+          if (peers.length) {
+            itemsEl.innerHTML = peers.map(p => {
+              const dotColor = COLORS[p.category] || COLORS.mimic;
+              return `<div class="drill-item" data-qid="${esc(p.id)}">
+                <span class="drill-dot" style="background:${dotColor}"></span>
+                <span>${esc(stemOf(p, 90))}</span>
+              </div>
+              <div class="drill-nested" id="drillnest-${p.id}">
+                <span class="drill-nl-blurb" id="drillblurb-${p.id}">Tap to see what this tests…</span>
+              </div>`;
+            }).join('');
+            // Click a drill-item → expand its nested concept inline
+            itemsEl.querySelectorAll('.drill-item').forEach(el => {
+              el.onclick = () => {
+                const pid = el.dataset.qid;
+                const nest = container.querySelector('#drillnest-' + pid);
+                const blurb = container.querySelector('#drillblurb-' + pid);
+                if (!nest || !blurb) return;
+                const isNestedOpen = nest.classList.toggle('open');
+                if (isNestedOpen && byId[pid]) {
+                  const triage = readTriage(pid);
+                  const nLine = triage?.concept || '';
+                  if (nLine) {
+                    blurb.textContent = esc(nLine);
+                    blurb.style.cursor = 'default';
+                    blurb.onclick = () => {};
+                  } else {
+                    blurb.textContent = 'Distilling…';
+                    fetchConceptLine(byId[pid]).then(l => {
+                      if (l) { blurb.textContent = esc(l); const t = readTriage(pid) || {}; t.concept = l; writeTriage(pid, t); }
+                      else blurb.textContent = 'Could not distill.';
+                    });
+                  }
+                } else if (!isNestedOpen) {
+                  blurb.textContent = 'Tap to see what this tests…';
+                  blurb.style.cursor = 'pointer';
+                  blurb.onclick = () => el.click();
+                }
+                resize();
+              };
+            });
+          } else {
+            itemsEl.innerHTML = '<span style="font-size:0.68rem;color:var(--muted);font-style:italic;">No other cases in this scene.</span>';
+          }
+        }
+      }
+      resize();
+    };
+  }
 }
 
 function openHud(d, event) {
@@ -639,38 +1736,32 @@ function openHud(d, event) {
   hx = Math.max(8, hx);
 
   const spineNum = GRAPH.mainPath.indexOf(d.id);
-  const stageLabel = d.storyStage ? (d.storyStage + ' beat') : 'Story beat';
   const kicker = isMain
     ? ('Main story' + (spineNum >= 0 ? ' · #' + (spineNum + 1) : '') + ' · Scene ' + d.sceneId)
     : ((d.category === 'thread' ? 'Deeper dive · thread' : 'Deeper dive · mimic') + ' · Scene ' + d.sceneId);
 
+  // If dock is open, render inside the dock instead of floating HUD
+  if (window._isDockOpen && window._isDockOpen()) {
+    if (typeof window._renderInDock === 'function') window._renderInDock(d);
+    return;
+  }
+
+  // Every node gets the reveal in a floating HUD
   const hud = document.createElement('div');
   hud.className = 'hud';
   hud.dataset.hudId = 'node-' + d.id;
   hud.style.left = hx + 'px';
   hud.style.top = hy + 'px';
   hud.innerHTML = `
-    <div class="drag-bar"><span class="drag-label">${kicker}</span><button class="close" type="button" aria-label="Close">&times;</button></div>
+    <div class="drag-bar"><span class="drag-label">${kicker}</span><button class="close" type="button" aria-label="Close"><i class="ti ti-x"></i></button></div>
     <div class="hud-body-inner">
-      <h3>${esc(stageLabel)}</h3>
-      <p>${esc(d.storyText)}</p>
-      <button class="reveal-btn" type="button">Reveal the question →</button>
-    </div>
-  `;
+      ${buildRevealHTML(d)}
+    </div>`;
   board.appendChild(hud);
   hud.querySelector('.close').onclick = () => { removeHudSave(hud); closeHud(); };
-  hud.querySelector('.reveal-btn').onclick = () => {
-    const btn = hud.querySelector('.reveal-btn');
-    btn.remove();
-    const body = hud.querySelector('.hud-body-inner');
-    body.insertAdjacentHTML('beforeend', questionHTML(d));
-    wireAnswerToggle(hud);
-    // expand height to fit content (use scrollHeight so resize handles work)
-    requestAnimationFrame(() => {
-      hud.style.height = hud.scrollHeight + 'px';
-      saveHudPosition(hud);
-    });
-  };
+
+  wireReveal(hud, d);
+
   makeHudDraggable(hud);
   makeHudResizable(hud);
   restoreHudPosition(hud);
@@ -729,7 +1820,7 @@ function openEdgeHud(link, event) {
   hud.style.left = hx + 'px';
   hud.style.top = hy + 'px';
   hud.innerHTML = `
-    <div class="drag-bar"><span class="drag-label">Main spine line · Scene ${a.sceneId} → ${b.sceneId}</span><button class="close" type="button" aria-label="Close">&times;</button></div>
+    <div class="drag-bar"><span class="drag-label">Main spine line · Scene ${a.sceneId} → ${b.sceneId}</span><button class="close" type="button" aria-label="Close"><i class="ti ti-x"></i></button></div>
     <div class="hud-body-inner">
       <h3>${esc(title)}</h3>
       <p>${esc(bridge)}</p>
@@ -753,6 +1844,7 @@ function openEdgeHud(link, event) {
       const slot = hud.querySelector('#edge-q');
       slot.innerHTML = questionHTML(q);
       wireAnswerToggle(hud);
+      wireHudDictation(hud, q.id);
       requestAnimationFrame(() => {
         hud.style.height = hud.scrollHeight + 'px';
         saveHudPosition(hud);
@@ -793,11 +1885,16 @@ function applyReveal(v) {
 
 // ── Graph rendering ───────────────────────────────────────────────────────────
 function renderGraph() {
-  // Kill old simulation
-  if (simulation) { simulation.stop(); simulation = null; }
+  // Kill old simulation — properly remove listeners to avoid stale closures
+  if (simulation) {
+    simulation.on('tick', null).on('end', null);
+    simulation.stop();
+    simulation = null;
+  }
   closeHud();
+  exitIsolation();
   byId = Object.fromEntries(GRAPH.nodes.map(n => [n.id, n]));
-  buildProgress();
+  buildSpineRail();
 
   const el = document.getElementById('chart');
   el.innerHTML = '';
@@ -805,18 +1902,34 @@ function renderGraph() {
   board.querySelectorAll('.loading').forEach(l => l.remove());
   board.querySelectorAll('.hud').forEach(h => h.remove());
 
-  const W = el.clientWidth;
-  const H = el.clientHeight;
+  // Capture live viewport dimensions (updated by ResizeObserver)
+  graphW = el.clientWidth;
+  graphH = el.clientHeight;
 
-  const threadLabel = GRAPH.counts.thread > 0 ? ` · ${GRAPH.counts.thread} thread` : '';
-  document.getElementById('counts').textContent =
-    GRAPH.counts.primary + ' spine · ' + GRAPH.counts.mimic + ' mimic doors' + threadLabel + '  |  ' +
-    (GRAPH.meta.coreDiagnosis || 'Set ' + GRAPH.meta.set);
+  // ── ResizeObserver — production pattern from d3-force testing ground ──────
+  // Re-measures the container and updates the force center + fit-to-view
+  if (resizeObserver) resizeObserver.disconnect();
+  resizeObserver = new ResizeObserver(entries => {
+    for (const entry of entries) {
+      const w = entry.contentBoxSize ? entry.contentBoxSize[0].inlineSize : entry.contentRect.width;
+      const h = entry.contentBoxSize ? entry.contentBoxSize[0].blockSize : entry.contentRect.height;
+      if (w !== graphW || h !== graphH) {
+        graphW = w; graphH = h;
+        if (svg) {
+          svg.attr('width', w).attr('height', h).attr('viewBox', [0, 0, w, h]);
+          simulation.force('center', d3.forceCenter(w / 2, h / 2));
+          // Also update brush extent
+          d3.select('.brush .overlay').attr('width', w).attr('height', h);
+        }
+      }
+    }
+  });
+  resizeObserver.observe(el);
 
   svg = d3.select('#chart').append('svg')
-    .attr('width', W).attr('height', H).attr('viewBox', [0, 0, W, H]);
+    .attr('width', graphW).attr('height', graphH).attr('viewBox', [0, 0, graphW, graphH]);
 
-  const zoomG = svg.append('g');
+  zoomG = svg.append('g');
 
   const nodes = GRAPH.nodes.map(d => ({ ...d }));
   const links = GRAPH.edges.map(d => ({ ...d }));
@@ -826,11 +1939,34 @@ function renderGraph() {
       .distance(d => d.kind === 'scene' ? 40 : 130)
       .strength(d => d.kind === 'scene' ? 0.7 : 0.12))
     .force('charge', d3.forceManyBody().strength(-90))
-    .force('center', d3.forceCenter(W / 2, H / 2))
+    .force('center', d3.forceCenter(graphW / 2, graphH / 2))
     .force('collide', d3.forceCollide(13));
 
   // ── Universal spine tag (not category-dependent) ──
-  const spineSet = new Set(GRAPH.mainPath.map(String));
+  spineSet = new Set(GRAPH.mainPath.map(String));
+
+  // ── Scene halos (Fix #5): subtle background circles per scene cluster ─────
+  const haloColors = ['rgba(37,99,235,0.04)','rgba(220,38,88,0.04)','rgba(20,120,80,0.04)',
+                      'rgba(180,110,20,0.04)','rgba(80,60,160,0.04)',
+                      'rgba(200,80,150,0.04)','rgba(20,140,160,0.04)','rgba(160,40,80,0.04)'];
+  const sceneHaloG = zoomG.append('g').attr('class', 'scene-halos');
+  function renderHalos(ns) {
+    sceneHaloG.selectAll('*').remove();
+    const groups = {};
+    ns.forEach(n => { const sid = n.sceneId; if (!groups[sid]) groups[sid] = []; groups[sid].push(n); });
+    for (const [sid, snodes] of Object.entries(groups)) {
+      if (snodes.length < 3) continue;
+      const cx = d3.mean(snodes, d => d.x);
+      const cy = d3.mean(snodes, d => d.y);
+      const r = d3.max(snodes, d => Math.hypot(d.x - cx, d.y - cy)) + 32;
+      const idx = (+sid - 1) % haloColors.length;
+      sceneHaloG.append('circle')
+        .attr('cx', cx).attr('cy', cy).attr('r', r)
+        .attr('fill', haloColors[idx])
+        .attr('stroke', 'rgba(0,0,0,0.06)').attr('stroke-width', 1).attr('stroke-dasharray', '4 6');
+    }
+  }
+  renderHalos(nodes);
 
   const primaryLinks = links.filter(d =>
     spineSet.has(String(typeof d.source === 'object' ? d.source.id :
@@ -866,14 +2002,77 @@ function renderGraph() {
       g.append('circle')
         .attr('r', spineSet.has(String(d.id)) ? 10 : 6)
         .attr('fill', spineSet.has(String(d.id)) ? COLORS.primary : (COLORS[d.category] || COLORS.mimic))
-        .attr('stroke', '#fff')
-        .attr('stroke-width', spineSet.has(String(d.id)) ? 2 : 1.4)
+        .attr('stroke', () => {
+          const ms = millState(d.id);
+          if (ms === 2) return '#16a34a';
+          if (ms === 1) return '#f59e0b';
+          return '#fff';
+        })
+        .attr('stroke-width', () => {
+          const ms = millState(d.id);
+          if (ms === 2) return 3;
+          if (ms === 1) return 2.5;
+          return spineSet.has(String(d.id)) ? 2 : 1.4;
+        })
         .style('cursor', 'pointer')
         .call(d3.drag()
-          .on('start', (event, d) => { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
-          .on('drag', (event, d) => { d.fx = event.x; d.fy = event.y; })
-          .on('end', (event, d) => { if (!event.active) simulation.alphaTarget(0); d.fx = d.x; d.fy = d.y; }))
-        .on('click', (event, d) => { event.stopPropagation(); openHud(d, event); });
+          .filter(event => !event.ctrlKey && !event.metaKey && !event.button)
+          .on('start', function (event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            // Priority 1: marquee multi-drag
+            if (selectedNodes.has(d) && selectedNodes.size > 1) {
+              this._dragGroup = new Set(selectedNodes);
+            }
+            // Priority 2: spine node — drag it + its non-spine subsets only
+            // (do NOT drag other spine nodes — they're the main story path)
+            else if (d3.select(this.parentNode).attr('data-spine') === '1') {
+              const group = new Set([d]);
+              for (const edge of GRAPH.edges) {
+                const s = String(edge.source), t = String(edge.target);
+                if (s === String(d.id) && t !== String(d.id) && !spineSet.has(t)) {
+                  const nb = byId[t]; if (nb) group.add(nb);
+                }
+                if (t === String(d.id) && s !== String(d.id) && !spineSet.has(s)) {
+                  const nb = byId[s]; if (nb) group.add(nb);
+                }
+              }
+              this._dragGroup = group;
+            }
+            // Priority 3: single drag
+            else {
+              this._dragGroup = new Set([d]);
+            }
+            // Save start positions for all nodes in the group
+            this._dragStart = { x: event.x, y: event.y };
+            this._dragFx = {};
+            this._dragGroup.forEach(n => { this._dragFx[n.id] = { x: n.x, y: n.y }; });
+          })
+          .on('drag', function (event, d) {
+            const dx = event.x - this._dragStart.x;
+            const dy = event.y - this._dragStart.y;
+            this._dragGroup.forEach(n => {
+              const base = this._dragFx[n.id];
+              if (base) { n.fx = base.x + dx; n.fy = base.y + dy; }
+            });
+          })
+          .on('end', function (event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            this._dragGroup.forEach(n => { n.fx = n.x; n.fy = n.y; });
+          }))
+        .on('click', (event, d) => {
+          event.stopPropagation();
+          // Ctrl+click = isolate this node's tree
+          if (event.ctrlKey || event.metaKey) {
+            if (isolatedNodeId === String(d.id)) {
+              exitIsolation(); // toggle off if already isolated
+            } else {
+              isolatedNodeId = String(d.id);
+              applyIsolation();
+            }
+            return;
+          }
+          openHud(d, event);
+        });
       // Number label for spine nodes
       if (spineSet.has(String(d.id))) {
         const i = GRAPH.mainPath.indexOf(String(d.id));
@@ -889,11 +2088,11 @@ function renderGraph() {
 
   // Update node positions on tick — target circles and text inside each <g>
   simulation.on('tick', () => {
-    linkSel.each(function (d) {
-      const line = d3.select(this).select('line');
-      line.attr('x1', d.source.x).attr('y1', d.source.y)
-        .attr('x2', d.target.x).attr('y2', d.target.y);
-    });
+    // linkSel IS the selection of <line> elements (appended below .join('g')),
+    // so set attributes directly — do NOT .select('line') inside
+    linkSel
+      .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
     svg.selectAll('.primary-hit')
       .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
       .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
@@ -901,7 +2100,12 @@ function renderGraph() {
       d3.select(this).select('circle').attr('cx', d.x).attr('cy', d.y);
       d3.select(this).select('text').attr('x', d.x).attr('y', d.y);
     });
-  }).on('end', () => { nodes.forEach(n => { n.fx = n.x; n.fy = n.y; }); });
+  }).on('end', () => {
+    // Production pattern: unpin all nodes so the graph can reflow if dragged again
+    nodes.forEach(n => { n.fx = null; n.fy = null; });
+    renderHalos(nodes);
+    fitToView();
+  });
 
   nodes.forEach(n => { byId[n.id] = n; });
 
@@ -911,23 +2115,362 @@ function renderGraph() {
   applyReveal(100);
 
   // ── Smooth zoom & pan: scroll = zoom, drag empty space = pan ──
-  const zoom = d3.zoom()
+  zoomInstance = d3.zoom()
     .scaleExtent([0.1, 6])
     .wheelDelta(event => -event.wheelDelta * 0.002) // smooth delta
     .on('zoom', event => { zoomG.attr('transform', event.transform); });
-  svg.call(zoom);
+  svg.call(zoomInstance);
   // Allow scroll-zoom anywhere; prevent browser page-scroll when cursor is over graph
   svg.on('wheel', event => { event.preventDefault(); });
   // Disable double-click zoom (annoying with click-to-open-hud)
   svg.on('dblclick.zoom', null);
+
+  // ── Fit-to-view ──────────────────────────────────────────────────────────
+  // Compute bounding rect of all nodes and smoothly zoom to it
+  function fitToView() {
+    if (!svg || !zoomInstance) return;
+    const rawNodes = nodeSel.data();
+    if (!rawNodes.length) return;
+    // In isolation mode, only consider visible nodes
+    let nodes = rawNodes;
+    if (isolatedNodeId) {
+      const neighborhood = new Set([isolatedNodeId]);
+      for (const edge of GRAPH.edges) {
+        const s = String(edge.source), t = String(edge.target);
+        if (s === isolatedNodeId) neighborhood.add(t);
+        if (t === isolatedNodeId) neighborhood.add(s);
+      }
+      nodes = rawNodes.filter(n => neighborhood.has(String(n.id)));
+    }
+    if (!nodes.length) return;
+    // ── Percentile clamping: exclude P5/P95 outliers so 1 stray pair
+    //     doesn't drag the whole viewport to 20% zoom ──
+    if (nodes.length > 10) {
+      const xs = nodes.map(n => n.x).sort((a,b) => a-b);
+      const ys = nodes.map(n => n.y).sort((a,b) => a-b);
+      const p5 = Math.floor(nodes.length * 0.05);
+      const p95 = Math.floor(nodes.length * 0.95);
+      var minX = xs[p5], maxX = xs[p95];
+      var minY = ys[p5], maxY = ys[p95];
+    } else {
+      var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      nodes.forEach(n => {
+        if (n.x < minX) minX = n.x;
+        if (n.y < minY) minY = n.y;
+        if (n.x > maxX) maxX = n.x;
+        if (n.y > maxY) maxY = n.y;
+      });
+    }
+    const pad = 60;
+    const bw = Math.max(maxX - minX + pad * 2, 200);
+    const bh = Math.max(maxY - minY + pad * 2, 200);
+    const W = graphW, H = graphH;
+    const scale = Math.min(W / bw, H / bh, 2);
+    const tx = W / 2 - scale * (minX + bw / 2);
+    const ty = H / 2 - scale * (minY + bh / 2);
+    svg.transition().duration(500).call(
+      zoomInstance.transform,
+      d3.zoomIdentity.translate(tx, ty).scale(scale)
+    );
+  }
+
+  // ── Marquee (brush) selection ────────────────────────────────────────────
+  // Right-click+drag to marquee-select nodes.
+  //   - brush.filter(right button only) — brush activates on right-click drag
+  //   - brush.keyModifiers(false) — disables D3's built-in key modifiers
+  //   - brush overlay sits above nodes; CSS pointer-events toggled by right-click
+  //   - zoom.transform inverted for hit-testing — works when zoomed/panned
+  const brush = d3.brush()
+    .keyModifiers(false)                    // disable D3's built-in Shift/Alt behavior
+    .filter(event => event.button === 2)    // right-click drag only
+    .handleSize(0)                          // no resize handles, pure rectangle
+    .extent([[0, 0], [graphW, graphH]])
+    .on('start', () => { /* clear old selection highlight */ })
+    .on('brush', event => {
+      if (!event.selection) return;
+      const [[x0, y0], [x1, y1]] = event.selection;
+      // Invert the zoom transform so hit-test works when panned/zoomed
+      const t = d3.zoomTransform(svg.node());
+      const invX = (cx) => (cx - t.x) / t.k;
+      const invY = (cy) => (cy - t.y) / t.k;
+      selectedNodes.clear();
+      nodeSel.each(function (d) {
+        const cx = d.x, cy = d.y;
+        if (invX(x0) <= cx && cx <= invX(x1) && invY(y0) <= cy && cy <= invY(y1)) {
+          selectedNodes.add(d);
+        }
+      });
+      nodeSel.classed('marquee-selected', d => selectedNodes.has(d));
+      updateMarqueeBadge();
+    })
+    .on('end', () => {
+      // Clear brush rectangle after release
+      brushG.call(brush.move, null);
+      updateMarqueeBadge();
+      updateAiButtons();
+    });
+
+  // Place brush ABOVE zoomG. CSS makes overlay transparent to clicks by default;
+  // Right-click mousedown/mouseup toggles .brush.active { pointer-events: all }
+  // so brush only captures events during right-click drag.
+  const brushG = svg.append('g').attr('class', 'brush').call(brush);
+
+  // ── Fit-to-view button ───────────────────────────────────────────────────
+  document.getElementById('fitBtn').onclick = fitToView;
 }
+
+// ── Marquee badge + AI panel ──────────────────────────────────────────────────
+function updateMarqueeBadge() {
+  const badge = document.getElementById('marqueeBadge');
+  const count = selectedNodes.size;
+  document.getElementById('marqueeCount').textContent = count;
+  if (count > 0) {
+    badge.style.display = 'block';
+    // Only auto-position if the user hasn't manually dragged it yet
+    if (!badge.dataset.dragged) {
+      const rect = document.getElementById('chart').getBoundingClientRect();
+      let cx = 0, cy = 0;
+      selectedNodes.forEach(n => { cx += n.x; cy += n.y; });
+      cx = cx / count; cy = cy / count;
+      badge.style.left = Math.min(rect.right - 160, Math.max(rect.left, rect.left + cx - 70)) + 'px';
+      badge.style.top = Math.min(rect.bottom - 60, Math.max(rect.top, rect.top + cy - 40)) + 'px';
+    }
+  } else {
+    badge.style.display = 'none';
+  }
+  updateAiButtons();
+}
+
+function updateAiButtons() {
+  const genBtn = document.getElementById('genStoryBtn');
+  const saveBtn = document.getElementById('saveJsonBtn');
+  const hasKey = !!(localStorage.getItem('ds_api_key'));
+  genBtn.disabled = !(selectedNodes.size >= 2 && hasKey);
+  saveBtn.disabled = !generatedStory;
+  // Show/hide action buttons based on selection state
+  const actions = document.getElementById('marqueeActions');
+  if (actions) actions.style.display = selectedNodes.size >= 2 ? 'flex' : 'none';
+}
+
+// ── Right-click activates brush overlay pointer-events ────────────────────
+// The D3 brush overlay blocks clicks — only activate it on right-click drag
+const chartEl = document.getElementById('chart');
+chartEl.addEventListener('mousedown', event => {
+  if (event.button === 2) {
+    const brush = document.querySelector('.brush');
+    if (brush) brush.classList.add('active');
+  }
+});
+chartEl.addEventListener('mouseup', event => {
+  if (event.button === 2) {
+    const brush = document.querySelector('.brush');
+    if (brush) brush.classList.remove('active');
+  }
+});
+// Prevent context menu on the chart so right-click drag works cleanly
+chartEl.addEventListener('contextmenu', event => {
+  event.preventDefault();
+  const brush = document.querySelector('.brush');
+  if (brush) brush.classList.remove('active');
+});
+// Safety: reset brush if user tabs away mid-drag
+window.addEventListener('blur', () => {
+  const brush = document.querySelector('.brush');
+  if (brush) brush.classList.remove('active');
+});
+
+// ── Settings gear + popup ──
+(async function initSettings() {
+  const gear = document.getElementById('settingsBtn');
+  const popup = document.getElementById('settingsPopup');
+  const keyInput = document.getElementById('dsApiKey');
+  const saveBtn = document.getElementById('settingsSave');
+  const status = document.getElementById('aiStatus');
+  let backdrop = null;
+
+  // Show popup
+  function openSettings() {
+    if (backdrop) return;
+    backdrop = document.createElement('div');
+    backdrop.className = 'settings-backdrop';
+    backdrop.onclick = closeSettings;
+    document.body.appendChild(backdrop);
+    popup.style.display = 'block';
+    // Fetch key from server if not cached in localStorage
+    if (!keyInput.value) {
+      keyInput.value = 'Loading…';
+      fetch('/api/env')
+        .then(r => r.json())
+        .then(env => {
+          const k = env.DEEPSEEK_API_KEY || '';
+          if (k) { keyInput.value = k; localStorage.setItem('ds_api_key', k); }
+          else keyInput.value = '';
+          updateAiButtons();
+        })
+        .catch(() => { keyInput.value = ''; });
+    }
+  }
+
+  function closeSettings() {
+    if (backdrop) { backdrop.remove(); backdrop = null; }
+    popup.style.display = 'none';
+  }
+
+  function saveAndClose() {
+    const v = keyInput.value.trim();
+    if (v) { localStorage.setItem('ds_api_key', v); status.textContent = 'Key saved.'; }
+    else { localStorage.removeItem('ds_api_key'); status.textContent = ''; }
+    updateAiButtons();
+    setTimeout(closeSettings, 300);
+  }
+
+  gear.onclick = openSettings;
+  saveBtn.onclick = saveAndClose;
+
+  // Pre-load key on page load
+  const saved = localStorage.getItem('ds_api_key');
+  if (!saved) {
+    try {
+      const r = await fetch('/api/env');
+      const env = await r.json();
+      if (env.DEEPSEEK_API_KEY) { keyInput.value = env.DEEPSEEK_API_KEY; localStorage.setItem('ds_api_key', env.DEEPSEEK_API_KEY); }
+    } catch (e) { /* server not running, key stays empty */ }
+  } else {
+    keyInput.value = saved;
+  }
+
+  document.getElementById('genStoryBtn').onclick = generateStory;
+  document.getElementById('saveJsonBtn').onclick = saveStoryJson;
+  updateAiButtons();
+})();
+
+async function generateStory() {
+  if (selectedNodes.size < 2) return;
+  const key = localStorage.getItem('ds_api_key');
+  if (!key) return alert('Enter your DeepSeek API key first.');
+  
+  const status = document.getElementById('aiStatus');
+  status.textContent = 'Generating…';
+  const genBtn = document.getElementById('genStoryBtn');
+  genBtn.disabled = true;
+
+  // Build prompt from selected nodes
+  const selected = Array.from(selectedNodes);
+  selected.sort((a, b) => {
+    const ia = GRAPH.mainPath.indexOf(a.id);
+    const ib = GRAPH.mainPath.indexOf(b.id);
+    if (ia >= 0 && ib >= 0) return ia - ib;
+    return (a.sceneId - b.sceneId) || (a.indexInScene - b.indexInScene);
+  });
+
+  const nodeData = selected.map((n, i) => {
+    const ans = (n.answers || []).map(a => a.label + '. ' + (a.text || '')).join(' | ');
+    return `[Node ${i+1}] QID ${n.id} | Scene ${n.sceneId} | ${n.category}\nQuestion: ${n.question}\nAnswers: ${ans}\nLikely: ${n.likely || 'N/A'}\nExplanation: ${(n.explanation || '').slice(0, 200)}`;
+  }).join('\n\n');
+
+  const prompt = `You are a clinical educator building a connected narrative for a concept graph.
+
+Below are ${selected.length} question nodes selected by the user from a CCS question bank. Each node represents a clinical vignette (a real board-style question).
+
+Your task: Write a **single contiguous clinical narrative** (300-600 words) that connects these concepts into one patient journey or one diagnostic reasoning thread. Do NOT summarize each node separately. Weave them into one story where:
+- One patient (you may invent a name) experiences a progression of symptoms, visits, and decisions
+- The diagnostic forks explored in these questions become scenes in their journey
+- The "likely answer" from each node is the finding or decision at that step
+- Use plain English, no bullet points, no markdown headers
+
+${nodeData}
+
+Respond with ONLY the narrative. No preamble, no sign-off.`;
+
+  try {
+    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 1200,
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error('HTTP ' + res.status + ': ' + err.slice(0, 200));
+    }
+
+    const data = await res.json();
+    const story = data.choices[0].message.content.trim();
+    generatedStory = {
+      set: currentSet,
+      coreDiagnosis: GRAPH.meta.coreDiagnosis || '',
+      generatedAt: new Date().toISOString(),
+      nodeCount: selected.length,
+      nodeIds: selected.map(n => n.id),
+      prompt,
+      story,
+    };
+
+    status.textContent = '✓ Story generated (' + story.split(/\s+/).length + ' words)';
+    updateAiButtons();
+
+    // Show story in a HUD
+    openStoryHud(story);
+  } catch (e) {
+    status.textContent = 'Error: ' + e.message.slice(0, 100);
+    genBtn.disabled = false;
+    console.error(e);
+  }
+}
+
+function openStoryHud(story) {
+  closeHud();
+  const hud = document.createElement('div');
+  hud.className = 'hud';
+  hud.dataset.hudId = 'ai-story';
+  hud.style.width = '420px';
+  hud.style.left = '10px';
+  hud.style.top = '10px';
+  hud.style.zIndex = '21';
+  hud.innerHTML = `<div class="drag-bar"><span class="drag-label">AI-GENERATED STORY</span><button class="close" type="button"><i class="ti ti-x"></i></button></div>
+    <div class="hud-body-inner">
+      <div class="kicker main">Generated narrative · ${generatedStory.nodeCount} nodes connected</div>
+      <p style="white-space:pre-wrap;font-size:0.88rem;line-height:1.7;">${esc(story)}</p>
+    </div>`;
+  document.getElementById('board').appendChild(hud);
+  hud.querySelector('.close').onclick = () => { removeHudSave(hud); closeHud(); };
+  makeHudDraggable(hud);
+  makeHudResizable(hud);
+}
+
+function saveStoryJson() {
+  if (!generatedStory) return;
+  const blob = new Blob([JSON.stringify(generatedStory, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ai-story-set-' + (currentSet || 'X') + '-nodes-' + generatedStory.nodeCount + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  document.getElementById('aiStatus').textContent = '✓ JSON downloaded';
+}
+
+// Override closeHud to also clear marquee selection
+const _origCloseHud = closeHud;
+closeHud = function () {
+  _origCloseHud();
+  selectedNodes.clear();
+  if (nodeSel) nodeSel.classed('marquee-selected', false);
+  updateMarqueeBadge();
+  updateAiButtons();
+  generatedStory = null;
+  updateAiButtons();
+};
 
 // ── Loading ───────────────────────────────────────────────────────────────────
 function showLoading() {
-  document.getElementById('counts').textContent = 'Loading…';
-  document.getElementById('setInfo').textContent = '';
-  document.getElementById('progress').innerHTML = '';
-  document.getElementById('progress').innerHTML = '';
+  document.getElementById('setInfo').textContent = 'Loading…';
+  if (window._dockUpdateInfo) window._dockUpdateInfo();
   closeHud();
   const board = document.getElementById('board');
   board.querySelectorAll('.loading').forEach(l => l.remove());
@@ -967,6 +2510,8 @@ async function loadSet(setNum) {
     if (opt) opt.textContent = 'Set ' + setNum + ' · ' + (meta.coreDiagnosis || '—').slice(0, 45);
     document.getElementById('setInfo').textContent =
       `Set ${setNum} · ${meta.coreDiagnosis || '—'} · ${GRAPH.counts.primary}P / ${GRAPH.counts.mimic}M`;
+    if (window._dockUpdateInfo) window._dockUpdateInfo();
+    if (window._dockSyncPicker) window._dockSyncPicker();
 
     renderGraph();
   } catch (e) {
@@ -998,6 +2543,292 @@ function populatePicker() {
 document.getElementById('board').addEventListener('click', (e) => {
   if (e.target === document.getElementById('board') || e.target.tagName === 'svg') closeHud();
 });
+
+// ── Onboarding hint (Fix #6): dismissible first-use guide ──────────────────
+(function initOnboarding() {
+  const ob = document.getElementById('onboarding');
+  const closeBtn = document.getElementById('obClose');
+  if (localStorage.getItem('onboarding_done')) { ob.style.display = 'none'; return; }
+  closeBtn.onclick = () => {
+    ob.style.display = 'none';
+    localStorage.setItem('onboarding_done', '1');
+  };
+  // Auto-dismiss after 30s
+  setTimeout(() => {
+    if (ob.style.display !== 'none') { ob.style.display = 'none'; localStorage.setItem('onboarding_done', '1'); }
+  }, 30000);
+})();
+
+// ── Make all floating overlays draggable ──────────────────────────────────
+(function initFloaterDrag() {
+  makeFloaterDraggable(document.querySelector('.float-ctl-top'), 'flt-header');
+  makeFloaterDraggable(document.getElementById('fitBtn'), 'flt-fit');
+  makeFloaterDraggable(document.getElementById('settingsBtn'), 'flt-settings');
+  makeFloaterDraggable(document.getElementById('toggleLinesBtn'), 'flt-toggle');
+  makeFloaterDraggable(document.querySelector('.float-legend'), 'flt-legend');
+  makeFloaterDraggable(document.querySelector('.float-slider'), 'flt-slider');
+  makeFloaterDraggable(document.querySelector('.float-zoom-hint'), 'flt-zoom-hint');
+  makeFloaterDraggable(document.getElementById('spineRail'), 'flt-spine-rail');
+  makeFloaterDraggable(document.getElementById('isolationBanner'), 'flt-isolation');
+  makeFloaterDraggable(document.getElementById('settingsPopup'), 'flt-settings-popup');
+  makeFloaterDraggable(document.getElementById('onboarding'), 'flt-onboarding');
+  makeFloaterDraggable(document.getElementById('marqueeBadge'), 'flt-marquee');
+})();
+
+// ── Command dock — right-side slide-in panel (MeWorld pattern) ─────────────
+(function initCommandDock() {
+  const dock = document.getElementById('cmdDock');
+  const dockBody = document.getElementById('dockBody');
+  const toggle = document.getElementById('dockToggle');
+  const handle = document.getElementById('dockResizeHandle');
+  const board = document.getElementById('board');
+  const DOCK_KEY = 'cmd-dock-layout';
+
+  // ── Read/write dock state ───────────────────────────────────────────
+  function readDock() {
+    try {
+      const raw = localStorage.getItem(DOCK_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (_) {}
+    return { open: false, width: 320 };
+  }
+  function writeDock(state) {
+    try { localStorage.setItem(DOCK_KEY, JSON.stringify(state)); } catch (_) {}
+  }
+
+  let state = readDock();
+
+  function applyDock() {
+    const open = state.open;
+    const w = Math.max(260, Math.min(600, state.width));
+    dock.style.setProperty('--dock-w', w + 'px');
+    dock.classList.toggle('open', open);
+    board.classList.toggle('dock-open', open);
+  }
+
+  // ── Build dock body HTML with control replicas ─────────────────────
+  function buildDockBody() {
+    dockBody.innerHTML = `
+      <div class="dock-section">
+        <div class="dock-sec-title"><i class="ti ti-list-search"></i>&nbsp;Choose Graph Set</div>
+        <select id="dockPicker"></select>
+        <div class="set-info" id="dockSetInfo"></div>
+      </div>
+      <div class="dock-section">
+        <div class="dock-sec-title"><i class="ti ti-command"></i>&nbsp;Actions</div>
+        <div class="dock-btn-row" style="margin-bottom:6px;">
+          <button id="dockFitBtn"><i class="ti ti-maximize"></i>&nbsp;Fit</button>
+          <button id="dockSettingsBtn"><i class="ti ti-settings"></i>&nbsp;Settings</button>
+          <button id="dockLinesBtn"><i class="ti ti-line-dashed"></i>&nbsp;Lines</button>
+        </div>
+      </div>
+      <div class="dock-section">
+        <div class="dock-sec-title"><i class="ti ti-chart-dots"></i>&nbsp;Legend</div>
+        <div class="dock-legend-row">
+          <span><span class="dock-legend-dot" style="background:var(--coral)"></span>Main spine</span>
+          <span><span class="dock-legend-dot" style="background:var(--gray)"></span>Differential doors</span>
+          <span><span class="dock-legend-dot" style="background:var(--teal)"></span>Thread (if present)</span>
+        </div>
+      </div>
+      <div class="dock-section">
+        <div class="dock-sec-title"><i class="ti ti-adjustments-horizontal"></i>&nbsp;Reveal</div>
+        <span style="font-size:0.65rem;color:var(--muted);">Main spine only ↔ Full map</span>
+        <input type="range" id="dockRevealSlider" min="0" max="100" value="100"/>
+      </div>`;
+  }
+  buildDockBody();
+
+  // ── Sync dock controls with real controls ──────────────────────────
+  function syncDockPicker() {
+    const src = document.getElementById('setPicker');
+    const dst = document.getElementById('dockPicker');
+    if (!src || !dst) return;
+    dst.innerHTML = src.innerHTML;
+    dst.value = src.value;
+    dst.addEventListener('change', () => {
+      src.value = dst.value;
+      src.dispatchEvent(new Event('change'));
+    });
+  }
+  function syncDockInfo() {
+    const src = document.getElementById('setInfo');
+    const dst = document.getElementById('dockSetInfo');
+    if (dst && src) dst.textContent = src.textContent;
+  }
+
+  // Hook the real setPicker change to keep dock in sync
+  const realPicker = document.getElementById('setPicker');
+  const origHandler = realPicker.onchange;
+  realPicker.addEventListener('change', () => {
+    syncDockPicker();
+    syncDockInfo();
+  });
+
+  // Now sync initially
+  syncDockPicker();
+  syncDockInfo();
+
+  // Wire dock action buttons
+  document.getElementById('dockFitBtn').onclick = () => {
+    if (typeof fitToView === 'function') fitToView();
+  };
+  document.getElementById('dockSettingsBtn').onclick = () => {
+    document.getElementById('settingsBtn').click();
+  };
+  document.getElementById('dockLinesBtn').onclick = () => {
+    if (typeof toggleLines === 'function') toggleLines();
+  };
+
+  // Wire dock slider
+  const dockSlider = document.getElementById('dockRevealSlider');
+  const realSlider = document.getElementById('revealSlider');
+  dockSlider.addEventListener('input', () => {
+    realSlider.value = dockSlider.value;
+    if (typeof applyReveal === 'function') applyReveal(+dockSlider.value);
+  });
+  // Keep dock slider in sync from real slider
+  if (realSlider) {
+    realSlider.addEventListener('input', () => {
+      dockSlider.value = realSlider.value;
+    });
+  }
+
+  // Override sync functions used elsewhere so dock stays updated
+  const _origPopulatePicker = populatePicker;
+  populatePicker = function () {
+    _origPopulatePicker();
+    syncDockPicker();
+  };
+
+  // ── Toggle open/close ──────────────────────────────────────────────
+  toggle.addEventListener('click', () => {
+    state.open = !state.open;
+    writeDock(state);
+    applyDock();
+    syncDockPicker();
+  });
+
+  // ── Resize handle (drag left edge to resize width) ─────────────────
+  let dragging = false;
+  handle.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    dragging = true;
+    const startX = e.clientX;
+    const startW = state.width;
+    dock.style.transition = 'none';
+
+    const onMove = (ev) => {
+      const dx = startX - ev.clientX;
+      state.width = Math.max(260, Math.min(600, startW + dx));
+      dock.style.setProperty('--dock-w', state.width + 'px');
+      board.style.setProperty('right', state.width + 'px');
+    };
+    const onUp = () => {
+      dragging = false;
+      dock.style.transition = '';
+      writeDock(state);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  // ── Apply initial state ────────────────────────────────────────────
+  applyDock();
+
+  // ── Dock-reveal mode: render node content inside the dock ──────────
+  let dockNodeList = [];  // ordered node IDs for prev/next nav
+  let dockNodeIdx = -1;   // current position in that list
+
+  function dockRewire() {
+    // Re-wire control replicas after rebuildDockBody restores them
+    const _dfb = document.getElementById('dockFitBtn');
+    const _dsb = document.getElementById('dockSettingsBtn');
+    const _dlb = document.getElementById('dockLinesBtn');
+    const _dsl = document.getElementById('dockRevealSlider');
+    if (_dfb) _dfb.onclick = () => { if (typeof fitToView === 'function') fitToView(); };
+    if (_dsb) _dsb.onclick = () => document.getElementById('settingsBtn').click();
+    if (_dlb) _dlb.onclick = () => { if (typeof toggleLines === 'function') toggleLines(); };
+    if (_dsl && document.getElementById('revealSlider')) {
+      _dsl.addEventListener('input', () => {
+        document.getElementById('revealSlider').value = _dsl.value;
+        if (typeof applyReveal === 'function') applyReveal(+_dsl.value);
+      });
+      document.getElementById('revealSlider').addEventListener('input', () => { _dsl.value = document.getElementById('revealSlider').value; });
+    }
+  }
+
+  window._closeDockReveal = function () {
+    dockNodeList = []; dockNodeIdx = -1;
+    buildDockBody();
+    syncDockPicker();
+    syncDockInfo();
+    dockRewire();
+  };
+
+  function navigateDock(dir) {
+    const newIdx = dockNodeIdx + dir;
+    if (newIdx < 0 || newIdx >= dockNodeList.length) return;
+    const node = (typeof byId !== 'undefined' && byId) ? byId[dockNodeList[newIdx]] : null;
+    if (!node) return;
+    dockNodeIdx = newIdx;
+    // Re-render inside dock
+    dockBody.innerHTML = `
+      <div class="dock-reveal-nav">
+        <button class="drn-back"><i class="ti ti-arrow-left"></i>&nbsp;Controls</button>
+        <span class="drn-count">${dockNodeIdx+1} / ${dockNodeList.length}</span>
+        <div class="drn-arrows">
+          <button class="drn-prev" ${dockNodeIdx <= 0 ? 'disabled' : ''}><i class="ti ti-chevron-left"></i></button>
+          <button class="drn-next" ${dockNodeIdx >= dockNodeList.length-1 ? 'disabled' : ''}><i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="dock-reveal-content">
+        ${typeof buildRevealHTML === 'function' ? buildRevealHTML(node) : ''}
+      </div>`;
+    // Wire reveal on the body (not a .hud element)
+    if (typeof wireReveal === 'function') wireReveal(dockBody, node);
+    dockBody.querySelector('.drn-back').onclick = window._closeDockReveal;
+    dockBody.querySelector('.drn-prev')?.addEventListener('click', () => navigateDock(-1));
+    dockBody.querySelector('.drn-next')?.addEventListener('click', () => navigateDock(1));
+  };
+
+  window._renderInDock = function (d) {
+    if (typeof GRAPH === 'undefined' || !GRAPH) return;
+    // Build nav context: spine → mainPath, else → same-scene nodes
+    if (GRAPH.mainPath && GRAPH.mainPath.includes(String(d.id))) {
+      dockNodeList = GRAPH.mainPath.slice();
+    } else {
+      dockNodeList = (GRAPH.nodes || []).filter(n => String(n.sceneId) === String(d.sceneId)).map(n => String(n.id));
+    }
+    dockNodeIdx = dockNodeList.indexOf(String(d.id));
+    if (dockNodeIdx < 0) dockNodeIdx = 0;
+
+    // Render
+    dockBody.innerHTML = `
+      <div class="dock-reveal-nav">
+        <button class="drn-back"><i class="ti ti-arrow-left"></i>&nbsp;Controls</button>
+        <span class="drn-count">${dockNodeIdx+1} / ${dockNodeList.length}</span>
+        <div class="drn-arrows">
+          <button class="drn-prev" ${dockNodeIdx <= 0 ? 'disabled' : ''}><i class="ti ti-chevron-left"></i></button>
+          <button class="drn-next" ${dockNodeIdx >= dockNodeList.length-1 ? 'disabled' : ''}><i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="dock-reveal-content">
+        ${typeof buildRevealHTML === 'function' ? buildRevealHTML(d) : ''}
+      </div>`;
+    if (typeof wireReveal === 'function') wireReveal(dockBody, d);
+    dockBody.querySelector('.drn-back').onclick = window._closeDockReveal;
+    dockBody.querySelector('.drn-prev')?.addEventListener('click', () => navigateDock(-1));
+    dockBody.querySelector('.drn-next')?.addEventListener('click', () => navigateDock(1));
+  };
+
+  window._isDockOpen = function () { return state.open; };
+
+  // ── Expose to external use ──────────────────────────────────────────
+  window._dockUpdateInfo = function () { syncDockInfo(); };
+  window._dockSyncPicker = function () { syncDockPicker(); };
+})();
 
 populatePicker();
 // Auto-load Set 1 on open
