@@ -76,23 +76,25 @@
 
   /* ── Fit-to-view button ── */
   .float-fit {
-    position: fixed; z-index: 15; top: 12px; right: 54px;
+    position: fixed; z-index: 22; top: 12px; right: 54px;
     background: rgba(255,255,255,0.88); backdrop-filter: blur(6px);
     border: 1px solid var(--border); border-radius: 7px;
     padding: 6px 10px; font-size: 0.75rem; color: var(--ink);
     cursor: pointer; font-family: inherit;
     box-shadow: 0 2px 10px rgba(20,25,35,0.08);
+    transition: right 0.22s ease;
   }
   .float-fit:hover { background: #eef3ff; border-color: var(--accent); }
 
   /* ── Toggle-lines button ── */
   .float-toggle {
-    position: fixed; z-index: 15; top: 12px; right: 140px;
+    position: fixed; z-index: 22; top: 12px; right: 140px;
     background: rgba(255,255,255,0.88); backdrop-filter: blur(6px);
     border: 1px solid var(--border); border-radius: 7px;
     padding: 4px 7px; font-size: 1rem; color: var(--ink);
     cursor: pointer; font-family: inherit; line-height: 1;
     box-shadow: 0 2px 10px rgba(20,25,35,0.08);
+    transition: right 0.22s ease;
   }
   .float-toggle:hover { background: #eef3ff; border-color: var(--accent); }
   .float-toggle.on { color: var(--coral); border-color: var(--coral); }
@@ -471,14 +473,22 @@
 
   /* ── Settings gear ── */
   .float-settings {
-    position: fixed; z-index: 15; top: 12px; right: 16px;
+    position: fixed; z-index: 22; top: 12px; right: 16px;
     background: rgba(255,255,255,0.88); backdrop-filter: blur(6px);
     border: 1px solid var(--border); border-radius: 7px;
     padding: 3px 8px; font-size: 1rem; color: var(--ink);
     cursor: pointer; font-family: inherit; line-height: 1;
     box-shadow: 0 2px 10px rgba(20,25,35,0.08);
+    transition: right 0.22s ease;
   }
   .float-settings:hover { background: #eef3ff; border-color: var(--accent); }
+
+  /* ── Shift right-edge toolbar buttons left when dock is open ── */
+  .cmd-dock.open ~ .float-settings { z-index: 22; }
+  .cmd-dock.open ~ #settingsBtn { right: calc(var(--dock-w, 320px) + 16px); }
+  .cmd-dock.open ~ #spineExtBtn { right: calc(var(--dock-w, 320px) + 100px); }
+  .cmd-dock.open ~ .float-fit { right: calc(var(--dock-w, 320px) + 54px); }
+  .cmd-dock.open ~ .float-toggle { right: calc(var(--dock-w, 320px) + 136px); }
 
   /* ── Settings popup ── */
   .settings-popup {
@@ -3522,6 +3532,7 @@ document.getElementById('board').addEventListener('click', (e) => {
           <button id="dockFitBtn"><i class="ti ti-maximize"></i>&nbsp;Fit</button>
           <button id="dockSettingsBtn"><i class="ti ti-settings"></i>&nbsp;Settings</button>
           <button id="dockLinesBtn"><i class="ti ti-line-dashed"></i>&nbsp;Lines</button>
+          <button id="dockSpineExtBtn"><i class="ti ti-list-details"></i>&nbsp;Concepts</button>
         </div>
       </div>
       <div class="dock-section">
@@ -3579,6 +3590,9 @@ document.getElementById('board').addEventListener('click', (e) => {
   };
   document.getElementById('dockLinesBtn').onclick = () => {
     if (typeof toggleLines === 'function') toggleLines();
+  };
+  document.getElementById('dockSpineExtBtn').onclick = () => {
+    document.getElementById('spineExtBtn').click();
   };
 
   // Wire dock slider
