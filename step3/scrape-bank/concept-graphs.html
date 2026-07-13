@@ -3315,10 +3315,6 @@ function populatePicker() {
   });
 }
 
-document.getElementById('board').addEventListener('click', (e) => {
-  if (e.target === document.getElementById('board') || e.target.tagName === 'svg') closeHud();
-});
-
 // ── Onboarding hint (Fix #6): dismissible first-use guide ──────────────────
 (function initOnboarding() {
   const ob = document.getElementById('onboarding');
