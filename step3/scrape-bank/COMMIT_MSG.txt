@@ -1,0 +1,10 @@
+feat: unified concept graphs for all 20 sets, improved story for Set 2, smooth zoom/pan, 8-way HUD resize
+
+- concept-graphs.html: full-viewport map-as-app, floating controls, smooth scroll zoom (0.1x-6x), drag-to-pan, 8-way resize handles on all HUDs, spine slider with universal data-spine tagging
+- build-smart-graphs.js: auto-classifies primary/mimic/thread nodes by matching resolved likely-answer text against scene diagnostic terms; all 20 sets now have numbered mainPath spines
+- Set 2 story rewritten with standalone avatar (Amara + Dr. Reyes), spine-anchored across 5 chest pain scenes
+- Sets 11-20 generated with Pattern A/B, new avatars assigned (Marcus Chen, Elena Vasquez, Robert Kim)
+- Full bank spine scan (scan-full-bank-spines.js, spine-cluster-candidates.md)
+- Graph data for all 20 sets (graph-data-set-01 through 20)
+- Text bank (stripped, deduped) for LLM context
+- Claude handoff folder with instructions

@@ -1,0 +1,49 @@
+{
+  "mainPath": [
+    "5117",
+    "1094",
+    "5285",
+    "5158",
+    "5297",
+    "121",
+    "994",
+    "1362",
+    "4764",
+    "345",
+    "3298"
+  ],
+  "sample": {
+    "id": "5117",
+    "scene": 1,
+    "idx": 1,
+    "cat": "sle",
+    "stage": "Find",
+    "story": "What he finds instead is a mechanism, not a symptom. Antibodies binding their own DNA, immune complexes settling into the kidney like sediment in a river that stopped moving. [[1]]",
+    "label": "A 32-year-old man with a history of photosensitivity, malar rash, and ",
+    "question": "A 32-year-old man with a history of photosensitivity, malar rash, and oral ulcers presents with worsening fatigue, bilateral ankle swelling, and dark urine over the past two weeks. He reports no recent infections or medication changes. Physical examination reveals blood pressure of 150/95 mm Hg, periorbital edema, and 2+ pitting edema in the lower extremities. Laboratory studies are shown below. This patient's renal pathology is most likely mediated by which of the following mechanisms?\n\n\n\nSodium\t137 mEq/L\nPotassium\t4.3 mEq/L\nChloride\t101 mEq/L\nBicarbonate\t22 mEq/L\nBlood urea nitrogen\t38 mg/dL\nSerum creatinine\t2.1 mg/dL\t(Baseline creatinine 0.9 mg/dL)\nGlucose\t94 mg/dL\nCalcium\t8.8 mg/dL\n24-hour urine protein\t4.5 g/day\t(normal: < 100 mg/day)\nUrine Color\tRed-tinged\t(range: Clear to yellow)\nUrine Appearance\tCloudy\nUrine Specific Gravity\t1.020\t(range: 1.005–1.030)\nUrine pH\t6.0\t(range: 4.5–8.0)\nUrine Blood\tPositive\t(normal: Negative)\nUrine Protein\t4+\t(normal: Negative)\nUrine Red Blood Cells\tNumerous dysmorphic/HPF\t(range: 0–2/HPF)\nUrine White Blood Cells\t0-2/HPF\t(range: 0–5/HPF)\nUrine casts\tRed blood cell casts\nAntinuclear antibody\tPositive\t(normal: Negative)\nAnti–double-stranded DNA antibody\tElevated",
+    "answers": [
+      {
+        "label": "A",
+        "text": "Deposition of IgA in the mesangium\n(0%)"
+      },
+      {
+        "label": "B",
+        "text": "Formation of anti-double-stranded DNA immune complexes\n(82.5%)"
+      },
+      {
+        "label": "C",
+        "text": "Cell-mediated cytotoxic T-lymphocyte injury to glomerular cells\n(1.25%)"
+      },
+      {
+        "label": "D",
+        "text": "Antibody response to streptococcal antigens\n(0%)"
+      },
+      {
+        "label": "E",
+        "text": "Direct antibody binding to glomerular basement membrane antigens\n(16.25%)"
+      }
+    ],
+    "likely": "B.",
+    "explanation": "Explanation\nThis patient's presentation of acute kidney injury, hypertension, edema, proteinuria, hematuria with red cell casts, and positive anti-dsDNA antibodies in the context of systemic lupus erythematosus features suggests lupus nephritis. The condition arises from the deposition of anti-double-stranded DNA immune complexes in the glomeruli, causing inflammation, glomerular damage, and subsequent renal manifestations.\n(Choice A)\nDeposition of IgA in the mesangium\nThis describes IgA nephropathy (Berger disease), the most common primary glomerulonephritis worldwide. While it can present with hematuria and proteinuria, it typically follows upper respiratory infections and lacks the systemic autoimmune features of SLE such as malar rash, photosensitivity, and positive anti-dsDNA antibodies.\n(Choice B)\nFormation of anti-double-stranded DNA immune complexes\nLupus nephritis involves the deposition of immune complexes containing anti-dsDNA antibodies in the glomerular basement membrane and mesangium, triggering complement activation and inflammation leading to glomerulonephritis.\n(Choice C)\nCell-mediated cytotoxic T-lymphocyte injury to glomerular cells\nThis mechanism is more characteristic of certain tubulointerstitial nephritides or transplant rejection, not the immune complex-mediated glomerulonephritis seen in lupus nephritis.\n(Choice D)\nAntibody response to streptococcal antigens\nThis describes poststreptococcal glomerulonephritis (PSGN), which occurs 1-3 weeks after group A streptococcal pharyngitis or skin infection. While PSGN also involves immune complex deposition, it presents acutely after infection with low complement levels and resolves spontaneously, unlike the chronic autoimmune process of lupus nephritis with positive anti-dsDNA antibodies.\n(Choice E)\nDirect antibody binding to glomerular basement membrane antigens\nThis mechanism describes anti-GBM disease (Goodpasture syndrome), which involves autoantibodies directly targeting the alpha-3 chain of type IV collagen in the GBM. This presents with rapidly progressive glomerulonephritis and pulmonary hemorrhage, not the systemic features of SLE or positive anti-dsDNA antibodies seen in this patient."
+  }
+}

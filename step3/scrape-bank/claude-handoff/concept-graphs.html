@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Concept graphs · Sets 1–20</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --bg: #ffffff; --ink: #17202b; --muted: #6b7686;
+    --accent: #2563eb; --border: #e3e7ee;
+    --coral: #d8552f; --gray: #9a9890; --teal: #17916b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    font-family: Inter, system-ui, sans-serif;
+    background: var(--bg); color: var(--ink);
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 20px 16px 60px; }
+  .bar {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .bar select {
+    font-family: inherit; font-size: 0.9rem; padding: 6px 10px;
+    border: 1px solid var(--border); border-radius: 7px;
+    background: #fff; color: var(--ink); outline: none;
+  }
+  .bar select:focus { border-color: var(--coral); }
+  .bar .set-info {
+    font-size: 0.82rem; color: var(--muted); white-space: nowrap;
+  }
+  h1 { font-size: 1.05rem; margin: 0; font-weight: 650; white-space: nowrap; }
+  .sub { color: var(--muted); font-size: 0.82rem; margin: 0 0 10px; line-height: 1.45; }
+  .legend { display:flex; gap:16px; margin-bottom:10px; font-size:12px; color: var(--muted); flex-wrap: wrap; }
+  .legend span { display:flex; align-items:center; gap:5px; }
+  .dot { width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .progress { display:flex; gap:6px; margin-bottom:10px; flex-wrap: wrap; }
+  .progress .step {
+    width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size: 11px; color: var(--muted);
+    cursor: pointer; background: #fff;
+  }
+  .progress .step.done { background: var(--coral); border-color: var(--coral); color: #fff; font-weight:600; }
+  .progress .step:hover { border-color: var(--coral); }
+  .slider-row {
+    display:flex; align-items:center; gap:12px; margin-bottom:14px;
+    font-size:0.82rem; color:var(--muted);
+  }
+  .slider-row input[type=range] { flex:1; max-width:260px; }
+  .stage-board {
+    position: relative; width: 100%; height: min(78vh, 620px);
+    background: #fafbfc; border-radius: 12px; border: 1px solid var(--border); overflow: visible;
+  }
+  #chart { width: 100%; height: 100%; }
+  .counts { margin-top: 10px; color: var(--muted); font-size: 0.82rem; }
+  .err {
+    margin-top: 16px; padding: 14px 16px; border-radius: 12px; display: none;
+    background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;
+    font-size: 0.9rem; line-height: 1.5;
+  }
+  .hud {
+    position: absolute; width: 300px; min-width: 220px; max-width: 520px; min-height: 140px;
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 10px; font-size: 0.85rem; line-height: 1.55;
+    box-shadow: 0 6px 24px rgba(20,25,35,0.12); z-index: 20;
+    display: flex; flex-direction: column; overflow: hidden;
+    resize: both;
+  }
+  .hud .drag-bar {
+    height: 20px; background: #f0f2f5; border-bottom: 1px solid var(--border);
+    cursor: move; user-select: none; display: flex; align-items: center;
+    justify-content: space-between; padding: 0 8px; flex-shrink: 0;
+  }
+  .hud .drag-bar .drag-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .hud .hud-body-inner { padding: 10px 14px 14px; overflow-y: auto; flex: 1; }
+  .hud .close {
+    cursor: pointer; color: var(--muted); font-size: 14px;
+    background: none; border: none; line-height: 1; padding: 0 2px;
+  }
+  .hud .close:hover { color: var(--coral); }
+  .hud .kicker { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; font-weight: 600; }
+  .kicker.main { color: var(--coral); }
+  .kicker.door { color: var(--accent); }
+  .hud h3 { margin: 0 0 6px; font-size: 0.95rem; font-weight: 600; }
+  .hud p { margin: 0; color: var(--ink); }
+  .hud .reveal-btn {
+    margin-top: 10px; width: 100%; padding: 7px 10px; border-radius: 7px; border: 1px solid var(--accent);
+    background: #fff; color: var(--accent); font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  .hud .reveal-btn:hover { background: #eef3ff; }
+  .hud .qwrap { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+  .hud .bridge {
+    margin: 10px 0 0; padding: 10px 0 0; border-top: 1px solid var(--border);
+  }
+  .hud .bridge .beat-label {
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--coral); font-weight: 700; margin: 0 0 4px;
+  }
+  .hud .bridge p { margin: 0 0 10px; }
+  .hud .answers { margin: 8px 0 0; padding: 0; list-style: none; }
+  .hud .answers li {
+    margin: 5px 0; padding: 6px 8px; border-radius: 6px; background: #f5f7fa;
+    border: 1px solid var(--border); font-size: 0.78rem; line-height: 1.4;
+  }
+  .hud .likely {
+    margin-top: 8px; padding: 8px 10px; border-radius: 7px;
+    background: #edf7f0; border: 1px solid #b7e4c7;
+    color: #116932; font-size: 0.78rem; font-weight: 600;
+    display: none;
+  }
+  .hud .answer-toggle {
+    margin-top: 10px; width: 100%; padding: 7px 10px; border-radius: 7px;
+    border: 1px solid #0f8f5f; background: #fff; color: #0f8f5f;
+    font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  .hud .answer-toggle:hover { background: #eefaf3; }
+  .hud details { margin-top: 8px; color: var(--muted); font-size: 0.78rem; }
+  .hud details summary { cursor: pointer; color: var(--accent); }
+  .hud details pre {
+    white-space: pre-wrap; font-family: inherit; margin: 6px 0 0;
+    max-height: 180px; overflow: auto; color: #40485a;
+  }
+  .leader { stroke: #b8bfc9; stroke-width: 1; stroke-dasharray: 3 3; fill: none; }
+  .primary-link { cursor: pointer; }
+  .primary-hit { cursor: pointer; stroke: transparent; stroke-width: 14; fill: none; }
+
+  /* Loading overlay */
+  .loading {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(250,251,252,0.85); z-index: 10;
+    font-size: 0.9rem; color: var(--muted);
+  }
+  .loading .spinner {
+    width: 20px; height: 20px; border: 2px solid var(--border);
+    border-top-color: var(--coral); border-radius: 50%;
+    animation: spin 0.7s linear infinite; margin-right: 10px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Set selector bar -->
+  <div class="bar">
+    <h1>Concept graphs</h1>
+    <select id="setPicker">
+      <option value="" disabled>Pick a set…</option>
+    </select>
+    <span class="set-info" id="setInfo"></span>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot" style="background:var(--coral)"></span>Main spine</span>
+    <span><span class="dot" style="background:var(--gray)"></span>Differential doors</span>
+    <span><span class="dot" style="background:var(--teal)"></span>Thread (if present)</span>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <div class="slider-row">
+    <span>Main spine only</span>
+    <input type="range" id="revealSlider" min="0" max="100" value="100"/>
+    <span>Full map</span>
+  </div>
+
+  <div class="stage-board" id="board">
+    <div id="chart"></div>
+  </div>
+  <div class="counts" id="counts">Pick a set above to load its concept graph.</div>
+  <div class="err" id="err"></div>
+</div>
+
+<script>
+const COLORS = { primary: '#d8552f', mimic: '#9a9890', thread: '#17916b' };
+
+// ── Set registry — maps set # → story file ────────────────────────────────────
+const SET_REGISTRY = {
+  1:  'set-01-story-va.html',
+  2:  'set-02-story-va.html',
+  3:  'set-03-story-va.html',
+  4:  'set-04-story-va.html',
+  5:  'set-05-story-va.html',
+  6:  'set-06-story-vb.html',
+  7:  'set-07-story-vb.html',
+  8:  'set-08-story-vb.html',
+  9:  'set-09-story-vb.html',
+  10: 'set-10-story-vb.html',
+  11: 'set-11-story-va.html',
+  12: 'set-12-story-va.html',
+  13: 'set-13-story-va.html',
+  14: 'set-14-story-va.html',
+  15: 'set-15-story-va.html',
+  16: 'set-16-story-vb.html',
+  17: 'set-17-story-vb.html',
+  18: 'set-18-story-vb.html',
+  19: 'set-19-story-vb.html',
+  20: 'set-20-story-vb.html',
+};
+
+let GRAPH = null;
+let byId = {};
+let nodeSel = null;
+let linkSel = null;
+let stepLabel = null;
+let svg = null;
+let simulation = null;
+let currentSet = null;
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showErr(msg) {
+  const el = document.getElementById('err');
+  el.style.display = 'block';
+  el.innerHTML = msg;
+  document.getElementById('counts').textContent = 'Failed to load data';
+}
+
+function hideErr() {
+  document.getElementById('err').style.display = 'none';
+}
+
+// ── Data parsing ──────────────────────────────────────────────────────────────
+function parseItems(html) {
+  const start = html.indexOf('const ITEMS = ');
+  if (start < 0) throw new Error('ITEMS not found in story HTML');
+  const from = start + 'const ITEMS = '.length;
+  const end = html.lastIndexOf('];', html.indexOf('\nconst SCENES', from));
+  return JSON.parse(html.slice(from, end + 1));
+}
+
+function parseStoryByQid(html, items) {
+  const start = html.indexOf('const STORY_STEPS = ');
+  if (start < 0) return {};
+  const from = start + 'const STORY_STEPS = '.length;
+  const end = html.indexOf('\nlet si = 0', from);
+  const raw = html.slice(from, end).trim().replace(/;$/, '');
+  const STORY = Function('return (' + raw + ')')();
+  const map = {};
+  for (const [sid, steps] of Object.entries(STORY)) {
+    for (const step of steps) {
+      const m = String(step.text).match(/\[\[(\d)\]\]/);
+      if (!m) continue;
+      const idx = +m[1];
+      const q = items.find(i => i.sceneId === +sid && i.indexInScene === idx);
+      if (!q) continue;
+      map[String(q.id)] = {
+        stage: step.stage || null,
+        text: String(step.text).replace(/\[\[\d\]\]/g, '').replace(/\s+/g, ' ').trim(),
+      };
+    }
+  }
+  return map;
+}
+
+function stemOf(q, n = 70) {
+  return String(q.question || '').replace(/\s+/g, ' ').trim().slice(0, n);
+}
+
+function joinGraph(meta, items, storyByQid) {
+  const itemById = Object.fromEntries(items.map(q => [String(q.id), q]));
+  const nodes = meta.nodes.map(n => {
+    const q = itemById[String(n.id)];
+    if (!q) throw new Error('QID ' + n.id + ' missing from story ITEMS');
+    const story = storyByQid[String(n.id)] || { stage: null, text: '(No story beat mapped.)' };
+    return {
+      id: String(n.id),
+      category: n.category,
+      why: n.why || '',
+      sceneId: q.sceneId,
+      indexInScene: q.indexInScene,
+      sceneTitle: q.sceneTitle,
+      sceneHook: q.sceneHook,
+      stem: stemOf(q),
+      storyStage: story.stage,
+      storyText: story.text,
+      question: q.question || '',
+      answers: q.answers || [],
+      explanation: q.explanation || '',
+      likely: q.likely || '',
+      hasReveal: !!q.hasReveal,
+    };
+  });
+  const counts = {
+    primary: nodes.filter(n => n.category === 'primary').length,
+    mimic: nodes.filter(n => n.category === 'mimic').length,
+    thread: nodes.filter(n => n.category === 'thread').length,
+  };
+  const mainPath = (meta.mainPath && meta.mainPath.length)
+    ? meta.mainPath.map(String)
+    : nodes.filter(n => n.category === 'primary').map(n => n.id);
+  return { meta, nodes, edges: meta.edges || [], counts, mainPath };
+}
+
+// ── UI helpers ────────────────────────────────────────────────────────────────
+function buildProgress() {
+  const wrap = document.getElementById('progress');
+  wrap.innerHTML = '';
+  GRAPH.mainPath.forEach((id, i) => {
+    const el = document.createElement('div');
+    el.className = 'step';
+    el.textContent = String(i + 1);
+    el.title = 'Spine step ' + (i + 1) + ' · QID ' + id + ' · Scene ' + (byId[id]?.sceneId || '?');
+    el.onclick = () => {
+      const d = byId[id];
+      if (!d) return;
+      const board = document.getElementById('board');
+      const rect = board.getBoundingClientRect();
+      openHud(d, { clientX: rect.left + (d.x || rect.width / 2), clientY: rect.top + (d.y || rect.height / 3) });
+    };
+    wrap.appendChild(el);
+  });
+}
+
+function markProgress(d) {
+  if (d.category !== 'primary') return;
+  const idx = GRAPH.mainPath.indexOf(d.id);
+  if (idx < 0) return;
+  document.querySelectorAll('.progress .step').forEach((el, i) => { el.classList.toggle('done', i <= idx); });
+}
+
+function closeHud() {
+  document.querySelectorAll('.hud').forEach(h => h.remove());
+  if (svg) svg.selectAll('.leader').remove();
+}
+
+function removeHudSave(hud) {
+  try { localStorage.removeItem(hudStorageKey(hud)); } catch (_) {}
+}
+
+function cleanAnsText(text) {
+  return String(text || '').replace(/\s*\(?[\d.]+%\)?\s*$/, '').trim();
+}
+
+function questionHTML(q) {
+  const ans = (q.answers || []).map(a =>
+    '<li><strong>' + esc(a.label) + '.</strong> ' + esc(cleanAnsText(a.text)) + '</li>'
+  ).join('');
+  return `
+    <div class="qwrap">
+      <p style="font-size:0.8rem; white-space:pre-wrap;">${esc(q.question)}</p>
+      <ul class="answers">${ans}</ul>
+      ${q.likely ? '<button class="answer-toggle" type="button">Show Answer</button><div class="likely">Answer: ' + esc(q.likely) + '</div>' : ''}
+      <details><summary>Explanation</summary><pre>${esc(q.explanation || '(none)')}</pre></details>
+    </div>`;
+}
+
+// ── HUD drag/resize + position save ──────────────────────────────────────────
+function makeHudDraggable(hud) {
+  const bar = hud.querySelector('.drag-bar');
+  if (!bar) return;
+  const board = document.getElementById('board');
+
+  // ── Drag ──
+  bar.addEventListener('mousedown', (e) => {
+    if (e.target.classList.contains('close')) return;
+    e.preventDefault();
+    const startX = e.clientX, startY = e.clientY;
+    const startLeft = parseInt(hud.style.left, 10) || 0;
+    const startTop = parseInt(hud.style.top, 10) || 0;
+    hud.style.transition = 'none';
+
+    const onMove = (ev) => {
+      hud.style.left = Math.max(0, Math.min(board.clientWidth - 240, startLeft + ev.clientX - startX)) + 'px';
+      hud.style.top = Math.max(0, Math.min(board.clientHeight - 80, startTop + ev.clientY - startY)) + 'px';
+    };
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      hud.style.transition = '';
+      saveHudPosition(hud);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  // ── Resize observer — save width/height on mouseup inside the hud ──
+  hud.addEventListener('mouseup', () => saveHudPosition(hud));
+}
+
+function hudStorageKey(hud) {
+  return 'hud-pos-' + (currentSet || '0') + '-' + (hud.dataset.hudId || 'default');
+}
+
+function saveHudPosition(hud) {
+  try {
+    const key = hudStorageKey(hud);
+    localStorage.setItem(key, JSON.stringify({
+      left: hud.style.left, top: hud.style.top,
+      width: hud.style.width, height: hud.style.height,
+    }));
+  } catch (_) {}
+}
+
+function restoreHudPosition(hud) {
+  try {
+    const key = hudStorageKey(hud);
+    const saved = localStorage.getItem(key);
+    if (!saved) return;
+    const p = JSON.parse(saved);
+    if (p.left) hud.style.left = p.left;
+    if (p.top) hud.style.top = p.top;
+    if (p.width) hud.style.width = p.width;
+    if (p.height) hud.style.height = p.height;
+  } catch (_) {}
+}
+
+function wireAnswerToggle(hud) {
+  hud.querySelectorAll('.answer-toggle').forEach(btn => {
+    btn.onclick = () => {
+      const likely = hud.querySelector('.likely');
+      if (likely) { likely.style.display = 'block'; }
+      btn.remove();
+    };
+  });
+}
+
+function openHud(d, event) {
+  closeHud();
+  markProgress(d);
+  const isMain = d.category === 'primary';
+  const board = document.getElementById('board');
+  const boardRect = board.getBoundingClientRect();
+  const nodeX = event.clientX - boardRect.left;
+  const nodeY = event.clientY - boardRect.top;
+  let hx = Math.min(nodeX + 24, boardRect.width - 316);
+  let hy = Math.max(10, Math.min(nodeY - 40, boardRect.height - 220));
+  hx = Math.max(8, hx);
+
+  const spineNum = GRAPH.mainPath.indexOf(d.id);
+  const stageLabel = d.storyStage ? (d.storyStage + ' beat') : 'Story beat';
+  const kicker = isMain
+    ? ('Main story' + (spineNum >= 0 ? ' · #' + (spineNum + 1) : '') + ' · Scene ' + d.sceneId)
+    : ((d.category === 'thread' ? 'Deeper dive · thread' : 'Deeper dive · mimic') + ' · Scene ' + d.sceneId);
+
+  const hud = document.createElement('div');
+  hud.className = 'hud';
+  hud.dataset.hudId = 'node-' + d.id;
+  hud.style.left = hx + 'px';
+  hud.style.top = hy + 'px';
+  hud.innerHTML = `
+    <div class="drag-bar"><span class="drag-label">${kicker}</span><button class="close" type="button" aria-label="Close">&times;</button></div>
+    <div class="hud-body-inner">
+      <h3>${esc(stageLabel)}</h3>
+      <p>${esc(d.storyText)}</p>
+      <button class="reveal-btn" type="button">Reveal the question →</button>
+    </div>
+  `;
+  board.appendChild(hud);
+  hud.querySelector('.close').onclick = () => { removeHudSave(hud); closeHud(); };
+  hud.querySelector('.reveal-btn').onclick = () => {
+    const btn = hud.querySelector('.reveal-btn');
+    btn.remove();
+    const body = hud.querySelector('.hud-body-inner');
+    body.insertAdjacentHTML('beforeend', questionHTML(d));
+    wireAnswerToggle(hud);
+    // expand height to fit content
+    hud.style.height = 'auto';
+    saveHudPosition(hud);
+  };
+  makeHudDraggable(hud);
+  restoreHudPosition(hud);
+
+  if (svg && d.x != null) {
+    svg.append('line')
+      .attr('class', 'leader')
+      .attr('x1', d.x).attr('y1', d.y)
+      .attr('x2', d.x + (hx + 20 - nodeX))
+      .attr('y2', d.y + (hy + 20 - nodeY));
+  }
+}
+
+function resolveEnds(link) {
+  const a = typeof link.source === 'object' ? link.source : byId[link.source];
+  const b = typeof link.target === 'object' ? link.target : byId[link.target];
+  return [a, b];
+}
+
+function orderBySpine(a, b) {
+  const ia = GRAPH.mainPath.indexOf(a.id);
+  const ib = GRAPH.mainPath.indexOf(b.id);
+  if (ia >= 0 && ib >= 0 && ia > ib) return [b, a];
+  return [a, b];
+}
+
+function openEdgeHud(link, event) {
+  closeHud();
+  let [a, b] = resolveEnds(link);
+  if (!a || !b) return;
+  [a, b] = orderBySpine(a, b);
+  markProgress(b);
+
+  const board = document.getElementById('board');
+  const boardRect = board.getBoundingClientRect();
+  const nodeX = event.clientX - boardRect.left;
+  const nodeY = event.clientY - boardRect.top;
+  let hx = Math.min(nodeX + 18, boardRect.width - 330);
+  let hy = Math.max(10, Math.min(nodeY - 30, boardRect.height - 280));
+  hx = Math.max(8, hx);
+
+  const na = GRAPH.mainPath.indexOf(a.id);
+  const nb = GRAPH.mainPath.indexOf(b.id);
+  const adjacent = na >= 0 && nb >= 0 && Math.abs(na - nb) === 1;
+  const title = adjacent
+    ? ('Spine step #' + (Math.min(na, nb) + 1) + ' → #' + (Math.max(na, nb) + 1))
+    : ('Spine link · #' + (na + 1) + ' ↔ #' + (nb + 1));
+  const bridge = adjacent
+    ? 'The story walks from one beat into the next.'
+    : 'These two spine beats are joined across the main diagnosis thread.';
+
+  const hud = document.createElement('div');
+  hud.className = 'hud';
+  hud.dataset.hudId = 'edge-' + Math.min(na, nb) + '-' + Math.max(na, nb);
+  hud.style.width = '320px';
+  hud.style.left = hx + 'px';
+  hud.style.top = hy + 'px';
+  hud.innerHTML = `
+    <div class="drag-bar"><span class="drag-label">Main spine line · Scene ${a.sceneId} → ${b.sceneId}</span><button class="close" type="button" aria-label="Close">&times;</button></div>
+    <div class="hud-body-inner">
+      <h3>${esc(title)}</h3>
+      <p>${esc(bridge)}</p>
+      <div class="bridge">
+        <div class="beat-label">#${na + 1} · ${esc(a.storyStage || 'Beat')} · QID ${esc(a.id)}</div>
+        <p>${esc(a.storyText)}</p>
+        <div class="beat-label">#${nb + 1} · ${esc(b.storyStage || 'Beat')} · QID ${esc(b.id)}</div>
+        <p>${esc(b.storyText)}</p>
+      </div>
+      <button class="reveal-btn" type="button" data-which="a">Reveal question #${na + 1} →</button>
+      <button class="reveal-btn" type="button" data-which="b" style="margin-top:6px;">Reveal question #${nb + 1} →</button>
+      <div id="edge-q"></div>
+    </div>
+  `;
+  board.appendChild(hud);
+  hud.querySelector('.close').onclick = () => { removeHudSave(hud); closeHud(); };
+  hud.querySelectorAll('.reveal-btn').forEach(btn => {
+    btn.onclick = () => {
+      const q = btn.dataset.which === 'a' ? a : b;
+      btn.remove();
+      const slot = hud.querySelector('#edge-q');
+      slot.innerHTML = questionHTML(q);
+      wireAnswerToggle(hud);
+      hud.style.height = 'auto';
+      saveHudPosition(hud);
+    };
+  });
+  makeHudDraggable(hud);
+  restoreHudPosition(hud);
+
+  if (svg && a.x != null && b.x != null) {
+    const mx = (a.x + b.x) / 2;
+    const my = (a.y + b.y) / 2;
+    svg.append('line').attr('class', 'leader').attr('x1', mx).attr('y1', my).attr('x2', hx + 20).attr('y2', hy + 20);
+  }
+}
+
+function applyReveal(v) {
+  const opacity = v / 100;
+  // Universal approach: spin nodes tagged with data-spine="1" stay fully visible;
+  // everything else fades. Same for links: data-spinelink="1" = coral spine line.
+  if (svg) {
+    svg.selectAll('.g-node').each(function () {
+      const el = d3.select(this);
+      const isSpine = el.attr('data-spine') === '1';
+      if (!isSpine) {
+        el.style('opacity', opacity).style('pointer-events', v < 5 ? 'none' : 'auto');
+      }
+    });
+    svg.selectAll('.g-link').each(function () {
+      const el = d3.select(this);
+      const isSpine = el.attr('data-spinelink') === '1';
+      el.style('opacity', isSpine ? 0.55 + 0.25 * (1 - opacity) : opacity * 0.55);
+    });
+    svg.selectAll('.primary-hit').style('pointer-events', 'auto');
+  }
+}
+
+// ── Graph rendering ───────────────────────────────────────────────────────────
+function renderGraph() {
+  // Kill old simulation
+  if (simulation) { simulation.stop(); simulation = null; }
+  closeHud();
+  byId = Object.fromEntries(GRAPH.nodes.map(n => [n.id, n]));
+  buildProgress();
+
+  const el = document.getElementById('chart');
+  el.innerHTML = '';
+  const board = document.getElementById('board');
+  board.querySelectorAll('.loading').forEach(l => l.remove());
+  board.querySelectorAll('.hud').forEach(h => h.remove());
+
+  const W = el.clientWidth;
+  const H = el.clientHeight;
+
+  const threadLabel = GRAPH.counts.thread > 0 ? ` · ${GRAPH.counts.thread} thread` : '';
+  document.getElementById('counts').textContent =
+    GRAPH.counts.primary + ' spine · ' + GRAPH.counts.mimic + ' mimic doors' + threadLabel + '  |  ' +
+    (GRAPH.meta.coreDiagnosis || 'Set ' + GRAPH.meta.set);
+
+  svg = d3.select('#chart').append('svg')
+    .attr('width', W).attr('height', H).attr('viewBox', [0, 0, W, H]);
+
+  const nodes = GRAPH.nodes.map(d => ({ ...d }));
+  const links = GRAPH.edges.map(d => ({ ...d }));
+
+  simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id)
+      .distance(d => d.kind === 'scene' ? 40 : 130)
+      .strength(d => d.kind === 'scene' ? 0.7 : 0.12))
+    .force('charge', d3.forceManyBody().strength(-90))
+    .force('center', d3.forceCenter(W / 2, H / 2))
+    .force('collide', d3.forceCollide(13));
+
+  // ── Universal spine tag (not category-dependent) ──
+  const spineSet = new Set(GRAPH.mainPath.map(String));
+
+  const primaryLinks = links.filter(d =>
+    spineSet.has(String(typeof d.source === 'object' ? d.source.id :
+      (typeof d.source === 'string' ? d.source : d.source))) &&
+    spineSet.has(String(typeof d.target === 'object' ? d.target.id :
+      (typeof d.target === 'string' ? d.target : d.target))));
+  const otherLinks = links.filter(d => !primaryLinks.includes(d));
+
+  // Visible edges — wrapped in <g class="g-link"> so the slider can select them
+  linkSel = svg.append('g').attr('stroke-linecap', 'round')
+    .selectAll('g').data(otherLinks.concat(primaryLinks)).join('g')
+    .attr('class', 'g-link')
+    .attr('data-spinelink', d => primaryLinks.includes(d) ? '1' : '0')
+    .append('line')
+    .attr('stroke', d => primaryLinks.includes(d) ? COLORS.primary : (d.kind === 'scene' ? '#d7dce4' : COLORS.thread))
+    .attr('stroke-opacity', d => d.kind === 'scene' ? 0.5 : 0.55)
+    .attr('stroke-width', d => primaryLinks.includes(d) ? 2.2 : (d.kind === 'scene' ? 0.6 : 1.2));
+
+  // Wide invisible hit targets for spine lines
+  svg.append('g').attr('stroke-linecap', 'round')
+    .selectAll('line').data(primaryLinks).join('line')
+    .attr('class', 'primary-hit')
+    .on('click', (event, d) => { event.stopPropagation(); openEdgeHud(d, event); });
+
+  // Nodes — wrapped in <g class="g-node"> for slider targeting
+  nodeSel = svg.append('g').selectAll('g').data(nodes).join('g')
+    .attr('class', 'g-node')
+    .attr('data-spine', d => spineSet.has(String(d.id)) ? '1' : '0')
+    .each(function (d) {
+      const g = d3.select(this);
+      g.append('circle')
+        .attr('r', spineSet.has(String(d.id)) ? 10 : 6)
+        .attr('fill', spineSet.has(String(d.id)) ? COLORS.primary : (COLORS[d.category] || COLORS.mimic))
+        .attr('stroke', '#fff')
+        .attr('stroke-width', spineSet.has(String(d.id)) ? 2 : 1.4)
+        .style('cursor', 'pointer')
+        .call(d3.drag()
+          .on('start', (event, d) => { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+          .on('drag', (event, d) => { d.fx = event.x; d.fy = event.y; })
+          .on('end', (event, d) => { if (!event.active) simulation.alphaTarget(0); d.fx = d.x; d.fy = d.y; }))
+        .on('click', (event, d) => { event.stopPropagation(); openHud(d, event); });
+      // Number label for spine nodes
+      if (spineSet.has(String(d.id))) {
+        const i = GRAPH.mainPath.indexOf(String(d.id));
+        g.append('text')
+          .attr('font-family', 'Inter, sans-serif')
+          .attr('font-size', 10).attr('font-weight', 700)
+          .attr('fill', '#ffffff').attr('text-anchor', 'middle')
+          .attr('dominant-baseline', 'central')
+          .style('pointer-events', 'none')
+          .text(i >= 0 ? String(i + 1) : '');
+      }
+    });
+
+  // Update node positions on tick — target circles and text inside each <g>
+  simulation.on('tick', () => {
+    linkSel.each(function (d) {
+      const line = d3.select(this).select('line');
+      line.attr('x1', d.source.x).attr('y1', d.source.y)
+        .attr('x2', d.target.x).attr('y2', d.target.y);
+    });
+    nodeSel.each(function (d) {
+      d3.select(this).select('circle').attr('cx', d.x).attr('cy', d.y);
+      d3.select(this).select('text').attr('x', d.x).attr('y', d.y);
+    });
+  }).on('end', () => { nodes.forEach(n => { n.fx = n.x; n.fy = n.y; }); });
+
+  nodes.forEach(n => { byId[n.id] = n; });
+
+  const slider = document.getElementById('revealSlider');
+  slider.oninput = () => applyReveal(+slider.value);
+  slider.value = 100;
+  applyReveal(100);
+}
+
+// ── Loading ───────────────────────────────────────────────────────────────────
+function showLoading() {
+  document.getElementById('counts').textContent = 'Loading…';
+  document.getElementById('setInfo').textContent = '';
+  document.getElementById('progress').innerHTML = '';
+  closeHud();
+  const board = document.getElementById('board');
+  board.querySelectorAll('.loading').forEach(l => l.remove());
+  const loader = document.createElement('div');
+  loader.className = 'loading';
+  loader.innerHTML = '<div class="spinner"></div>Loading graph…';
+  board.appendChild(loader);
+}
+
+async function loadSet(setNum) {
+  if (currentSet === setNum && GRAPH) return;
+  currentSet = setNum;
+  showLoading();
+  hideErr();
+
+  try {
+    const pad = String(setNum).padStart(2, '0');
+    const dataFile = `graph-data-set-${pad}.json`;
+    const storyFile = SET_REGISTRY[setNum];
+    if (!storyFile) throw new Error('No story file registered for Set ' + setNum);
+
+    const metaRes = await fetch('./' + dataFile, { cache: 'no-store' });
+    if (!metaRes.ok) throw new Error('HTTP ' + metaRes.status + ' for ' + dataFile);
+    const meta = await metaRes.json();
+
+    const storyRes = await fetch('./' + storyFile, { cache: 'no-store' });
+    if (!storyRes.ok) throw new Error('HTTP ' + storyRes.status + ' for ' + storyFile);
+    const storyHtml = await storyRes.text();
+
+    const items = parseItems(storyHtml);
+    const storyByQid = parseStoryByQid(storyHtml, items);
+    GRAPH = joinGraph(meta, items, storyByQid);
+
+    document.getElementById('setInfo').textContent =
+      `Set ${setNum} · ${meta.coreDiagnosis || '—'} · ${GRAPH.counts.primary}P / ${GRAPH.counts.mimic}M`;
+
+    renderGraph();
+  } catch (e) {
+    console.error(e);
+    document.getElementById('board').querySelectorAll('.loading').forEach(l => l.remove());
+    showErr('<strong>Failed to load Set ' + setNum + '.</strong> Make sure the server is running (' +
+      '<code>python -m http.server 8765</code> in scrape-bank).<br/><br/>Detail: ' + esc(e.message));
+  }
+}
+
+// ── Populate dropdown + boot ──────────────────────────────────────────────────
+function populatePicker() {
+  const sel = document.getElementById('setPicker');
+  for (let s = 1; s <= 20; s++) {
+    const opt = document.createElement('option');
+    opt.value = s;
+    // Quick labels from the manifest
+    const labels = {
+      1:'1 · Lupus/CTD',2:'2 · Chest pain',3:'3 · Syncope',4:'4 · Anemia',5:'5 · Thyroid',
+      6:'6 · Dyspnea',7:'7 · Acute abdomen',8:'8 · Jaundice',9:'9 · Headache',10:'10 · Joint pain',
+      11:'11 · Diabetes',12:'12 · Acid-Base',13:'13 · Electrolytes',14:'14 · Stroke',15:'15 · Renal',
+      16:'16 · GI Bleed',17:'17 · Arrhythmias',18:'18 · Sepsis',19:'19 · Endocrine',20:'20 · Infectious',
+    };
+    opt.textContent = labels[s] || ('Set ' + s);
+    sel.appendChild(opt);
+  }
+  sel.addEventListener('change', () => {
+    const v = +sel.value;
+    if (v) loadSet(v);
+  });
+}
+
+document.getElementById('board').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('board') || e.target.tagName === 'svg') closeHud();
+});
+
+populatePicker();
+// Auto-load Set 1 on open
+loadSet(1);
+</script>
+</body>
+</html>

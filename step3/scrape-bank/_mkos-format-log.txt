@@ -1,0 +1,110 @@
+
+=== 07/12/2026 17:18:03 ===
+Physical disks:
+
+FriendlyName                     Size BusType HealthStatus
+------------                     ---- ------- ------------
+SAMSUNG KUS030202M-B000  256060514304 NVMe    Healthy     
+AL SSD                  4194304000000 USB     Healthy     
+
+
+
+Disks:
+
+Number FriendlyName                    Size PartitionStyle BusType OperationalStatus
+------ ------------                    ---- -------------- ------- -----------------
+     0 SAMSUNG KUS030202M-B000 256060514304 GPT            NVMe    Online           
+
+
+
+ERROR: Could not find USB AL SSD as a Disk object. Attempting volume D format only.
+
+Final volumes:
+
+DriveLetter FileSystemLabel FileSystem         Size SizeRemaining
+----------- --------------- ----------         ---- -------------
+                            FAT32         100663296      64486400
+                            NTFS          851439616     121196544
+C                           NTFS       255084982272   45483114496
+
+
+
+DONE
+[2026-07-12T17:19:18.3667832-04:00] === elevated diskpart attempt ===
+[2026-07-12T17:19:18.9367259-04:00] 
+Microsoft DiskPart version 10.0.26100.1150
+
+Copyright (C) Microsoft Corporation.
+On computer: THEMASTER
+
+  Disk ###  Status         Size     Free     Dyn  Gpt
+  --------  -------------  -------  -------  ---  ---
+  Disk 0    Online          238 GB  1024 KB        *
+
+Disk 1 is now the selected disk.
+
+Virtual Disk Service error:
+The system's information about the object may not be up to date.
+
+
+DiskPart has referenced an object which is not up-to-date.
+Refresh the object by using the RESCAN command.
+If the problem persists exit DiskPart, then restart DiskPart or restart the
+computer.
+
+[2026-07-12T17:19:18.9387437-04:00] volumes after:
+[2026-07-12T17:19:19.2578329-04:00] 
+DeviceID VolumeName FileSystem         Size   FreeSpace
+-------- ---------- ----------         ----   ---------
+C:                  NTFS       255084982272 45482926080
+D:                                                     
+
+
+
+[2026-07-12T17:19:54.2046424-04:00] === rescan + disable/enable USB disk ===
+[2026-07-12T17:19:56.6553071-04:00] PnP: 
+Status FriendlyName      InstanceId                                            
+------ ------------      ----------                                            
+OK     AL SSD USB Device USBSTOR\DISK&VEN_AL&PROD_SSD&REV_5.00\6&17BDB717&0&_&0
+
+
+
+[2026-07-12T17:19:58.6940974-04:00] Disabled AL SSD
+[2026-07-12T17:20:02.1239592-04:00] Enabled AL SSD
+[2026-07-12T17:20:05.9984763-04:00] 
+Microsoft DiskPart version 10.0.26100.1150
+
+Copyright (C) Microsoft Corporation.
+On computer: THEMASTER
+
+Please wait while DiskPart scans your configuration...
+
+DiskPart has finished scanning your configuration.
+
+  Disk ###  Status         Size     Free     Dyn  Gpt
+  --------  -------------  -------  -------  ---  ---
+  Disk 0    Online          238 GB  1024 KB        *
+
+  Volume ###  Ltr  Label        Fs     Type        Size     Status     Info
+  ----------  ---  -----------  -----  ----------  -------  ---------  --------
+  Volume 0     C                NTFS   Partition    237 GB  Healthy    Boot    
+  Volume 1                      FAT32  Partition    100 MB  Healthy    System  
+  Volume 2                      NTFS   Partition    812 MB  Healthy    Hidden  
+
+[2026-07-12T17:20:06.0624348-04:00] Get-Disk after rescan:
+[2026-07-12T17:20:10.7296740-04:00] 
+Number FriendlyName                    Size BusType PartitionStyle OperationalStatus
+------ ------------                    ---- ------- -------------- -----------------
+     0 SAMSUNG KUS030202M-B000 256060514304 NVMe    GPT            Online           
+
+
+
+[2026-07-12T17:20:10.7409336-04:00] Win32 disks:
+[2026-07-12T17:20:11.1659989-04:00] 
+Index Model                           Size InterfaceType Status
+----- -----                           ---- ------------- ------
+    0 SAMSUNG KUS030202M-B000 256052966400 SCSI          OK    
+    1 AL SSD USB Device                  0 USB           OK    
+
+
+

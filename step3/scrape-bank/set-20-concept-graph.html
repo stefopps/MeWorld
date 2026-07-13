@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Set 20 · story map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    --bg: #ffffff; --ink: #17202b; --muted: #6b7686;
+    --accent: #2563eb; --border: #e3e7ee;
+    --coral: #d8552f; --gray: #9a9890; --teal: #17916b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    font-family: Inter, system-ui, sans-serif;
+    background: var(--bg); color: var(--ink);
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 20px 16px 60px; }
+  h1 { font-size: 1.1rem; margin: 0 0 4px; font-weight: 650; }
+  .sub { color: var(--muted); font-size: 0.85rem; margin: 0 0 12px; line-height: 1.45; }
+  .legend { display:flex; gap:16px; margin-bottom:10px; font-size:12px; color: var(--muted); flex-wrap: wrap; }
+  .legend span { display:flex; align-items:center; gap:5px; }
+  .dot { width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .progress { display:flex; gap:6px; margin-bottom:10px; flex-wrap: wrap; }
+  .progress .step {
+    width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size: 11px; color: var(--muted);
+    cursor: pointer; background: #fff;
+  }
+  .progress .step.done { background: var(--coral); border-color: var(--coral); color: #fff; font-weight:600; }
+  .progress .step:hover { border-color: var(--coral); }
+  .slider-row {
+    display:flex; align-items:center; gap:12px; margin-bottom:14px;
+    font-size:0.82rem; color:var(--muted);
+  }
+  .slider-row input[type=range] { flex:1; max-width:260px; }
+  .stage-board {
+    position: relative; width: 100%; height: min(78vh, 620px);
+    background: #fafbfc; border-radius: 12px; border: 1px solid var(--border); overflow: visible;
+  }
+  #chart { width: 100%; height: 100%; }
+  .counts { margin-top: 10px; color: var(--muted); font-size: 0.82rem; }
+  .err {
+    margin-top: 16px; padding: 14px 16px; border-radius: 12px; display: none;
+    background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;
+    font-size: 0.9rem; line-height: 1.5;
+  }
+  .hud {
+    position: absolute; width: 300px; background: #fff; border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; font-size: 0.85rem; line-height: 1.55;
+    box-shadow: 0 6px 24px rgba(20,25,35,0.12); z-index: 20;
+  }
+  .hud .kicker { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; font-weight: 600; }
+  .kicker.main { color: var(--coral); }
+  .kicker.door { color: var(--accent); }
+  .hud h3 { margin: 0 0 6px; font-size: 0.95rem; font-weight: 600; }
+  .hud p { margin: 0; color: var(--ink); }
+  .hud .close {
+    position: absolute; top: 8px; right: 10px; cursor: pointer; color: var(--muted);
+    font-size: 16px; background: none; border: none; line-height: 1;
+  }
+  .hud .reveal-btn {
+    margin-top: 10px; width: 100%; padding: 7px 10px; border-radius: 7px; border: 1px solid var(--accent);
+    background: #fff; color: var(--accent); font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  .hud .reveal-btn:hover { background: #eef3ff; }
+  .hud .qwrap { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+  .hud .bridge {
+    margin: 10px 0 0; padding: 10px 0 0; border-top: 1px solid var(--border);
+  }
+  .hud .bridge .beat-label {
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--coral); font-weight: 700; margin: 0 0 4px;
+  }
+  .hud .bridge p { margin: 0 0 10px; }
+  .hud .answers { margin: 8px 0 0; padding: 0; list-style: none; }
+  .hud .answers li {
+    margin: 5px 0; padding: 6px 8px; border-radius: 6px; background: #f5f7fa;
+    border: 1px solid var(--border); font-size: 0.78rem; line-height: 1.4;
+  }
+  .hud .likely { margin-top: 8px; color: #0f8f5f; font-size: 0.78rem; font-weight: 600; }
+  .hud details { margin-top: 8px; color: var(--muted); font-size: 0.78rem; }
+  .hud details summary { cursor: pointer; color: var(--accent); }
+  .hud details pre {
+    white-space: pre-wrap; font-family: inherit; margin: 6px 0 0;
+    max-height: 180px; overflow: auto; color: #40485a;
+  }
+  .leader { stroke: #b8bfc9; stroke-width: 1; stroke-dasharray: 3 3; fill: none; }
+  .primary-link { cursor: pointer; }
+  .primary-hit { cursor: pointer; stroke: transparent; stroke-width: 14; fill: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Set 20 · story map</h1>
+  <p class="sub">Auto-classified: primary nodes = scene 1 &amp; 5 anchor beats. Rest = differential doors.
+    Data loads live from <code>graph-data-set-20.json</code> + <code>set-20-story-vb.html</code>.
+    <strong>Core: Infectious disease</strong>.</p>
+
+  <div class="legend">
+    <span><span class="dot" style="background:var(--coral)"></span>Main spine (scene 1 &amp; 5 anchors)</span>
+    <span><span class="dot" style="background:var(--gray)"></span>Differential doors (scenes 2–4)</span>
+    <span style="color:var(--muted)">Auto-classified — Master review before final</span>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <div class="slider-row">
+    <span>Main spine only</span>
+    <input type="range" id="revealSlider" min="0" max="100" value="100"/>
+    <span>Full map</span>
+  </div>
+
+  <div class="stage-board" id="board">
+    <div id="chart"></div>
+  </div>
+  <div class="counts" id="counts">Loading…</div>
+  <div class="err" id="err"></div>
+</div>
+
+<script>
+const DATA_URL = './graph-data-set-20.json';
+const COLORS = { primary: '#d8552f', mimic: '#9a9890', thread: '#17916b' };
+
+let GRAPH = null;
+let byId = {};
+let nodeSel = null;
+let linkSel = null;
+let stepLabel = null;
+let svg = null;
+let simulation = null;
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showErr(msg) {
+  const el = document.getElementById('err');
+  el.style.display = 'block';
+  el.innerHTML = msg;
+  document.getElementById('counts').textContent = 'Failed to load data';
+}
+
+function parseItems(html) {
+  const start = html.indexOf('const ITEMS = ');
+  if (start < 0) throw new Error('ITEMS not found in story HTML');
+  const from = start + 'const ITEMS = '.length;
+  const end = html.lastIndexOf('];', html.indexOf('\nconst SCENES', from));
+  return JSON.parse(html.slice(from, end + 1));
+}
+
+function parseStoryByQid(html, items) {
+  const start = html.indexOf('const STORY_STEPS = ');
+  if (start < 0) return {};
+  const from = start + 'const STORY_STEPS = '.length;
+  const end = html.indexOf('\nlet si = 0', from);
+  const raw = html.slice(from, end).trim().replace(/;$/, '');
+  const STORY = Function('return (' + raw + ')')();
+  const map = {};
+  for (const [sid, steps] of Object.entries(STORY)) {
+    for (const step of steps) {
+      const m = String(step.text).match(/\[\[(\d)\]\]/);
+      if (!m) continue;
+      const idx = +m[1];
+      const q = items.find(i => i.sceneId === +sid && i.indexInScene === idx);
+      if (!q) continue;
+      map[String(q.id)] = {
+        stage: step.stage || null,
+        text: String(step.text).replace(/\[\[\d\]\]/g, '').replace(/\s+/g, ' ').trim(),
+      };
+    }
+  }
+  return map;
+}
+
+function stemOf(q, n = 70) {
+  return String(q.question || '').replace(/\s+/g, ' ').trim().slice(0, n);
+}
+
+function joinGraph(meta, items, storyByQid) {
+  const itemById = Object.fromEntries(items.map(q => [String(q.id), q]));
+  const nodes = meta.nodes.map(n => {
+    const q = itemById[String(n.id)];
+    if (!q) throw new Error('QID ' + n.id + ' missing from story ITEMS');
+    const story = storyByQid[String(n.id)] || { stage: null, text: '(No story beat mapped.)' };
+    return {
+      id: String(n.id),
+      category: n.category,
+      why: n.why || '',
+      sceneId: q.sceneId,
+      indexInScene: q.indexInScene,
+      sceneTitle: q.sceneTitle,
+      sceneHook: q.sceneHook,
+      stem: stemOf(q),
+      storyStage: story.stage,
+      storyText: story.text,
+      question: q.question || '',
+      answers: q.answers || [],
+      explanation: q.explanation || '',
+      likely: q.likely || '',
+      hasReveal: !!q.hasReveal,
+    };
+  });
+  const counts = {
+    primary: nodes.filter(n => n.category === 'primary').length,
+    mimic: nodes.filter(n => n.category === 'mimic').length,
+    thread: nodes.filter(n => n.category === 'thread').length,
+  };
+  const mainPath = (meta.mainPath && meta.mainPath.length)
+    ? meta.mainPath.map(String)
+    : nodes.filter(n => n.category === 'primary').map(n => n.id);
+  return { meta, nodes, edges: meta.edges || [], counts, mainPath };
+}
+
+function buildProgress() {
+  const wrap = document.getElementById('progress');
+  wrap.innerHTML = '';
+  GRAPH.mainPath.forEach((id, i) => {
+    const el = document.createElement('div');
+    el.className = 'step';
+    el.textContent = String(i + 1);
+    el.title = 'Spine step ' + (i + 1) + ' · QID ' + id + ' · Scene ' + (byId[id]?.sceneId || '?');
+    el.onclick = () => {
+      const d = byId[id];
+      if (!d) return;
+      // synthesize a click near the node
+      const board = document.getElementById('board');
+      const rect = board.getBoundingClientRect();
+      openHud(d, {
+        clientX: rect.left + (d.x || rect.width / 2),
+        clientY: rect.top + (d.y || rect.height / 3),
+      });
+    };
+    wrap.appendChild(el);
+  });
+}
+
+function markProgress(d) {
+  if (d.category !== 'primary') return;
+  const idx = GRAPH.mainPath.indexOf(d.id);
+  if (idx < 0) return;
+  document.querySelectorAll('.progress .step').forEach((el, i) => {
+    el.classList.toggle('done', i <= idx);
+  });
+}
+
+function closeHud() {
+  document.querySelectorAll('.hud').forEach(h => h.remove());
+  if (svg) svg.selectAll('.leader').remove();
+}
+
+function questionHTML(q) {
+  const ans = (q.answers || []).map(a =>
+    '<li><strong>' + esc(a.label) + '.</strong> ' + esc(a.text) + '</li>'
+  ).join('');
+  return `
+    <div class="qwrap">
+      <p style="font-size:0.8rem; white-space:pre-wrap;">${esc(q.question)}</p>
+      <ul class="answers">${ans}</ul>
+      ${q.likely ? '<div class="likely">Likely correct: ' + esc(q.likely) + '</div>' : ''}
+      <details><summary>Explanation</summary><pre>${esc(q.explanation || '(none)')}</pre></details>
+    </div>`;
+}
+
+function openHud(d, event) {
+  closeHud();
+  markProgress(d);
+  const isMain = d.category === 'primary';
+  const board = document.getElementById('board');
+  const boardRect = board.getBoundingClientRect();
+  const nodeX = event.clientX - boardRect.left;
+  const nodeY = event.clientY - boardRect.top;
+  let hx = Math.min(nodeX + 24, boardRect.width - 316);
+  let hy = Math.max(10, Math.min(nodeY - 40, boardRect.height - 220));
+  hx = Math.max(8, hx);
+
+  const spineNum = GRAPH.mainPath.indexOf(d.id);
+  const stageLabel = d.storyStage ? (d.storyStage + ' beat') : 'Story beat';
+  const kicker = isMain
+    ? ('Main story' + (spineNum >= 0 ? ' · #' + (spineNum + 1) : '') + ' · Scene ' + d.sceneId)
+    : ((d.category === 'thread' ? 'Deeper dive · SS thread' : 'Deeper dive · mimic') + ' · Scene ' + d.sceneId);
+
+  const hud = document.createElement('div');
+  hud.className = 'hud';
+  hud.style.left = hx + 'px';
+  hud.style.top = hy + 'px';
+  hud.innerHTML = `
+    <button class="close" type="button" aria-label="Close">&times;</button>
+    <div class="kicker ${isMain ? 'main' : 'door'}">${kicker}</div>
+    <h3>${esc(stageLabel)}</h3>
+    <p>${esc(d.storyText)}</p>
+    <button class="reveal-btn" type="button">Reveal the question →</button>
+  `;
+  board.appendChild(hud);
+  hud.querySelector('.close').onclick = closeHud;
+  hud.querySelector('.reveal-btn').onclick = (btnEvent) => {
+    const btn = btnEvent.currentTarget;
+    btn.remove();
+    hud.insertAdjacentHTML('beforeend', questionHTML(d));
+  };
+
+  if (svg && d.x != null) {
+    svg.append('line')
+      .attr('class', 'leader')
+      .attr('x1', d.x).attr('y1', d.y)
+      .attr('x2', d.x + (hx + 20 - nodeX))
+      .attr('y2', d.y + (hy + 20 - nodeY));
+  }
+}
+
+function resolveEnds(link) {
+  const a = typeof link.source === 'object' ? link.source : byId[link.source];
+  const b = typeof link.target === 'object' ? link.target : byId[link.target];
+  return [a, b];
+}
+
+function orderBySpine(a, b) {
+  const ia = GRAPH.mainPath.indexOf(a.id);
+  const ib = GRAPH.mainPath.indexOf(b.id);
+  if (ia >= 0 && ib >= 0 && ia > ib) return [b, a];
+  return [a, b];
+}
+
+function openEdgeHud(link, event) {
+  closeHud();
+  let [a, b] = resolveEnds(link);
+  if (!a || !b) return;
+  [a, b] = orderBySpine(a, b);
+  markProgress(b);
+
+  const board = document.getElementById('board');
+  const boardRect = board.getBoundingClientRect();
+  const nodeX = event.clientX - boardRect.left;
+  const nodeY = event.clientY - boardRect.top;
+  let hx = Math.min(nodeX + 18, boardRect.width - 330);
+  let hy = Math.max(10, Math.min(nodeY - 30, boardRect.height - 280));
+  hx = Math.max(8, hx);
+
+  const na = GRAPH.mainPath.indexOf(a.id);
+  const nb = GRAPH.mainPath.indexOf(b.id);
+  const adjacent = na >= 0 && nb >= 0 && Math.abs(na - nb) === 1;
+  const title = adjacent
+    ? ('Spine step #' + (Math.min(na, nb) + 1) + ' → #' + (Math.max(na, nb) + 1))
+    : ('Spine link · #' + (na + 1) + ' ↔ #' + (nb + 1));
+  const bridge = adjacent
+    ? 'The story walks from one beat into the next.'
+    : 'These two spine beats are joined across the main diagnosis thread.';
+
+  const hud = document.createElement('div');
+  hud.className = 'hud';
+  hud.style.width = '320px';
+  hud.style.left = hx + 'px';
+  hud.style.top = hy + 'px';
+  hud.innerHTML = `
+    <button class="close" type="button" aria-label="Close">&times;</button>
+    <div class="kicker main">Main spine line · Scene ${a.sceneId} → ${b.sceneId}</div>
+    <h3>${esc(title)}</h3>
+    <p>${esc(bridge)}</p>
+    <div class="bridge">
+      <div class="beat-label">#${na + 1} · ${esc(a.storyStage || 'Beat')} · QID ${esc(a.id)}</div>
+      <p>${esc(a.storyText)}</p>
+      <div class="beat-label">#${nb + 1} · ${esc(b.storyStage || 'Beat')} · QID ${esc(b.id)}</div>
+      <p>${esc(b.storyText)}</p>
+    </div>
+    <button class="reveal-btn" type="button" data-which="a">Reveal question #${na + 1} →</button>
+    <button class="reveal-btn" type="button" data-which="b" style="margin-top:6px;">Reveal question #${nb + 1} →</button>
+    <div id="edge-q"></div>
+  `;
+  board.appendChild(hud);
+  hud.querySelector('.close').onclick = closeHud;
+  hud.querySelectorAll('.reveal-btn').forEach(btn => {
+    btn.onclick = () => {
+      const q = btn.dataset.which === 'a' ? a : b;
+      const slot = hud.querySelector('#edge-q');
+      slot.innerHTML = questionHTML(q);
+    };
+  });
+
+  if (svg && a.x != null && b.x != null) {
+    const mx = (a.x + b.x) / 2;
+    const my = (a.y + b.y) / 2;
+    svg.append('line')
+      .attr('class', 'leader')
+      .attr('x1', mx).attr('y1', my)
+      .attr('x2', hx + 20).attr('y2', hy + 20);
+  }
+}
+
+function applyReveal(v) {
+  const opacity = v / 100;
+  d3.selectAll('.secondary-node')
+    .style('opacity', opacity)
+    .style('pointer-events', v < 5 ? 'none' : 'auto');
+  d3.selectAll('.secondary-link')
+    .style('opacity', opacity * 0.55)
+    .style('pointer-events', 'none');
+  d3.selectAll('.primary-link')
+    .style('opacity', 0.55 + 0.25 * (1 - opacity));
+  d3.selectAll('.primary-hit')
+    .style('pointer-events', 'auto');
+}
+
+function renderGraph() {
+  byId = Object.fromEntries(GRAPH.nodes.map(n => [n.id, n]));
+  buildProgress();
+
+  const el = document.getElementById('chart');
+  el.innerHTML = '';
+  const W = el.clientWidth;
+  const H = el.clientHeight;
+  document.getElementById('counts').textContent =
+    GRAPH.counts.primary + ' spine · ' +
+    GRAPH.counts.mimic + ' mimic doors · ' +
+    GRAPH.counts.thread + ' SS thread  |  live from JSON + story';
+
+  svg = d3.select('#chart').append('svg')
+    .attr('width', W).attr('height', H)
+    .attr('viewBox', [0, 0, W, H]);
+
+  const nodes = GRAPH.nodes.map(d => ({ ...d }));
+  const links = GRAPH.edges.map(d => ({ ...d }));
+
+  simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id)
+      .distance(d => d.kind === 'scene' ? 40 : 130)
+      .strength(d => d.kind === 'scene' ? 0.7 : 0.12))
+    .force('charge', d3.forceManyBody().strength(-90))
+    .force('center', d3.forceCenter(W / 2, H / 2))
+    .force('collide', d3.forceCollide(13));
+
+  const primaryLinks = links.filter(d => d.kind === 'thread' && d.category === 'primary');
+  const otherLinks = links.filter(d => !(d.kind === 'thread' && d.category === 'primary'));
+
+  // Visible edges (non-primary first so primary sit on top)
+  linkSel = svg.append('g').attr('stroke-linecap', 'round')
+    .selectAll('line').data(otherLinks.concat(primaryLinks)).join('line')
+    .attr('stroke', d => {
+      if (d.kind === 'scene') return '#d7dce4';
+      if (d.category === 'primary') return COLORS.primary;
+      return COLORS.thread;
+    })
+    .attr('stroke-opacity', d => d.kind === 'scene' ? 0.5 : 0.55)
+    .attr('stroke-width', d => {
+      if (d.kind === 'scene') return 0.6;
+      if (d.category === 'primary') return 2.2;
+      return 1.2;
+    })
+    .attr('class', d => {
+      if (d.kind === 'scene') return 'secondary-link';
+      if (d.category === 'thread') return 'secondary-link';
+      return 'primary-link';
+    });
+
+  // Wide invisible hit targets for coral spine lines
+  const hitSel = svg.append('g').attr('stroke-linecap', 'round')
+    .selectAll('line').data(primaryLinks).join('line')
+    .attr('class', 'primary-hit')
+    .on('click', (event, d) => {
+      event.stopPropagation();
+      openEdgeHud(d, event);
+    });
+
+  nodeSel = svg.append('g').selectAll('circle').data(nodes).join('circle')
+    .attr('r', d => d.category === 'primary' ? 10 : 6)
+    .attr('fill', d => COLORS[d.category])
+    .attr('stroke', '#fff')
+    .attr('stroke-width', d => d.category === 'primary' ? 2 : 1.4)
+    .attr('class', d => d.category === 'primary' ? 'spine-node' : 'secondary-node')
+    .style('cursor', 'pointer')
+    .call(d3.drag()
+      .on('start', (event, d) => {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x; d.fy = d.y;
+      })
+      .on('drag', (event, d) => { d.fx = event.x; d.fy = event.y; })
+      .on('end', (event, d) => {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = d.x; d.fy = d.y;
+      }))
+    .on('click', (event, d) => {
+      event.stopPropagation();
+      openHud(d, event);
+    });
+
+  stepLabel = svg.append('g').selectAll('text')
+    .data(nodes.filter(d => d.category === 'primary'))
+    .join('text')
+    .attr('font-family', 'Inter, sans-serif')
+    .attr('font-size', 10)
+    .attr('font-weight', 700)
+    .attr('fill', '#ffffff')
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'central')
+    .style('pointer-events', 'none')
+    .text(d => {
+      const i = GRAPH.mainPath.indexOf(d.id);
+      return i >= 0 ? String(i + 1) : '';
+    });
+
+  simulation.on('tick', () => {
+    linkSel
+      .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+    hitSel
+      .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+    nodeSel.attr('cx', d => d.x).attr('cy', d => d.y);
+    stepLabel.attr('x', d => d.x).attr('y', d => d.y);
+  }).on('end', () => {
+    nodes.forEach(n => { n.fx = n.x; n.fy = n.y; });
+  });
+
+  // sync byId positions as simulation runs
+  nodes.forEach(n => { byId[n.id] = n; });
+
+  const slider = document.getElementById('revealSlider');
+  slider.oninput = () => applyReveal(+slider.value);
+  applyReveal(+slider.value);
+}
+
+async function boot() {
+  try {
+    const metaRes = await fetch(DATA_URL, { cache: 'no-store' });
+    if (!metaRes.ok) throw new Error('HTTP ' + metaRes.status + ' for ' + DATA_URL);
+    const meta = await metaRes.json();
+    const storyFile = meta.storyFile || 'set-01-story-va.html';
+    const storyRes = await fetch('./' + storyFile, { cache: 'no-store' });
+    if (!storyRes.ok) throw new Error('HTTP ' + storyRes.status + ' for ' + storyFile);
+    const storyHtml = await storyRes.text();
+    const items = parseItems(storyHtml);
+    const storyByQid = parseStoryByQid(storyHtml, items);
+    GRAPH = joinGraph(meta, items, storyByQid);
+    renderGraph();
+  } catch (e) {
+    console.error(e);
+    showErr(
+      '<strong>Could not load live data.</strong> Serve this folder over HTTP ' +
+      '(e.g. <code>python -m http.server 8765</code>), then open ' +
+      '<code>/set-01-concept-graph.html</code>.<br/><br/>Detail: ' + esc(e.message)
+    );
+  }
+}
+
+document.getElementById('board').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('board') || e.target.tagName === 'svg') closeHud();
+});
+
+boot();
+</script>
+</body>
+</html>
