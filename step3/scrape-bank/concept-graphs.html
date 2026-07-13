@@ -2105,7 +2105,15 @@ async function fetchFullBeat(node) {
   }
 
   const ans = (node.answers || []).map(a => a.label + '. ' + cleanAnsText(a.text)).join(' | ');
-  const avatarName = (GRAPH.meta && GRAPH.meta.coreDiagnosis) ? cleanDiagnosisLabel(GRAPH.meta.coreDiagnosis).split(/[\/·]\s*/)[0].trim() : 'the avatar';
+  const ch = (GRAPH && GRAPH.character) || null;
+  const avatarName = ch ? ch.name : ((GRAPH.meta && GRAPH.meta.coreDiagnosis) ? cleanDiagnosisLabel(GRAPH.meta.coreDiagnosis).split(/[\/·]\s*/)[0].trim() : 'the avatar');
+  const mentorName = (ch && ch.mentor) || 'Dr. Iwu';
+  const charWNFG = ch
+    ? `- Want: ${ch.want}
+- Need: ${ch.need}
+- Flaw: ${ch.flaw}
+- Ghost: ${ch.ghost}`
+    : '';
   const scenePeerCount = GRAPH.nodes.filter(n => String(n.sceneId) === String(node.sceneId)).length;
 
   // Determine structure hint
@@ -2126,8 +2134,9 @@ async function fetchFullBeat(node) {
 ${AVATAR_STORY_RULES}
 
 CONTEXT FOR THIS NODE:
-- Avatar name: ${avatarName}
-- Mentor name: Dr. Iwu
+- Avatar: ${avatarName} (${ch ? ch.age + '' + ch.gender + ', ' : ''}${ch ? ch.domain || '' : ''})
+${charWNFG ? '\n' + charWNFG + '\n' : ''}
+- Mentor: ${mentorName}
 - This node: ${isSpine ? 'CONFIRMED SPINE NODE (the avatar\'s own case, position ' + (spineIdx+1) + ' of ' + totalSpine + ')' : 'DOOR NODE (comparison case, NOT the avatar\'s own)'}
 - Structure: ${structureHint}
 - Scene ${node.sceneId} has ${scenePeerCount} total comparison cases ${isSpine ? 'and ' + spineInScene + ' spine nodes' : ''}
