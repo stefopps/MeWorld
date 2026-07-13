@@ -305,6 +305,15 @@
   .hud .fb-editable:hover .fb-edit-btn { opacity: 1; }
   .hud .fb-edit-btn:hover { color: var(--accent); background: #eef3ff; }
   .hud .fb-edit-area { width: 100%; font-family: inherit; font-size: 0.8rem; line-height: 1.55; border: 1px solid var(--accent); border-radius: 5px; padding: 6px 8px; resize: vertical; box-sizing: border-box; min-height: 60px; }
+  .hud .fb-regen-btn {
+    margin-top: 8px; font-family: inherit; font-size: 0.65rem; font-weight: 600;
+    padding: 4px 8px; border-radius: 5px; cursor: pointer;
+    border: 1px solid var(--border); background: #fff; color: var(--muted);
+    display: none;
+  }
+  .hud .fb-regen-btn:hover { border-color: var(--accent); color: var(--accent); background: #eef3ff; }
+  .hud .fb-regen-btn.spinning i { animation: spin 0.6s linear infinite; }
+  [data-theme="dark"] .hud .fb-regen-btn { background: #1f2230; color: var(--muted); }
 
   /* Approve / Needs work inline row */
   .hud .pc-actions { display: flex; gap: 6px; }
@@ -1896,6 +1905,120 @@ Respond with ONLY the concept line. No preamble.`;
   } catch (_) { return null; }
 }
 
+// ── Avatar Saga Story Rules (full doc, embedded for DeepSeek prompts) ──
+const AVATAR_STORY_RULES = `## Character engine: Want / Need / Flaw / Ghost
+
+Every avatar gets these four things locked before any story gets written for them:
+- **Want:** what she consciously thinks she's after
+- **Need:** what she actually has to learn or accept, often in tension with the Want
+- **Flaw:** the specific behavior that causes her own complications, not a generic character trait, something concrete enough to show up as a plot point
+- **Ghost:** the past event explaining why the flaw exists
+
+The Flaw is the load-bearing piece. It's what turns a Freytag-lite two-node spine into an actual story instead of two clinical facts in sequence, the flaw from Node 1 should be visibly present in Node 2's crisis, not introduced fresh.
+
+## Structure depends on spine count
+
+**Two or fewer confirmed spine nodes → Freytag-lite.** Exposition (the flaw or trait gets planted), rising action (the flaw's cost starts to show), and a crisis point. No resolution beat. Plant a trait, let it fire later, don't manufacture a beat that doesn't exist.
+
+**Five to eight confirmed spine nodes within one scene → Dan Harmon's Story Circle.** You/Need/Go/Search/Find/Take/Return/Change, one real question mapped to each stage by narrative function, not by scrape order.
+
+**Zero spine nodes → witnessed content, not story shape at all.** If the node isn't the avatar's own case, it's something she observes or is taught. Write it with an honest, stated reason she's present (shadowing, a teaching session, a mentor walking her through cases). Don't apply dramatic structure.
+
+## Hard rules (NON-NEGOTIABLE)
+
+1. **Environment first.** Establish where, when, and what's physically around the characters before any dialogue or reasoning. Never open on floating dialogue.
+2. **Only two named characters ever appear:** the avatar and her mentor. No third named patient narrated as a separate character. Comparison cases are things the avatar or mentor recall, reference, or pass through, never independently staged scenes.
+3. **One continuous narrative voice.** Write as continuous prose, not separately labeled paragraphs.
+4. **Zero em dashes**, anywhere, ever.
+5. **Every comparison case referenced must trace to a real question in that scene's actual data.** Never invent clinical content.
+6. **Continuity connects backward explicitly.** If a spine node is the same underlying disease surfacing in a new organ or context, say so directly in the prose.
+7. **State the spine count when done.** After writing, explicitly note how many spine nodes this scene has and which QIDs they are.
+
+## Verification
+Check this node's correct answer against what the story claims her diagnosis is. A story reading well is not evidence it's factually consistent with the data underneath it.`;
+
+// ── On-the-fly full beat generation (story writing, governed by avatar-saga rules) ──
+async function fetchFullBeat(node) {
+  const key = localStorage.getItem('ds_api_key');
+  if (!key) return null;
+
+  // Check log first
+  const logged = await fetchLogged(node.id, 'fullBeat');
+  if (logged) return logged;
+
+  // Build spine context
+  const isSpine = node.category === 'primary';
+  const spineIdx = GRAPH.mainPath.indexOf(String(node.id));
+  const totalSpine = GRAPH.mainPath.length;
+
+  // Find previous spine node (same disease, earlier position) for continuity
+  let prevSpineNode = null;
+  if (spineIdx > 0) {
+    const prevId = GRAPH.mainPath[spineIdx - 1];
+    prevSpineNode = byId[prevId] || null;
+  }
+
+  const ans = (node.answers || []).map(a => a.label + '. ' + cleanAnsText(a.text)).join(' | ');
+  const avatarName = (GRAPH.meta && GRAPH.meta.coreDiagnosis) ? GRAPH.meta.coreDiagnosis.split('/')[0].trim() : 'the avatar';
+  const scenePeerCount = GRAPH.nodes.filter(n => String(n.sceneId) === String(node.sceneId)).length;
+
+  // Determine structure hint
+  const spineInScene = GRAPH.mainPath.filter(id => {
+    const n = byId[id];
+    return n && String(n.sceneId) === String(node.sceneId);
+  }).length;
+  let structureHint = spineInScene <= 2
+    ? 'FREYTAG-LITE (exposition → rising action → crisis, no resolution)'
+    : spineInScene >= 5
+      ? 'FULL HARMON CIRCLE (You/Need/Go/Search/Find/Take/Return/Change)'
+      : 'Partial — use only the beats that the real data supports';
+
+  if (!isSpine) structureHint = 'WITNESSED CONTENT — avatar is observing or being taught, not her own case';
+
+  const systemPrompt = `You are a clinical fiction writer governed by the following story rules. Do NOT deviate from them.
+
+${AVATAR_STORY_RULES}
+
+CONTEXT FOR THIS NODE:
+- Avatar name: ${avatarName}
+- Mentor name: Dr. Iwu
+- This node: ${isSpine ? 'CONFIRMED SPINE NODE (the avatar\'s own case, position ' + (spineIdx+1) + ' of ' + totalSpine + ')' : 'DOOR NODE (comparison case, NOT the avatar\'s own)'}
+- Structure: ${structureHint}
+- Scene ${node.sceneId} has ${scenePeerCount} total comparison cases ${isSpine ? 'and ' + spineInScene + ' spine nodes' : ''}
+${prevSpineNode ? '- Previous spine node (continuity required): QID ' + prevSpineNode.id + ' · ' + (stemOf(prevSpineNode, 120)) : ''}
+${isSpine && spineIdx === 0 ? '- This is the FIRST spine node. Plant the avatar\'s flaw or trait here.' : ''}
+
+Write a single continuous narrative paragraph (80-200 words) for this node. Follow the rules exactly.`;
+
+  const prompt = `Write the narrative beat for this CCS board question node:
+
+Question: """${node.question}"""
+Correct answer: ${node.likely || 'N/A'}
+Answer choices: ${ans}
+
+Respond with ONLY the narrative paragraph. No preamble, no headers, no sign-off. Zero em dashes.`;
+
+  try {
+    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt },
+        ],
+        temperature: 0.7, max_tokens: 500,
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const beat = (data.choices?.[0]?.message?.content?.trim() || '');
+    if (beat) logDS(node.id, 'fullBeat', prompt, systemPrompt, beat);
+    return beat;
+  } catch (_) { return null; }
+}
+
 function buildRevealHTML(d) {
   const triage = readTriage(d.id);
   const line = triage?.concept || '';
@@ -1928,6 +2051,7 @@ function buildRevealHTML(d) {
         <p style="margin:0 0 10px;font-size:0.8rem;color:var(--ink);" id="fbtext-${d.id}">${esc(d.storyText)}</p>
         <button class="fb-edit-btn" id="fbedit-${d.id}" title="Edit story beat"><i class="ti ti-pencil"></i></button>
       </div>
+      <button class="fb-regen-btn" id="fbregen-${d.id}" title="Regenerate story beat"><i class="ti ti-refresh"></i>&nbsp;Regenerate</button>
     </div>
 
     <div class="ind-toggle" id="it-firstpri-${d.id}">
@@ -2118,8 +2242,53 @@ function wireReveal(container, d) {
     };
   }
 
-  // Show full beat
-  toggleInd('it-full-' + qid, 'ib-full-' + qid);
+  // Show full beat — generate on the fly via DeepSeek
+  const fbToggle = container.querySelector('#it-full-' + qid);
+  const fbBody = container.querySelector('#ib-full-' + qid);
+  const fbRegenBtn = container.querySelector('#fbregen-' + qid);
+  if (fbToggle && fbBody && fbTextEl) {
+    fbToggle.onclick = async () => {
+      const isOpen = fbBody.classList.toggle('open');
+      fbToggle.querySelector('.toggle-chevron').className = 'ti ti-chevron-' + (isOpen ? 'up' : 'down') + ' toggle-chevron';
+      if (isOpen) {
+        // Show the regenerate button
+        if (fbRegenBtn) fbRegenBtn.style.display = 'inline-block';
+        const triage = readTriage(qid);
+        if (triage?.fullBeat) {
+          fbTextEl.innerHTML = mdToHtml(triage.fullBeat);
+        } else {
+          fbTextEl.innerHTML = '<em>Generating narrative…</em>';
+          const beat = await fetchFullBeat(d);
+          if (beat) {
+            fbTextEl.innerHTML = mdToHtml(beat);
+            fieldSave(qid, 'fullBeat', beat);
+          } else {
+            fbTextEl.innerHTML = '<em>Could not generate — try Regenerate.</em>';
+          }
+        }
+      } else {
+        if (fbRegenBtn) fbRegenBtn.style.display = 'none';
+      }
+      resize();
+    };
+
+    // Regenerate button
+    if (fbRegenBtn) {
+      fbRegenBtn.onclick = async (e) => {
+        e.stopPropagation();
+        fbRegenBtn.classList.add('spinning');
+        fbTextEl.innerHTML = '<em>Regenerating…</em>';
+        const beat = await fetchFullBeat(d);
+        fbRegenBtn.classList.remove('spinning');
+        if (beat) {
+          fbTextEl.innerHTML = mdToHtml(beat);
+          fieldSave(qid, 'fullBeat', beat);
+        } else {
+          fbTextEl.innerHTML = '<em>Regeneration failed — try again.</em>';
+        }
+      };
+    }
+  }
 
   // First principles — attending voice teaching
   const fpToggle = container.querySelector('#it-firstpri-' + qid);
