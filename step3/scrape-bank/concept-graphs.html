@@ -925,11 +925,8 @@ function renderGraph() {
 // ── Loading ───────────────────────────────────────────────────────────────────
 function showLoading() {
   document.getElementById('counts').textContent = 'Loading…';
-  // Update dropdown label
-  const sel = document.getElementById('setPicker');
-  const opt = sel.querySelector('option[value="' + setNum + '"]');
-  if (opt) opt.textContent = 'Set ' + setNum + ' · ' + (meta.coreDiagnosis || '—').slice(0, 50);
   document.getElementById('setInfo').textContent = '';
+  document.getElementById('progress').innerHTML = '';
   document.getElementById('progress').innerHTML = '';
   closeHud();
   const board = document.getElementById('board');
@@ -964,6 +961,10 @@ async function loadSet(setNum) {
     const storyByQid = parseStoryByQid(storyHtml, items);
     GRAPH = joinGraph(meta, items, storyByQid);
 
+    // Update dropdown label from loading... to real diagnosis
+    const sel = document.getElementById('setPicker');
+    const opt = sel.querySelector('option[value="' + setNum + '"]');
+    if (opt) opt.textContent = 'Set ' + setNum + ' · ' + (meta.coreDiagnosis || '—').slice(0, 45);
     document.getElementById('setInfo').textContent =
       `Set ${setNum} · ${meta.coreDiagnosis || '—'} · ${GRAPH.counts.primary}P / ${GRAPH.counts.mimic}M`;
 
