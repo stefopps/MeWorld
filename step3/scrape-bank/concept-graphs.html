@@ -2052,7 +2052,17 @@ Respond with ONLY the concept line. No preamble.`;
 }
 
 // ── Avatar Saga Story Rules (full doc, embedded for DeepSeek prompts) ──
-const AVATAR_STORY_RULES = `## Character engine: Want / Need / Flaw / Ghost
+const AVATAR_STORY_RULES = `## The archetype: earned structure, not a template
+
+There is no single fixed story shape used everywhere. The shape a scene or spine gets depends on how much real spine content actually exists for it. Do not force a bigger structure than the content supports.
+
+**Two or fewer confirmed spine nodes → Freytag-lite.** Exposition (the flaw or trait gets planted), rising action (the flaw's cost starts to show), and a crisis point. No resolution beat. Plant a trait, let it fire later, don't manufacture a beat that doesn't exist.
+
+**Five to eight confirmed spine nodes within one scene → Dan Harmon's Story Circle is earned.** You/Need/Go/Search/Find/Take/Return/Change, one real question mapped to each stage by narrative function, not by scrape order.
+
+**Zero spine nodes → witnessed content, not story shape at all.** If the node isn't the avatar's own case, it's something she observes or is taught. Write it with an honest, stated reason she's present (shadowing, a teaching session, a mentor walking her through cases). Don't apply dramatic structure.
+
+## Character engine: Want / Need / Flaw / Ghost
 
 Every avatar gets these four things locked before any story gets written for them:
 - **Want:** what she consciously thinks she's after
@@ -2062,23 +2072,33 @@ Every avatar gets these four things locked before any story gets written for the
 
 The Flaw is the load-bearing piece. It's what turns a Freytag-lite two-node spine into an actual story instead of two clinical facts in sequence, the flaw from Node 1 should be visibly present in Node 2's crisis, not introduced fresh.
 
-## Structure depends on spine count
-
-**Two or fewer confirmed spine nodes → Freytag-lite.** Exposition (the flaw or trait gets planted), rising action (the flaw's cost starts to show), and a crisis point. No resolution beat. Plant a trait, let it fire later, don't manufacture a beat that doesn't exist.
-
-**Five to eight confirmed spine nodes within one scene → Dan Harmon's Story Circle.** You/Need/Go/Search/Find/Take/Return/Change, one real question mapped to each stage by narrative function, not by scrape order.
-
-**Zero spine nodes → witnessed content, not story shape at all.** If the node isn't the avatar's own case, it's something she observes or is taught. Write it with an honest, stated reason she's present (shadowing, a teaching session, a mentor walking her through cases). Don't apply dramatic structure.
-
 ## Hard rules (NON-NEGOTIABLE)
 
 1. **Environment first.** Establish where, when, and what's physically around the characters before any dialogue or reasoning. Never open on floating dialogue.
 2. **Only two named characters ever appear:** the avatar and her mentor. No third named patient narrated as a separate character. Comparison cases are things the avatar or mentor recall, reference, or pass through, never independently staged scenes.
-3. **One continuous narrative voice.** Write as continuous prose, not separately labeled paragraphs.
+3. **One continuous narrative voice.** Write as continuous prose, not separately labeled paragraphs bolted together.
 4. **Zero em dashes**, anywhere, ever.
-5. **Every comparison case referenced must trace to a real question in that scene's actual data.** Never invent clinical content.
+5. **Every comparison case referenced must trace to a real question in that scene's actual data.** Never invent clinical content to fill a gap.
 6. **Continuity connects backward explicitly.** If a spine node is the same underlying disease surfacing in a new organ or context, say so directly in the prose.
 7. **State the spine count when done.** After writing, explicitly note how many spine nodes this scene has and which QIDs they are.
+
+## Appendix D — Prose discipline (NON-NEGOTIABLE generation constraints)
+
+### D1. No purple prose / adjective overload
+- No promotional or inflated language (vibrant, profound, stunning, breathtaking). Cut clinical equivalents like "his eyes fixed intently."
+- Cut adjectives that aren't load-bearing. A detail earns its place only if it does story work (the flaw, the stakes, the mechanism), not because it sounds atmospheric.
+- No rule-of-three padding. No forced groups of three details where one or two would do.
+- Vary sentence rhythm: short sentences next to longer ones, not uniform length throughout.
+- Say it plainly. If a sentence could lose a word without losing meaning, cut the word.
+
+### D2. No staccato negatives — HARD BAN
+No constructions like "not X, not Y" or "not just X, it's Y." Pick the actual thing and state it. This exact pattern produced nonsense in a prior generation; it is a hard ban, not a style preference. Never write "not this, not that" or any variant.
+
+### D3. Meta-instruction leakage is FORBIDDEN
+Never echo or reference the generation system's own instructions, skill names, or prompt language in the output. Specifically FORBIDDEN: "humanizer," "storytelling skills," "clairvoyants," or any self-referential content about how the prose was written. This is a pipeline defect, not a prose issue — do not produce it.
+
+### D4. Character pronoun consistency is LOCKED
+Use ONLY the pronouns explicitly stated for each character. Never infer or default. If the character's gender and pronouns are stated, use them exactly — one wrong pronoun invalidates the entire output.
 
 ## Verification
 Check this node's correct answer against what the story claims her diagnosis is. A story reading well is not evidence it's factually consistent with the data underneath it.`;
@@ -2108,12 +2128,17 @@ async function fetchFullBeat(node) {
   const ch = (GRAPH && GRAPH.character) || null;
   const avatarName = ch ? ch.name : ((GRAPH.meta && GRAPH.meta.coreDiagnosis) ? cleanDiagnosisLabel(GRAPH.meta.coreDiagnosis).split(/[\/·]\s*/)[0].trim() : 'the avatar');
   const mentorName = (ch && ch.mentor) || 'Dr. Iwu';
+  const avatarPronoun = (ch && ch.gender === 'M') ? 'he/him/his' : 'she/her/hers';
+  const mentorPronoun = 'he/him/his'; // Dr. Iwu is male, locked, non-negotiable
   const charWNFG = ch
     ? `- Want: ${ch.want}
 - Need: ${ch.need}
 - Flaw: ${ch.flaw}
 - Ghost: ${ch.ghost}`
     : '';
+  const charIdentity = `LOCKED CHARACTER FACTS (use these pronouns exactly, never substitute):
+- ${avatarName}: ${ch ? ch.gender + ', ' + avatarPronoun + ', age ' + ch.age : 'pronouns as appropriate for name'}
+- ${mentorName}: M, ${mentorPronoun} (male, never use she/her for this character)`;
   const scenePeerCount = GRAPH.nodes.filter(n => String(n.sceneId) === String(node.sceneId)).length;
 
   // Determine structure hint
@@ -2133,19 +2158,29 @@ async function fetchFullBeat(node) {
 
 ${AVATAR_STORY_RULES}
 
+${charIdentity}
+
 CONTEXT FOR THIS NODE:
-- Avatar: ${avatarName} (${ch ? ch.age + '' + ch.gender + ', ' : ''}${ch ? ch.domain || '' : ''})
 ${charWNFG ? '\n' + charWNFG + '\n' : ''}
-- Mentor: ${mentorName}
 - This node: ${isSpine ? 'CONFIRMED SPINE NODE (the avatar\'s own case, position ' + (spineIdx+1) + ' of ' + totalSpine + ')' : 'DOOR NODE (comparison case, NOT the avatar\'s own)'}
 - Structure: ${structureHint}
 - Scene ${node.sceneId} has ${scenePeerCount} total comparison cases ${isSpine ? 'and ' + spineInScene + ' spine nodes' : ''}
 ${prevSpineNode ? '- Previous spine node (continuity required): QID ' + prevSpineNode.id + ' · ' + (stemOf(prevSpineNode, 120)) : ''}
 ${isSpine && spineIdx === 0 ? '- This is the FIRST spine node. Plant the avatar\'s flaw or trait here.' : ''}
 
+PROSE RULES (apply as generation constraints, not as cleanup):
+- No purple prose. Cut adjectives that aren't load-bearing. No inflated language.
+- No staccato negatives: never use "not X, not Y" or "not just X, it's Y" constructions.
+- No rule-of-three padding.
+- Vary sentence rhythm: short sentences next to longer ones.
+- Say it plainly. If a word can be cut without losing meaning, cut it.
+
+REMEMBER: ${avatarName} uses ${avatarPronoun}. ${mentorName} uses he/him/his ONLY. Never refer to ${mentorName} as she or her.
+Never mention "humanizer," "storytelling skills," "clairvoyants," or any system instruction terms in the output.
+
 Write a single continuous narrative paragraph (80-200 words) for this node. Follow the rules exactly.`;
 
-  const prompt = `Write the narrative beat for this CCS board question node:
+  let prompt = `Write the narrative beat for this CCS board question node:
 
 Question: """${node.question}"""
 Correct answer: ${node.likely || 'N/A'}
@@ -2153,25 +2188,100 @@ Answer choices: ${ans}
 
 Respond with ONLY the narrative paragraph. No preamble, no headers, no sign-off. Zero em dashes.`;
 
-  try {
-    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: prompt },
-        ],
-        temperature: 0.7, max_tokens: 500,
-      }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const beat = (data.choices?.[0]?.message?.content?.trim() || '');
-    if (beat) logDS(node.id, 'fullBeat', prompt, systemPrompt, beat);
-    return beat;
-  } catch (_) { return null; }
+  // ── Generation with retry loop (validate + regenerate on failure) ──
+  const MAX_RETRIES = 3;
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt },
+          ],
+          temperature: 0.7, max_tokens: 500,
+        }),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const beat = (data.choices?.[0]?.message?.content?.trim() || '');
+      if (!beat) continue;
+
+      // ── Validate before accepting ──
+      const validation = validateGeneratedBeat(beat, avatarName, avatarPronoun, mentorName, mentorPronoun, ch);
+      if (validation.ok) {
+        logDS(node.id, 'fullBeat', prompt, systemPrompt, beat);
+        return beat;
+      }
+      console.warn('Generation validation failed (attempt ' + (attempt + 1) + '): ' + validation.reason);
+      // Modify prompt with specific fix instruction for retry
+      if (attempt < MAX_RETRIES - 1) {
+        prompt = prompt + '\n\nPREVIOUS ATTEMPT WAS REJECTED: ' + validation.reason + '. Fix this and try again.';
+      }
+    } catch (_) { return null; }
+  }
+  return null; // all retries exhausted
+}
+
+// ── Post-generation validation: catch meta-leaks, pronoun errors, and prose violations ──
+function validateGeneratedBeat(beat, avatarName, avatarPronoun, mentorName, mentorPronoun, ch) {
+  const lower = beat.toLowerCase();
+
+  // 1. Meta-instruction leakage — known skill/prompt vocabulary bleeding into output
+  const META_LEAK_WORDS = [
+    'humanizer', 'storytelling skills', 'storytelling skill', 'clairvoyants',
+    'generation system', 'system prompt', 'system instruction', 'pipeline',
+    'prose discipline', 'prose rule', 'generation constraint', 'cleanup pass',
+    'all those storytelling', 'not this, not that',
+  ];
+  for (const word of META_LEAK_WORDS) {
+    if (lower.includes(word)) {
+      return { ok: false, reason: 'Meta-leak detected: "' + word + '" in output' };
+    }
+  }
+
+  // 2. Staccato negatives — "not X, not Y" pattern
+  if (/not\s+\w+[.,]\s*not\s+\w+/.test(lower) || /not\s+(just|only)\s+\w+[.,]\s*it['']s\s+\w+/.test(lower)) {
+    return { ok: false, reason: 'Staccato negative pattern detected' };
+  }
+
+  // 3. Pronoun consistency — Dr. Iwu must never be "she"/"her"
+  if (mentorName && mentorPronoun === 'he/him/his') {
+    // Check for "she" or "her" referring to the mentor
+    const mentorPattern = new RegExp('\\b' + mentorName.split(' ')[0] + '\\b.{0,30}\\b(she|her)\\b', 'i');
+    if (mentorPattern.test(beat)) {
+      return { ok: false, reason: 'Wrong pronoun: ' + mentorName + ' referred to as she/her' };
+    }
+  }
+
+  // 4. Avatar pronoun consistency
+  if (avatarPronoun === 'she/her/hers' && ch && ch.gender === 'F') {
+    // Avatar is female — check for "he/his" used in close proximity to her name
+    const avPattern = new RegExp('\\b' + avatarName + '\\b.{0,30}\\b(he|his)\\b', 'i');
+    if (avPattern.test(beat)) {
+      return { ok: false, reason: 'Wrong pronoun: ' + avatarName + ' referred to as he/his' };
+    }
+  }
+  if (avatarPronoun === 'he/him/his' && ch && ch.gender === 'M') {
+    const avPattern = new RegExp('\\b' + avatarName + '\\b.{0,30}\\b(she|her)\\b', 'i');
+    if (avPattern.test(beat)) {
+      return { ok: false, reason: 'Wrong pronoun: ' + avatarName + ' referred to as she/her' };
+    }
+  }
+
+  // 5. Em dashes still present (the prompt says zero, but verify)
+  if (beat.includes('\u2014')) {
+    return { ok: false, reason: 'Em dash detected in output' };
+  }
+
+  // 6. Self-referential meta-commentary about the writing
+  if (/i .{0,20}(generated|write|composed|created) (this|the) (story|beat|narrative|paragraph)/i.test(beat)) {
+    return { ok: false, reason: 'Self-referential writing meta-commentary detected' };
+  }
+
+  return { ok: true };
 }
 
 function buildRevealHTML(d) {
