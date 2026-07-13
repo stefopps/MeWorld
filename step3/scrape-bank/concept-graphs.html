@@ -278,8 +278,33 @@
   .hud .pinned-concept .pc-oneliner {
     font-size: 0.85rem; font-weight: 650; color: var(--ink);
     line-height: 1.45; margin-bottom: 8px; min-height: 20px;
+    position: relative; padding-right: 28px;
   }
   .hud .pinned-concept .pc-oneliner.loading { color: var(--muted); font-style: italic; font-weight: 400; }
+  .hud .pinned-concept .pc-edit-btn {
+    position: absolute; top: 0; right: 0; cursor: pointer; color: var(--muted);
+    font-size: 0.72rem; padding: 2px 4px; border-radius: 4px; border: none;
+    background: none; line-height: 1; opacity: 0; transition: opacity .15s;
+  }
+  .hud .pinned-concept .pc-oneliner:hover .pc-edit-btn, .hud .pc-oneliner:focus-within .pc-edit-btn { opacity: 1; }
+  .hud .pinned-concept .pc-edit-btn:hover { color: var(--accent); background: #eef3ff; }
+  .hud .pc-edit-area { width: 100%; font-family: inherit; font-size: 0.85rem; line-height: 1.45; border: 1px solid var(--accent); border-radius: 5px; padding: 4px 6px; resize: vertical; box-sizing: border-box; }
+  .hud .pc-edit-actions { display: flex; gap: 4px; margin-top: 6px; }
+  .hud .pc-edit-actions button { font-family: inherit; font-size: 0.67rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; cursor: pointer; border: 1px solid var(--border); background: #fff; }
+  .hud .pc-edit-actions button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .hud .pc-edit-actions button.primary:hover { opacity: 0.85; }
+  .hud .pc-edit-actions button:hover { background: #f0f3f7; }
+
+  /* Full-beat editable area */
+  .hud .fb-editable { position: relative; }
+  .hud .fb-edit-btn {
+    position: absolute; top: 2px; right: 0; cursor: pointer; color: var(--muted);
+    font-size: 0.68rem; padding: 2px 4px; border-radius: 4px; border: none;
+    background: none; line-height: 1; opacity: 0; transition: opacity .15s;
+  }
+  .hud .fb-editable:hover .fb-edit-btn { opacity: 1; }
+  .hud .fb-edit-btn:hover { color: var(--accent); background: #eef3ff; }
+  .hud .fb-edit-area { width: 100%; font-family: inherit; font-size: 0.8rem; line-height: 1.55; border: 1px solid var(--accent); border-radius: 5px; padding: 6px 8px; resize: vertical; box-sizing: border-box; min-height: 60px; }
 
   /* Approve / Needs work inline row */
   .hud .pc-actions { display: flex; gap: 6px; }
@@ -1652,7 +1677,9 @@ function buildRevealHTML(d) {
         <span class="pc-label"><i class="ti ti-brain"></i>&nbsp;Concept — what is being tested?</span>
         <button class="pc-refresh" id="pcref-${d.id}" title="Regenerate"><i class="ti ti-refresh"></i></button>
       </div>
-      <div class="pc-oneliner${line ? '' : ' loading'}" id="pcone-${d.id}">${line ? esc(line) : 'Distilling…'}</div>
+      <div class="pc-oneliner${line ? '' : ' loading'}" id="pcone-${d.id}">${line ? esc(line) : 'Distilling…'}
+        <button class="pc-edit-btn" id="pcedit-${d.id}" title="Edit concept"><i class="ti ti-pencil"></i></button>
+      </div>
       <div class="pc-actions">
         <button class="pc-approve${approved ? ' flagged' : ''}" id="pcapp-${d.id}"><i class="ti ti-check"></i>&nbsp;Approve</button>
         <button class="pc-needs-work${needsWork ? ' flagged' : ''}" id="pcnw-${d.id}"><i class="ti ti-alert-triangle"></i>&nbsp;Needs work</button>
@@ -1666,7 +1693,10 @@ function buildRevealHTML(d) {
     </div>
     <div class="ind-body" id="ib-full-${d.id}">
       <h3 style="margin:0 0 6px;font-size:0.88rem;font-weight:600;">${esc(stageLabel)}</h3>
-      <p style="margin:0 0 10px;font-size:0.8rem;color:var(--ink);">${esc(d.storyText)}</p>
+      <div class="fb-editable">
+        <p style="margin:0 0 10px;font-size:0.8rem;color:var(--ink);" id="fbtext-${d.id}">${esc(d.storyText)}</p>
+        <button class="fb-edit-btn" id="fbedit-${d.id}" title="Edit story beat"><i class="ti ti-pencil"></i></button>
+      </div>
     </div>
 
     <div class="ind-toggle" id="it-firstpri-${d.id}">
@@ -1698,6 +1728,99 @@ function buildRevealHTML(d) {
   `;
 }
 
+// ── Version-history helpers (per editable field, stored in triage) ─────────
+function fieldHistory(qid, field) {
+  const t = readTriage(qid) || {};
+  const key = '_vh_' + field;
+  if (!t[key]) t[key] = [];
+  return t[key];
+}
+function fieldSave(qid, field, newText) {
+  const t = readTriage(qid) || {};
+  const key = '_vh_' + field;
+  const history = t[key] || [];
+  const current = t[field] || '';
+  if (current && current !== newText && (!history.length || history[history.length - 1].text !== current)) {
+    history.push({ text: current, ts: new Date().toISOString() });
+  }
+  t[key] = history;
+  t[field] = newText;
+  writeTriage(qid, t);
+}
+
+// ── Inline edit helper: swap display → textarea → save → history ──────────
+function makeEditable(displayEl, editBtn, qid, field, isTextArea) {
+  editBtn.onclick = (e) => {
+    e.stopPropagation();
+    // Read current text
+    let currentText = readTriage(qid)?.[field] || displayEl.textContent.replace(/\s+/g, ' ').trim();
+
+    // Hide display, show editor
+    const original = displayEl.textContent;
+    displayEl.style.display = 'none';
+
+    // Build editor inline
+    let editor;
+    if (isTextArea) {
+      editor = document.createElement('div');
+      editor.innerHTML = `
+        <textarea class="fb-edit-area">${esc(currentText)}</textarea>
+        <div class="pc-edit-actions" style="margin-bottom:8px">
+          <button class="primary save-edit-btn"><i class="ti ti-device-floppy"></i>&nbsp;Save</button>
+          <button class="cancel-edit-btn">Cancel</button>
+        </div>`;
+    } else {
+      editor = document.createElement('div');
+      editor.innerHTML = `
+        <input class="pc-edit-area" value="${esc(currentText)}" />
+        <div class="pc-edit-actions">
+          <button class="primary save-edit-btn"><i class="ti ti-device-floppy"></i>&nbsp;Save</button>
+          <button class="cancel-edit-btn">Cancel</button>
+        </div>`;
+    }
+    displayEl.parentNode.insertBefore(editor, displayEl.nextSibling);
+
+    const input = editor.querySelector(isTextArea ? 'textarea' : 'input');
+    const saveBtn = editor.querySelector('.save-edit-btn');
+    const cancelBtn = editor.querySelector('.cancel-edit-btn');
+
+    // Focus
+    setTimeout(() => input.focus(), 0);
+
+    function commit() {
+      const newText = input.value.trim();
+      if (newText && newText !== currentText) {
+        fieldSave(qid, field, newText);
+        displayEl.textContent = newText;
+      }
+      editor.remove();
+      displayEl.style.display = '';
+      // If it's the concept line, remove loading class
+      if (field === 'concept') displayEl.classList.remove('loading');
+    }
+    function cancel() {
+      displayEl.textContent = original;
+      editor.remove();
+      displayEl.style.display = '';
+    }
+
+    saveBtn.onclick = commit;
+    cancelBtn.onclick = cancel;
+    input.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter' && !ev.shiftKey && !isTextArea) { ev.preventDefault(); commit(); }
+      if (ev.key === 'Escape') { ev.preventDefault(); cancel(); }
+    });
+    // Click-away (blur) saves
+    input.addEventListener('blur', () => {
+      // Delay so button clicks register first
+      setTimeout(() => { if (document.body.contains(editor)) commit(); }, 120);
+    });
+    // But save/cancel buttons prevent blur save
+    saveBtn.addEventListener('mousedown', (e) => e.preventDefault());
+    cancelBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  };
+}
+
 function wireReveal(container, d) {
   const qid = d.id;
   const refreshBtn = container.querySelector('#pcref-' + qid);
@@ -1715,14 +1838,14 @@ function wireReveal(container, d) {
     });
   }
 
-  // Refresh
+  // Refresh — uses fieldSave so history is preserved
   refreshBtn.onclick = async () => {
     refreshBtn.classList.add('spinning');
     oneLinerEl.textContent = 'Regenerating…';
     oneLinerEl.classList.add('loading');
     const l = await fetchConceptLine(d);
     refreshBtn.classList.remove('spinning');
-    if (l) { oneLinerEl.textContent = l; oneLinerEl.classList.remove('loading'); const t = readTriage(qid) || {}; t.concept = l; writeTriage(qid, t); }
+    if (l) { oneLinerEl.classList.remove('loading'); fieldSave(qid, 'concept', l); oneLinerEl.textContent = l; }
     else { oneLinerEl.textContent = 'Failed — try again.'; }
   };
 
@@ -1741,6 +1864,15 @@ function wireReveal(container, d) {
     needsWorkBtn.classList.toggle('flagged', t.needsWork);
     approveBtn.classList.remove('flagged');
   };
+
+  // Inline edit: concept line
+  const pcEditBtn = container.querySelector('#pcedit-' + qid);
+  if (pcEditBtn) makeEditable(oneLinerEl, pcEditBtn, qid, 'concept', false);
+
+  // Inline edit: full beat text
+  const fbEditBtn = container.querySelector('#fbedit-' + qid);
+  const fbTextEl = container.querySelector('#fbtext-' + qid);
+  if (fbEditBtn && fbTextEl) makeEditable(fbTextEl, fbEditBtn, qid, 'fullBeat', true);
 
   // Independent toggle helper
   function toggleInd(toggleId, bodyId, onOpen) {
@@ -2638,9 +2770,7 @@ async function loadSet(setNum) {
         try {
           const line = await fetchConceptLine(n);
           if (line) {
-            const t = readTriage(n.id) || {};
-            t.concept = line;
-            writeTriage(n.id, t);
+            fieldSave(n.id, 'concept', line);
           }
         } catch (_) { /* skip */ }
       }
