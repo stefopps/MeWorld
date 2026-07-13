@@ -317,6 +317,22 @@
   .hud .fb-regen-btn.spinning i { animation: spin 0.6s linear infinite; }
   [data-theme="dark"] .hud .fb-regen-btn { background: #1f2230; color: var(--muted); }
 
+  /* Version navigation (A/B cycling) */
+  .hud .version-nav {
+    display: flex; align-items: center; gap: 6px; margin-top: 6px;
+    font-size: 0.65rem; color: var(--muted);
+  }
+  .hud .version-nav .vn-arrow {
+    background: none; border: 1px solid var(--border); border-radius: 4px;
+    padding: 1px 5px; cursor: pointer; color: var(--muted); font-size: 0.7rem;
+    line-height: 1; display: flex; align-items: center;
+  }
+  .hud .version-nav .vn-arrow:hover { border-color: var(--accent); color: var(--accent); background: #eef3ff; }
+  .hud .version-nav .vn-arrow:disabled { opacity: 0.3; cursor: default; border-color: var(--border); }
+  .hud .version-nav .vn-arrow:disabled:hover { background: none; color: var(--muted); }
+  .hud .version-nav .vn-counter { min-width: 32px; text-align: center; }
+  [data-theme="dark"] .hud .version-nav .vn-arrow:hover { background: #1f2230; }
+
   /* Approve / Needs work inline row */
   .hud .pc-actions { display: flex; gap: 6px; }
   .hud .pc-actions button {
@@ -1839,32 +1855,48 @@ async function fetchFirstPrinciples(node) {
 
   const ans = (node.answers || []).map(a => a.label + '. ' + cleanAnsText(a.text)).join(' | ');
 
-  const systemPrompt = `You are a brilliant senior attending physician who teaches by mechanism — not by memorization. Your learner is at the bedside. Reveal WHY through physiology, pathophysiology, and spatial/temporal patterns. Make them feel: "Of course — how could it be any other way?"
+  const systemPrompt = `You are a brilliant senior attending physician on the Immersa platform — a fellow who genuinely loves teaching. You reveal WHY through physiology and physics, not through memorization. Your goal is mechanistic inevitability: the learner should feel "Of course. How could it be any other way?"
 
-Voice (mandatory):
-- Lead with mechanism — what is physically happening in this patient's body?
-- Spatial/temporal "why" when distribution, timing, or location matters.
-- Connect findings — one underlying process, not a catalog of unrelated facts.
-- Contrast with a look-alike when it sharpens the distinction.
-- Direct. Short sentences. Confident, never condescending. Joy in mechanism.
-- Visual/spatial language the learner can picture at the bedside.
-- 2–5 sentences unless the concept demands depth.
-- Wrap salient mechanistic anchors in **double asterisks** — the core pathophysiology, expected finding, rule-out, or bedside decision.
+CORE PHILOSOPHY:
+- Mechanism first — the physics or biology that FORCES the finding. Never recite a feature list.
+- Causal chains — short declarative cause→effect sentences: "The liver isn't clearing ammonia. It builds up. It crosses into the CNS."
+- Answer the spatial/physical "why" — distribution, timing, location explainable by geometry, pressure, gravity.
+- Connect findings — they are one underlying process expressing in different tissues, not unrelated facts.
+- Contrast with a look-alike when it sharpens the distinction by revealing a different mechanism.
+
+VOICE (mandatory):
+- Confident, never condescending. There is joy in mechanism. Direct. Short sentences. No hedging.
+- Visual/spatial language the learner can picture: "the rash is tracing that light map," "the synovium as a sieve."
+- Use concrete models — not abstract descriptions. Make them see it.
+- Punchy insight declarations: "It's not a tremor. It's a lapse."
+- Occasionally ask a short question back to activate the learner's thinking.
+- 80–180 words. Tight. Every sentence must teach.
+
+RESPONSE STRUCTURE:
+[Hook — the surprising or counterintuitive fact]
+[Mechanism — causal chain: what is happening, why it forces this finding]
+[Spatial/temporal logic — why here, now, this distribution]
+[Connect — link to other findings if relevant]
+[Clinical anchor — what this means at the bedside]
+[Optional: one short question back]
 
 FORBIDDEN:
-- "Here's the breakdown", "Key point:", "What it does:", "For this patient:", "ED relevance:"
-- Bullet lists, numbered lists, or outline headers
-- Generic tutor voice disconnected from mechanism
-- Passive voice, hedging, "as an AI", breaking character
-- Em dashes (—) — use commas or periods instead, never em dashes in any reply`;
+- "Here's the breakdown", "Key point:", "What it does:", "For this patient:", "ED relevance:", "This patient has a history of..."
+- Opening on floating patient demographics or bare guideline recitation instead of mechanism
+- Bullet lists, numbered lists, outline headers, stage labels
+- Generic tutor voice disconnected from mechanism — if it sounds like a textbook, delete it
+- Passive voice ("it is thought that..."), hedging ("in some cases"), "as an AI", breaking character
+- Em dashes (—) — use commas or periods instead, never em dashes in any reply
+- Pretending to be the patient or writing from patient perspective`;
 
-  const prompt = `This CCS board question tests a clinical concept. Explain it from first principles — what mechanism is at work in the patient's body? Why does this finding or decision follow inevitably from the pathophysiology?
+  const prompt = `This CCS board question tests a clinical concept. Teach it from first principles as the Immersa attending.
 
 Question: """${node.question}"""
 Correct answer: ${node.likely || 'N/A'}
 Answer choices: ${ans}
 
-Respond as the attending. 2–5 sentences. Mechanism first. No preamble, no sign-off. Use **bold** for the key mechanism phrases.`;
+Use the structure: [Hook] → [Mechanism causal chain] → [Spatial/temporal logic] → [Connect] → [Clinical anchor] → [Optional question back].
+Wrap the key mechanistic anchors in **double asterisks**. No preamble, no sign-off. No em dashes.`;
 
   try {
     const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -2079,6 +2111,11 @@ function buildRevealHTML(d) {
         <p style="margin:0 0 10px;font-size:0.8rem;color:var(--ink);" id="fbtext-${d.id}">${esc(d.storyText)}</p>
         <button class="fb-edit-btn" id="fbedit-${d.id}" title="Edit story beat"><i class="ti ti-pencil"></i></button>
       </div>
+      <div class="version-nav" id="fbnav-${d.id}" style="display:none;">
+        <button class="vn-arrow vn-prev" id="fbnav-prev-${d.id}" title="Previous version"><i class="ti ti-chevron-left"></i></button>
+        <span class="vn-counter" id="fbnav-count-${d.id}"></span>
+        <button class="vn-arrow vn-next" id="fbnav-next-${d.id}" title="Next version"><i class="ti ti-chevron-right"></i></button>
+      </div>
       <button class="fb-regen-btn" id="fbregen-${d.id}" title="Regenerate story beat"><i class="ti ti-refresh"></i>&nbsp;Regenerate</button>
     </div>
 
@@ -2089,6 +2126,11 @@ function buildRevealHTML(d) {
     </div>
     <div class="ind-body" id="ib-firstpri-${d.id}">
       <div class="layer2-body" id="fpbody-${d.id}" style="background:#fff5f0;border-color:#fcd3af;">Mechanism loading…</div>
+      <div class="version-nav" id="fpn-${d.id}" style="display:none;margin-top:4px;">
+        <button class="vn-arrow vn-prev" id="fpn-prev-${d.id}" title="Previous version"><i class="ti ti-chevron-left"></i></button>
+        <span class="vn-counter" id="fpn-count-${d.id}"></span>
+        <button class="vn-arrow vn-next" id="fpn-next-${d.id}" title="Next version"><i class="ti ti-chevron-right"></i></button>
+      </div>
     </div>
 
     <div class="ind-toggle" id="it-q-${d.id}">
@@ -2129,6 +2171,36 @@ function fieldSave(qid, field, newText) {
   t[key] = history;
   t[field] = newText;
   writeTriage(qid, t);
+}
+
+// ── Version A/B cycling (left/right arrows to browse stored versions) ─────
+function wireVersionNav(qid, field, contentEl, navContainerEl) {
+  if (!navContainerEl) return;
+  const prevBtn = navContainerEl.querySelector('.vn-prev');
+  const nextBtn = navContainerEl.querySelector('.vn-next');
+  const counterEl = navContainerEl.querySelector('.vn-counter');
+  if (!prevBtn || !nextBtn || !counterEl) return;
+
+  // Build the combined list: history entries + current
+  const hist = fieldHistory(qid, field);
+  const triage = readTriage(qid) || {};
+  const current = triage[field] || '';
+  const all = [...hist.map(h => h.text), current];
+  if (all.length < 2) { navContainerEl.style.display = 'none'; return; }
+
+  let idx = all.length - 1; // start at current
+  navContainerEl.style.display = 'flex';
+
+  function refresh() {
+    if (contentEl) contentEl.innerHTML = mdToHtml(all[idx]);
+    counterEl.textContent = (idx + 1) + ' of ' + all.length;
+    prevBtn.disabled = idx === 0;
+    nextBtn.disabled = idx === all.length - 1;
+  }
+  refresh();
+
+  prevBtn.onclick = (e) => { e.stopPropagation(); if (idx > 0) { idx--; refresh(); } };
+  nextBtn.onclick = (e) => { e.stopPropagation(); if (idx < all.length - 1) { idx++; refresh(); } };
 }
 
 // ── Inline edit helper: swap display → textarea → save → history ──────────
@@ -2294,6 +2366,7 @@ function wireReveal(container, d) {
             fbTextEl.innerHTML = '<em>Could not generate — try Regenerate.</em>';
           }
         }
+        wireVersionNav(qid, 'fullBeat', fbTextEl, container.querySelector('#fbnav-' + qid));
       } else {
         if (fbRegenBtn) fbRegenBtn.style.display = 'none';
       }
@@ -2314,6 +2387,7 @@ function wireReveal(container, d) {
         } else {
           fbTextEl.innerHTML = '<em>Regeneration failed — try again.</em>';
         }
+        wireVersionNav(qid, 'fullBeat', fbTextEl, container.querySelector('#fbnav-' + qid));
       };
     }
   }
@@ -2335,13 +2409,12 @@ function wireReveal(container, d) {
           const fp = await fetchFirstPrinciples(d);
           if (fp) {
             fpContent.innerHTML = mdToHtml(fp);
-            const t = readTriage(qid) || { concept: container.querySelector('#pcone-' + qid)?.textContent };
-            t.firstPrinciples = fp;
-            writeTriage(qid, t);
+            fieldSave(qid, 'firstPrinciples', fp);
           } else {
             fpContent.textContent = 'Could not generate — try refresh.';
           }
         }
+        wireVersionNav(qid, 'firstPrinciples', fpContent, container.querySelector('#fpn-' + qid));
       }
       resize();
     };
