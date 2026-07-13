@@ -1774,6 +1774,24 @@ function mdToHtml(text) {
   return html;
 }
 
+// ── Clean diagnosis label for display (collapse slash-fragments, cap length) ─
+function cleanDiagnosisLabel(raw) {
+  if (!raw) return raw;
+  // Human-written labels (containing em-dash, "vs", parentheses, or proper caps) pass through
+  if (/[—–]| vs | \([A-Z]/.test(raw)) return raw;
+  // Already cleaned ( ·  separator, mixed case): pass through
+  if (/ [·•] /.test(raw) && /[A-Z]/.test(raw) && raw.length > 20) return raw;
+  // Slash-separated lowercase fragments: collapse to title-case phrase
+  if (raw.includes(' / ') && !/[A-Z]/.test(raw.replace(/\//g,''))) {
+    const parts = raw.split(/\s*\/\s*/).filter(Boolean);
+    if (parts.length >= 2) {
+      // Title-case each word, join with spaces
+      return parts.map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ').slice(0, 48);
+    }
+  }
+  return raw;
+}
+
 // ── DeepSeek response logging ──────────────────────────────────────────────
 async function logDS(qid, type, prompt, systemPrompt, response) {
   try {
@@ -1959,7 +1977,7 @@ async function fetchFullBeat(node) {
   }
 
   const ans = (node.answers || []).map(a => a.label + '. ' + cleanAnsText(a.text)).join(' | ');
-  const avatarName = (GRAPH.meta && GRAPH.meta.coreDiagnosis) ? GRAPH.meta.coreDiagnosis.split('/')[0].trim() : 'the avatar';
+  const avatarName = (GRAPH.meta && GRAPH.meta.coreDiagnosis) ? cleanDiagnosisLabel(GRAPH.meta.coreDiagnosis).split(/[\/·]\s*/)[0].trim() : 'the avatar';
   const scenePeerCount = GRAPH.nodes.filter(n => String(n.sceneId) === String(node.sceneId)).length;
 
   // Determine structure hint
@@ -3251,9 +3269,9 @@ async function loadSet(setNum) {
     // Update dropdown label from loading... to real diagnosis
     const sel = document.getElementById('setPicker');
     const opt = sel.querySelector('option[value="' + setNum + '"]');
-    if (opt) opt.textContent = 'Set ' + setNum + ' · ' + (meta.coreDiagnosis || '—').slice(0, 45);
+    if (opt) opt.textContent = 'Set ' + setNum + ' · ' + cleanDiagnosisLabel(meta.coreDiagnosis || '—').slice(0, 45);
     document.getElementById('setInfo').textContent =
-      `Set ${setNum} · ${meta.coreDiagnosis || '—'} · ${GRAPH.counts.primary}P / ${GRAPH.counts.mimic}M`;
+      `Set ${setNum} · ${cleanDiagnosisLabel(meta.coreDiagnosis || '—')} · ${GRAPH.counts.primary}P / ${GRAPH.counts.mimic}M`;
     if (window._dockUpdateInfo) window._dockUpdateInfo();
     if (window._dockSyncPicker) window._dockSyncPicker();
 
@@ -3422,7 +3440,7 @@ document.getElementById('board').addEventListener('click', (e) => {
 
   function open() {
     buildList();
-    setLabel.textContent = GRAPH && GRAPH.meta ? (GRAPH.meta.coreDiagnosis || 'Set ' + currentSet) : '';
+    setLabel.textContent = GRAPH && GRAPH.meta ? cleanDiagnosisLabel(GRAPH.meta.coreDiagnosis || 'Set ' + currentSet) : '';
     overlay.classList.add('open');
   }
 

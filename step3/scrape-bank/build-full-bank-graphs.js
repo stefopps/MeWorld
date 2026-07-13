@@ -118,18 +118,39 @@ function fullText(q) {
 }
 
 function guessCoreDiagnosis(items) {
-  // Find the most common diagnostic term across likely answers
+  // Build bigram frequency from likely answer texts
   const freq = {};
+  const stopwords = new Set([
+    'the', 'and', 'or', 'of', 'in', 'to', 'a', 'an', 'is', 'be', 'are', 'was', 'were', 'been',
+    'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'shall', 'should', 'may', 'might',
+    'must', 'can', 'could', 'for', 'from', 'at', 'by', 'on', 'with', 'that', 'this', 'their',
+    'your', 'our', 'his', 'her', 'its', '100%', 'not', 'but',
+  ]);
+  const genericActions = new Set([
+    'perform examination', 'discuss options', 'provide reassurance', 'obtain history',
+    'physical examination', 'vital signs', 'laboratory studies', 'imaging studies',
+    'blood pressure', 'follow up', 'patient education', 'referral specialist',
+  ]);
+
   for (const q of items) {
-    const lt = likelyText(q);
-    const words = lt.split(/[\s,()]+/).filter(w => w.length > 3);
-    for (const w of words) {
-      freq[w] = (freq[w] || 0) + 1;
+    const lt = likelyText(q).replace(/\([^)]*\d+[^)]*\)/g, '').trim(); // strip percentages
+    const words = lt.split(/[\s,;:]+/).filter(w => w.length > 1);
+    for (let i = 0; i < words.length - 1; i++) {
+      const bigram = words[i].toLowerCase() + ' ' + words[i+1].toLowerCase();
+      // Skip stopword-only or generic action bigrams
+      if (stopwords.has(words[i]) && stopwords.has(words[i+1])) continue;
+      if (genericActions.has(bigram)) continue;
+      if (/^\d/.test(words[i]) || /^\d/.test(words[i+1])) continue;
+      freq[bigram] = (freq[bigram] || 0) + 1;
     }
   }
+
   const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]);
-  const top3 = sorted.slice(0, 3).map(e => e[0]);
-  return top3.join(' / ') || 'Mixed';
+  const top = sorted.slice(0, 2);
+  if (!top.length) return 'Mixed';
+
+  // Title-case and join
+  return top.map(([w]) => w.replace(/\b\w/g, c => c.toUpperCase())).join(' · ');
 }
 
 function classifyItems(items) {
