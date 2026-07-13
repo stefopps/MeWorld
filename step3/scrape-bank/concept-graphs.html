@@ -359,8 +359,8 @@
     width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
     background: var(--muted); opacity: 0.5;
   }
-  .hud .ind-body { display: none; margin-bottom: 6px; }
-  .hud .ind-body.open { display: block; }
+  .hud .ind-body, .dock-reveal-content .ind-body { display: none; margin-bottom: 6px; }
+  .hud .ind-body.open, .dock-reveal-content .ind-body.open { display: block; }
   .hud .ind-body .qwrap { margin-top: 0; padding-top: 0; border-top: none; }
 
   /* Nested drill — sibling nodes expand inside this panel */
@@ -664,7 +664,7 @@
     margin: 5px 0; padding: 6px 8px; border-radius: 6px; background: #f5f7fa;
     border: 1px solid var(--border); font-size: 0.78rem; line-height: 1.4;
   }
-  .hud .likely {
+  .hud .likely, .dock-reveal-content .likely {
     margin-top: 8px; padding: 8px 10px; border-radius: 7px;
     background: #edf7f0; border: 1px solid #b7e4c7;
     color: #116932; font-size: 0.78rem; font-weight: 600;
