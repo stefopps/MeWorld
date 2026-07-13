@@ -861,11 +861,6 @@
     <label class="settings-label">DeepSeek API Key</label>
     <input type="password" id="dsApiKey" placeholder="Loading from server…" />
     <div class="settings-hint">Key is loaded from the server. It stays in your browser's localStorage.</div>
-    <label class="settings-label" style="margin-top:10px;">Timeline jump-to-step</label>
-    <label class="settings-toggle-row">
-      <input type="checkbox" id="timelineJumpToggle" />
-      <span class="settings-hint">Enable clicking timeline numbers to jump directly to that step</span>
-    </label>
     <button id="settingsSave" class="primary" style="width:100%;margin-top:8px;">Save &amp; Close</button>
     <div class="status" id="aiStatus" style="margin-top:6px;"></div>
   </div>
@@ -1179,8 +1174,6 @@ function buildSpineRail() {
     dot.textContent = String(i + 1);
     dot.title = 'Step ' + (i + 1) + ' · Scene ' + (byId[id]?.sceneId || '?');
     dot.onclick = () => {
-      // Only fire if timeline jump is enabled in settings
-      if (localStorage.getItem('timeline_jump') !== '1') return;
       const d = byId[id];
       if (!d) return;
       closeHud();
@@ -1189,9 +1182,7 @@ function buildSpineRail() {
       rail.querySelectorAll('.rail-dot').forEach(d => d.classList.remove('active'));
       dot.classList.add('active');
     };
-    // Show pointer cursor only when toggle is on
-    if (localStorage.getItem('timeline_jump') === '1') dot.style.cursor = 'pointer';
-    else dot.style.cursor = 'default';
+    dot.style.cursor = 'pointer';
     rail.appendChild(dot);
   });
 }
@@ -2807,11 +2798,7 @@ window.addEventListener('blur', () => {
   const keyInput = document.getElementById('dsApiKey');
   const saveBtn = document.getElementById('settingsSave');
   const status = document.getElementById('aiStatus');
-  const tljToggle = document.getElementById('timelineJumpToggle');
   let backdrop = null;
-
-  // Restore timeline-jump toggle from localStorage (off by default)
-  if (tljToggle) tljToggle.checked = localStorage.getItem('timeline_jump') === '1';
 
   // Show popup
   function openSettings() {
@@ -2845,17 +2832,8 @@ window.addEventListener('blur', () => {
     const v = keyInput.value.trim();
     if (v) { localStorage.setItem('ds_api_key', v); status.textContent = 'Key saved.'; }
     else { localStorage.removeItem('ds_api_key'); status.textContent = ''; }
-    // Persist timeline-jump toggle
-    if (tljToggle) localStorage.setItem('timeline_jump', tljToggle.checked ? '1' : '0');
     updateAiButtons();
     setTimeout(closeSettings, 300);
-  }
-
-  // Live-persist the timeline toggle on change (no need to wait for Save)
-  if (tljToggle) {
-    tljToggle.addEventListener('change', () => {
-      localStorage.setItem('timeline_jump', tljToggle.checked ? '1' : '0');
-    });
   }
 
   gear.onclick = openSettings;
