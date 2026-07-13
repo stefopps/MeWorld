@@ -488,6 +488,10 @@
   }
   .settings-label { font-weight: 600; color: var(--ink); font-size: 0.72rem; }
   .settings-hint { font-size: 0.64rem; color: var(--muted); line-height: 1.4; }
+  .settings-toggle-row {
+    display: flex; align-items: center; gap: 6px; cursor: pointer;
+  }
+  .settings-toggle-row input[type=checkbox] { width: auto; accent-color: var(--accent); }
   .settings-popup input[type=password] {
     font-family: inherit; font-size: 0.72rem; padding: 6px 8px;
     border: 1px solid var(--border); border-radius: 6px; outline: none; width: 100%;
@@ -574,6 +578,17 @@
     background: none; border: none; line-height: 1; padding: 0 2px;
   }
   .hud .close:hover { color: var(--coral); }
+  .hud .drag-bar .hud-nav {
+    display: flex; gap: 2px; margin-right: 4px;
+  }
+  .hud .drag-bar .hud-nav button {
+    font-family: inherit; font-size: 0.72rem; padding: 1px 5px;
+    border-radius: 4px; border: none; cursor: pointer;
+    background: rgba(37,99,235,0.08); color: var(--accent); line-height: 1.4;
+  }
+  .hud .drag-bar .hud-nav button:hover:not(:disabled) { background: rgba(37,99,235,0.18); }
+  .hud .drag-bar .hud-nav button:disabled { opacity: 0.3; cursor: default; }
+  .hud .hud-nav-step { font-size: 0.58rem; color: var(--muted); font-weight: 600; }
   .hud .kicker { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; font-weight: 600; }
   .kicker.main { color: var(--coral); }
   .kicker.door { color: var(--accent); }
@@ -684,6 +699,11 @@
     <label class="settings-label">DeepSeek API Key</label>
     <input type="password" id="dsApiKey" placeholder="Loading from server…" />
     <div class="settings-hint">Key is loaded from the server. It stays in your browser's localStorage.</div>
+    <label class="settings-label" style="margin-top:10px;">Timeline jump-to-step</label>
+    <label class="settings-toggle-row">
+      <input type="checkbox" id="timelineJumpToggle" />
+      <span class="settings-hint">Enable clicking timeline numbers to jump directly to that step</span>
+    </label>
     <button id="settingsSave" class="primary" style="width:100%;margin-top:8px;">Save &amp; Close</button>
     <div class="status" id="aiStatus" style="margin-top:6px;"></div>
   </div>
@@ -974,6 +994,8 @@ function buildSpineRail() {
     dot.textContent = String(i + 1);
     dot.title = 'Step ' + (i + 1) + ' · Scene ' + (byId[id]?.sceneId || '?');
     dot.onclick = () => {
+      // Only fire if timeline jump is enabled in settings
+      if (localStorage.getItem('timeline_jump') !== '1') return;
       const d = byId[id];
       if (!d) return;
       closeHud();
@@ -982,6 +1004,9 @@ function buildSpineRail() {
       rail.querySelectorAll('.rail-dot').forEach(d => d.classList.remove('active'));
       dot.classList.add('active');
     };
+    // Show pointer cursor only when toggle is on
+    if (localStorage.getItem('timeline_jump') === '1') dot.style.cursor = 'pointer';
+    else dot.style.cursor = 'default';
     rail.appendChild(dot);
   });
 }
@@ -2012,6 +2037,15 @@ function openHud(d, event) {
     return;
   }
 
+  // Nav: build the spine-position display
+  const navHTML = (spineNum >= 0 && GRAPH.mainPath)
+    ? `<div class="hud-nav">
+         <button class="hud-nav-prev" ${spineNum <= 0 ? 'disabled' : ''}><i class="ti ti-chevron-left"></i></button>
+         <span class="hud-nav-step">${spineNum + 1}/${GRAPH.mainPath.length}</span>
+         <button class="hud-nav-next" ${spineNum >= GRAPH.mainPath.length - 1 ? 'disabled' : ''}><i class="ti ti-chevron-right"></i></button>
+       </div>`
+    : '';
+
   // Every node gets the reveal in a floating HUD
   const hud = document.createElement('div');
   hud.className = 'hud';
@@ -2019,7 +2053,7 @@ function openHud(d, event) {
   hud.style.left = hx + 'px';
   hud.style.top = hy + 'px';
   hud.innerHTML = `
-    <div class="drag-bar"><span class="drag-label">${kicker}</span><button class="close" type="button" aria-label="Close"><i class="ti ti-x"></i></button></div>
+    <div class="drag-bar"><span class="drag-label">${kicker}</span>${navHTML}<button class="close" type="button" aria-label="Close"><i class="ti ti-x"></i></button></div>
     <div class="hud-body-inner">
       ${buildRevealHTML(d)}
     </div>`;
@@ -2027,6 +2061,12 @@ function openHud(d, event) {
   hud.querySelector('.close').onclick = () => { removeHudSave(hud); closeHud(); };
 
   wireReveal(hud, d);
+
+  // Wire panel nav arrows
+  const prevBtn = hud.querySelector('.hud-nav-prev');
+  const nextBtn = hud.querySelector('.hud-nav-next');
+  if (prevBtn) prevBtn.onclick = () => cycleHudNode(hud, -1);
+  if (nextBtn) nextBtn.onclick = () => cycleHudNode(hud, 1);
 
   makeHudDraggable(hud);
   makeHudResizable(hud);
@@ -2040,6 +2080,36 @@ function openHud(d, event) {
       .attr('y2', d.y + (hy + 20 - nodeY));
   }
 }
+
+// ── Arrow nav: cycle to prev/next spine node from an open HUD ──
+function cycleHudNode(hud, dir) {
+  const hudId = hud.dataset.hudId;
+  if (!hudId || !hudId.startsWith('node-')) return;
+  const currentId = hudId.slice(5);
+  const idx = GRAPH.mainPath.indexOf(currentId);
+  if (idx < 0) return;
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= GRAPH.mainPath.length) return;
+  const node = byId[GRAPH.mainPath[newIdx]];
+  if (!node) return;
+  // Save HUD position before closing
+  saveHudPosition(hud);
+  closeHud();
+  openHud(node, { clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 });
+}
+
+// ── Keyboard left/right for cycling open HUD ──
+(function initHudKeyboardNav() {
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    // Don't steal from inputs/textareas
+    if (document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+    const hud = document.querySelector('.hud');
+    if (!hud) return;
+    e.preventDefault();
+    cycleHudNode(hud, e.key === 'ArrowRight' ? 1 : -1);
+  });
+})();
 
 function resolveEnds(link) {
   const a = typeof link.source === 'object' ? link.source : byId[link.source];
@@ -2552,7 +2622,11 @@ window.addEventListener('blur', () => {
   const keyInput = document.getElementById('dsApiKey');
   const saveBtn = document.getElementById('settingsSave');
   const status = document.getElementById('aiStatus');
+  const tljToggle = document.getElementById('timelineJumpToggle');
   let backdrop = null;
+
+  // Restore timeline-jump toggle from localStorage (off by default)
+  if (tljToggle) tljToggle.checked = localStorage.getItem('timeline_jump') === '1';
 
   // Show popup
   function openSettings() {
@@ -2586,8 +2660,17 @@ window.addEventListener('blur', () => {
     const v = keyInput.value.trim();
     if (v) { localStorage.setItem('ds_api_key', v); status.textContent = 'Key saved.'; }
     else { localStorage.removeItem('ds_api_key'); status.textContent = ''; }
+    // Persist timeline-jump toggle
+    if (tljToggle) localStorage.setItem('timeline_jump', tljToggle.checked ? '1' : '0');
     updateAiButtons();
     setTimeout(closeSettings, 300);
+  }
+
+  // Live-persist the timeline toggle on change (no need to wait for Save)
+  if (tljToggle) {
+    tljToggle.addEventListener('change', () => {
+      localStorage.setItem('timeline_jump', tljToggle.checked ? '1' : '0');
+    });
   }
 
   gear.onclick = openSettings;
