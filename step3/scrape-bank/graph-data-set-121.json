@@ -1,0 +1,238 @@
+{
+  "set": 121,
+  "storyFile": "set-121-story-va.html",
+  "source": "auto-classified: full-bank bulk generator. Master review needed.",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "100% / vitamin / with",
+  "recurringThread": "",
+  "mainPath": [
+    "5986",
+    "6046"
+  ],
+  "generatedAt": "2026-07-13T13:05:43.817Z",
+  "counts": {
+    "primary": 2,
+    "mimic": 16,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "5794",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "5844",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "5891",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "5923",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "5971",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "5982",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "5986",
+      "category": "primary",
+      "why": "Core diagnostic fork: nrs-2002 scores nutritional status plus disease severity, wi"
+    },
+    {
+      "id": "6025",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "6045",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "6046",
+      "category": "primary",
+      "why": "Core diagnostic fork: hypophosphatemia causing atp depletion in respiratory muscle"
+    },
+    {
+      "id": "6048",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "6103",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "6121",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "6122",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "6143",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "6221",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "6230",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "6249",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    }
+  ],
+  "edges": [
+    {
+      "source": "5794",
+      "target": "5982",
+      "kind": "scene"
+    },
+    {
+      "source": "5794",
+      "target": "6048",
+      "kind": "scene"
+    },
+    {
+      "source": "5794",
+      "target": "6221",
+      "kind": "scene"
+    },
+    {
+      "source": "5982",
+      "target": "6048",
+      "kind": "scene"
+    },
+    {
+      "source": "5982",
+      "target": "6221",
+      "kind": "scene"
+    },
+    {
+      "source": "6048",
+      "target": "6221",
+      "kind": "scene"
+    },
+    {
+      "source": "5844",
+      "target": "5986",
+      "kind": "scene"
+    },
+    {
+      "source": "5844",
+      "target": "6103",
+      "kind": "scene"
+    },
+    {
+      "source": "5844",
+      "target": "6230",
+      "kind": "scene"
+    },
+    {
+      "source": "5986",
+      "target": "6103",
+      "kind": "scene"
+    },
+    {
+      "source": "5986",
+      "target": "6230",
+      "kind": "scene"
+    },
+    {
+      "source": "6103",
+      "target": "6230",
+      "kind": "scene"
+    },
+    {
+      "source": "5891",
+      "target": "6025",
+      "kind": "scene"
+    },
+    {
+      "source": "5891",
+      "target": "6121",
+      "kind": "scene"
+    },
+    {
+      "source": "5891",
+      "target": "6249",
+      "kind": "scene"
+    },
+    {
+      "source": "6025",
+      "target": "6121",
+      "kind": "scene"
+    },
+    {
+      "source": "6025",
+      "target": "6249",
+      "kind": "scene"
+    },
+    {
+      "source": "6121",
+      "target": "6249",
+      "kind": "scene"
+    },
+    {
+      "source": "5923",
+      "target": "6045",
+      "kind": "scene"
+    },
+    {
+      "source": "5923",
+      "target": "6122",
+      "kind": "scene"
+    },
+    {
+      "source": "6045",
+      "target": "6122",
+      "kind": "scene"
+    },
+    {
+      "source": "5971",
+      "target": "6046",
+      "kind": "scene"
+    },
+    {
+      "source": "5971",
+      "target": "6143",
+      "kind": "scene"
+    },
+    {
+      "source": "6046",
+      "target": "6143",
+      "kind": "scene"
+    },
+    {
+      "source": "5986",
+      "target": "6046",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}

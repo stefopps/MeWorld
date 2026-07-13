@@ -59,8 +59,8 @@
   .dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
 
   .float-progress {
-    position: fixed; z-index: 15; top: 18px; left: 50%; transform: translateX(-50%);
-    display: flex; gap: 5px;
+    position: fixed; z-index: 15; top: 18px; right: 16px;
+    display: flex; gap: 5px; flex-direction: column;
   }
   .float-progress .step {
     width: 20px; height: 20px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.12);
@@ -230,15 +230,15 @@ const COLORS = { primary: '#d8552f', mimic: '#9a9890', thread: '#17916b' };
 
 // ── Set registry — maps set # → story file ────────────────────────────────────
 const SET_REGISTRY = {
-  1:  'set-01-story-va.html',
-  2:  'set-02-story-va.html',
-  3:  'set-03-story-va.html',
-  4:  'set-04-story-va.html',
-  5:  'set-05-story-va.html',
-  6:  'set-06-story-vb.html',
-  7:  'set-07-story-vb.html',
-  8:  'set-08-story-vb.html',
-  9:  'set-09-story-vb.html',
+  1: 'set-01-story-va.html',
+  2: 'set-02-story-va.html',
+  3: 'set-03-story-va.html',
+  4: 'set-04-story-va.html',
+  5: 'set-05-story-va.html',
+  6: 'set-06-story-vb.html',
+  7: 'set-07-story-vb.html',
+  8: 'set-08-story-vb.html',
+  9: 'set-09-story-vb.html',
   10: 'set-10-story-vb.html',
   11: 'set-11-story-va.html',
   12: 'set-12-story-va.html',
@@ -250,7 +250,117 @@ const SET_REGISTRY = {
   18: 'set-18-story-vb.html',
   19: 'set-19-story-vb.html',
   20: 'set-20-story-vb.html',
-};
+  21: 'set-21-story-va.html',
+  22: 'set-22-story-va.html',
+  23: 'set-23-story-va.html',
+  24: 'set-24-story-va.html',
+  25: 'set-25-story-va.html',
+  26: 'set-26-story-va.html',
+  27: 'set-27-story-va.html',
+  28: 'set-28-story-va.html',
+  29: 'set-29-story-va.html',
+  30: 'set-30-story-va.html',
+  31: 'set-31-story-vb.html',
+  32: 'set-32-story-vb.html',
+  33: 'set-33-story-vb.html',
+  34: 'set-34-story-vb.html',
+  35: 'set-35-story-vb.html',
+  36: 'set-36-story-vb.html',
+  37: 'set-37-story-vb.html',
+  38: 'set-38-story-vb.html',
+  39: 'set-39-story-vb.html',
+  40: 'set-40-story-vb.html',
+  41: 'set-41-story-vb.html',
+  42: 'set-42-story-vb.html',
+  43: 'set-43-story-vb.html',
+  44: 'set-44-story-vb.html',
+  45: 'set-45-story-vb.html',
+  46: 'set-46-story-vb.html',
+  47: 'set-47-story-vb.html',
+  48: 'set-48-story-vb.html',
+  49: 'set-49-story-vb.html',
+  50: 'set-50-story-vb.html',
+  51: 'set-51-story-va.html',
+  52: 'set-52-story-va.html',
+  53: 'set-53-story-va.html',
+  54: 'set-54-story-va.html',
+  55: 'set-55-story-va.html',
+  56: 'set-56-story-va.html',
+  57: 'set-57-story-va.html',
+  58: 'set-58-story-va.html',
+  59: 'set-59-story-va.html',
+  60: 'set-60-story-va.html',
+  61: 'set-61-story-va.html',
+  62: 'set-62-story-va.html',
+  63: 'set-63-story-va.html',
+  64: 'set-64-story-va.html',
+  65: 'set-65-story-va.html',
+  66: 'set-66-story-va.html',
+  67: 'set-67-story-va.html',
+  68: 'set-68-story-va.html',
+  69: 'set-69-story-va.html',
+  70: 'set-70-story-va.html',
+  71: 'set-71-story-va.html',
+  72: 'set-72-story-va.html',
+  73: 'set-73-story-va.html',
+  74: 'set-74-story-va.html',
+  75: 'set-75-story-va.html',
+  76: 'set-76-story-va.html',
+  77: 'set-77-story-va.html',
+  78: 'set-78-story-va.html',
+  79: 'set-79-story-va.html',
+  80: 'set-80-story-va.html',
+  81: 'set-81-story-va.html',
+  82: 'set-82-story-va.html',
+  83: 'set-83-story-va.html',
+  84: 'set-84-story-va.html',
+  85: 'set-85-story-va.html',
+  86: 'set-86-story-va.html',
+  87: 'set-87-story-va.html',
+  88: 'set-88-story-va.html',
+  89: 'set-89-story-va.html',
+  90: 'set-90-story-va.html',
+  91: 'set-91-story-va.html',
+  92: 'set-92-story-va.html',
+  93: 'set-93-story-va.html',
+  94: 'set-94-story-va.html',
+  95: 'set-95-story-va.html',
+  96: 'set-96-story-va.html',
+  97: 'set-97-story-va.html',
+  98: 'set-98-story-va.html',
+  99: 'set-99-story-va.html',
+  100: 'set-100-story-va.html',
+  101: 'set-101-story-va.html',
+  102: 'set-102-story-va.html',
+  103: 'set-103-story-va.html',
+  104: 'set-104-story-va.html',
+  105: 'set-105-story-va.html',
+  106: 'set-106-story-va.html',
+  107: 'set-107-story-va.html',
+  108: 'set-108-story-va.html',
+  109: 'set-109-story-va.html',
+  110: 'set-110-story-va.html',
+  111: 'set-111-story-va.html',
+  112: 'set-112-story-va.html',
+  113: 'set-113-story-va.html',
+  114: 'set-114-story-va.html',
+  115: 'set-115-story-va.html',
+  116: 'set-116-story-va.html',
+  117: 'set-117-story-va.html',
+  118: 'set-118-story-va.html',
+  119: 'set-119-story-va.html',
+  120: 'set-120-story-va.html',
+  121: 'set-121-story-va.html',
+  122: 'set-122-story-va.html',
+  123: 'set-123-story-va.html',
+  124: 'set-124-story-va.html',
+  125: 'set-125-story-va.html',
+  126: 'set-126-story-va.html',
+  127: 'set-127-story-va.html',
+  128: 'set-128-story-va.html',
+  129: 'set-129-story-va.html',
+  130: 'set-130-story-va.html'
+}
 
 let GRAPH = null;
 let byId = {};
@@ -815,6 +925,10 @@ function renderGraph() {
 // ── Loading ───────────────────────────────────────────────────────────────────
 function showLoading() {
   document.getElementById('counts').textContent = 'Loading…';
+  // Update dropdown label
+  const sel = document.getElementById('setPicker');
+  const opt = sel.querySelector('option[value="' + setNum + '"]');
+  if (opt) opt.textContent = 'Set ' + setNum + ' · ' + (meta.coreDiagnosis || '—').slice(0, 50);
   document.getElementById('setInfo').textContent = '';
   document.getElementById('progress').innerHTML = '';
   closeHud();
@@ -865,19 +979,15 @@ async function loadSet(setNum) {
 // ── Populate dropdown + boot ──────────────────────────────────────────────────
 function populatePicker() {
   const sel = document.getElementById('setPicker');
-  for (let s = 1; s <= 20; s++) {
+  for (let s = 1; s <= 130; s++) {
     const opt = document.createElement('option');
     opt.value = s;
     // Quick labels from the manifest
-    const labels = {
-      1:'1 · Lupus/CTD',2:'2 · Chest pain',3:'3 · Syncope',4:'4 · Anemia',5:'5 · Thyroid',
-      6:'6 · Dyspnea',7:'7 · Acute abdomen',8:'8 · Jaundice',9:'9 · Headache',10:'10 · Joint pain',
-      11:'11 · Diabetes',12:'12 · Acid-Base',13:'13 · Electrolytes',14:'14 · Stroke',15:'15 · Renal',
-      16:'16 · GI Bleed',17:'17 · Arrhythmias',18:'18 · Sepsis',19:'19 · Endocrine',20:'20 · Infectious',
-    };
-    opt.textContent = labels[s] || ('Set ' + s);
+    // Labels sourced from graph data now
+    opt.textContent = 'Set ' + s + ' · loading...';
     sel.appendChild(opt);
   }
+  // Update picker label after graph loads (handled in loadSet)
   sel.addEventListener('change', () => {
     const v = +sel.value;
     if (v) loadSet(v);

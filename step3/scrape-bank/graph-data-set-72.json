@@ -1,0 +1,941 @@
+{
+  "set": 72,
+  "storyFile": "set-72-story-va.html",
+  "source": "auto-classified: full-bank bulk generator. Master review needed.",
+  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+  "coreDiagnosis": "left / ventricular / intravenous",
+  "recurringThread": "",
+  "mainPath": [
+    "1953",
+    "1964",
+    "2008"
+  ],
+  "generatedAt": "2026-07-13T13:05:43.435Z",
+  "counts": {
+    "primary": 3,
+    "mimic": 37,
+    "thread": 0
+  },
+  "nodes": [
+    {
+      "id": "1940",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1943",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1944",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1947",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1948",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1949",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1951",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1953",
+      "category": "primary",
+      "why": "Core diagnostic fork: arterial embolism (87.06%)"
+    },
+    {
+      "id": "1955",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1956",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1957",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1959",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1963",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1964",
+      "category": "primary",
+      "why": "Core diagnostic fork: compartment syndrome (88.46%)"
+    },
+    {
+      "id": "1965",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1967",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1968",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1970",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1975",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1976",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1977",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1980",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1985",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1987",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1990",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1994",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "1996",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "2002",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "2003",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "2004",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "2005",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "2008",
+      "category": "primary",
+      "why": "Core diagnostic fork: myocardial infarction (64.71%)"
+    },
+    {
+      "id": "2011",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "2013",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "2022",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "2024",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "2025",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "2028",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "2030",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    },
+    {
+      "id": "2031",
+      "category": "mimic",
+      "why": "Differential door in this set"
+    }
+  ],
+  "edges": [
+    {
+      "source": "1940",
+      "target": "1949",
+      "kind": "scene"
+    },
+    {
+      "source": "1940",
+      "target": "1957",
+      "kind": "scene"
+    },
+    {
+      "source": "1940",
+      "target": "1967",
+      "kind": "scene"
+    },
+    {
+      "source": "1940",
+      "target": "1977",
+      "kind": "scene"
+    },
+    {
+      "source": "1940",
+      "target": "1994",
+      "kind": "scene"
+    },
+    {
+      "source": "1940",
+      "target": "2005",
+      "kind": "scene"
+    },
+    {
+      "source": "1940",
+      "target": "2024",
+      "kind": "scene"
+    },
+    {
+      "source": "1949",
+      "target": "1957",
+      "kind": "scene"
+    },
+    {
+      "source": "1949",
+      "target": "1967",
+      "kind": "scene"
+    },
+    {
+      "source": "1949",
+      "target": "1977",
+      "kind": "scene"
+    },
+    {
+      "source": "1949",
+      "target": "1994",
+      "kind": "scene"
+    },
+    {
+      "source": "1949",
+      "target": "2005",
+      "kind": "scene"
+    },
+    {
+      "source": "1949",
+      "target": "2024",
+      "kind": "scene"
+    },
+    {
+      "source": "1957",
+      "target": "1967",
+      "kind": "scene"
+    },
+    {
+      "source": "1957",
+      "target": "1977",
+      "kind": "scene"
+    },
+    {
+      "source": "1957",
+      "target": "1994",
+      "kind": "scene"
+    },
+    {
+      "source": "1957",
+      "target": "2005",
+      "kind": "scene"
+    },
+    {
+      "source": "1957",
+      "target": "2024",
+      "kind": "scene"
+    },
+    {
+      "source": "1967",
+      "target": "1977",
+      "kind": "scene"
+    },
+    {
+      "source": "1967",
+      "target": "1994",
+      "kind": "scene"
+    },
+    {
+      "source": "1967",
+      "target": "2005",
+      "kind": "scene"
+    },
+    {
+      "source": "1967",
+      "target": "2024",
+      "kind": "scene"
+    },
+    {
+      "source": "1977",
+      "target": "1994",
+      "kind": "scene"
+    },
+    {
+      "source": "1977",
+      "target": "2005",
+      "kind": "scene"
+    },
+    {
+      "source": "1977",
+      "target": "2024",
+      "kind": "scene"
+    },
+    {
+      "source": "1994",
+      "target": "2005",
+      "kind": "scene"
+    },
+    {
+      "source": "1994",
+      "target": "2024",
+      "kind": "scene"
+    },
+    {
+      "source": "2005",
+      "target": "2024",
+      "kind": "scene"
+    },
+    {
+      "source": "1943",
+      "target": "1951",
+      "kind": "scene"
+    },
+    {
+      "source": "1943",
+      "target": "1959",
+      "kind": "scene"
+    },
+    {
+      "source": "1943",
+      "target": "1968",
+      "kind": "scene"
+    },
+    {
+      "source": "1943",
+      "target": "1980",
+      "kind": "scene"
+    },
+    {
+      "source": "1943",
+      "target": "1996",
+      "kind": "scene"
+    },
+    {
+      "source": "1943",
+      "target": "2008",
+      "kind": "scene"
+    },
+    {
+      "source": "1943",
+      "target": "2025",
+      "kind": "scene"
+    },
+    {
+      "source": "1951",
+      "target": "1959",
+      "kind": "scene"
+    },
+    {
+      "source": "1951",
+      "target": "1968",
+      "kind": "scene"
+    },
+    {
+      "source": "1951",
+      "target": "1980",
+      "kind": "scene"
+    },
+    {
+      "source": "1951",
+      "target": "1996",
+      "kind": "scene"
+    },
+    {
+      "source": "1951",
+      "target": "2008",
+      "kind": "scene"
+    },
+    {
+      "source": "1951",
+      "target": "2025",
+      "kind": "scene"
+    },
+    {
+      "source": "1959",
+      "target": "1968",
+      "kind": "scene"
+    },
+    {
+      "source": "1959",
+      "target": "1980",
+      "kind": "scene"
+    },
+    {
+      "source": "1959",
+      "target": "1996",
+      "kind": "scene"
+    },
+    {
+      "source": "1959",
+      "target": "2008",
+      "kind": "scene"
+    },
+    {
+      "source": "1959",
+      "target": "2025",
+      "kind": "scene"
+    },
+    {
+      "source": "1968",
+      "target": "1980",
+      "kind": "scene"
+    },
+    {
+      "source": "1968",
+      "target": "1996",
+      "kind": "scene"
+    },
+    {
+      "source": "1968",
+      "target": "2008",
+      "kind": "scene"
+    },
+    {
+      "source": "1968",
+      "target": "2025",
+      "kind": "scene"
+    },
+    {
+      "source": "1980",
+      "target": "1996",
+      "kind": "scene"
+    },
+    {
+      "source": "1980",
+      "target": "2008",
+      "kind": "scene"
+    },
+    {
+      "source": "1980",
+      "target": "2025",
+      "kind": "scene"
+    },
+    {
+      "source": "1996",
+      "target": "2008",
+      "kind": "scene"
+    },
+    {
+      "source": "1996",
+      "target": "2025",
+      "kind": "scene"
+    },
+    {
+      "source": "2008",
+      "target": "2025",
+      "kind": "scene"
+    },
+    {
+      "source": "1944",
+      "target": "1953",
+      "kind": "scene"
+    },
+    {
+      "source": "1944",
+      "target": "1963",
+      "kind": "scene"
+    },
+    {
+      "source": "1944",
+      "target": "1970",
+      "kind": "scene"
+    },
+    {
+      "source": "1944",
+      "target": "1985",
+      "kind": "scene"
+    },
+    {
+      "source": "1944",
+      "target": "2002",
+      "kind": "scene"
+    },
+    {
+      "source": "1944",
+      "target": "2011",
+      "kind": "scene"
+    },
+    {
+      "source": "1944",
+      "target": "2028",
+      "kind": "scene"
+    },
+    {
+      "source": "1953",
+      "target": "1963",
+      "kind": "scene"
+    },
+    {
+      "source": "1953",
+      "target": "1970",
+      "kind": "scene"
+    },
+    {
+      "source": "1953",
+      "target": "1985",
+      "kind": "scene"
+    },
+    {
+      "source": "1953",
+      "target": "2002",
+      "kind": "scene"
+    },
+    {
+      "source": "1953",
+      "target": "2011",
+      "kind": "scene"
+    },
+    {
+      "source": "1953",
+      "target": "2028",
+      "kind": "scene"
+    },
+    {
+      "source": "1963",
+      "target": "1970",
+      "kind": "scene"
+    },
+    {
+      "source": "1963",
+      "target": "1985",
+      "kind": "scene"
+    },
+    {
+      "source": "1963",
+      "target": "2002",
+      "kind": "scene"
+    },
+    {
+      "source": "1963",
+      "target": "2011",
+      "kind": "scene"
+    },
+    {
+      "source": "1963",
+      "target": "2028",
+      "kind": "scene"
+    },
+    {
+      "source": "1970",
+      "target": "1985",
+      "kind": "scene"
+    },
+    {
+      "source": "1970",
+      "target": "2002",
+      "kind": "scene"
+    },
+    {
+      "source": "1970",
+      "target": "2011",
+      "kind": "scene"
+    },
+    {
+      "source": "1970",
+      "target": "2028",
+      "kind": "scene"
+    },
+    {
+      "source": "1985",
+      "target": "2002",
+      "kind": "scene"
+    },
+    {
+      "source": "1985",
+      "target": "2011",
+      "kind": "scene"
+    },
+    {
+      "source": "1985",
+      "target": "2028",
+      "kind": "scene"
+    },
+    {
+      "source": "2002",
+      "target": "2011",
+      "kind": "scene"
+    },
+    {
+      "source": "2002",
+      "target": "2028",
+      "kind": "scene"
+    },
+    {
+      "source": "2011",
+      "target": "2028",
+      "kind": "scene"
+    },
+    {
+      "source": "1947",
+      "target": "1955",
+      "kind": "scene"
+    },
+    {
+      "source": "1947",
+      "target": "1964",
+      "kind": "scene"
+    },
+    {
+      "source": "1947",
+      "target": "1975",
+      "kind": "scene"
+    },
+    {
+      "source": "1947",
+      "target": "1987",
+      "kind": "scene"
+    },
+    {
+      "source": "1947",
+      "target": "2003",
+      "kind": "scene"
+    },
+    {
+      "source": "1947",
+      "target": "2013",
+      "kind": "scene"
+    },
+    {
+      "source": "1947",
+      "target": "2030",
+      "kind": "scene"
+    },
+    {
+      "source": "1955",
+      "target": "1964",
+      "kind": "scene"
+    },
+    {
+      "source": "1955",
+      "target": "1975",
+      "kind": "scene"
+    },
+    {
+      "source": "1955",
+      "target": "1987",
+      "kind": "scene"
+    },
+    {
+      "source": "1955",
+      "target": "2003",
+      "kind": "scene"
+    },
+    {
+      "source": "1955",
+      "target": "2013",
+      "kind": "scene"
+    },
+    {
+      "source": "1955",
+      "target": "2030",
+      "kind": "scene"
+    },
+    {
+      "source": "1964",
+      "target": "1975",
+      "kind": "scene"
+    },
+    {
+      "source": "1964",
+      "target": "1987",
+      "kind": "scene"
+    },
+    {
+      "source": "1964",
+      "target": "2003",
+      "kind": "scene"
+    },
+    {
+      "source": "1964",
+      "target": "2013",
+      "kind": "scene"
+    },
+    {
+      "source": "1964",
+      "target": "2030",
+      "kind": "scene"
+    },
+    {
+      "source": "1975",
+      "target": "1987",
+      "kind": "scene"
+    },
+    {
+      "source": "1975",
+      "target": "2003",
+      "kind": "scene"
+    },
+    {
+      "source": "1975",
+      "target": "2013",
+      "kind": "scene"
+    },
+    {
+      "source": "1975",
+      "target": "2030",
+      "kind": "scene"
+    },
+    {
+      "source": "1987",
+      "target": "2003",
+      "kind": "scene"
+    },
+    {
+      "source": "1987",
+      "target": "2013",
+      "kind": "scene"
+    },
+    {
+      "source": "1987",
+      "target": "2030",
+      "kind": "scene"
+    },
+    {
+      "source": "2003",
+      "target": "2013",
+      "kind": "scene"
+    },
+    {
+      "source": "2003",
+      "target": "2030",
+      "kind": "scene"
+    },
+    {
+      "source": "2013",
+      "target": "2030",
+      "kind": "scene"
+    },
+    {
+      "source": "1948",
+      "target": "1956",
+      "kind": "scene"
+    },
+    {
+      "source": "1948",
+      "target": "1965",
+      "kind": "scene"
+    },
+    {
+      "source": "1948",
+      "target": "1976",
+      "kind": "scene"
+    },
+    {
+      "source": "1948",
+      "target": "1990",
+      "kind": "scene"
+    },
+    {
+      "source": "1948",
+      "target": "2004",
+      "kind": "scene"
+    },
+    {
+      "source": "1948",
+      "target": "2022",
+      "kind": "scene"
+    },
+    {
+      "source": "1948",
+      "target": "2031",
+      "kind": "scene"
+    },
+    {
+      "source": "1956",
+      "target": "1965",
+      "kind": "scene"
+    },
+    {
+      "source": "1956",
+      "target": "1976",
+      "kind": "scene"
+    },
+    {
+      "source": "1956",
+      "target": "1990",
+      "kind": "scene"
+    },
+    {
+      "source": "1956",
+      "target": "2004",
+      "kind": "scene"
+    },
+    {
+      "source": "1956",
+      "target": "2022",
+      "kind": "scene"
+    },
+    {
+      "source": "1956",
+      "target": "2031",
+      "kind": "scene"
+    },
+    {
+      "source": "1965",
+      "target": "1976",
+      "kind": "scene"
+    },
+    {
+      "source": "1965",
+      "target": "1990",
+      "kind": "scene"
+    },
+    {
+      "source": "1965",
+      "target": "2004",
+      "kind": "scene"
+    },
+    {
+      "source": "1965",
+      "target": "2022",
+      "kind": "scene"
+    },
+    {
+      "source": "1965",
+      "target": "2031",
+      "kind": "scene"
+    },
+    {
+      "source": "1976",
+      "target": "1990",
+      "kind": "scene"
+    },
+    {
+      "source": "1976",
+      "target": "2004",
+      "kind": "scene"
+    },
+    {
+      "source": "1976",
+      "target": "2022",
+      "kind": "scene"
+    },
+    {
+      "source": "1976",
+      "target": "2031",
+      "kind": "scene"
+    },
+    {
+      "source": "1990",
+      "target": "2004",
+      "kind": "scene"
+    },
+    {
+      "source": "1990",
+      "target": "2022",
+      "kind": "scene"
+    },
+    {
+      "source": "1990",
+      "target": "2031",
+      "kind": "scene"
+    },
+    {
+      "source": "2004",
+      "target": "2022",
+      "kind": "scene"
+    },
+    {
+      "source": "2004",
+      "target": "2031",
+      "kind": "scene"
+    },
+    {
+      "source": "2022",
+      "target": "2031",
+      "kind": "scene"
+    },
+    {
+      "source": "1953",
+      "target": "1964",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1953",
+      "target": "2008",
+      "kind": "thread",
+      "category": "primary"
+    },
+    {
+      "source": "1964",
+      "target": "2008",
+      "kind": "thread",
+      "category": "primary"
+    }
+  ]
+}
