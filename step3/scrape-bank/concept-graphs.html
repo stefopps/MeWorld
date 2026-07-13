@@ -2616,6 +2616,40 @@ function showLoading() {
 
 async function loadSet(setNum) {
   if (currentSet === setNum && GRAPH) return;
+
+  // ── Background pre-fetch: distill concept lines for the entire set ──
+  async function preFetchConcepts() {
+    const key = localStorage.getItem('ds_api_key');
+    if (!key || !GRAPH || !GRAPH.nodes) return;
+    // Collect nodes that need a concept line
+    const todo = GRAPH.nodes.filter(n => {
+      const t = readTriage(n.id);
+      return !t || !t.concept;
+    });
+    if (!todo.length) return;
+    console.log('[preFetch] Distilling concepts for', todo.length, 'nodes in Set', setNum);
+    // Run with concurrency cap (3 at a time)
+    const CONC = 3;
+    let idx = 0;
+    async function worker() {
+      while (idx < todo.length) {
+        const n = todo[idx++];
+        try {
+          const line = await fetchConceptLine(n);
+          if (line) {
+            const t = readTriage(n.id) || {};
+            t.concept = line;
+            writeTriage(n.id, t);
+          }
+        } catch (_) { /* skip */ }
+      }
+    }
+    const workers = [];
+    for (let i = 0; i < CONC; i++) workers.push(worker());
+    await Promise.allSettled(workers);
+    console.log('[preFetch] Done — concepts cached for Set', setNum);
+  }
+
   currentSet = setNum;
   showLoading();
   hideErr();
@@ -2648,6 +2682,9 @@ async function loadSet(setNum) {
     if (window._dockSyncPicker) window._dockSyncPicker();
 
     renderGraph();
+
+    // Background: pre-fetch concept lines for all nodes so Layer 1 is populated
+    preFetchConcepts();
   } catch (e) {
     console.error(e);
     document.getElementById('board').querySelectorAll('.loading').forEach(l => l.remove());
