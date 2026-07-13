@@ -517,6 +517,7 @@
   }
   .hud {
     position: absolute; width: 300px; min-width: 220px; max-width: 520px; min-height: 140px;
+    max-height: calc(100vh - 130px);
     background: #fff; border: 1px solid var(--border);
     border-radius: 10px; font-size: 0.85rem; line-height: 1.55;
     box-shadow: 0 6px 24px rgba(20,25,35,0.12); z-index: 20;
@@ -528,7 +529,7 @@
     justify-content: space-between; padding: 0 8px; flex-shrink: 0;
   }
   .hud .drag-bar .drag-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
-  .hud .hud-body-inner { padding: 10px 14px 14px; overflow-y: auto; flex: 1; }
+  .hud .hud-body-inner { padding: 10px 14px 14px; overflow-y: auto; flex: 1 1 0; min-height: 0; overscroll-behavior: contain; }
 
   /* ── 8-way resize handles ── */
   .hud .rhdl {
@@ -1704,7 +1705,7 @@ function wireReveal(container, d) {
   const approveBtn = container.querySelector('#pcapp-' + qid);
   const needsWorkBtn = container.querySelector('#pcnw-' + qid);
 
-  function resize() { requestAnimationFrame(() => { if (container.classList.contains('hud')) { container.style.height = container.scrollHeight + 'px'; saveHudPosition(container); } }); }
+  function resize() { requestAnimationFrame(() => { if (container.classList.contains('hud')) { const maxH = window.innerHeight - 130; container.style.height = Math.min(container.scrollHeight, maxH) + 'px'; saveHudPosition(container); } }); }
 
   // Generate concept line on first view if missing
   if (!readTriage(qid)?.concept) {
