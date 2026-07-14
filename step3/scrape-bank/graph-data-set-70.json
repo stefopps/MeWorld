@@ -1,1029 +1,1030 @@
 {
-  "set": 70,
-  "storyFile": "set-70-story-va.html",
-  "source": "auto-classified: full-bank bulk generator. Master review needed.",
-  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
-  "coreDiagnosis": "Right Ventricular · Mitral Valve",
-  "recurringThread": "",
-  "mainPath": [
-    "1754",
-    "1761",
-    "1771",
-    "1794",
-    "1816",
-    "1850"
-  ],
-  "generatedAt": "2026-07-13T13:05:43.424Z",
-  "counts": {
-    "primary": 6,
-    "mimic": 34,
-    "thread": 0
-  },
-  "nodes": [
-    {
-      "id": "1739",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1741",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1751",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1754",
-      "category": "primary",
-      "why": "Core diagnostic fork: protozoal infection (84.94%)"
-    },
-    {
-      "id": "1761",
-      "category": "primary",
-      "why": "Core diagnostic fork: retinal hemorrhages and exudates (45.51%)"
-    },
-    {
-      "id": "1770",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1771",
-      "category": "primary",
-      "why": "Core diagnostic fork: streptococcus pneumoniae (83.06%)"
-    },
-    {
-      "id": "1772",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1775",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1780",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1781",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1789",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1793",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1794",
-      "category": "primary",
-      "why": "Core diagnostic fork: pneumocystis jiroveci pneumonia (59.72%)"
-    },
-    {
-      "id": "1796",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1801",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1804",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1810",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1814",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1816",
-      "category": "primary",
-      "why": "Core diagnostic fork: cholesterol embolism (83.33%)"
-    },
-    {
-      "id": "1817",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1821",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1825",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1827",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1828",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1829",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1830",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1831",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1832",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1833",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1834",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1837",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1840",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1841",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1844",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1845",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1846",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1847",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1849",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1850",
-      "category": "primary",
-      "why": "Core diagnostic fork: viral infection (92.45%)"
-    }
-  ],
-  "edges": [
-    {
-      "source": "1739",
-      "target": "1770",
-      "kind": "scene"
-    },
-    {
-      "source": "1739",
-      "target": "1781",
-      "kind": "scene"
-    },
-    {
-      "source": "1739",
-      "target": "1801",
-      "kind": "scene"
-    },
-    {
-      "source": "1739",
-      "target": "1817",
-      "kind": "scene"
-    },
-    {
-      "source": "1739",
-      "target": "1829",
-      "kind": "scene"
-    },
-    {
-      "source": "1739",
-      "target": "1834",
-      "kind": "scene"
-    },
-    {
-      "source": "1739",
-      "target": "1845",
-      "kind": "scene"
-    },
-    {
-      "source": "1770",
-      "target": "1781",
-      "kind": "scene"
-    },
-    {
-      "source": "1770",
-      "target": "1801",
-      "kind": "scene"
-    },
-    {
-      "source": "1770",
-      "target": "1817",
-      "kind": "scene"
-    },
-    {
-      "source": "1770",
-      "target": "1829",
-      "kind": "scene"
-    },
-    {
-      "source": "1770",
-      "target": "1834",
-      "kind": "scene"
-    },
-    {
-      "source": "1770",
-      "target": "1845",
-      "kind": "scene"
-    },
-    {
-      "source": "1781",
-      "target": "1801",
-      "kind": "scene"
-    },
-    {
-      "source": "1781",
-      "target": "1817",
-      "kind": "scene"
-    },
-    {
-      "source": "1781",
-      "target": "1829",
-      "kind": "scene"
-    },
-    {
-      "source": "1781",
-      "target": "1834",
-      "kind": "scene"
-    },
-    {
-      "source": "1781",
-      "target": "1845",
-      "kind": "scene"
-    },
-    {
-      "source": "1801",
-      "target": "1817",
-      "kind": "scene"
-    },
-    {
-      "source": "1801",
-      "target": "1829",
-      "kind": "scene"
-    },
-    {
-      "source": "1801",
-      "target": "1834",
-      "kind": "scene"
-    },
-    {
-      "source": "1801",
-      "target": "1845",
-      "kind": "scene"
-    },
-    {
-      "source": "1817",
-      "target": "1829",
-      "kind": "scene"
-    },
-    {
-      "source": "1817",
-      "target": "1834",
-      "kind": "scene"
-    },
-    {
-      "source": "1817",
-      "target": "1845",
-      "kind": "scene"
-    },
-    {
-      "source": "1829",
-      "target": "1834",
-      "kind": "scene"
-    },
-    {
-      "source": "1829",
-      "target": "1845",
-      "kind": "scene"
-    },
-    {
-      "source": "1834",
-      "target": "1845",
-      "kind": "scene"
-    },
-    {
-      "source": "1741",
-      "target": "1771",
-      "kind": "scene"
-    },
-    {
-      "source": "1741",
-      "target": "1789",
-      "kind": "scene"
-    },
-    {
-      "source": "1741",
-      "target": "1804",
-      "kind": "scene"
-    },
-    {
-      "source": "1741",
-      "target": "1821",
-      "kind": "scene"
-    },
-    {
-      "source": "1741",
-      "target": "1830",
-      "kind": "scene"
-    },
-    {
-      "source": "1741",
-      "target": "1837",
-      "kind": "scene"
-    },
-    {
-      "source": "1741",
-      "target": "1846",
-      "kind": "scene"
-    },
-    {
-      "source": "1771",
-      "target": "1789",
-      "kind": "scene"
-    },
-    {
-      "source": "1771",
-      "target": "1804",
-      "kind": "scene"
-    },
-    {
-      "source": "1771",
-      "target": "1821",
-      "kind": "scene"
-    },
-    {
-      "source": "1771",
-      "target": "1830",
-      "kind": "scene"
-    },
-    {
-      "source": "1771",
-      "target": "1837",
-      "kind": "scene"
-    },
-    {
-      "source": "1771",
-      "target": "1846",
-      "kind": "scene"
-    },
-    {
-      "source": "1789",
-      "target": "1804",
-      "kind": "scene"
-    },
-    {
-      "source": "1789",
-      "target": "1821",
-      "kind": "scene"
-    },
-    {
-      "source": "1789",
-      "target": "1830",
-      "kind": "scene"
-    },
-    {
-      "source": "1789",
-      "target": "1837",
-      "kind": "scene"
-    },
-    {
-      "source": "1789",
-      "target": "1846",
-      "kind": "scene"
-    },
-    {
-      "source": "1804",
-      "target": "1821",
-      "kind": "scene"
-    },
-    {
-      "source": "1804",
-      "target": "1830",
-      "kind": "scene"
-    },
-    {
-      "source": "1804",
-      "target": "1837",
-      "kind": "scene"
-    },
-    {
-      "source": "1804",
-      "target": "1846",
-      "kind": "scene"
-    },
-    {
-      "source": "1821",
-      "target": "1830",
-      "kind": "scene"
-    },
-    {
-      "source": "1821",
-      "target": "1837",
-      "kind": "scene"
-    },
-    {
-      "source": "1821",
-      "target": "1846",
-      "kind": "scene"
-    },
-    {
-      "source": "1830",
-      "target": "1837",
-      "kind": "scene"
-    },
-    {
-      "source": "1830",
-      "target": "1846",
-      "kind": "scene"
-    },
-    {
-      "source": "1837",
-      "target": "1846",
-      "kind": "scene"
-    },
-    {
-      "source": "1751",
-      "target": "1772",
-      "kind": "scene"
-    },
-    {
-      "source": "1751",
-      "target": "1793",
-      "kind": "scene"
-    },
-    {
-      "source": "1751",
-      "target": "1810",
-      "kind": "scene"
-    },
-    {
-      "source": "1751",
-      "target": "1825",
-      "kind": "scene"
-    },
-    {
-      "source": "1751",
-      "target": "1831",
-      "kind": "scene"
-    },
-    {
-      "source": "1751",
-      "target": "1840",
-      "kind": "scene"
-    },
-    {
-      "source": "1751",
-      "target": "1847",
-      "kind": "scene"
-    },
-    {
-      "source": "1772",
-      "target": "1793",
-      "kind": "scene"
-    },
-    {
-      "source": "1772",
-      "target": "1810",
-      "kind": "scene"
-    },
-    {
-      "source": "1772",
-      "target": "1825",
-      "kind": "scene"
-    },
-    {
-      "source": "1772",
-      "target": "1831",
-      "kind": "scene"
-    },
-    {
-      "source": "1772",
-      "target": "1840",
-      "kind": "scene"
-    },
-    {
-      "source": "1772",
-      "target": "1847",
-      "kind": "scene"
-    },
-    {
-      "source": "1793",
-      "target": "1810",
-      "kind": "scene"
-    },
-    {
-      "source": "1793",
-      "target": "1825",
-      "kind": "scene"
-    },
-    {
-      "source": "1793",
-      "target": "1831",
-      "kind": "scene"
-    },
-    {
-      "source": "1793",
-      "target": "1840",
-      "kind": "scene"
-    },
-    {
-      "source": "1793",
-      "target": "1847",
-      "kind": "scene"
-    },
-    {
-      "source": "1810",
-      "target": "1825",
-      "kind": "scene"
-    },
-    {
-      "source": "1810",
-      "target": "1831",
-      "kind": "scene"
-    },
-    {
-      "source": "1810",
-      "target": "1840",
-      "kind": "scene"
-    },
-    {
-      "source": "1810",
-      "target": "1847",
-      "kind": "scene"
-    },
-    {
-      "source": "1825",
-      "target": "1831",
-      "kind": "scene"
-    },
-    {
-      "source": "1825",
-      "target": "1840",
-      "kind": "scene"
-    },
-    {
-      "source": "1825",
-      "target": "1847",
-      "kind": "scene"
-    },
-    {
-      "source": "1831",
-      "target": "1840",
-      "kind": "scene"
-    },
-    {
-      "source": "1831",
-      "target": "1847",
-      "kind": "scene"
-    },
-    {
-      "source": "1840",
-      "target": "1847",
-      "kind": "scene"
-    },
-    {
-      "source": "1754",
-      "target": "1775",
-      "kind": "scene"
-    },
-    {
-      "source": "1754",
-      "target": "1794",
-      "kind": "scene"
-    },
-    {
-      "source": "1754",
-      "target": "1814",
-      "kind": "scene"
-    },
-    {
-      "source": "1754",
-      "target": "1827",
-      "kind": "scene"
-    },
-    {
-      "source": "1754",
-      "target": "1832",
-      "kind": "scene"
-    },
-    {
-      "source": "1754",
-      "target": "1841",
-      "kind": "scene"
-    },
-    {
-      "source": "1754",
-      "target": "1849",
-      "kind": "scene"
-    },
-    {
-      "source": "1775",
-      "target": "1794",
-      "kind": "scene"
-    },
-    {
-      "source": "1775",
-      "target": "1814",
-      "kind": "scene"
-    },
-    {
-      "source": "1775",
-      "target": "1827",
-      "kind": "scene"
-    },
-    {
-      "source": "1775",
-      "target": "1832",
-      "kind": "scene"
-    },
-    {
-      "source": "1775",
-      "target": "1841",
-      "kind": "scene"
-    },
-    {
-      "source": "1775",
-      "target": "1849",
-      "kind": "scene"
-    },
-    {
-      "source": "1794",
-      "target": "1814",
-      "kind": "scene"
-    },
-    {
-      "source": "1794",
-      "target": "1827",
-      "kind": "scene"
-    },
-    {
-      "source": "1794",
-      "target": "1832",
-      "kind": "scene"
-    },
-    {
-      "source": "1794",
-      "target": "1841",
-      "kind": "scene"
-    },
-    {
-      "source": "1794",
-      "target": "1849",
-      "kind": "scene"
-    },
-    {
-      "source": "1814",
-      "target": "1827",
-      "kind": "scene"
-    },
-    {
-      "source": "1814",
-      "target": "1832",
-      "kind": "scene"
-    },
-    {
-      "source": "1814",
-      "target": "1841",
-      "kind": "scene"
-    },
-    {
-      "source": "1814",
-      "target": "1849",
-      "kind": "scene"
-    },
-    {
-      "source": "1827",
-      "target": "1832",
-      "kind": "scene"
-    },
-    {
-      "source": "1827",
-      "target": "1841",
-      "kind": "scene"
-    },
-    {
-      "source": "1827",
-      "target": "1849",
-      "kind": "scene"
-    },
-    {
-      "source": "1832",
-      "target": "1841",
-      "kind": "scene"
-    },
-    {
-      "source": "1832",
-      "target": "1849",
-      "kind": "scene"
-    },
-    {
-      "source": "1841",
-      "target": "1849",
-      "kind": "scene"
-    },
-    {
-      "source": "1761",
-      "target": "1780",
-      "kind": "scene"
-    },
-    {
-      "source": "1761",
-      "target": "1796",
-      "kind": "scene"
-    },
-    {
-      "source": "1761",
-      "target": "1816",
-      "kind": "scene"
-    },
-    {
-      "source": "1761",
-      "target": "1828",
-      "kind": "scene"
-    },
-    {
-      "source": "1761",
-      "target": "1833",
-      "kind": "scene"
-    },
-    {
-      "source": "1761",
-      "target": "1844",
-      "kind": "scene"
-    },
-    {
-      "source": "1761",
-      "target": "1850",
-      "kind": "scene"
-    },
-    {
-      "source": "1780",
-      "target": "1796",
-      "kind": "scene"
-    },
-    {
-      "source": "1780",
-      "target": "1816",
-      "kind": "scene"
-    },
-    {
-      "source": "1780",
-      "target": "1828",
-      "kind": "scene"
-    },
-    {
-      "source": "1780",
-      "target": "1833",
-      "kind": "scene"
-    },
-    {
-      "source": "1780",
-      "target": "1844",
-      "kind": "scene"
-    },
-    {
-      "source": "1780",
-      "target": "1850",
-      "kind": "scene"
-    },
-    {
-      "source": "1796",
-      "target": "1816",
-      "kind": "scene"
-    },
-    {
-      "source": "1796",
-      "target": "1828",
-      "kind": "scene"
-    },
-    {
-      "source": "1796",
-      "target": "1833",
-      "kind": "scene"
-    },
-    {
-      "source": "1796",
-      "target": "1844",
-      "kind": "scene"
-    },
-    {
-      "source": "1796",
-      "target": "1850",
-      "kind": "scene"
-    },
-    {
-      "source": "1816",
-      "target": "1828",
-      "kind": "scene"
-    },
-    {
-      "source": "1816",
-      "target": "1833",
-      "kind": "scene"
-    },
-    {
-      "source": "1816",
-      "target": "1844",
-      "kind": "scene"
-    },
-    {
-      "source": "1816",
-      "target": "1850",
-      "kind": "scene"
-    },
-    {
-      "source": "1828",
-      "target": "1833",
-      "kind": "scene"
-    },
-    {
-      "source": "1828",
-      "target": "1844",
-      "kind": "scene"
-    },
-    {
-      "source": "1828",
-      "target": "1850",
-      "kind": "scene"
-    },
-    {
-      "source": "1833",
-      "target": "1844",
-      "kind": "scene"
-    },
-    {
-      "source": "1833",
-      "target": "1850",
-      "kind": "scene"
-    },
-    {
-      "source": "1844",
-      "target": "1850",
-      "kind": "scene"
-    },
-    {
-      "source": "1754",
-      "target": "1761",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1754",
-      "target": "1771",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1754",
-      "target": "1794",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1754",
-      "target": "1816",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1754",
-      "target": "1850",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1761",
-      "target": "1771",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1761",
-      "target": "1794",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1761",
-      "target": "1816",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1761",
-      "target": "1850",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1771",
-      "target": "1794",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1771",
-      "target": "1816",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1771",
-      "target": "1850",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1794",
-      "target": "1816",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1794",
-      "target": "1850",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1816",
-      "target": "1850",
-      "kind": "thread",
-      "category": "primary"
-    }
-  ],
-  "character": {
-    "name": "Leo",
-    "age": 9,
-    "gender": "M",
-    "want": "to play outside like the other kids without his mom watching from the window",
-    "need": "to understand that his body works differently and that is not his fault",
-    "flaw": "hides wheezing and symptoms from adults so he does not get benched again",
-    "ghost": "the nebulizer mask that haunted his toddler years, the sound of it still wakes him",
-    "mentor": "Dr. Iwu",
-    "domain": "Right Ventricular / Mitral Valve",
-    "domainWant": "to understand what right ventricular / mitral valve means for their life — not just the lab values",
-    "domainNeed": "to integrate this diagnosis with their existing health without letting each new finding become a separate identity"
-  }
+    "set":  70,
+    "storyFile":  "set-70-story-va.html",
+    "source":  "auto-classified: full-bank bulk generator. Master review needed.",
+    "repo":  "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+    "coreDiagnosis":  "Right Ventricular · Mitral Valve",
+    "recurringThread":  "",
+    "mainPath":  [
+                     "1754",
+                     "1761",
+                     "1771",
+                     "1794",
+                     "1816",
+                     "1850"
+                 ],
+    "generatedAt":  "2026-07-13T13:05:43.424Z",
+    "counts":  {
+                   "primary":  6,
+                   "mimic":  34,
+                   "thread":  0
+               },
+    "nodes":  [
+                  {
+                      "id":  "1739",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1741",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1751",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1754",
+                      "category":  "primary",
+                      "why":  "Core diagnostic fork: protozoal infection (84.94%)"
+                  },
+                  {
+                      "id":  "1761",
+                      "category":  "primary",
+                      "why":  "Core diagnostic fork: retinal hemorrhages and exudates (45.51%)"
+                  },
+                  {
+                      "id":  "1770",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1771",
+                      "category":  "primary",
+                      "why":  "Core diagnostic fork: streptococcus pneumoniae (83.06%)"
+                  },
+                  {
+                      "id":  "1772",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1775",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1780",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1781",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1789",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1793",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1794",
+                      "category":  "primary",
+                      "why":  "Core diagnostic fork: pneumocystis jiroveci pneumonia (59.72%)"
+                  },
+                  {
+                      "id":  "1796",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1801",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1804",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1810",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1814",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1816",
+                      "category":  "primary",
+                      "why":  "Core diagnostic fork: cholesterol embolism (83.33%)"
+                  },
+                  {
+                      "id":  "1817",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1821",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1825",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1827",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1828",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1829",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1830",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1831",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1832",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1833",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1834",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1837",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1840",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1841",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1844",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1845",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1846",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1847",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1849",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1850",
+                      "category":  "primary",
+                      "why":  "Core diagnostic fork: viral infection (92.45%)"
+                  }
+              ],
+    "edges":  [
+                  {
+                      "source":  "1739",
+                      "target":  "1770",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1739",
+                      "target":  "1781",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1739",
+                      "target":  "1801",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1739",
+                      "target":  "1817",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1739",
+                      "target":  "1829",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1739",
+                      "target":  "1834",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1739",
+                      "target":  "1845",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1770",
+                      "target":  "1781",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1770",
+                      "target":  "1801",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1770",
+                      "target":  "1817",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1770",
+                      "target":  "1829",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1770",
+                      "target":  "1834",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1770",
+                      "target":  "1845",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1781",
+                      "target":  "1801",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1781",
+                      "target":  "1817",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1781",
+                      "target":  "1829",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1781",
+                      "target":  "1834",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1781",
+                      "target":  "1845",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1801",
+                      "target":  "1817",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1801",
+                      "target":  "1829",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1801",
+                      "target":  "1834",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1801",
+                      "target":  "1845",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1817",
+                      "target":  "1829",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1817",
+                      "target":  "1834",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1817",
+                      "target":  "1845",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1829",
+                      "target":  "1834",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1829",
+                      "target":  "1845",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1834",
+                      "target":  "1845",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1741",
+                      "target":  "1771",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1741",
+                      "target":  "1789",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1741",
+                      "target":  "1804",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1741",
+                      "target":  "1821",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1741",
+                      "target":  "1830",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1741",
+                      "target":  "1837",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1741",
+                      "target":  "1846",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1771",
+                      "target":  "1789",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1771",
+                      "target":  "1804",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1771",
+                      "target":  "1821",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1771",
+                      "target":  "1830",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1771",
+                      "target":  "1837",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1771",
+                      "target":  "1846",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1789",
+                      "target":  "1804",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1789",
+                      "target":  "1821",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1789",
+                      "target":  "1830",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1789",
+                      "target":  "1837",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1789",
+                      "target":  "1846",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1804",
+                      "target":  "1821",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1804",
+                      "target":  "1830",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1804",
+                      "target":  "1837",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1804",
+                      "target":  "1846",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1821",
+                      "target":  "1830",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1821",
+                      "target":  "1837",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1821",
+                      "target":  "1846",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1830",
+                      "target":  "1837",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1830",
+                      "target":  "1846",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1837",
+                      "target":  "1846",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1751",
+                      "target":  "1772",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1751",
+                      "target":  "1793",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1751",
+                      "target":  "1810",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1751",
+                      "target":  "1825",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1751",
+                      "target":  "1831",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1751",
+                      "target":  "1840",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1751",
+                      "target":  "1847",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1772",
+                      "target":  "1793",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1772",
+                      "target":  "1810",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1772",
+                      "target":  "1825",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1772",
+                      "target":  "1831",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1772",
+                      "target":  "1840",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1772",
+                      "target":  "1847",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1793",
+                      "target":  "1810",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1793",
+                      "target":  "1825",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1793",
+                      "target":  "1831",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1793",
+                      "target":  "1840",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1793",
+                      "target":  "1847",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1810",
+                      "target":  "1825",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1810",
+                      "target":  "1831",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1810",
+                      "target":  "1840",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1810",
+                      "target":  "1847",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1825",
+                      "target":  "1831",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1825",
+                      "target":  "1840",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1825",
+                      "target":  "1847",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1831",
+                      "target":  "1840",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1831",
+                      "target":  "1847",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1840",
+                      "target":  "1847",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1754",
+                      "target":  "1775",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1754",
+                      "target":  "1794",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1754",
+                      "target":  "1814",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1754",
+                      "target":  "1827",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1754",
+                      "target":  "1832",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1754",
+                      "target":  "1841",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1754",
+                      "target":  "1849",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1775",
+                      "target":  "1794",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1775",
+                      "target":  "1814",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1775",
+                      "target":  "1827",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1775",
+                      "target":  "1832",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1775",
+                      "target":  "1841",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1775",
+                      "target":  "1849",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1794",
+                      "target":  "1814",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1794",
+                      "target":  "1827",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1794",
+                      "target":  "1832",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1794",
+                      "target":  "1841",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1794",
+                      "target":  "1849",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1814",
+                      "target":  "1827",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1814",
+                      "target":  "1832",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1814",
+                      "target":  "1841",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1814",
+                      "target":  "1849",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1827",
+                      "target":  "1832",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1827",
+                      "target":  "1841",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1827",
+                      "target":  "1849",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1832",
+                      "target":  "1841",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1832",
+                      "target":  "1849",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1841",
+                      "target":  "1849",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1761",
+                      "target":  "1780",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1761",
+                      "target":  "1796",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1761",
+                      "target":  "1816",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1761",
+                      "target":  "1828",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1761",
+                      "target":  "1833",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1761",
+                      "target":  "1844",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1761",
+                      "target":  "1850",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1780",
+                      "target":  "1796",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1780",
+                      "target":  "1816",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1780",
+                      "target":  "1828",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1780",
+                      "target":  "1833",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1780",
+                      "target":  "1844",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1780",
+                      "target":  "1850",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1796",
+                      "target":  "1816",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1796",
+                      "target":  "1828",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1796",
+                      "target":  "1833",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1796",
+                      "target":  "1844",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1796",
+                      "target":  "1850",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1816",
+                      "target":  "1828",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1816",
+                      "target":  "1833",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1816",
+                      "target":  "1844",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1816",
+                      "target":  "1850",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1828",
+                      "target":  "1833",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1828",
+                      "target":  "1844",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1828",
+                      "target":  "1850",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1833",
+                      "target":  "1844",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1833",
+                      "target":  "1850",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1844",
+                      "target":  "1850",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1754",
+                      "target":  "1761",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1754",
+                      "target":  "1771",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1754",
+                      "target":  "1794",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1754",
+                      "target":  "1816",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1754",
+                      "target":  "1850",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1761",
+                      "target":  "1771",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1761",
+                      "target":  "1794",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1761",
+                      "target":  "1816",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1761",
+                      "target":  "1850",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1771",
+                      "target":  "1794",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1771",
+                      "target":  "1816",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1771",
+                      "target":  "1850",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1794",
+                      "target":  "1816",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1794",
+                      "target":  "1850",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1816",
+                      "target":  "1850",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  }
+              ],
+    "character":  {
+                      "name":  "Leo",
+                      "age":  9,
+                      "gender":  "M",
+                      "want":  "to play outside like the other kids without his mom watching from the window",
+                      "need":  "to understand that his body works differently and that is not his fault",
+                      "flaw":  "hides wheezing and symptoms from adults so he does not get benched again",
+                      "ghost":  "the nebulizer mask that haunted his toddler years, the sound of it still wakes him",
+                      "mentor":  "Dr. Iwu",
+                      "domain":  "Right Ventricular / Mitral Valve",
+                      "domainWant":  "to understand what right ventricular / mitral valve means for their life — not just the lab values",
+                      "domainNeed":  "to integrate this diagnosis with their existing health without letting each new finding become a separate identity"
+                  },
+    "image":  ""
 }

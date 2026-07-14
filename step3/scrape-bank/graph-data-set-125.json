@@ -1,124 +1,125 @@
 {
-  "set": 125,
-  "storyFile": "set-125-story-va.html",
-  "source": "auto-classified: full-bank bulk generator. Master review needed.",
-  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
-  "coreDiagnosis": "Perform A · A Thorough",
-  "recurringThread": "",
-  "mainPath": [
-    "4388"
-  ],
-  "generatedAt": "2026-07-13T13:05:43.833Z",
-  "counts": {
-    "primary": 1,
-    "mimic": 10,
-    "thread": 0
-  },
-  "nodes": [
-    {
-      "id": "274",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "1305",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "2415",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "2479",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "3707",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "3725",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "4184",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "4388",
-      "category": "primary",
-      "why": "Core diagnostic fork: delayed sleep-wake phase disorder (84.91%)"
-    },
-    {
-      "id": "4468",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "4591",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "5220",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    }
-  ],
-  "edges": [
-    {
-      "source": "274",
-      "target": "3725",
-      "kind": "scene"
-    },
-    {
-      "source": "274",
-      "target": "5220",
-      "kind": "scene"
-    },
-    {
-      "source": "3725",
-      "target": "5220",
-      "kind": "scene"
-    },
-    {
-      "source": "1305",
-      "target": "4184",
-      "kind": "scene"
-    },
-    {
-      "source": "2415",
-      "target": "4388",
-      "kind": "scene"
-    },
-    {
-      "source": "2479",
-      "target": "4468",
-      "kind": "scene"
-    },
-    {
-      "source": "3707",
-      "target": "4591",
-      "kind": "scene"
-    }
-  ],
-  "character": {
-    "name": "James",
-    "age": 63,
-    "gender": "M",
-    "want": "to breathe without thinking about every inhale",
-    "need": "to quit smoking before the next exacerbation is the last",
-    "flaw": "rationalizes every cough — allergies, weather, bad sleep — anything but the cigarettes",
-    "ghost": "his older brother, tethered to an oxygen concentrator, watching TV alone",
-    "mentor": "Dr. Iwu",
-    "domain": "Perform A / A Thorough",
-    "domainWant": "to understand what perform a / a thorough means for their life — not just the lab values",
-    "domainNeed": "to integrate this diagnosis with their existing health without letting each new finding become a separate identity"
-  }
+    "set":  125,
+    "storyFile":  "set-125-story-va.html",
+    "source":  "auto-classified: full-bank bulk generator. Master review needed.",
+    "repo":  "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+    "coreDiagnosis":  "Perform A · A Thorough",
+    "recurringThread":  "",
+    "mainPath":  [
+                     "4388"
+                 ],
+    "generatedAt":  "2026-07-13T13:05:43.833Z",
+    "counts":  {
+                   "primary":  1,
+                   "mimic":  10,
+                   "thread":  0
+               },
+    "nodes":  [
+                  {
+                      "id":  "274",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "1305",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "2415",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "2479",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "3707",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "3725",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "4184",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "4388",
+                      "category":  "primary",
+                      "why":  "Core diagnostic fork: delayed sleep-wake phase disorder (84.91%)"
+                  },
+                  {
+                      "id":  "4468",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "4591",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "5220",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  }
+              ],
+    "edges":  [
+                  {
+                      "source":  "274",
+                      "target":  "3725",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "274",
+                      "target":  "5220",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "3725",
+                      "target":  "5220",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1305",
+                      "target":  "4184",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2415",
+                      "target":  "4388",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2479",
+                      "target":  "4468",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "3707",
+                      "target":  "4591",
+                      "kind":  "scene"
+                  }
+              ],
+    "character":  {
+                      "name":  "James",
+                      "age":  63,
+                      "gender":  "M",
+                      "want":  "to breathe without thinking about every inhale",
+                      "need":  "to quit smoking before the next exacerbation is the last",
+                      "flaw":  "rationalizes every cough — allergies, weather, bad sleep — anything but the cigarettes",
+                      "ghost":  "his older brother, tethered to an oxygen concentrator, watching TV alone",
+                      "mentor":  "Dr. Iwu",
+                      "domain":  "Perform A / A Thorough",
+                      "domainWant":  "to understand what perform a / a thorough means for their life — not just the lab values",
+                      "domainNeed":  "to integrate this diagnosis with their existing health without letting each new finding become a separate identity"
+                  },
+    "image":  ""
 }

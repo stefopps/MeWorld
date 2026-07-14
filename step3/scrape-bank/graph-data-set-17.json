@@ -1,2029 +1,2030 @@
 {
-  "set": 17,
-  "storyFile": "set-17-story-vb.html",
-  "source": "smart-classifier: likely-answer vs scene-differential terms. Master review recommended.",
-  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
-  "coreDiagnosis": "Arrhythmias — AFib vs SVT vs VTach vs heart block",
-  "recurringThread": "",
-  "mainPath": [
-    "1174",
-    "942",
-    "1878",
-    "1881",
-    "862",
-    "6028",
-    "1978",
-    "1879",
-    "992",
-    "929"
-  ],
-  "generatedAt": "2026-07-13T12:25:17.281Z",
-  "counts": {
-    "primary": 10,
-    "mimic": 13,
-    "thread": 17
-  },
-  "nodes": [
-    {
-      "id": "4777",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Irregularly irregular to supraventricular territory across another scene"
-    },
-    {
-      "id": "1983",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Irregularly irregular to svt territory across another scene"
-    },
-    {
-      "id": "900",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Irregularly irregular to supraventricular territory across another scene"
-    },
-    {
-      "id": "1002",
-      "category": "mimic",
-      "why": "Differential look-alike in Irregularly irregular: tests rate control which mimics the core fork"
-    },
-    {
-      "id": "1934",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Irregularly irregular to ventricular tachy territory across another scene"
-    },
-    {
-      "id": "1966",
-      "category": "mimic",
-      "why": "Differential look-alike in Irregularly irregular: tests rate control which mimics the core fork"
-    },
-    {
-      "id": "1174",
-      "category": "primary",
-      "why": "Directly tests cardioversion — core diagnostic fork of Irregularly irregular"
-    },
-    {
-      "id": "1941",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Irregularly irregular to amiodarone territory across another scene"
-    },
-    {
-      "id": "1939",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Fast and narrow to ventricular tachy territory across another scene"
-    },
-    {
-      "id": "815",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Fast and narrow to ventricular tachy territory across another scene"
-    },
-    {
-      "id": "942",
-      "category": "primary",
-      "why": "Directly tests amiodarone — core diagnostic fork of Fast and narrow"
-    },
-    {
-      "id": "1878",
-      "category": "primary",
-      "why": "Directly tests cardioversion — core diagnostic fork of Fast and narrow"
-    },
-    {
-      "id": "1881",
-      "category": "primary",
-      "why": "Directly tests amiodarone — core diagnostic fork of Fast and narrow"
-    },
-    {
-      "id": "862",
-      "category": "primary",
-      "why": "Directly tests cardioversion — core diagnostic fork of Fast and narrow"
-    },
-    {
-      "id": "6028",
-      "category": "primary",
-      "why": "Directly tests adenosine — core diagnostic fork of Fast and narrow"
-    },
-    {
-      "id": "1858",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Fast and narrow to atrial fib territory across another scene"
-    },
-    {
-      "id": "1978",
-      "category": "primary",
-      "why": "Directly tests cardioversion — core diagnostic fork of Wide and fast"
-    },
-    {
-      "id": "1753",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Wide and fast to atrial fib territory across another scene"
-    },
-    {
-      "id": "1813",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Wide and fast to atrial fib territory across another scene"
-    },
-    {
-      "id": "1035",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Wide and fast to atrial fib territory across another scene"
-    },
-    {
-      "id": "1879",
-      "category": "primary",
-      "why": "Directly tests defibrillat — core diagnostic fork of Wide and fast"
-    },
-    {
-      "id": "1886",
-      "category": "mimic",
-      "why": "Differential look-alike in Wide and fast: tests amiodarone which mimics the core fork"
-    },
-    {
-      "id": "2000",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Wide and fast to supraventricular territory across another scene"
-    },
-    {
-      "id": "1909",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Wide and fast to supraventricular territory across another scene"
-    },
-    {
-      "id": "2081",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Pause and block to vagal territory across another scene"
-    },
-    {
-      "id": "992",
-      "category": "primary",
-      "why": "Directly tests heart block — core diagnostic fork of Pause and block"
-    },
-    {
-      "id": "1397",
-      "category": "mimic",
-      "why": "Differential look-alike in Pause and block: tests atropine which mimics the core fork"
-    },
-    {
-      "id": "1823",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Pause and block to atrial fib territory across another scene"
-    },
-    {
-      "id": "929",
-      "category": "primary",
-      "why": "Directly tests pacemaker — core diagnostic fork of Pause and block"
-    },
-    {
-      "id": "3505",
-      "category": "mimic",
-      "why": "Differential look-alike in Pause and block: tests atropine which mimics the core fork"
-    },
-    {
-      "id": "4201",
-      "category": "mimic",
-      "why": "Differential look-alike in Pause and block: tests atropine which mimics the core fork"
-    },
-    {
-      "id": "4090",
-      "category": "mimic",
-      "why": "Differential look-alike in Pause and block: tests atropine which mimics the core fork"
-    },
-    {
-      "id": "5556",
-      "category": "mimic",
-      "why": "Differential distractor — alternative condition to the Long-term rhythm fork"
-    },
-    {
-      "id": "2981",
-      "category": "mimic",
-      "why": "Differential look-alike in Long-term rhythm: tests x-ray of the left arm, right leg, and chest which mimics the core fork"
-    },
-    {
-      "id": "2094",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Long-term rhythm to anticoagul territory across another scene"
-    },
-    {
-      "id": "1853",
-      "category": "mimic",
-      "why": "Differential look-alike in Long-term rhythm: tests holter which mimics the core fork"
-    },
-    {
-      "id": "1699",
-      "category": "thread",
-      "why": "Cross-scene connection: bridges Long-term rhythm to bradycardia territory across another scene"
-    },
-    {
-      "id": "1628",
-      "category": "mimic",
-      "why": "Differential look-alike in Long-term rhythm: tests aspirin\n(55.41%) which mimics the core fork"
-    },
-    {
-      "id": "5568",
-      "category": "mimic",
-      "why": "Differential distractor — alternative condition to the Long-term rhythm fork"
-    },
-    {
-      "id": "5565",
-      "category": "mimic",
-      "why": "Differential distractor — alternative condition to the Long-term rhythm fork"
-    }
-  ],
-  "edges": [
-    {
-      "source": "4777",
-      "target": "1983",
-      "kind": "scene"
-    },
-    {
-      "source": "4777",
-      "target": "900",
-      "kind": "scene"
-    },
-    {
-      "source": "4777",
-      "target": "1002",
-      "kind": "scene"
-    },
-    {
-      "source": "4777",
-      "target": "1934",
-      "kind": "scene"
-    },
-    {
-      "source": "4777",
-      "target": "1966",
-      "kind": "scene"
-    },
-    {
-      "source": "4777",
-      "target": "1174",
-      "kind": "scene"
-    },
-    {
-      "source": "4777",
-      "target": "1941",
-      "kind": "scene"
-    },
-    {
-      "source": "1983",
-      "target": "900",
-      "kind": "scene"
-    },
-    {
-      "source": "1983",
-      "target": "1002",
-      "kind": "scene"
-    },
-    {
-      "source": "1983",
-      "target": "1934",
-      "kind": "scene"
-    },
-    {
-      "source": "1983",
-      "target": "1966",
-      "kind": "scene"
-    },
-    {
-      "source": "1983",
-      "target": "1174",
-      "kind": "scene"
-    },
-    {
-      "source": "1983",
-      "target": "1941",
-      "kind": "scene"
-    },
-    {
-      "source": "900",
-      "target": "1002",
-      "kind": "scene"
-    },
-    {
-      "source": "900",
-      "target": "1934",
-      "kind": "scene"
-    },
-    {
-      "source": "900",
-      "target": "1966",
-      "kind": "scene"
-    },
-    {
-      "source": "900",
-      "target": "1174",
-      "kind": "scene"
-    },
-    {
-      "source": "900",
-      "target": "1941",
-      "kind": "scene"
-    },
-    {
-      "source": "1002",
-      "target": "1934",
-      "kind": "scene"
-    },
-    {
-      "source": "1002",
-      "target": "1966",
-      "kind": "scene"
-    },
-    {
-      "source": "1002",
-      "target": "1174",
-      "kind": "scene"
-    },
-    {
-      "source": "1002",
-      "target": "1941",
-      "kind": "scene"
-    },
-    {
-      "source": "1934",
-      "target": "1966",
-      "kind": "scene"
-    },
-    {
-      "source": "1934",
-      "target": "1174",
-      "kind": "scene"
-    },
-    {
-      "source": "1934",
-      "target": "1941",
-      "kind": "scene"
-    },
-    {
-      "source": "1966",
-      "target": "1174",
-      "kind": "scene"
-    },
-    {
-      "source": "1966",
-      "target": "1941",
-      "kind": "scene"
-    },
-    {
-      "source": "1174",
-      "target": "1941",
-      "kind": "scene"
-    },
-    {
-      "source": "1939",
-      "target": "815",
-      "kind": "scene"
-    },
-    {
-      "source": "1939",
-      "target": "942",
-      "kind": "scene"
-    },
-    {
-      "source": "1939",
-      "target": "1878",
-      "kind": "scene"
-    },
-    {
-      "source": "1939",
-      "target": "1881",
-      "kind": "scene"
-    },
-    {
-      "source": "1939",
-      "target": "862",
-      "kind": "scene"
-    },
-    {
-      "source": "1939",
-      "target": "6028",
-      "kind": "scene"
-    },
-    {
-      "source": "1939",
-      "target": "1858",
-      "kind": "scene"
-    },
-    {
-      "source": "815",
-      "target": "942",
-      "kind": "scene"
-    },
-    {
-      "source": "815",
-      "target": "1878",
-      "kind": "scene"
-    },
-    {
-      "source": "815",
-      "target": "1881",
-      "kind": "scene"
-    },
-    {
-      "source": "815",
-      "target": "862",
-      "kind": "scene"
-    },
-    {
-      "source": "815",
-      "target": "6028",
-      "kind": "scene"
-    },
-    {
-      "source": "815",
-      "target": "1858",
-      "kind": "scene"
-    },
-    {
-      "source": "942",
-      "target": "1878",
-      "kind": "scene"
-    },
-    {
-      "source": "942",
-      "target": "1881",
-      "kind": "scene"
-    },
-    {
-      "source": "942",
-      "target": "862",
-      "kind": "scene"
-    },
-    {
-      "source": "942",
-      "target": "6028",
-      "kind": "scene"
-    },
-    {
-      "source": "942",
-      "target": "1858",
-      "kind": "scene"
-    },
-    {
-      "source": "1878",
-      "target": "1881",
-      "kind": "scene"
-    },
-    {
-      "source": "1878",
-      "target": "862",
-      "kind": "scene"
-    },
-    {
-      "source": "1878",
-      "target": "6028",
-      "kind": "scene"
-    },
-    {
-      "source": "1878",
-      "target": "1858",
-      "kind": "scene"
-    },
-    {
-      "source": "1881",
-      "target": "862",
-      "kind": "scene"
-    },
-    {
-      "source": "1881",
-      "target": "6028",
-      "kind": "scene"
-    },
-    {
-      "source": "1881",
-      "target": "1858",
-      "kind": "scene"
-    },
-    {
-      "source": "862",
-      "target": "6028",
-      "kind": "scene"
-    },
-    {
-      "source": "862",
-      "target": "1858",
-      "kind": "scene"
-    },
-    {
-      "source": "6028",
-      "target": "1858",
-      "kind": "scene"
-    },
-    {
-      "source": "1978",
-      "target": "1753",
-      "kind": "scene"
-    },
-    {
-      "source": "1978",
-      "target": "1813",
-      "kind": "scene"
-    },
-    {
-      "source": "1978",
-      "target": "1035",
-      "kind": "scene"
-    },
-    {
-      "source": "1978",
-      "target": "1879",
-      "kind": "scene"
-    },
-    {
-      "source": "1978",
-      "target": "1886",
-      "kind": "scene"
-    },
-    {
-      "source": "1978",
-      "target": "2000",
-      "kind": "scene"
-    },
-    {
-      "source": "1978",
-      "target": "1909",
-      "kind": "scene"
-    },
-    {
-      "source": "1753",
-      "target": "1813",
-      "kind": "scene"
-    },
-    {
-      "source": "1753",
-      "target": "1035",
-      "kind": "scene"
-    },
-    {
-      "source": "1753",
-      "target": "1879",
-      "kind": "scene"
-    },
-    {
-      "source": "1753",
-      "target": "1886",
-      "kind": "scene"
-    },
-    {
-      "source": "1753",
-      "target": "2000",
-      "kind": "scene"
-    },
-    {
-      "source": "1753",
-      "target": "1909",
-      "kind": "scene"
-    },
-    {
-      "source": "1813",
-      "target": "1035",
-      "kind": "scene"
-    },
-    {
-      "source": "1813",
-      "target": "1879",
-      "kind": "scene"
-    },
-    {
-      "source": "1813",
-      "target": "1886",
-      "kind": "scene"
-    },
-    {
-      "source": "1813",
-      "target": "2000",
-      "kind": "scene"
-    },
-    {
-      "source": "1813",
-      "target": "1909",
-      "kind": "scene"
-    },
-    {
-      "source": "1035",
-      "target": "1879",
-      "kind": "scene"
-    },
-    {
-      "source": "1035",
-      "target": "1886",
-      "kind": "scene"
-    },
-    {
-      "source": "1035",
-      "target": "2000",
-      "kind": "scene"
-    },
-    {
-      "source": "1035",
-      "target": "1909",
-      "kind": "scene"
-    },
-    {
-      "source": "1879",
-      "target": "1886",
-      "kind": "scene"
-    },
-    {
-      "source": "1879",
-      "target": "2000",
-      "kind": "scene"
-    },
-    {
-      "source": "1879",
-      "target": "1909",
-      "kind": "scene"
-    },
-    {
-      "source": "1886",
-      "target": "2000",
-      "kind": "scene"
-    },
-    {
-      "source": "1886",
-      "target": "1909",
-      "kind": "scene"
-    },
-    {
-      "source": "2000",
-      "target": "1909",
-      "kind": "scene"
-    },
-    {
-      "source": "2081",
-      "target": "992",
-      "kind": "scene"
-    },
-    {
-      "source": "2081",
-      "target": "1397",
-      "kind": "scene"
-    },
-    {
-      "source": "2081",
-      "target": "1823",
-      "kind": "scene"
-    },
-    {
-      "source": "2081",
-      "target": "929",
-      "kind": "scene"
-    },
-    {
-      "source": "2081",
-      "target": "3505",
-      "kind": "scene"
-    },
-    {
-      "source": "2081",
-      "target": "4201",
-      "kind": "scene"
-    },
-    {
-      "source": "2081",
-      "target": "4090",
-      "kind": "scene"
-    },
-    {
-      "source": "992",
-      "target": "1397",
-      "kind": "scene"
-    },
-    {
-      "source": "992",
-      "target": "1823",
-      "kind": "scene"
-    },
-    {
-      "source": "992",
-      "target": "929",
-      "kind": "scene"
-    },
-    {
-      "source": "992",
-      "target": "3505",
-      "kind": "scene"
-    },
-    {
-      "source": "992",
-      "target": "4201",
-      "kind": "scene"
-    },
-    {
-      "source": "992",
-      "target": "4090",
-      "kind": "scene"
-    },
-    {
-      "source": "1397",
-      "target": "1823",
-      "kind": "scene"
-    },
-    {
-      "source": "1397",
-      "target": "929",
-      "kind": "scene"
-    },
-    {
-      "source": "1397",
-      "target": "3505",
-      "kind": "scene"
-    },
-    {
-      "source": "1397",
-      "target": "4201",
-      "kind": "scene"
-    },
-    {
-      "source": "1397",
-      "target": "4090",
-      "kind": "scene"
-    },
-    {
-      "source": "1823",
-      "target": "929",
-      "kind": "scene"
-    },
-    {
-      "source": "1823",
-      "target": "3505",
-      "kind": "scene"
-    },
-    {
-      "source": "1823",
-      "target": "4201",
-      "kind": "scene"
-    },
-    {
-      "source": "1823",
-      "target": "4090",
-      "kind": "scene"
-    },
-    {
-      "source": "929",
-      "target": "3505",
-      "kind": "scene"
-    },
-    {
-      "source": "929",
-      "target": "4201",
-      "kind": "scene"
-    },
-    {
-      "source": "929",
-      "target": "4090",
-      "kind": "scene"
-    },
-    {
-      "source": "3505",
-      "target": "4201",
-      "kind": "scene"
-    },
-    {
-      "source": "3505",
-      "target": "4090",
-      "kind": "scene"
-    },
-    {
-      "source": "4201",
-      "target": "4090",
-      "kind": "scene"
-    },
-    {
-      "source": "5556",
-      "target": "2981",
-      "kind": "scene"
-    },
-    {
-      "source": "5556",
-      "target": "2094",
-      "kind": "scene"
-    },
-    {
-      "source": "5556",
-      "target": "1853",
-      "kind": "scene"
-    },
-    {
-      "source": "5556",
-      "target": "1699",
-      "kind": "scene"
-    },
-    {
-      "source": "5556",
-      "target": "1628",
-      "kind": "scene"
-    },
-    {
-      "source": "5556",
-      "target": "5568",
-      "kind": "scene"
-    },
-    {
-      "source": "5556",
-      "target": "5565",
-      "kind": "scene"
-    },
-    {
-      "source": "2981",
-      "target": "2094",
-      "kind": "scene"
-    },
-    {
-      "source": "2981",
-      "target": "1853",
-      "kind": "scene"
-    },
-    {
-      "source": "2981",
-      "target": "1699",
-      "kind": "scene"
-    },
-    {
-      "source": "2981",
-      "target": "1628",
-      "kind": "scene"
-    },
-    {
-      "source": "2981",
-      "target": "5568",
-      "kind": "scene"
-    },
-    {
-      "source": "2981",
-      "target": "5565",
-      "kind": "scene"
-    },
-    {
-      "source": "2094",
-      "target": "1853",
-      "kind": "scene"
-    },
-    {
-      "source": "2094",
-      "target": "1699",
-      "kind": "scene"
-    },
-    {
-      "source": "2094",
-      "target": "1628",
-      "kind": "scene"
-    },
-    {
-      "source": "2094",
-      "target": "5568",
-      "kind": "scene"
-    },
-    {
-      "source": "2094",
-      "target": "5565",
-      "kind": "scene"
-    },
-    {
-      "source": "1853",
-      "target": "1699",
-      "kind": "scene"
-    },
-    {
-      "source": "1853",
-      "target": "1628",
-      "kind": "scene"
-    },
-    {
-      "source": "1853",
-      "target": "5568",
-      "kind": "scene"
-    },
-    {
-      "source": "1853",
-      "target": "5565",
-      "kind": "scene"
-    },
-    {
-      "source": "1699",
-      "target": "1628",
-      "kind": "scene"
-    },
-    {
-      "source": "1699",
-      "target": "5568",
-      "kind": "scene"
-    },
-    {
-      "source": "1699",
-      "target": "5565",
-      "kind": "scene"
-    },
-    {
-      "source": "1628",
-      "target": "5568",
-      "kind": "scene"
-    },
-    {
-      "source": "1628",
-      "target": "5565",
-      "kind": "scene"
-    },
-    {
-      "source": "5568",
-      "target": "5565",
-      "kind": "scene"
-    },
-    {
-      "source": "1174",
-      "target": "942",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1174",
-      "target": "1878",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1174",
-      "target": "1881",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1174",
-      "target": "862",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1174",
-      "target": "6028",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1174",
-      "target": "1978",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1174",
-      "target": "1879",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1174",
-      "target": "992",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1174",
-      "target": "929",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "942",
-      "target": "1878",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "942",
-      "target": "1881",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "942",
-      "target": "862",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "942",
-      "target": "6028",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "942",
-      "target": "1978",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "942",
-      "target": "1879",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "942",
-      "target": "992",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "942",
-      "target": "929",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1878",
-      "target": "1881",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1878",
-      "target": "862",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1878",
-      "target": "6028",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1878",
-      "target": "1978",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1878",
-      "target": "1879",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1878",
-      "target": "992",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1878",
-      "target": "929",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1881",
-      "target": "862",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1881",
-      "target": "6028",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1881",
-      "target": "1978",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1881",
-      "target": "1879",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1881",
-      "target": "992",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1881",
-      "target": "929",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "862",
-      "target": "6028",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "862",
-      "target": "1978",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "862",
-      "target": "1879",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "862",
-      "target": "992",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "862",
-      "target": "929",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "6028",
-      "target": "1978",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "6028",
-      "target": "1879",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "6028",
-      "target": "992",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "6028",
-      "target": "929",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1978",
-      "target": "1879",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1978",
-      "target": "992",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1978",
-      "target": "929",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1879",
-      "target": "992",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "1879",
-      "target": "929",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "992",
-      "target": "929",
-      "kind": "thread",
-      "category": "primary"
-    },
-    {
-      "source": "4777",
-      "target": "1983",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "900",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "1934",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "1941",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "1939",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "815",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "1858",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "1753",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "1813",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "1035",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "2000",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "1909",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "2081",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "1823",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "4777",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "900",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "1934",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "1941",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "1939",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "815",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "1858",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "1753",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "1813",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "1035",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "2000",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "1909",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "2081",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "1823",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1983",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "900",
-      "target": "1934",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "900",
-      "target": "1941",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "900",
-      "target": "1939",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "900",
-      "target": "815",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "900",
-      "target": "1858",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "900",
-      "target": "1753",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "900",
-      "target": "1813",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "900",
-      "target": "1035",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "900",
-      "target": "2000",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "900",
-      "target": "1909",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "900",
-      "target": "2081",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "900",
-      "target": "1823",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "900",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "900",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1934",
-      "target": "1941",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1934",
-      "target": "1939",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1934",
-      "target": "815",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1934",
-      "target": "1858",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1934",
-      "target": "1753",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1934",
-      "target": "1813",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1934",
-      "target": "1035",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1934",
-      "target": "2000",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1934",
-      "target": "1909",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1934",
-      "target": "2081",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1934",
-      "target": "1823",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1934",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1934",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1941",
-      "target": "1939",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1941",
-      "target": "815",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1941",
-      "target": "1858",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1941",
-      "target": "1753",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1941",
-      "target": "1813",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1941",
-      "target": "1035",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1941",
-      "target": "2000",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1941",
-      "target": "1909",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1941",
-      "target": "2081",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1941",
-      "target": "1823",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1941",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1941",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1939",
-      "target": "815",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1939",
-      "target": "1858",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1939",
-      "target": "1753",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1939",
-      "target": "1813",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1939",
-      "target": "1035",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1939",
-      "target": "2000",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1939",
-      "target": "1909",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1939",
-      "target": "2081",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1939",
-      "target": "1823",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1939",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1939",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "815",
-      "target": "1858",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "815",
-      "target": "1753",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "815",
-      "target": "1813",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "815",
-      "target": "1035",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "815",
-      "target": "2000",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "815",
-      "target": "1909",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "815",
-      "target": "2081",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "815",
-      "target": "1823",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "815",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "815",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1858",
-      "target": "1753",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1858",
-      "target": "1813",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1858",
-      "target": "1035",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1858",
-      "target": "2000",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1858",
-      "target": "1909",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1858",
-      "target": "2081",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1858",
-      "target": "1823",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1858",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1858",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1753",
-      "target": "1813",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1753",
-      "target": "1035",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1753",
-      "target": "2000",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1753",
-      "target": "1909",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1753",
-      "target": "2081",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1753",
-      "target": "1823",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1753",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1753",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1813",
-      "target": "1035",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1813",
-      "target": "2000",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1813",
-      "target": "1909",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1813",
-      "target": "2081",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1813",
-      "target": "1823",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1813",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1813",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1035",
-      "target": "2000",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1035",
-      "target": "1909",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1035",
-      "target": "2081",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1035",
-      "target": "1823",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1035",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1035",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "2000",
-      "target": "1909",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "2000",
-      "target": "2081",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "2000",
-      "target": "1823",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "2000",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "2000",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1909",
-      "target": "2081",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1909",
-      "target": "1823",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1909",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1909",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "2081",
-      "target": "1823",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "2081",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "2081",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1823",
-      "target": "2094",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "1823",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    },
-    {
-      "source": "2094",
-      "target": "1699",
-      "kind": "thread",
-      "category": "thread"
-    }
-  ],
-  "character": {
-    "name": "Marcus",
-    "age": 56,
-    "gender": "M",
-    "want": "to prove he is still the strongest man in the room",
-    "need": "to accept limits before his heart makes the decision for him",
-    "flaw": "defaults to \"I'm fine\" and refuses to rest, even when his chest is tightening",
-    "ghost": "his father, dead of an MI at 58, collapsed in the garage alone",
-    "mentor": "Dr. Iwu",
-    "domain": "Arrhythmias — AFib vs SVT vs VTach vs heart block",
-    "domainWant": "to understand what arrhythmias — afib vs svt vs vtach vs heart block means for their life — not just the lab values",
-    "domainNeed": "to integrate this diagnosis with their existing health without letting each new finding become a separate identity"
-  }
+    "set":  17,
+    "storyFile":  "set-17-story-vb.html",
+    "source":  "smart-classifier: likely-answer vs scene-differential terms. Master review recommended.",
+    "repo":  "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+    "coreDiagnosis":  "Arrhythmias — AFib vs SVT vs VTach vs heart block",
+    "recurringThread":  "",
+    "mainPath":  [
+                     "1174",
+                     "942",
+                     "1878",
+                     "1881",
+                     "862",
+                     "6028",
+                     "1978",
+                     "1879",
+                     "992",
+                     "929"
+                 ],
+    "generatedAt":  "2026-07-13T12:25:17.281Z",
+    "counts":  {
+                   "primary":  10,
+                   "mimic":  13,
+                   "thread":  17
+               },
+    "nodes":  [
+                  {
+                      "id":  "4777",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Irregularly irregular to supraventricular territory across another scene"
+                  },
+                  {
+                      "id":  "1983",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Irregularly irregular to svt territory across another scene"
+                  },
+                  {
+                      "id":  "900",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Irregularly irregular to supraventricular territory across another scene"
+                  },
+                  {
+                      "id":  "1002",
+                      "category":  "mimic",
+                      "why":  "Differential look-alike in Irregularly irregular: tests rate control which mimics the core fork"
+                  },
+                  {
+                      "id":  "1934",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Irregularly irregular to ventricular tachy territory across another scene"
+                  },
+                  {
+                      "id":  "1966",
+                      "category":  "mimic",
+                      "why":  "Differential look-alike in Irregularly irregular: tests rate control which mimics the core fork"
+                  },
+                  {
+                      "id":  "1174",
+                      "category":  "primary",
+                      "why":  "Directly tests cardioversion — core diagnostic fork of Irregularly irregular"
+                  },
+                  {
+                      "id":  "1941",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Irregularly irregular to amiodarone territory across another scene"
+                  },
+                  {
+                      "id":  "1939",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Fast and narrow to ventricular tachy territory across another scene"
+                  },
+                  {
+                      "id":  "815",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Fast and narrow to ventricular tachy territory across another scene"
+                  },
+                  {
+                      "id":  "942",
+                      "category":  "primary",
+                      "why":  "Directly tests amiodarone — core diagnostic fork of Fast and narrow"
+                  },
+                  {
+                      "id":  "1878",
+                      "category":  "primary",
+                      "why":  "Directly tests cardioversion — core diagnostic fork of Fast and narrow"
+                  },
+                  {
+                      "id":  "1881",
+                      "category":  "primary",
+                      "why":  "Directly tests amiodarone — core diagnostic fork of Fast and narrow"
+                  },
+                  {
+                      "id":  "862",
+                      "category":  "primary",
+                      "why":  "Directly tests cardioversion — core diagnostic fork of Fast and narrow"
+                  },
+                  {
+                      "id":  "6028",
+                      "category":  "primary",
+                      "why":  "Directly tests adenosine — core diagnostic fork of Fast and narrow"
+                  },
+                  {
+                      "id":  "1858",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Fast and narrow to atrial fib territory across another scene"
+                  },
+                  {
+                      "id":  "1978",
+                      "category":  "primary",
+                      "why":  "Directly tests cardioversion — core diagnostic fork of Wide and fast"
+                  },
+                  {
+                      "id":  "1753",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Wide and fast to atrial fib territory across another scene"
+                  },
+                  {
+                      "id":  "1813",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Wide and fast to atrial fib territory across another scene"
+                  },
+                  {
+                      "id":  "1035",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Wide and fast to atrial fib territory across another scene"
+                  },
+                  {
+                      "id":  "1879",
+                      "category":  "primary",
+                      "why":  "Directly tests defibrillat — core diagnostic fork of Wide and fast"
+                  },
+                  {
+                      "id":  "1886",
+                      "category":  "mimic",
+                      "why":  "Differential look-alike in Wide and fast: tests amiodarone which mimics the core fork"
+                  },
+                  {
+                      "id":  "2000",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Wide and fast to supraventricular territory across another scene"
+                  },
+                  {
+                      "id":  "1909",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Wide and fast to supraventricular territory across another scene"
+                  },
+                  {
+                      "id":  "2081",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Pause and block to vagal territory across another scene"
+                  },
+                  {
+                      "id":  "992",
+                      "category":  "primary",
+                      "why":  "Directly tests heart block — core diagnostic fork of Pause and block"
+                  },
+                  {
+                      "id":  "1397",
+                      "category":  "mimic",
+                      "why":  "Differential look-alike in Pause and block: tests atropine which mimics the core fork"
+                  },
+                  {
+                      "id":  "1823",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Pause and block to atrial fib territory across another scene"
+                  },
+                  {
+                      "id":  "929",
+                      "category":  "primary",
+                      "why":  "Directly tests pacemaker — core diagnostic fork of Pause and block"
+                  },
+                  {
+                      "id":  "3505",
+                      "category":  "mimic",
+                      "why":  "Differential look-alike in Pause and block: tests atropine which mimics the core fork"
+                  },
+                  {
+                      "id":  "4201",
+                      "category":  "mimic",
+                      "why":  "Differential look-alike in Pause and block: tests atropine which mimics the core fork"
+                  },
+                  {
+                      "id":  "4090",
+                      "category":  "mimic",
+                      "why":  "Differential look-alike in Pause and block: tests atropine which mimics the core fork"
+                  },
+                  {
+                      "id":  "5556",
+                      "category":  "mimic",
+                      "why":  "Differential distractor — alternative condition to the Long-term rhythm fork"
+                  },
+                  {
+                      "id":  "2981",
+                      "category":  "mimic",
+                      "why":  "Differential look-alike in Long-term rhythm: tests x-ray of the left arm, right leg, and chest which mimics the core fork"
+                  },
+                  {
+                      "id":  "2094",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Long-term rhythm to anticoagul territory across another scene"
+                  },
+                  {
+                      "id":  "1853",
+                      "category":  "mimic",
+                      "why":  "Differential look-alike in Long-term rhythm: tests holter which mimics the core fork"
+                  },
+                  {
+                      "id":  "1699",
+                      "category":  "thread",
+                      "why":  "Cross-scene connection: bridges Long-term rhythm to bradycardia territory across another scene"
+                  },
+                  {
+                      "id":  "1628",
+                      "category":  "mimic",
+                      "why":  "Differential look-alike in Long-term rhythm: tests aspirin\n(55.41%) which mimics the core fork"
+                  },
+                  {
+                      "id":  "5568",
+                      "category":  "mimic",
+                      "why":  "Differential distractor — alternative condition to the Long-term rhythm fork"
+                  },
+                  {
+                      "id":  "5565",
+                      "category":  "mimic",
+                      "why":  "Differential distractor — alternative condition to the Long-term rhythm fork"
+                  }
+              ],
+    "edges":  [
+                  {
+                      "source":  "4777",
+                      "target":  "1983",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "900",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1002",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1934",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1966",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1174",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1941",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "900",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1002",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1934",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1966",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1174",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1941",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1002",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1934",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1966",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1174",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1941",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1002",
+                      "target":  "1934",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1002",
+                      "target":  "1966",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1002",
+                      "target":  "1174",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1002",
+                      "target":  "1941",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "1966",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "1174",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "1941",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1966",
+                      "target":  "1174",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1966",
+                      "target":  "1941",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1174",
+                      "target":  "1941",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "815",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "942",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "1878",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "1881",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "862",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "6028",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "1858",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "942",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "1878",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "1881",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "862",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "6028",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "1858",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "942",
+                      "target":  "1878",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "942",
+                      "target":  "1881",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "942",
+                      "target":  "862",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "942",
+                      "target":  "6028",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "942",
+                      "target":  "1858",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1878",
+                      "target":  "1881",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1878",
+                      "target":  "862",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1878",
+                      "target":  "6028",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1878",
+                      "target":  "1858",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1881",
+                      "target":  "862",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1881",
+                      "target":  "6028",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1881",
+                      "target":  "1858",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "862",
+                      "target":  "6028",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "862",
+                      "target":  "1858",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "6028",
+                      "target":  "1858",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1978",
+                      "target":  "1753",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1978",
+                      "target":  "1813",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1978",
+                      "target":  "1035",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1978",
+                      "target":  "1879",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1978",
+                      "target":  "1886",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1978",
+                      "target":  "2000",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1978",
+                      "target":  "1909",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1753",
+                      "target":  "1813",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1753",
+                      "target":  "1035",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1753",
+                      "target":  "1879",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1753",
+                      "target":  "1886",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1753",
+                      "target":  "2000",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1753",
+                      "target":  "1909",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1813",
+                      "target":  "1035",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1813",
+                      "target":  "1879",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1813",
+                      "target":  "1886",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1813",
+                      "target":  "2000",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1813",
+                      "target":  "1909",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1035",
+                      "target":  "1879",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1035",
+                      "target":  "1886",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1035",
+                      "target":  "2000",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1035",
+                      "target":  "1909",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1879",
+                      "target":  "1886",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1879",
+                      "target":  "2000",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1879",
+                      "target":  "1909",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1886",
+                      "target":  "2000",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1886",
+                      "target":  "1909",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2000",
+                      "target":  "1909",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2081",
+                      "target":  "992",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2081",
+                      "target":  "1397",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2081",
+                      "target":  "1823",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2081",
+                      "target":  "929",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2081",
+                      "target":  "3505",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2081",
+                      "target":  "4201",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2081",
+                      "target":  "4090",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "992",
+                      "target":  "1397",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "992",
+                      "target":  "1823",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "992",
+                      "target":  "929",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "992",
+                      "target":  "3505",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "992",
+                      "target":  "4201",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "992",
+                      "target":  "4090",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1397",
+                      "target":  "1823",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1397",
+                      "target":  "929",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1397",
+                      "target":  "3505",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1397",
+                      "target":  "4201",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1397",
+                      "target":  "4090",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1823",
+                      "target":  "929",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1823",
+                      "target":  "3505",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1823",
+                      "target":  "4201",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1823",
+                      "target":  "4090",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "929",
+                      "target":  "3505",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "929",
+                      "target":  "4201",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "929",
+                      "target":  "4090",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "3505",
+                      "target":  "4201",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "3505",
+                      "target":  "4090",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "4201",
+                      "target":  "4090",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "5556",
+                      "target":  "2981",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "5556",
+                      "target":  "2094",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "5556",
+                      "target":  "1853",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "5556",
+                      "target":  "1699",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "5556",
+                      "target":  "1628",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "5556",
+                      "target":  "5568",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "5556",
+                      "target":  "5565",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2981",
+                      "target":  "2094",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2981",
+                      "target":  "1853",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2981",
+                      "target":  "1699",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2981",
+                      "target":  "1628",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2981",
+                      "target":  "5568",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2981",
+                      "target":  "5565",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2094",
+                      "target":  "1853",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2094",
+                      "target":  "1699",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2094",
+                      "target":  "1628",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2094",
+                      "target":  "5568",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "2094",
+                      "target":  "5565",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1853",
+                      "target":  "1699",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1853",
+                      "target":  "1628",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1853",
+                      "target":  "5568",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1853",
+                      "target":  "5565",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1699",
+                      "target":  "1628",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1699",
+                      "target":  "5568",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1699",
+                      "target":  "5565",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1628",
+                      "target":  "5568",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1628",
+                      "target":  "5565",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "5568",
+                      "target":  "5565",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "1174",
+                      "target":  "942",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1174",
+                      "target":  "1878",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1174",
+                      "target":  "1881",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1174",
+                      "target":  "862",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1174",
+                      "target":  "6028",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1174",
+                      "target":  "1978",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1174",
+                      "target":  "1879",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1174",
+                      "target":  "992",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1174",
+                      "target":  "929",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "942",
+                      "target":  "1878",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "942",
+                      "target":  "1881",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "942",
+                      "target":  "862",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "942",
+                      "target":  "6028",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "942",
+                      "target":  "1978",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "942",
+                      "target":  "1879",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "942",
+                      "target":  "992",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "942",
+                      "target":  "929",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1878",
+                      "target":  "1881",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1878",
+                      "target":  "862",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1878",
+                      "target":  "6028",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1878",
+                      "target":  "1978",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1878",
+                      "target":  "1879",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1878",
+                      "target":  "992",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1878",
+                      "target":  "929",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1881",
+                      "target":  "862",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1881",
+                      "target":  "6028",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1881",
+                      "target":  "1978",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1881",
+                      "target":  "1879",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1881",
+                      "target":  "992",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1881",
+                      "target":  "929",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "862",
+                      "target":  "6028",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "862",
+                      "target":  "1978",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "862",
+                      "target":  "1879",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "862",
+                      "target":  "992",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "862",
+                      "target":  "929",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "6028",
+                      "target":  "1978",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "6028",
+                      "target":  "1879",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "6028",
+                      "target":  "992",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "6028",
+                      "target":  "929",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1978",
+                      "target":  "1879",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1978",
+                      "target":  "992",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1978",
+                      "target":  "929",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1879",
+                      "target":  "992",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "1879",
+                      "target":  "929",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "992",
+                      "target":  "929",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1983",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "900",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1934",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1941",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1939",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "815",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1858",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1753",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1813",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1035",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "2000",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1909",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "2081",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1823",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "4777",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "900",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1934",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1941",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1939",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "815",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1858",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1753",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1813",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1035",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "2000",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1909",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "2081",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1823",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1983",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1934",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1941",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1939",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "815",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1858",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1753",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1813",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1035",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "2000",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1909",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "2081",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1823",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "900",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "1941",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "1939",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "815",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "1858",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "1753",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "1813",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "1035",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "2000",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "1909",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "2081",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "1823",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1934",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1941",
+                      "target":  "1939",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1941",
+                      "target":  "815",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1941",
+                      "target":  "1858",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1941",
+                      "target":  "1753",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1941",
+                      "target":  "1813",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1941",
+                      "target":  "1035",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1941",
+                      "target":  "2000",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1941",
+                      "target":  "1909",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1941",
+                      "target":  "2081",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1941",
+                      "target":  "1823",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1941",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1941",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "815",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "1858",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "1753",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "1813",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "1035",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "2000",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "1909",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "2081",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "1823",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1939",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "1858",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "1753",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "1813",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "1035",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "2000",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "1909",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "2081",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "1823",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "815",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1858",
+                      "target":  "1753",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1858",
+                      "target":  "1813",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1858",
+                      "target":  "1035",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1858",
+                      "target":  "2000",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1858",
+                      "target":  "1909",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1858",
+                      "target":  "2081",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1858",
+                      "target":  "1823",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1858",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1858",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1753",
+                      "target":  "1813",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1753",
+                      "target":  "1035",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1753",
+                      "target":  "2000",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1753",
+                      "target":  "1909",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1753",
+                      "target":  "2081",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1753",
+                      "target":  "1823",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1753",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1753",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1813",
+                      "target":  "1035",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1813",
+                      "target":  "2000",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1813",
+                      "target":  "1909",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1813",
+                      "target":  "2081",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1813",
+                      "target":  "1823",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1813",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1813",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1035",
+                      "target":  "2000",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1035",
+                      "target":  "1909",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1035",
+                      "target":  "2081",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1035",
+                      "target":  "1823",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1035",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1035",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "2000",
+                      "target":  "1909",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "2000",
+                      "target":  "2081",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "2000",
+                      "target":  "1823",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "2000",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "2000",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1909",
+                      "target":  "2081",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1909",
+                      "target":  "1823",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1909",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1909",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "2081",
+                      "target":  "1823",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "2081",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "2081",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1823",
+                      "target":  "2094",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "1823",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  },
+                  {
+                      "source":  "2094",
+                      "target":  "1699",
+                      "kind":  "thread",
+                      "category":  "thread"
+                  }
+              ],
+    "character":  {
+                      "name":  "Marcus",
+                      "age":  56,
+                      "gender":  "M",
+                      "want":  "to prove he is still the strongest man in the room",
+                      "need":  "to accept limits before his heart makes the decision for him",
+                      "flaw":  "defaults to \"I\u0027m fine\" and refuses to rest, even when his chest is tightening",
+                      "ghost":  "his father, dead of an MI at 58, collapsed in the garage alone",
+                      "mentor":  "Dr. Iwu",
+                      "domain":  "Arrhythmias — AFib vs SVT vs VTach vs heart block",
+                      "domainWant":  "to understand what arrhythmias — afib vs svt vs vtach vs heart block means for their life — not just the lab values",
+                      "domainNeed":  "to integrate this diagnosis with their existing health without letting each new finding become a separate identity"
+                  },
+    "image":  ""
 }

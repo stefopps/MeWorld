@@ -1,53 +1,56 @@
 {
-  "set": 128,
-  "storyFile": "set-128-story-va.html",
-  "source": "auto-classified: full-bank bulk generator. Master review needed.",
-  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
-  "coreDiagnosis": "Facial Paralysis · Post-surgical Septal",
-  "recurringThread": "",
-  "mainPath": [
-    "443"
-  ],
-  "generatedAt": "2026-07-13T13:05:43.841Z",
-  "counts": {
-    "primary": 1,
-    "mimic": 3,
-    "thread": 0
-  },
-  "nodes": [
-    {
-      "id": "300",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "341",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "443",
-      "category": "primary",
-      "why": "Core diagnostic fork: body dysmorphic disorder (97.35%)"
-    },
-    {
-      "id": "5492",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    }
-  ],
-  "edges": [],
-  "character": {
-    "name": "Robert",
-    "age": 72,
-    "gender": "M",
-    "want": "to die at home, not in a hospital bed",
-    "need": "to let his daughter help him before his potassium decides for both of them",
-    "flaw": "stubborn independence — hides pills, skips dialysis, lies about fluid intake",
-    "ghost": "his wife, who died in a hospital six years ago, and he never left the waiting room",
-    "mentor": "Dr. Iwu",
-    "domain": "Facial Paralysis / Post-surgical Septal",
-    "domainWant": "to understand what facial paralysis / post-surgical septal means for their life — not just the lab values",
-    "domainNeed": "to integrate this diagnosis with their existing health without letting each new finding become a separate identity"
-  }
+    "set":  128,
+    "storyFile":  "set-128-story-va.html",
+    "source":  "auto-classified: full-bank bulk generator. Master review needed.",
+    "repo":  "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+    "coreDiagnosis":  "Facial Paralysis · Post-surgical Septal",
+    "recurringThread":  "",
+    "mainPath":  [
+                     "443"
+                 ],
+    "generatedAt":  "2026-07-13T13:05:43.841Z",
+    "counts":  {
+                   "primary":  1,
+                   "mimic":  3,
+                   "thread":  0
+               },
+    "nodes":  [
+                  {
+                      "id":  "300",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "341",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "443",
+                      "category":  "primary",
+                      "why":  "Core diagnostic fork: body dysmorphic disorder (97.35%)"
+                  },
+                  {
+                      "id":  "5492",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  }
+              ],
+    "edges":  [
+
+              ],
+    "character":  {
+                      "name":  "Robert",
+                      "age":  72,
+                      "gender":  "M",
+                      "want":  "to die at home, not in a hospital bed",
+                      "need":  "to let his daughter help him before his potassium decides for both of them",
+                      "flaw":  "stubborn independence — hides pills, skips dialysis, lies about fluid intake",
+                      "ghost":  "his wife, who died in a hospital six years ago, and he never left the waiting room",
+                      "mentor":  "Dr. Iwu",
+                      "domain":  "Facial Paralysis / Post-surgical Septal",
+                      "domainWant":  "to understand what facial paralysis / post-surgical septal means for their life — not just the lab values",
+                      "domainNeed":  "to integrate this diagnosis with their existing health without letting each new finding become a separate identity"
+                  },
+    "image":  ""
 }

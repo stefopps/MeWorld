@@ -1,146 +1,147 @@
 {
-  "set": 124,
-  "storyFile": "set-124-story-va.html",
-  "source": "auto-classified: full-bank bulk generator. Master review needed.",
-  "repo": "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
-  "coreDiagnosis": "Registered Dietitian · A Registered",
-  "recurringThread": "",
-  "mainPath": [
-    "6198",
-    "6223"
-  ],
-  "generatedAt": "2026-07-13T13:05:43.830Z",
-  "counts": {
-    "primary": 2,
-    "mimic": 10,
-    "thread": 0
-  },
-  "nodes": [
-    {
-      "id": "6198",
-      "category": "primary",
-      "why": "Core diagnostic fork: they have been shown to increase fruit and vegetable intake "
-    },
-    {
-      "id": "6199",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "6206",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "6210",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "6214",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "6215",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "6216",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "6223",
-      "category": "primary",
-      "why": "Core diagnostic fork: advise her to continue her current metformin dose, explain t"
-    },
-    {
-      "id": "6224",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "6227",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "6229",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    },
-    {
-      "id": "6246",
-      "category": "mimic",
-      "why": "Differential door in this set"
-    }
-  ],
-  "edges": [
-    {
-      "source": "6198",
-      "target": "6215",
-      "kind": "scene"
-    },
-    {
-      "source": "6198",
-      "target": "6229",
-      "kind": "scene"
-    },
-    {
-      "source": "6215",
-      "target": "6229",
-      "kind": "scene"
-    },
-    {
-      "source": "6199",
-      "target": "6216",
-      "kind": "scene"
-    },
-    {
-      "source": "6199",
-      "target": "6246",
-      "kind": "scene"
-    },
-    {
-      "source": "6216",
-      "target": "6246",
-      "kind": "scene"
-    },
-    {
-      "source": "6206",
-      "target": "6223",
-      "kind": "scene"
-    },
-    {
-      "source": "6210",
-      "target": "6224",
-      "kind": "scene"
-    },
-    {
-      "source": "6214",
-      "target": "6227",
-      "kind": "scene"
-    },
-    {
-      "source": "6198",
-      "target": "6223",
-      "kind": "thread",
-      "category": "primary"
-    }
-  ],
-  "character": {
-    "name": "Elena",
-    "age": 45,
-    "gender": "F",
-    "want": "to understand why she is always thirsty and exhausted despite doing everything right",
-    "need": "to accept that her body needs insulin, not willpower — and that needing help is not failure",
-    "flaw": "compartmentalizes every health problem — diabetes in one box, cycles in another, never connecting them",
-    "ghost": "an aunt who died of sugar sickness, unmanaged, and the family never talked about it",
-    "mentor": "Dr. Iwu",
-    "domain": "Registered Dietitian / A Registered",
-    "domainWant": "to understand what registered dietitian / a registered means for their life — not just the lab values",
-    "domainNeed": "to integrate this diagnosis with their existing health without letting each new finding become a separate identity"
-  }
+    "set":  124,
+    "storyFile":  "set-124-story-va.html",
+    "source":  "auto-classified: full-bank bulk generator. Master review needed.",
+    "repo":  "https://github.com/stefopps/MeWorld (step3/scrape-bank)",
+    "coreDiagnosis":  "Registered Dietitian · A Registered",
+    "recurringThread":  "",
+    "mainPath":  [
+                     "6198",
+                     "6223"
+                 ],
+    "generatedAt":  "2026-07-13T13:05:43.830Z",
+    "counts":  {
+                   "primary":  2,
+                   "mimic":  10,
+                   "thread":  0
+               },
+    "nodes":  [
+                  {
+                      "id":  "6198",
+                      "category":  "primary",
+                      "why":  "Core diagnostic fork: they have been shown to increase fruit and vegetable intake "
+                  },
+                  {
+                      "id":  "6199",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "6206",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "6210",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "6214",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "6215",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "6216",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "6223",
+                      "category":  "primary",
+                      "why":  "Core diagnostic fork: advise her to continue her current metformin dose, explain t"
+                  },
+                  {
+                      "id":  "6224",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "6227",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "6229",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  },
+                  {
+                      "id":  "6246",
+                      "category":  "mimic",
+                      "why":  "Differential door in this set"
+                  }
+              ],
+    "edges":  [
+                  {
+                      "source":  "6198",
+                      "target":  "6215",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "6198",
+                      "target":  "6229",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "6215",
+                      "target":  "6229",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "6199",
+                      "target":  "6216",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "6199",
+                      "target":  "6246",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "6216",
+                      "target":  "6246",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "6206",
+                      "target":  "6223",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "6210",
+                      "target":  "6224",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "6214",
+                      "target":  "6227",
+                      "kind":  "scene"
+                  },
+                  {
+                      "source":  "6198",
+                      "target":  "6223",
+                      "kind":  "thread",
+                      "category":  "primary"
+                  }
+              ],
+    "character":  {
+                      "name":  "Elena",
+                      "age":  45,
+                      "gender":  "F",
+                      "want":  "to understand why she is always thirsty and exhausted despite doing everything right",
+                      "need":  "to accept that her body needs insulin, not willpower — and that needing help is not failure",
+                      "flaw":  "compartmentalizes every health problem — diabetes in one box, cycles in another, never connecting them",
+                      "ghost":  "an aunt who died of sugar sickness, unmanaged, and the family never talked about it",
+                      "mentor":  "Dr. Iwu",
+                      "domain":  "Registered Dietitian / A Registered",
+                      "domainWant":  "to understand what registered dietitian / a registered means for their life — not just the lab values",
+                      "domainNeed":  "to integrate this diagnosis with their existing health without letting each new finding become a separate identity"
+                  },
+    "image":  ""
 }

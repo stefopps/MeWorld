@@ -43,15 +43,49 @@
   }
   .float-ctl-top { top: 10px; left: 12px; display: flex; align-items: center; gap: 10px; }
   .float-ctl-top:active { cursor: grabbing; }
+  .float-ctl-top .hdr-cluster {
+    display: flex; align-items: center; gap: 4px;
+    padding: 2px 4px; border-radius: 7px;
+    background: rgba(0,0,0,0.04);
+  }
+  [data-theme="dark"] .float-ctl-top .hdr-cluster { background: rgba(255,255,255,0.05); }
+  .float-ctl-top .hdr-nav-btn {
+    width: 26px; height: 26px; border-radius: 6px; border: none;
+    background: transparent; color: var(--ink); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; transition: all .12s;
+  }
+  .float-ctl-top .hdr-nav-btn:hover { background: rgba(0,0,0,0.06); }
+  [data-theme="dark"] .float-ctl-top .hdr-nav-btn:hover { background: rgba(255,255,255,0.08); }
+  .float-ctl-top .hdr-nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+  .float-ctl-top .hdr-nav-btn.shuffle-btn {
+    width: auto; padding: 0 8px; font-size: 0.7rem; font-weight: 600;
+    border: 1px solid var(--border); border-radius: 6px;
+    color: var(--accent); gap: 4px;
+    font-family: inherit;
+  }
+  .float-ctl-top .hdr-nav-btn.shuffle-btn:hover { background: #eef3ff; }
+  [data-theme="dark"] .float-ctl-top .hdr-nav-btn.shuffle-btn:hover { background: #1a2a4a; }
+  .float-ctl-top .hdr-nav-btn.shuffle-btn:disabled { opacity: 0.4; }
+  .float-ctl-top .hdr-div { width:1px; height:20px; background:var(--border); margin:0 2px; flex-shrink:0; }
   .float-ctl select {
     font-family: inherit; font-size: 0.82rem; padding: 4px 8px;
     border: 1px solid var(--border); border-radius: 7px;
     background: #fff; color: var(--ink); outline: none; cursor: pointer;
+    flex: 1; max-width: 480px; min-width: 0;
   }
   .float-ctl select:focus { border-color: var(--coral); }
-  .float-ctl .set-info {
-    font-size: 0.75rem; color: var(--muted); white-space: nowrap; max-width: 340px; overflow: hidden; text-overflow: ellipsis;
+  .float-ctl .set-cover {
+    width: 32px; height: 32px; border-radius: 6px;
+    background: #f0f2f5; border: 1px solid var(--border);
+    overflow: hidden; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 0.85rem;
   }
+  .float-ctl .set-cover img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .float-ctl .set-cover.placeholder i { opacity: 0.35; }
   h1 { font-size: 0.95rem; margin: 0; font-weight: 650; white-space: nowrap; }
 
   .float-legend {
@@ -348,12 +382,51 @@
     margin-left: 2px;
   }
 
+  /* ── Node image (top plate) ── */
+  .hud .node-img, .hud-content .node-img {
+    width: 100%; border-radius: 8px 8px 0 0; margin-bottom: 0;
+    overflow: hidden; position: relative;
+  }
+  .hud .node-img img, .hud-content .node-img img {
+    width: 100%; max-height: 240px; object-fit: contain;
+    display: block; background: #0c0c14;
+  }
+  .hud .node-img .img-remove, .hud-content .node-img .img-remove {
+    position: absolute; top: 6px; right: 6px;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(0,0,0,0.55); color: #fff; border: none;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; opacity: 0; transition: opacity .15s;
+  }
+  .hud .node-img:hover .img-remove, .hud-content .node-img:hover .img-remove { opacity: 1; }
+  .hud .node-img .img-remove:hover, .hud-content .node-img .img-remove:hover { background: rgba(239,68,68,0.8); }
+  /* Upload placeholder (shown when no image) */
+  .hud .img-upload, .hud-content .img-upload {
+    width: 100%; border-radius: 8px; border: 2px dashed var(--border);
+    padding: 18px 12px; text-align: center; cursor: pointer;
+    color: var(--muted); transition: all .15s; margin-bottom: 8px;
+    font-size: 0.68rem;
+  }
+  .hud .img-upload:hover, .hud-content .img-upload:hover {
+    border-color: var(--accent); background: #f5f8ff;
+  }
+  .hud .img-upload i, .hud-content .img-upload i {
+    display: block; font-size: 1.4rem; margin-bottom: 4px;
+  }
+  [data-theme="dark"] .hud .img-upload, [data-theme="dark"] .hud-content .img-upload {
+    border-color: #2d3148;
+  }
+  [data-theme="dark"] .hud .img-upload:hover, [data-theme="dark"] .hud-content .img-upload:hover {
+    background: #1a1d28; border-color: var(--accent);
+  }
+
   /* ── Four-layer reveal v2: pinned concept + independent toggles ── */
   .hud .pinned-concept, .hud-content .pinned-concept {
     padding: 10px 12px; border-radius: 8px;
     border: 1px solid var(--border); background: #fafbfc;
     margin-bottom: 8px;
   }
+  .hud .node-img + .pinned-concept, .hud-content .node-img + .pinned-concept { border-radius: 0 0 8px 8px; border-top: none; }
   .hud .pinned-concept .pc-top, .hud-content .pinned-concept .pc-top {
     display: flex; align-items: center; justify-content: space-between;
     gap: 8px; margin-bottom: 6px;
@@ -868,9 +941,11 @@
   [data-theme="dark"] .float-toggle,
   [data-theme="dark"] .float-settings { background: rgba(22,24,32,0.92); border-color: var(--border); }
   [data-theme="dark"] .float-ctl select,
+  [data-theme="dark"] .float-ctl .set-cover,
   [data-theme="dark"] .spine-rail,
   [data-theme="dark"] .onboarding { background: #1a1c26; color: var(--ink); border-color: var(--border); }
   [data-theme="dark"] .spine-rail { background: rgba(20,22,30,0.94); }
+  [data-theme="dark"] .float-ctl .set-cover { background: #212433; border-color: var(--border); }
   [data-theme="dark"] .spine-rail .rail-dot { background: #1a1c26; }
   [data-theme="dark"] .float-slider { color: var(--muted); }
   [data-theme="dark"] .float-zoom-hint { color: rgba(139,146,160,0.5); }
@@ -880,6 +955,7 @@
   }
   [data-theme="dark"] .hud .drag-bar { background: #1f2230; border-color: var(--border); }
   [data-theme="dark"] .hud .pinned-concept, [data-theme="dark"] .hud-content .pinned-concept { background: #1f2230; border-color: var(--border); }
+  [data-theme="dark"] .hud .node-img + .pinned-concept, [data-theme="dark"] .hud-content .node-img + .pinned-concept { border-top: none; }
   [data-theme="dark"] .hud .pc-oneliner, [data-theme="dark"] .hud-content .pc-oneliner { color: var(--ink); }
   [data-theme="dark"] .hud .ind-toggle:hover, [data-theme="dark"] .hud-content .ind-toggle:hover, [data-theme="dark"] .dock-reveal-content .ind-toggle:hover { background: #1f2230; }
   [data-theme="dark"] .hud .answers li, [data-theme="dark"] .hud-content .answers li { background: #1f2230; border-color: var(--border); }
@@ -1020,7 +1096,13 @@
   <select id="setPicker">
     <option value="" disabled>Pick a set…</option>
   </select>
-  <span class="set-info" id="setInfo"></span>
+  <div class="hdr-cluster">
+    <button class="hdr-nav-btn shuffle-btn" id="shuffleBtn" title="Shuffle to an unreviewed set"><i class="ti ti-arrows-shuffle"></i>&nbsp;Shuffle</button>
+    <span class="hdr-div"></span>
+    <button class="hdr-nav-btn" id="prevSetBtn" title="Previous set">◀</button>
+    <button class="hdr-nav-btn" id="nextSetBtn" title="Next set">▶</button>
+  </div>
+  <span class="set-cover" id="setCover" title="Set cover image"></span>
 </div>
 
 <div class="float-fit" id="fitBtn" title="Fit all nodes in view"><i class="ti ti-maximize"></i>&nbsp;Fit to view</div>
@@ -1265,6 +1347,9 @@ let spineSet = new Set(); // QIDs of nodes in GRAPH.mainPath (module-level for i
 
 function esc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escAttr(s) {
+  return esc(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 function showErr(msg) {
@@ -2192,6 +2277,25 @@ function cleanDiagnosisLabel(raw) {
   return raw;
 }
 
+// ── Cover image + dock info helpers ────────────────────────────────────────
+function updateCover(imageUrl) {
+  const el = document.getElementById('setCover');
+  if (!el) return;
+  if (imageUrl) {
+    el.classList.remove('placeholder');
+    el.innerHTML = `<img src="${escAttr(imageUrl)}" alt="Set cover" onerror="this.parentElement.classList.add('placeholder');this.parentElement.innerHTML='<i class=\\'ti ti-photo\\'></i>';" />`;
+  } else {
+    el.classList.add('placeholder');
+    el.innerHTML = '<i class="ti ti-photo"></i>';
+  }
+}
+function updateDockInfo(setNum, diag, counts) {
+  const dst = document.getElementById('dockSetInfo');
+  if (!dst) return;
+  const label = cleanDiagnosisLabel(diag || '-').slice(0, 45);
+  dst.textContent = `Set ${setNum} · ${label} · ${counts.primary}P / ${counts.mimic}M`;
+}
+
 // ── DeepSeek response logging ──────────────────────────────────────────────
 async function logDS(qid, type, prompt, systemPrompt, response) {
   try {
@@ -2252,7 +2356,7 @@ RESPONSE STRUCTURE:
 [Spatial/temporal logic - why here, now, this distribution]
 [Connect - link to other findings if relevant]
 [Clinical anchor - what this means at the bedside]
-[Optional: one short question back]
+[Closing probe question - REQUIRED. Change one variable and ask what it would imply. The learner must apply the mechanism just taught, not recall a fact. Example pattern: after explaining a blown pupil with third nerve palsy means a PCOM aneurysm, end with "What would you do if the pupil were normal but the eye was still deviated?" — forces differential reasoning, not regurgitation. Every generation must have this.]
 
 FORBIDDEN:
 - "Here's the breakdown", "Key point:", "What it does:", "For this patient:", "ED relevance:", "This patient has a history of..."
@@ -2261,7 +2365,9 @@ FORBIDDEN:
 - Generic tutor voice disconnected from mechanism - if it sounds like a textbook, delete it
 - Passive voice ("it is thought that..."), hedging ("in some cases"), "as an AI", breaking character
 - Em dashes (-) - use commas or periods instead, never em dashes in any reply
-- Pretending to be the patient or writing from patient perspective`;
+- Pretending to be the patient or writing from patient perspective
+- Closing with a generic question ("Did that make sense?", "What else would you like to know?", "Any questions?") — the closing probe must be mechanism-testing, change one variable and ask what it would imply
+- Skipping the closing probe or writing a response that trails off without it — every generation must end with the required mechanism probe question`;
 
   const prompt = `This CCS board question tests a clinical concept. Teach it from first principles as the Immersa attending.
 
@@ -2269,7 +2375,7 @@ Question: """${node.question}"""
 Correct answer: ${node.likely || 'N/A'}
 Answer choices: ${ans}
 
-Use the structure: [Hook] → [Mechanism causal chain] → [Spatial/temporal logic] → [Connect] → [Clinical anchor] → [Optional question back].
+Use the structure: [Hook] → [Mechanism causal chain] → [Spatial/temporal logic] → [Connect] → [Clinical anchor] → [Closing probe question - REQUIRED. Change one variable and ask the learner to apply the mechanism. Never end without this question.]
 Wrap the key mechanistic anchors in **double asterisks**. No preamble, no sign-off. No em dashes.`;
 
   try {
@@ -2303,6 +2409,8 @@ function readTriage(qid) {
 }
 function writeTriage(qid, data) {
   try { localStorage.setItem(TRIAGE_PREFIX + qid, JSON.stringify(data)); } catch (_) {}
+  // Invalidate shuffle cache - a node was just flagged
+  if (window._invalidateShuffleCache) window._invalidateShuffleCache();
 }
 
 async function fetchConceptLine(node) {
@@ -2663,7 +2771,14 @@ function buildRevealHTML(d) {
   const approved = triage?.approved === true;
   const needsWork = triage?.needsWork === true;
   const stageLabel = d.storyStage || 'Story beat';
+  // Check for persisted node image
+  const nodeImg = (() => { try { return localStorage.getItem('node-img-' + d.id); } catch(_) { return null; } })();
   return `
+    <div class="node-img-area" data-qid="${esc(String(d.id))}" id="imgarea-${d.id}">
+      ${nodeImg
+        ? `<div class="node-img"><img id="nodeimg-${d.id}" src="${nodeImg}" alt="Node image" /><button class="img-remove" id="imgrm-${d.id}" title="Remove image"><i class="ti ti-x"></i></button></div>`
+        : `<label class="img-upload" id="imgupload-${d.id}" title="Upload image for this node"><i class="ti ti-camera-plus"></i>Upload image</label><input type="file" accept="image/*" id="imgfile-${d.id}" style="display:none;" />`}
+    </div>
     <div class="pinned-concept" data-qid="${esc(String(d.id))}">
       <div class="pc-top">
         <span class="pc-label"><i class="ti ti-brain"></i>&nbsp;Concept - what is being tested?</span>
@@ -2871,6 +2986,43 @@ function wireReveal(container, d) {
   const needsWorkBtn = container.querySelector('#pcnw-' + qid);
 
   function resize() { requestAnimationFrame(() => { if (container.classList.contains('hud')) { const maxH = window.innerHeight - 130; container.style.height = Math.min(container.scrollHeight, maxH) + 'px'; saveHudPosition(container); } }); }
+
+  // ---- Node image upload (top plate) ----
+  const imgArea = container.querySelector('#imgarea-' + qid);
+  const fileInput = container.querySelector('#imgfile-' + qid);
+  const uploadLabel = container.querySelector('#imgupload-' + qid);
+
+  function showImage(dataUrl) {
+    imgArea.innerHTML = `<div class="node-img"><img id="nodeimg-${qid}" src="${dataUrl}" alt="Node image" /><button class="img-remove" id="imgrm-${qid}" title="Remove image"><i class="ti ti-x"></i></button></div>`;
+    const rmBtn = imgArea.querySelector('#imgrm-' + qid);
+    rmBtn.onclick = (e) => { e.stopPropagation(); removeImage(); };
+    resize();
+  }
+  function removeImage() {
+    try { localStorage.removeItem('node-img-' + qid); } catch(_) {}
+    imgArea.innerHTML = `<label class="img-upload" id="imgupload-${qid}" title="Upload image for this node"><i class="ti ti-camera-plus"></i>Upload image</label><input type="file" accept="image/*" id="imgfile-${qid}" style="display:none;" />`;
+    wireUpload();
+    resize();
+  }
+  function wireUpload() {
+    const lbl = imgArea.querySelector('#imgupload-' + qid);
+    const inp = imgArea.querySelector('#imgfile-' + qid);
+    if (!lbl || !inp) return;
+    lbl.onclick = () => inp.click();
+    inp.onchange = () => {
+      const file = inp.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result;
+        try { localStorage.setItem('node-img-' + qid, dataUrl); } catch(_) { alert('Image too large for storage.'); return; }
+        showImage(dataUrl);
+      };
+      reader.readAsDataURL(file);
+    };
+  }
+  if (!imgArea.querySelector('.node-img')) wireUpload();
+  // ---- End node image upload ----
 
   // Generate concept line on first view if missing
   if (!readTriage(qid)?.concept) {
@@ -3918,7 +4070,7 @@ closeHud = function () {
 
 // ── Loading ───────────────────────────────────────────────────────────────────
 function showLoading() {
-  document.getElementById('setInfo').textContent = 'Loading…';
+  document.getElementById('setCover').innerHTML = '<i class="ti ti-photo"></i>';
   if (window._dockUpdateInfo) window._dockUpdateInfo();
   closeHud();
   const board = document.getElementById('board');
@@ -3989,10 +4141,10 @@ async function loadSet(setNum) {
     const sel = document.getElementById('setPicker');
     const opt = sel.querySelector('option[value="' + setNum + '"]');
     if (opt) opt.textContent = 'Set ' + setNum + ' · ' + cleanDiagnosisLabel(meta.coreDiagnosis || '-').slice(0, 45);
-    document.getElementById('setInfo').textContent =
-      `Set ${setNum} · ${cleanDiagnosisLabel(meta.coreDiagnosis || '-')} · ${GRAPH.counts.primary}P / ${GRAPH.counts.mimic}M`;
-    if (window._dockUpdateInfo) window._dockUpdateInfo();
+    updateCover(meta.image || '');
+    updateDockInfo(setNum, meta.coreDiagnosis || '-', GRAPH.counts);
     if (window._dockSyncPicker) window._dockSyncPicker();
+    if (window._updateSetNav) window._updateSetNav();
 
     renderGraph();
 
@@ -4342,9 +4494,12 @@ async function eagerLoadTitles() {
     });
   }
   function syncDockInfo() {
-    const src = document.getElementById('setInfo');
     const dst = document.getElementById('dockSetInfo');
-    if (dst && src) dst.textContent = src.textContent;
+    if (!dst || !GRAPH) return;
+    const meta = GRAPH.meta || {};
+    const counts = GRAPH.counts || {};
+    const label = cleanDiagnosisLabel(meta.coreDiagnosis || '-').slice(0, 45);
+    dst.textContent = `Set ${currentSet} · ${label} · ${counts.primary || 0}P / ${counts.mimic || 0}M`;
   }
 
   // Hook the real setPicker change to keep dock in sync
@@ -4565,6 +4720,109 @@ async function eagerLoadTitles() {
   // ── Expose to external use ──────────────────────────────────────────
   window._dockUpdateInfo = function () { syncDockInfo(); };
   window._dockSyncPicker = function () { syncDockPicker(); };
+})();
+
+// ── Set navigation: previous / next ──────────────────────────────────────────
+(function initSetNav() {
+  const prev = document.getElementById('prevSetBtn');
+  const next = document.getElementById('nextSetBtn');
+  const sel = document.getElementById('setPicker');
+
+  function getSetNumbers() {
+    return Object.keys(SET_REGISTRY).map(Number).sort((a,b)=>a-b);
+  }
+
+  function updateNav() {
+    const nums = getSetNumbers();
+    const idx = nums.indexOf(currentSet);
+    if (prev) prev.disabled = idx <= 0;
+    if (next) next.disabled = idx < 0 || idx >= nums.length - 1;
+  }
+
+  if (prev) prev.onclick = () => {
+    const nums = getSetNumbers();
+    const idx = nums.indexOf(currentSet);
+    if (idx > 0) { const n = nums[idx-1]; sel.value = n; loadSet(n); }
+  };
+  if (next) next.onclick = () => {
+    const nums = getSetNumbers();
+    const idx = nums.indexOf(currentSet);
+    if (idx >= 0 && idx < nums.length - 1) { const n = nums[idx+1]; sel.value = n; loadSet(n); }
+  };
+
+  // Expose updateNav so loadSet can call it
+  window._updateSetNav = updateNav;
+})();
+
+// ── Shuffle: prefer sets with unreviewed spine nodes ─────────────────────────
+(function initShuffle() {
+  const btn = document.getElementById('shuffleBtn');
+  if (!btn) return;
+
+  // Cache built after first scan (in-memory for the session)
+  let unreviewedCache = null;
+
+  function isNodeFlagged(qid) {
+    try {
+      const raw = localStorage.getItem(TRIAGE_PREFIX + qid);
+      if (!raw) return false;
+      const t = JSON.parse(raw);
+      return !!(t.approved || t.needsWork);
+    } catch (_) { return false; }
+  }
+
+  async function scanUnreviewedSets() {
+    const setNums = Object.keys(SET_REGISTRY).map(Number);
+    const unreviewed = [];
+    // Process in small batches to avoid overwhelming the browser
+    const BATCH = 10;
+    for (let i = 0; i < setNums.length; i += BATCH) {
+      const batch = setNums.slice(i, i + BATCH);
+      const results = await Promise.all(batch.map(async (s) => {
+        try {
+          const pad = String(s).padStart(2, '0');
+          const res = await fetch('graph-data-set-' + pad + '.json', { cache: 'no-store' });
+          if (!res.ok) return null;
+          const json = await res.json();
+          const spine = json.mainPath || [];
+          if (!spine.length) return null;
+          // All spine nodes must be flagged for the set to be "reviewed"
+          const allFlagged = spine.every(id => isNodeFlagged(String(id)));
+          return allFlagged ? null : s; // null = reviewed, number = unreviewed
+        } catch (_) { return null; }
+      }));
+      results.forEach(r => { if (r !== null) unreviewed.push(r); });
+    }
+    return unreviewed;
+  }
+
+  btn.onclick = async () => {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ti ti-arrows-shuffle"></i>&nbsp;Scanning…';
+
+    try {
+      if (!unreviewedCache) {
+        unreviewedCache = await scanUnreviewedSets();
+      }
+
+      const pool = unreviewedCache.length ? unreviewedCache : Object.keys(SET_REGISTRY).map(Number);
+      // Pick random from the pool, excluding current set
+      const exclude = currentSet;
+      let pool2 = pool.filter(s => s !== exclude);
+      if (!pool2.length) pool2 = pool;
+      const pick = pool2[Math.floor(Math.random() * pool2.length)];
+
+      const sel = document.getElementById('setPicker');
+      sel.value = pick;
+      await loadSet(pick);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ti ti-arrows-shuffle"></i>&nbsp;Shuffle';
+    }
+  };
+
+  // Expose cache invalidation so writeTriage can trigger a re-scan
+  window._invalidateShuffleCache = () => { unreviewedCache = null; };
 })();
 
 populatePicker();
