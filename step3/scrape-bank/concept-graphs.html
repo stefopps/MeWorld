@@ -86,6 +86,28 @@
     width: 100%; height: 100%; object-fit: cover; display: block;
   }
   .float-ctl .set-cover.placeholder i { opacity: 0.35; }
+  .float-ctl .set-cover.has-img { cursor: pointer; }
+  .float-ctl .set-cover.has-img:hover { opacity: 0.85; }
+
+  /* ── Lightbox (full-screen image viewer) ── */
+  .lightbox {
+    position: fixed; z-index: 9999; inset: 0;
+    background: rgba(0,0,0,0.88); display: none;
+    align-items: center; justify-content: center;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img {
+    max-width: 92vw; max-height: 92vh; object-fit: contain;
+    border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  }
+  .lightbox .lb-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,0.12); color: #fff; border: none;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; transition: background .15s;
+  }
+  .lightbox .lb-close:hover { background: rgba(255,255,255,0.25); }
   h1 { font-size: 0.95rem; margin: 0; font-weight: 650; white-space: nowrap; }
 
   .float-legend {
@@ -1156,6 +1178,12 @@
 </div>
 
 <div class="err" id="err"></div>
+
+<!-- Full-screen lightbox for set cover images -->
+<div class="lightbox" id="lightbox">
+  <img id="lightboxImg" src="" alt="Full-size cover" />
+  <button class="lb-close" id="lightboxClose" title="Close"><i class="ti ti-x"></i></button>
+</div>
 
 <!-- Dark mode toggle button -->
 <button class="float-settings" id="darkModeBtn" title="Toggle dark mode" style="top:12px;right:180px;"><i class="ti ti-moon"></i></button>
@@ -2283,12 +2311,49 @@ function updateCover(imageUrl) {
   if (!el) return;
   if (imageUrl) {
     el.classList.remove('placeholder');
-    el.innerHTML = `<img src="${escAttr(imageUrl)}" alt="Set cover" onerror="this.parentElement.classList.add('placeholder');this.parentElement.innerHTML='<i class=\\'ti ti-photo\\'></i>';" />`;
+    el.classList.add('has-img');
+    el.innerHTML = `<img src="${escAttr(imageUrl)}" alt="Set cover" onerror="this.parentElement.classList.add('placeholder');this.parentElement.classList.remove('has-img');this.parentElement.innerHTML='<i class=\\'ti ti-photo\\'></i>';" />`;
+    el.onclick = () => showLightbox(imageUrl);
   } else {
     el.classList.add('placeholder');
+    el.classList.remove('has-img');
     el.innerHTML = '<i class="ti ti-photo"></i>';
+    el.onclick = null;
   }
 }
+function showLightbox(url) {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lightboxImg');
+  if (!lb || !img) return;
+  img.src = url;
+  lb.classList.add('open');
+}
+function closeLightbox() {
+  const lb = document.getElementById('lightbox');
+  if (!lb) return;
+  lb.classList.remove('open');
+}
+
+// Wire lightbox close: X button, click-outside, Escape (scoped)
+(function () {
+  const lb = document.getElementById('lightbox');
+  const closeBtn = document.getElementById('lightboxClose');
+  if (!lb || !closeBtn) return;
+  closeBtn.onclick = closeLightbox;
+  // Click outside the image closes
+  lb.addEventListener('click', (e) => {
+    if (e.target === lb) closeLightbox();
+  });
+  // Escape closes, only when lightbox is open
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lb.classList.contains('open')) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeLightbox();
+    }
+  });
+})();
+
 function updateDockInfo(setNum, diag, counts) {
   const dst = document.getElementById('dockSetInfo');
   if (!dst) return;
