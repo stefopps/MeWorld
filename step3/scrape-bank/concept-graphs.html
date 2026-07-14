@@ -566,8 +566,11 @@
     flex: 1; display: flex; flex-direction: column; overflow-y: auto;
     padding: 8px 10px 10px;
   }
-  /* Inherit dict-sect child styles inside floater */
-  .float-dict .dict-sect { border-top: none; margin-top: 0; padding-top: 0; }
+  /* Inherit dict-sect child styles inside floater — flex chain fix for resize dead space */
+  .float-dict .dict-sect {
+    display: flex; flex-direction: column; flex: 1; min-height: 0;
+    border-top: none; margin-top: 0; padding-top: 0;
+  }
   .float-dict textarea {
     font-family: Inter, sans-serif; font-size: 0.72rem; line-height: 1.5;
     border: 1px solid var(--border); border-radius: 7px; padding: 6px 32px 6px 8px;
@@ -575,7 +578,8 @@
     width: 100%; color: var(--ink);
   }
   .float-dict .chat-log {
-    max-height: 260px; overflow-y: auto; border: 1px solid var(--border);
+    flex: 1; min-height: 0; max-height: none;
+    overflow-y: auto; border: 1px solid var(--border);
     border-radius: 7px; padding: 8px; font-size: calc(0.68rem * var(--notes-font-scale, 1)); line-height: 1.45;
     background: #fafbfc; color: var(--ink);
   }
@@ -1053,10 +1057,16 @@
     font-size: 0.78rem; color: var(--ink);
   }
   .settings-header {
+    display: flex; align-items: center; justify-content: space-between;
     background: #f0f2f5; border-bottom: 1px solid var(--border);
     padding: 8px 12px; font-weight: 650; font-size: 0.82rem;
     border-radius: 10px 10px 0 0;
   }
+  .settings-close {
+    cursor: pointer; background: none; border: none; color: var(--muted);
+    font-size: 0.9rem; line-height: 1; padding: 2px; border-radius: 4px;
+  }
+  .settings-close:hover { color: var(--ink); background: rgba(0,0,0,0.06); }
   .settings-body {
     padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 6px;
   }
@@ -1137,11 +1147,6 @@
   [data-theme="dark"] .asr-depth-pills button { background: #1f2230; border-color: #2d3148; }
   [data-theme="dark"] .asr-depth-pills button.is-active { background: var(--accent); color: #fff; }
   [data-theme="dark"] .asr-depth-pills button:hover:not(.is-active) { background: #252840; color: #93b4f5; }
-
-  /* ── Backdrop ── */
-  .settings-backdrop {
-    position: fixed; z-index: 24; inset: 0; background: rgba(0,0,0,0.15);
-  }
 
   /* ── Marquee badge ── */
   .marquee-badge {
@@ -1401,10 +1406,11 @@
   [data-theme="dark"] .dock-section button:hover { background: #252840; }
   [data-theme="dark"] .settings-popup,
   [data-theme="dark"] .settings-header { background: #1a1d28; border-color: var(--border); }
+  [data-theme="dark"] .settings-close { color: #6b7280; }
+  [data-theme="dark"] .settings-close:hover { color: #d0dbf0; background: rgba(255,255,255,0.06); }
   [data-theme="dark"] .settings-popup input { background: #13151d; color: var(--ink); border-color: var(--border); }
   [data-theme="dark"] .settings-popup button { background: #1f2230; color: var(--ink); border-color: var(--border); }
   [data-theme="dark"] .settings-popup button.primary { background: var(--accent); color: #fff; }
-  [data-theme="dark"] .settings-backdrop { background: rgba(0,0,0,0.5); }
   [data-theme="dark"] .err { background: #2c1618; border-color: #5c2020; color: #fca5a5; }
   [data-theme="dark"] .isolation-banner { background: #1a1d28; border-color: var(--border); }
   [data-theme="dark"] .marquee-badge { background: #1a1d28; border-color: var(--border); }
@@ -1544,7 +1550,7 @@
 
 <!-- Settings popup (hidden by default) -->
 <div class="settings-popup" id="settingsPopup" style="display:none;">
-  <div class="settings-header">Settings</div>
+  <div class="settings-header">Settings<button class="settings-close" id="settingsClose" title="Close"><i class="ti ti-x"></i></button></div>
   <div class="settings-body">
     <label class="settings-label">Display</label>
     <div class="settings-fs-row">
@@ -2764,6 +2770,52 @@ function wireHudDictation(hud, nodeId) {
   async function sendChat() {
     const text = chatInput.value.trim();
     if (!text) return;
+
+    // ── Slash commands (handled client-side, not sent to DeepSeek) ──
+    if (text.startsWith('/')) {
+      chatInput.value = '';
+      const parts = text.slice(1).trim().split(/\s+/);
+      const cmd = parts[0].toLowerCase();
+
+      if (cmd === 'append-img') {
+        // /append-img <set> <image-name>
+        const setNum = parts[1] ? parseInt(parts[1], 10) : NaN;
+        const imgName = parts.slice(2).join('-') || parts[1]; // if no set given, treat parts[1] as name
+        if (isNaN(setNum)) {
+          chatHistory.push({ role: 'assistant', content: '`/append-img` needs a set number. Try: `/append-img 87 pe-grid`' });
+          saveChatHistory(); renderChatLog();
+          return;
+        }
+        const name = imgName.replace(/[^a-z0-9._-]/gi, '-');
+        status.textContent = 'Looking for image: ' + name + '…';
+        try {
+          const res = await fetch('/api/append-img', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ set: setNum, imgName: name }),
+          });
+          const data = await res.json();
+          if (data.ok) {
+            chatHistory.push({ role: 'assistant', content: 'Linked `' + data.image + '` to **Set ' + data.set + '**. Refresh the header to see it.' });
+            status.textContent = 'Linked to Set ' + setNum;
+          } else {
+            chatHistory.push({ role: 'assistant', content: 'Failed: ' + (data.error || 'unknown error') + '. File must be in Downloads or Pictures\\Cursor-Vision-Inbox.' });
+            status.textContent = data.error || 'Failed';
+          }
+        } catch (e) {
+          chatHistory.push({ role: 'assistant', content: 'Server error: ' + e.message });
+          status.textContent = 'Server error';
+        }
+        saveChatHistory(); renderChatLog();
+        return;
+      }
+
+      // Unknown slash command
+      chatHistory.push({ role: 'assistant', content: 'Available commands:\n- `/append-img <set> <name>` — link an image from Downloads or Cursor-Vision-Inbox to a set' });
+      saveChatHistory(); renderChatLog();
+      return;
+    }
+
     const key = localStorage.getItem('ds_api_key');
     if (!key) { status.textContent = 'No API key. Open Settings.'; return; }
 
@@ -4950,15 +5002,14 @@ window.addEventListener('blur', () => {
   const keyInput = document.getElementById('dsApiKey');
   const saveBtn = document.getElementById('settingsSave');
   const status = document.getElementById('aiStatus');
-  let backdrop = null;
 
-  // Show popup
+  // Show/hide popup as non-modal floating panel (no backdrop, graph stays clickable)
+  function toggleSettings() {
+    const isVisible = popup.style.display === 'block';
+    if (isVisible) { closeSettings(); } else { openSettings(); }
+  }
+
   function openSettings() {
-    if (backdrop) return;
-    backdrop = document.createElement('div');
-    backdrop.className = 'settings-backdrop';
-    backdrop.onclick = closeSettings;
-    document.body.appendChild(backdrop);
     popup.style.display = 'block';
     // Fetch key from server if not cached in localStorage
     if (!keyInput.value) {
@@ -4976,7 +5027,6 @@ window.addEventListener('blur', () => {
   }
 
   function closeSettings() {
-    if (backdrop) { backdrop.remove(); backdrop = null; }
     popup.style.display = 'none';
   }
 
@@ -4988,7 +5038,8 @@ window.addEventListener('blur', () => {
     setTimeout(closeSettings, 300);
   }
 
-  gear.onclick = openSettings;
+  gear.onclick = toggleSettings;
+  document.getElementById('settingsClose').onclick = closeSettings;
   saveBtn.onclick = saveAndClose;
 
   // ── Show Story timeline bar toggle ──

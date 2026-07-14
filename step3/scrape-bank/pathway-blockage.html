@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biochemical Pathway Blockage Graphs</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+:root {
+  --bg: #f8f9fb;
+  --ink: #1e2130;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --card-bg: #fff;
+  --blue: #3b82f6; --blue-light: #dbeafe; --blue-dark: #1e40af;
+  --green: #10b981; --green-light: #d1fae5; --green-dark: #065f46;
+  --amber: #f59e0b; --amber-light: #fef3c7; --amber-dark: #92400e;
+  --starved: #ef4444; --starved-light: #fee2e2;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--ink);
+  display: flex; height: 100vh; overflow: hidden;
+}
+#graph-panel {
+  flex: 1; position: relative; min-width: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+#graph-panel svg { width: 100%; height: 100%; max-height: 100vh; }
+#sidebar {
+  width: 340px; background: var(--card-bg); border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+#sidebar.empty { opacity: 0.4; }
+.sidebar-inner { padding: 20px 24px; }
+.sidebar-inner h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+.sidebar-inner .sb-sub { font-size: 0.72rem; color: var(--muted); margin-bottom: 16px; }
+.sb-mechanism { font-size: 0.78rem; line-height: 1.55; margin-bottom: 16px; padding: 10px 12px;
+  background: #f9fafb; border-radius: 8px; border: 1px solid var(--border); }
+.sb-branches { list-style: none; }
+.sb-branches li { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border);
+  font-size: 0.76rem; line-height: 1.45; align-items: flex-start; }
+.sb-branches li:last-child { border-bottom: none; }
+.sb-branch-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.sb-branch-dot.starved { background: var(--starved); }
+.sb-branch-dot.normal { background: var(--green); }
+.sb-branch-text strong { display: block; font-size: 0.78rem; margin-bottom: 2px; }
+.sb-branch-text .clinical { color: var(--starved); font-weight: 600; }
+
+/* Legend */
+#legend {
+  position: absolute; bottom: 16px; left: 16px; background: var(--card-bg);
+  border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px;
+  font-size: 0.65rem; display: flex; gap: 16px; z-index: 10;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-line { width: 18px; height: 0; border-top-width: 2px; }
+.legend-line.normal { border-top-style: solid; border-color: #9ca3af; }
+.legend-line.blocked { border-top-style: dashed; border-color: var(--starved); }
+.legend-line.info { border-top-style: dotted; border-color: var(--muted); }
+
+/* Node text / SVG styling */
+.node-text { font-family: Inter, system-ui, sans-serif; pointer-events: none; }
+.node-bg { cursor: pointer; transition: filter 0.2s; }
+.node-bg:hover { filter: brightness(0.92); }
+.blockage-x { pointer-events: none; }
+.edge-line { fill: none; stroke-width: 2; transition: stroke 0.4s, stroke-dasharray 0.4s, opacity 0.4s; }
+.edge-line.pulse { animation: edgePulse 0.7s linear infinite; }
+.edge-dotted { stroke-dasharray: 3 4; }
+@keyframes edgePulse {
+  to { stroke-dashoffset: -14; }
+}
+
+/* Tree column backgrounds */
+.tree-bg { fill: none; stroke: none; }
+.tree-bg.active { fill: #f0f4ff; }
+
+/* Title */
+#title-bar {
+  position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+  font-size: 0.92rem; font-weight: 700; color: var(--ink);
+  letter-spacing: -0.01em; z-index: 5;
+  display: flex; gap: 20px; align-items: center;
+}
+#title-bar .tree-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 3px 10px; border-radius: 20px; font-weight: 600; opacity: 0.5; transition: opacity 0.4s; }
+#title-bar .tree-label.active { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="graph-panel">
+  <svg id="graph-svg" viewBox="0 0 1280 540" preserveAspectRatio="xMidYMid meet"></svg>
+  <div id="title-bar">
+    <span class="tree-label" data-tree="b6" style="background:var(--blue-light);color:var(--blue-dark);">Isoniazid → B6</span>
+    <span class="tree-label" data-tree="folate" style="background:var(--green-light);color:var(--green-dark);">MTX → Folate</span>
+    <span class="tree-label" data-tree="biotin" style="background:var(--amber-light);color:var(--amber-dark);">Propionic → Biotin</span>
+  </div>
+  <div id="legend">
+    <div class="legend-item"><div class="legend-line normal"></div><span>Normal flow</span></div>
+    <div class="legend-item"><div class="legend-line blocked"></div><span>Blocked / starved</span></div>
+    <div class="legend-item"><div class="legend-line info"></div><span>Informational only</span></div>
+  </div>
+</div>
+<div id="sidebar" class="empty">
+  <div class="sidebar-inner" id="sidebar-content">
+    <p style="color:var(--muted);font-size:0.78rem;text-align:center;padding:40px 0;">
+      Click a <strong style="color:var(--starved);">blockage</strong> node to see downstream consequences.
+    </p>
+  </div>
+</div>
+
+<script>
+// ── Pathway data ──────────────────────────────────────────────────────────────
+const trees = [
+  {
+    id: 'b6', color: '#3b82f6', colorLight: '#dbeafe', colorDark: '#1e40af',
+    title: 'Isoniazid → B6 (Pyridoxal Phosphate)',
+    blockageLabel: 'Isoniazid',
+    blockageDetail: 'Inhibits pyridoxal phosphokinase — PLP (active B6) not formed',
+    nodes: [
+      { id:'b6-block', x:90, y:270, r:28, type:'blockage', label:'INH', sub:'Blocks PLP kinase' },
+      { id:'b6-a1', x:240, y:130, r:22, type:'enzyme', label:'ALA synthase', sub:'(heme synthesis)' },
+      { id:'b6-a1c', x:370, y:130, r:24, type:'clinical', label:'Sideroblastic\nanemia' },
+      { id:'b6-a2', x:240, y:270, r:22, type:'enzyme', label:'GAD', sub:'(glutamate→GABA)' },
+      { id:'b6-a2c', x:370, y:270, r:24, type:'clinical', label:'Seizures\n↓ CNS GABA' },
+      { id:'b6-a3', x:240, y:410, r:22, type:'enzyme', label:'Transaminases', sub:'(tryptophan/tyrosine)' },
+      { id:'b6-a3c', x:370, y:410, r:24, type:'clinical', label:'Peripheral\nneuropathy' },
+    ],
+    edges: [
+      { from:'b6-block', to:'b6-a1' },
+      { from:'b6-block', to:'b6-a2' },
+      { from:'b6-block', to:'b6-a3' },
+      { from:'b6-a1', to:'b6-a1c', dashed:true },
+      { from:'b6-a2', to:'b6-a2c', dashed:true },
+      { from:'b6-a3', to:'b6-a3c', dashed:true },
+    ],
+    downstream: ['b6-a1','b6-a1c','b6-a2','b6-a2c','b6-a3','b6-a3c'],
+    branches: [
+      { enzyme:'ALA synthase (heme synthesis)', clinical:'Sideroblastic anemia' },
+      { enzyme:'Glutamic acid decarboxylase (glutamate → GABA)', clinical:'Decreased CNS GABA → seizures' },
+      { enzyme:'Amino acid transamination / tryptophan-tyrosine metabolism', clinical:'Peripheral neuropathy' },
+    ],
+  },
+  {
+    id: 'folate', color: '#10b981', colorLight: '#d1fae5', colorDark: '#065f46',
+    title: 'Methotrexate → Folate (Tetrahydrofolate)',
+    blockageLabel: 'Methotrexate',
+    blockageDetail: 'Inhibits dihydrofolate reductase (DHFR) — tetrahydrofolate not formed',
+    nodes: [
+      { id:'fol-block', x:530, y:270, r:28, type:'blockage', label:'MTX', sub:'Inhibits DHFR' },
+      { id:'fol-a1', x:680, y:130, r:22, type:'enzyme', label:'Thymidylate\nsynthase', sub:'' },
+      { id:'fol-a1c', x:810, y:130, r:24, type:'clinical', label:'Megaloblastic\nanemia' },
+      { id:'fol-a2', x:680, y:270, r:22, type:'enzyme', label:'Purine\nsynthesis', sub:'' },
+      { id:'fol-a2c', x:810, y:270, r:24, type:'clinical', label:'Marrow\nsuppression' },
+      { id:'fol-a3', x:680, y:410, r:22, type:'enzyme', label:'GI mucosa', sub:'(high folate demand)' },
+      { id:'fol-a3c', x:810, y:410, r:24, type:'clinical', label:'Mucositis' },
+    ],
+    edges: [
+      { from:'fol-block', to:'fol-a1' },
+      { from:'fol-block', to:'fol-a2' },
+      { from:'fol-block', to:'fol-a3' },
+      { from:'fol-a1', to:'fol-a1c', dashed:true },
+      { from:'fol-a2', to:'fol-a2c', dashed:true },
+      { from:'fol-a3', to:'fol-a3c', dashed:true },
+    ],
+    downstream: ['fol-a1','fol-a1c','fol-a2','fol-a2c','fol-a3','fol-a3c'],
+    branches: [
+      { enzyme:'Thymidylate synthesis', clinical:'Megaloblastic anemia' },
+      { enzyme:'Purine synthesis', clinical:'Bone marrow suppression / cytopenias' },
+      { enzyme:'Rapidly-dividing GI mucosa (high folate demand)', clinical:'Mucositis' },
+    ],
+  },
+  {
+    id: 'biotin', color: '#f59e0b', colorLight: '#fef3c7', colorDark: '#92400e',
+    title: 'Propionic Acidemia → Biotin',
+    blockageLabel: 'Propionyl-CoA carboxylase deficiency',
+    blockageDetail: 'Biotin-dependent step: Propionyl-CoA → Methylmalonyl-CoA fails',
+    nodes: [
+      // VOMIT feeders
+      { id:'bio-v1', x:940, y:70, r:16, type:'feeder', label:'Valine', sub:'' },
+      { id:'bio-v2', x:940, y:150, r:16, type:'feeder', label:'Odd-chain FA', sub:'' },
+      { id:'bio-v3', x:940, y:230, r:16, type:'feeder', label:'Methionine', sub:'' },
+      { id:'bio-v4', x:940, y:310, r:16, type:'feeder', label:'Isoleucine', sub:'' },
+      { id:'bio-v5', x:940, y:390, r:16, type:'feeder', label:'Threonine', sub:'' },
+      // Convergence
+      { id:'bio-pcoa', x:1060, y:230, r:24, type:'pool', label:'Propionyl-CoA', sub:'' },
+      // Blockage
+      { id:'bio-block', x:1120, y:230, r:28, type:'blockage', label:'PCC', sub:'Biotin-dependent\nblock' },
+      // Downstream
+      { id:'bio-mcoa', x:1180, y:230, r:22, type:'enzyme', label:'Methylmalonyl\n-CoA', sub:'' },
+      { id:'bio-scoa', x:1240, y:230, r:22, type:'enzyme', label:'Succinyl-CoA', sub:'(B12-dependent)' },
+      { id:'bio-clin', x:1180, y:400, r:24, type:'clinical', label:'Propionic\nacidemia', sub:'' },
+      // B6 side note (informational)
+      { id:'bio-b6note', x:1060, y:490, r:18, type:'info', label:'B6/PLP', sub:'transamination\n(dotted edge)' },
+    ],
+    edges: [
+      // VOMIT → Propionyl-CoA
+      { from:'bio-v1', to:'bio-pcoa' },
+      { from:'bio-v2', to:'bio-pcoa' },
+      { from:'bio-v3', to:'bio-pcoa' },
+      { from:'bio-v4', to:'bio-pcoa' },
+      { from:'bio-v5', to:'bio-pcoa' },
+      // Propionyl-CoA → Blockage (blocked step)
+      { from:'bio-pcoa', to:'bio-block' },
+      // Blockage → downstream
+      { from:'bio-block', to:'bio-mcoa' },
+      { from:'bio-mcoa', to:'bio-scoa', dashed:true },
+      { from:'bio-block', to:'bio-clin', dashed:true },
+      // B6 informational edges (dotted, non-blocking)
+      { from:'bio-v1', to:'bio-b6note', info:true },
+      { from:'bio-v3', to:'bio-b6note', info:true },
+      { from:'bio-v4', to:'bio-b6note', info:true },
+      { from:'bio-v5', to:'bio-b6note', info:true },
+    ],
+    downstream: ['bio-mcoa','bio-scoa','bio-clin'],
+    branches: [
+      { enzyme:'Propionyl-CoA → Methylmalonyl-CoA (biotin-dependent)', clinical:'Blocked — propionyl-CoA accumulates' },
+      { enzyme:'Methylmalonyl-CoA → Succinyl-CoA (B12-dependent, separate step)', clinical:'Downstream pathway starved' },
+      { enzyme:'Systemic effects of propionic acid buildup', clinical:'Metabolic acidosis, poor feeding, lethargy in infants' },
+    ],
+  },
+];
+
+// ── D3 setup ──────────────────────────────────────────────────────────────────
+const svg = d3.select('#graph-svg');
+const W = 1280, H = 540;
+
+// ── Render tree background columns ───────────────────────────────────────────
+const bgData = [
+  { x: 40, w: 390, tree: 'b6' },
+  { x: 470, w: 390, tree: 'folate' },
+  { x: 900, w: 350, tree: 'biotin' },
+];
+const bgG = svg.append('g').attr('class', 'tree-bgs');
+bgG.selectAll('rect').data(bgData).join('rect')
+  .attr('class', d => 'tree-bg tree-bg-'+d.tree)
+  .attr('x', d => d.x).attr('y', 20)
+  .attr('width', d => d.w).attr('height', H-40)
+  .attr('rx', 12).attr('fill', '#fafbfd').attr('stroke', '#e5e7eb')
+  .attr('stroke-width', 1);
+
+// ── Node lookup ───────────────────────────────────────────────────────────────
+const nodeMap = {};
+trees.forEach(t => t.nodes.forEach(n => { nodeMap[n.id] = n; n._tree = t.id; }));
+
+// ── Render edges ──────────────────────────────────────────────────────────────
+const edgeG = svg.append('g').attr('class', 'edges');
+const allEdges = [];
+trees.forEach(t => {
+  t.edges.forEach(e => {
+    allEdges.push({ ...e, tree: t.id, color: t.color });
+  });
+});
+
+const edgeSel = edgeG.selectAll('line').data(allEdges).join('line')
+  .attr('class', e => 'edge-line edge-' + e.tree + (e.info ? ' edge-dotted' : '') + (e.dashed ? ' edge-dashed' : ''))
+  .attr('x1', e => nodeMap[e.from].x).attr('y1', e => nodeMap[e.from].y)
+  .attr('x2', e => nodeMap[e.to].x).attr('y2', e => nodeMap[e.to].y)
+  .attr('stroke', e => e.info ? '#9ca3af' : e.color)
+  .attr('stroke-dasharray', e => e.info ? '3 4' : e.dashed ? '5 3' : 'none')
+  .attr('opacity', 0.5);
+
+// ── Render nodes ──────────────────────────────────────────────────────────────
+const nodeG = svg.append('g').attr('class', 'nodes');
+
+const nodeSel = nodeG.selectAll('g.node').data(trees.flatMap(t => t.nodes)).join('g')
+  .attr('class', n => 'node node-' + n._tree)
+  .attr('transform', n => 'translate(' + n.x + ',' + n.y + ')')
+  .attr('opacity', n => n.type === 'blockage' ? 1 : 0.55)
+  .on('click', function(ev, n) {
+    if (n.type !== 'blockage') return;
+    const treeId = n._tree;
+    if (activeTree === treeId) { resetAll(); return; }
+    activateTree(treeId);
+  });
+
+// Circle background
+nodeSel.append('circle')
+  .attr('class', 'node-bg')
+  .attr('r', n => n.r)
+  .attr('fill', n => {
+    if (n.type === 'blockage') return n._tree === 'b6' ? '#3b82f6' : n._tree === 'folate' ? '#10b981' : '#f59e0b';
+    if (n.type === 'clinical') return '#f9fafb';
+    if (n.type === 'feeder') return '#f3f4f6';
+    if (n.type === 'info') return '#fef3c7';
+    return '#fff';
+  })
+  .attr('stroke', n => {
+    if (n.type === 'blockage') return 'none';
+    if (n.type === 'clinical') return '#d1d5db';
+    if (n.type === 'info') return '#f59e0b';
+    return n._tree === 'b6' ? '#93c5fd' : n._tree === 'folate' ? '#6ee7b7' : '#fcd34d';
+  })
+  .attr('stroke-width', n => n.type === 'blockage' ? 0 : n.type === 'info' ? 1.5 : 1.5);
+
+// Blockage X marker
+nodeSel.filter(n => n.type === 'blockage').append('g').attr('class', 'blockage-x').html(`
+  <line x1="-12" y1="-12" x2="12" y2="12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="12" y1="-12" x2="-12" y2="12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+`);
+
+// Node labels
+nodeSel.append('text')
+  .attr('class', 'node-text')
+  .attr('text-anchor', 'middle')
+  .attr('dy', n => n.sub ? '-0.1em' : '0.35em')
+  .each(function(n) {
+    const el = d3.select(this);
+    if (n.type === 'feeder') {
+      el.attr('font-size', '9px').attr('fill', '#6b7280').attr('font-weight', '500').text(n.label);
+    } else if (n.type === 'blockage') {
+      el.attr('font-size', '12px').attr('fill', 'white').attr('font-weight', '700').text(n.label);
+    } else if (n.type === 'clinical') {
+      n.label.split('\n').forEach((line, i) => {
+        el.append('tspan').attr('x', 0).attr('dy', i === 0 ? '-0.2em' : '1.2em')
+          .attr('font-size', '8.5px').attr('fill', '#ef4444').attr('font-weight', '600').text(line);
+      });
+    } else if (n.type === 'info') {
+      el.attr('font-size', '8px').attr('fill', '#92400e').attr('font-weight', '600').text(n.label);
+    } else {
+      n.label.split('\n').forEach((line, i) => {
+        el.append('tspan').attr('x', 0).attr('dy', i === 0 ? '-0.75em' : '1.2em')
+          .attr('font-size', '9px').attr('fill', '#374151').attr('font-weight', '600').text(line);
+      });
+    }
+  });
+
+// Subtitles below blockage nodes
+nodeSel.filter(n => n.type === 'blockage').append('text')
+  .attr('class', 'node-text')
+  .attr('text-anchor', 'middle')
+  .attr('dy', '2.8em')
+  .attr('font-size', '7.5px').attr('fill', '#6b7280')
+  .text(n => n.sub);
+
+// Sub-labels for clinical nodes
+nodeSel.filter(n => n.type === 'clinical' && n.sub).append('text')
+  .attr('class', 'node-text')
+  .attr('text-anchor', 'middle')
+  .attr('dy', '2.8em')
+  .attr('font-size', '7px').attr('fill', '#9ca3af')
+  .text(n => n.sub);
+
+// ── Interaction state ─────────────────────────────────────────────────────────
+let activeTree = null;
+
+function resetAll() {
+  activeTree = null;
+  // Reset nodes
+  nodeSel.transition().duration(400)
+    .attr('opacity', n => n.type === 'blockage' ? 1 : 0.55);
+  nodeSel.select('circle.node-bg').transition().duration(400)
+    .attr('fill', n => {
+      if (n.type === 'blockage') return n._tree === 'b6' ? '#3b82f6' : n._tree === 'folate' ? '#10b981' : '#f59e0b';
+      if (n.type === 'clinical') return '#f9fafb';
+      if (n.type === 'feeder') return '#f3f4f6';
+      if (n.type === 'info') return '#fef3c7';
+      return '#fff';
+    });
+  // Reset edges
+  edgeSel.transition().duration(400)
+    .attr('stroke', e => e.info ? '#9ca3af' : e.color)
+    .attr('stroke-dasharray', e => e.info ? '3 4' : e.dashed ? '5 3' : 'none')
+    .attr('opacity', 0.5)
+    .attr('stroke-width', 2)
+    .classed('pulse', false);
+  // Reset tree labels
+  d3.selectAll('#title-bar .tree-label').classed('active', false);
+  // Reset backgrounds
+  bgG.selectAll('rect').attr('fill', '#fafbfd').attr('stroke', '#e5e7eb');
+  // Reset sidebar
+  document.getElementById('sidebar').classList.add('empty');
+  document.getElementById('sidebar-content').innerHTML =
+    '<p style="color:var(--muted);font-size:0.78rem;text-align:center;padding:40px 0;">Click a <strong style="color:var(--starved);">blockage</strong> node to see downstream consequences.</p>';
+}
+
+function activateTree(treeId) {
+  activeTree = treeId;
+  const tree = trees.find(t => t.id === treeId);
+  const starvedIds = new Set(tree.downstream);
+
+  // Update nodes
+  nodeSel.transition().duration(500)
+    .attr('opacity', n => {
+      if (n._tree !== treeId) return 0.35;
+      if (starvedIds.has(n.id)) return 1;
+      if (n.type === 'blockage') return 1;
+      return 1;
+    });
+  nodeSel.select('circle.node-bg').transition().duration(500)
+    .attr('fill', n => {
+      if (n._tree !== treeId) {
+        if (n.type === 'blockage') return '#d1d5db';
+        return '#f3f4f6';
+      }
+      if (starvedIds.has(n.id) && n.type !== 'blockage') return '#fee2e2';
+      if (n.type === 'blockage') return tree.color;
+      if (n.type === 'clinical' && starvedIds.has(n.id)) return '#fee2e2';
+      if (n.type === 'clinical') return '#f9fafb';
+      if (n.type === 'feeder') return '#f3f4f6';
+      if (n.type === 'info') return '#fef3c7';
+      return '#fff';
+    });
+
+  // Update node stroke for starved nodes
+  nodeSel.select('circle.node-bg').transition().duration(500)
+    .attr('stroke', n => {
+      if (n._tree !== treeId) return '#d1d5db';
+      if (starvedIds.has(n.id) && n.type === 'clinical') return '#ef4444';
+      if (starvedIds.has(n.id)) return '#fca5a5';
+      if (n.type === 'info') return '#f59e0b';
+      return n.type === 'clinical' ? '#d1d5db' : n._tree === 'b6' ? '#93c5fd' : n._tree === 'folate' ? '#6ee7b7' : '#fcd34d';
+    });
+
+  // Update edges
+  edgeSel.transition().duration(500)
+    .attr('stroke', e => {
+      if (e.tree !== treeId) return '#d1d5db';
+      if (e.info) return '#9ca3af';
+      return e.color;
+    })
+    .attr('stroke-dasharray', e => {
+      if (e.tree !== treeId) return '3 2';
+      if (e.info) return '3 4';
+      return e.dashed ? '5 3' : 'none';
+    })
+    .attr('opacity', e => e.tree === treeId ? (e.info ? 0.5 : 1) : 0.25)
+    .attr('stroke-width', e => e.tree === treeId && !e.info ? 2.5 : 2)
+    .classed('pulse', e => e.tree === treeId && !e.info);
+
+  // Update tree labels
+  d3.selectAll('#title-bar .tree-label').classed('active', function() {
+    return d3.select(this).attr('data-tree') === treeId;
+  });
+
+  // Update backgrounds
+  bgG.selectAll('rect').attr('fill', d => d.tree === treeId ? tree.colorLight : '#f3f4f6')
+    .attr('stroke', d => d.tree === treeId ? tree.color : '#e5e7eb');
+
+  // Update sidebar
+  document.getElementById('sidebar').classList.remove('empty');
+  document.getElementById('sidebar-content').innerHTML = `
+    <h2>${tree.title}</h2>
+    <p class="sb-sub">${tree.blockageLabel} — click again to reset</p>
+    <div class="sb-mechanism">${tree.blockageDetail}</div>
+    <p style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:8px;font-weight:600;">Downstream consequences</p>
+    <ul class="sb-branches">${tree.branches.map((b,i) => `
+      <li>
+        <div class="sb-branch-dot starved"></div>
+        <div class="sb-branch-text">
+          <strong>${b.enzyme}</strong>
+          <span class="clinical">${b.clinical}</span>
+        </div>
+      </li>`).join('')}</ul>
+  `;
+}
+
+// ── Initialize ────────────────────────────────────────────────────────────────
+resetAll();
+</script>
+</body>
+</html>
