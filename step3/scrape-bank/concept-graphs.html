@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Concept graphs · Sets 1–20</title>
+<title>Concept graphs · Sets 1-20</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -160,32 +160,32 @@
   .onboarding .ob-close:hover { color: #fff; }
 
   /* ── Dictation section INSIDE the HUD ── */
-  .hud .dict-sect {
+  .hud .dict-sect, .hud-content .dict-sect {
     margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px;
   }
-  .hud .dict-sect .dict-header {
+  .hud .dict-sect .dict-header, .hud-content .dict-sect .dict-header {
     display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
   }
-  .hud .dict-sect .dict-header .dict-label {
+  .hud .dict-sect .dict-header .dict-label, .hud-content .dict-sect .dict-header .dict-label {
     font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em;
     color: var(--muted); font-weight: 600;
   }
-  .hud .dict-sect textarea {
+  .hud .dict-sect textarea, .hud-content .dict-sect textarea {
     font-family: Inter, sans-serif; font-size: 0.72rem; line-height: 1.5;
     border: 1px solid var(--border); border-radius: 7px; padding: 6px 8px;
     resize: vertical; min-height: 60px; max-height: 150px; outline: none;
     width: 100%; color: var(--ink);
   }
-  .hud .dict-sect textarea:focus { border-color: var(--accent); }
-  .hud .dict-row { display: flex; gap: 6px; align-items: center; }
-  .hud .btn-mic {
+  .hud .dict-sect textarea:focus, .hud-content .dict-sect textarea:focus { border-color: var(--accent); }
+  .hud .dict-row, .hud-content .dict-row { display: flex; gap: 6px; align-items: center; }
+  .hud .btn-mic, .hud-content .btn-mic {
     width: 28px; height: 28px; border-radius: 50%; border: none;
     cursor: pointer; font-size: 0.9rem; display: flex; align-items: center;
     justify-content: center; transition: all .15s; flex-shrink: 0;
     background: #eef2ff; color: var(--accent);
   }
-  .hud .btn-mic:hover { background: #dde4ff; }
-  .hud .btn-mic.recording {
+  .hud .btn-mic:hover, .hud-content .btn-mic:hover { background: #dde4ff; }
+  .hud .btn-mic.recording, .hud-content .btn-mic.recording {
     background: #fef2f2; color: #ef4444;
     animation: pulse-mic .8s ease infinite alternate;
   }
@@ -193,197 +193,212 @@
     from { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
     to   { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
   }
-  .hud .dict-interim {
+  .hud .dict-interim, .hud-content .dict-interim {
     font-size: 0.65rem; color: var(--muted); font-style: italic;
     min-height: 16px; padding: 0 2px; overflow: hidden; text-overflow: ellipsis;
     white-space: nowrap; flex: 1;
   }
-  .hud .dict-sect .btn-row { display: flex; gap: 6px; margin-top: 6px; }
-  .hud .dict-sect .btn-row button {
+  .hud .dict-sect .btn-row, .hud-content .dict-sect .btn-row { display: flex; gap: 6px; margin-top: 6px; }
+  .hud .dict-sect .btn-row button, .hud-content .dict-sect .btn-row button {
     font-family: inherit; font-size: 0.68rem; font-weight: 600;
     padding: 4px 8px; border-radius: 6px; cursor: pointer;
     border: 1px solid var(--border); background: #fff; color: var(--ink);
   }
-  .hud .dict-sect .btn-row button:hover { background: #f0f3f7; }
-  .hud .dict-sect .btn-row button.primary {
+  .hud .dict-sect .btn-row button:hover, .hud-content .dict-sect .btn-row button:hover { background: #f0f3f7; }
+  .hud .dict-sect .btn-row button.primary, .hud-content .dict-sect .btn-row button.primary {
     background: var(--accent); color: #fff; border-color: var(--accent);
   }
-  .hud .dict-sect .btn-row button.primary:hover { background: #1d4ed8; }
-  .hud .dict-sect .btn-row button:disabled { opacity: 0.4; cursor: not-allowed; }
-  .hud .dict-sect .dict-status { font-size: 0.62rem; color: var(--muted); margin-top: 4px; min-height: 12px; }
+  .hud .dict-sect .btn-row button.primary:hover, .hud-content .dict-sect .btn-row button.primary:hover { background: #1d4ed8; }
+  .hud .dict-sect .btn-row button:disabled, .hud-content .dict-sect .btn-row button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .hud .dict-sect .dict-status, .hud-content .dict-sect .dict-status { font-size: 0.62rem; color: var(--muted); margin-top: 4px; min-height: 12px; }
 
   /* ── Distill concept ── */
-  .hud .distill-btn {
+  .hud .distill-btn, .hud-content .distill-btn {
     margin-top: 10px; width: 100%; padding: 6px 10px; border-radius: 7px;
     border: 1px solid var(--teal); background: #fff; color: var(--teal);
     font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: inherit;
     display: flex; align-items: center; justify-content: center; gap: 5px;
   }
-  .hud .distill-btn:hover { background: #eefaf3; }
-  .hud .distill-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .hud .distill-result {
+  .hud .distill-btn:hover, .hud-content .distill-btn:hover { background: #eefaf3; }
+  .hud .distill-btn:disabled, .hud-content .distill-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .hud .distill-result, .hud-content .distill-result {
     margin-top: 8px; padding: 8px 10px; border-radius: 7px;
     background: #edf7f0; border: 1px solid #b7e4c7;
     color: #116932; font-size: 0.78rem; line-height: 1.5; display: none;
   }
 
-  /* ── Milling tracker — 3-state study progress per concept ── */
-  .hud .mill-tracker {
+  /* ── Milling tracker - 3-state study progress per concept ── */
+  .hud .mill-tracker, .hud-content .mill-tracker {
     display: flex; align-items: center; gap: 8px;
     margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
   }
-  .hud .mill-tracker .mill-label {
+  .hud .mill-tracker .mill-label, .hud-content .mill-tracker .mill-label {
     font-size: 0.65rem; color: var(--muted); text-transform: uppercase;
     letter-spacing: 0.04em; font-weight: 600; white-space: nowrap;
   }
-  .hud .mill-tracker .mill-icons { display: flex; gap: 2px; }
-  .hud .mill-tracker .mill-step {
+  .hud .mill-tracker .mill-icons, .hud-content .mill-tracker .mill-icons { display: flex; gap: 2px; }
+  .hud .mill-tracker .mill-step, .hud-content .mill-tracker .mill-step {
     cursor: pointer; padding: 3px 5px; border-radius: 4px;
     font-size: 0.82rem; line-height: 1; color: var(--border);
     transition: all .12s;
   }
-  .hud .mill-tracker .mill-step:hover { color: var(--accent); background: #f0f4ff; }
-  .hud .mill-tracker .mill-step.active { color: var(--accent); }
-  .hud .mill-tracker[data-state="0"] .mill-step.s0 { color: var(--muted); }
+  .hud .mill-tracker .mill-step:hover, .hud-content .mill-tracker .mill-step:hover { color: var(--accent); background: #f0f4ff; }
+  .hud .mill-tracker .mill-step.active, .hud-content .mill-tracker .mill-step.active { color: var(--accent); }
+  .hud .mill-tracker[data-state="0"] .mill-step.s0, .hud-content .mill-tracker[data-state="0"] .mill-step.s0 { color: var(--muted); }
   .hud .mill-tracker[data-state="1"] .mill-step.s0,
-  .hud .mill-tracker[data-state="1"] .mill-step.s1 { color: #f59e0b; }
+  .hud .mill-tracker[data-state="1"] .mill-step.s1, .hud-content .mill-tracker[data-state="1"] .mill-step.s1 { color: #f59e0b; }
   .hud .mill-tracker[data-state="2"] .mill-step.s0,
   .hud .mill-tracker[data-state="2"] .mill-step.s1,
-  .hud .mill-tracker[data-state="2"] .mill-step.s2 { color: #16a34a; }
+  .hud .mill-tracker[data-state="2"] .mill-step.s2, .hud-content .mill-tracker[data-state="2"] .mill-step.s2 { color: #16a34a; }
   .hud .mill-tracker[data-state="1"] .mill-hint,
-  .hud .mill-tracker[data-state="2"] .mill-hint { color: var(--muted); }
-  .hud .mill-tracker .mill-hint {
+  .hud .mill-tracker[data-state="2"] .mill-hint, .hud-content .mill-tracker[data-state="2"] .mill-hint { color: var(--muted); }
+  .hud .mill-tracker .mill-hint, .hud-content .mill-tracker .mill-hint {
     font-size: 0.6rem; color: transparent; transition: color .2s;
     margin-left: 2px;
   }
 
   /* ── Four-layer reveal v2: pinned concept + independent toggles ── */
-  .hud .pinned-concept {
+  .hud .pinned-concept, .hud-content .pinned-concept {
     padding: 10px 12px; border-radius: 8px;
     border: 1px solid var(--border); background: #fafbfc;
     margin-bottom: 8px;
   }
-  .hud .pinned-concept .pc-top {
+  .hud .pinned-concept .pc-top, .hud-content .pinned-concept .pc-top {
     display: flex; align-items: center; justify-content: space-between;
     gap: 8px; margin-bottom: 6px;
   }
-  .hud .pinned-concept .pc-label {
+  .hud .pinned-concept .pc-label, .hud-content .pinned-concept .pc-label {
     font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em;
     color: var(--muted); font-weight: 650;
   }
-  .hud .pinned-concept .pc-refresh {
+  .hud .pinned-concept .pc-refresh, .hud-content .pinned-concept .pc-refresh {
     cursor: pointer; color: var(--muted); font-size: 0.8rem;
     padding: 2px 4px; border-radius: 4px; border: none; background: none; line-height: 1;
   }
-  .hud .pinned-concept .pc-refresh:hover { color: var(--accent); background: #eef3ff; }
-  .hud .pinned-concept .pc-refresh.spinning i { animation: spin 0.6s linear infinite; }
-  .hud .pinned-concept .pc-oneliner {
+  .hud .pinned-concept .pc-refresh:hover, .hud-content .pinned-concept .pc-refresh:hover { color: var(--accent); background: #eef3ff; }
+  .hud .pinned-concept .pc-refresh.spinning i, .hud-content .pinned-concept .pc-refresh.spinning i { animation: spin 0.6s linear infinite; }
+  .hud .pinned-concept .pc-oneliner, .hud-content .pinned-concept .pc-oneliner {
     font-size: 0.85rem; font-weight: 650; color: var(--ink);
     line-height: 1.45; margin-bottom: 8px; min-height: 20px;
     position: relative; padding-right: 28px;
   }
-  .hud .pinned-concept .pc-oneliner.loading { color: var(--muted); font-style: italic; font-weight: 400; }
-  .hud .pinned-concept .pc-edit-btn {
+  .hud .pinned-concept .pc-oneliner.loading, .hud-content .pinned-concept .pc-oneliner.loading { color: var(--muted); font-style: italic; font-weight: 400; }
+  .hud .pinned-concept .pc-edit-btn, .hud-content .pinned-concept .pc-edit-btn {
     position: absolute; top: 0; right: 0; cursor: pointer; color: var(--muted);
     font-size: 0.72rem; padding: 2px 4px; border-radius: 4px; border: none;
     background: none; line-height: 1; opacity: 0; transition: opacity .15s;
   }
-  .hud .pinned-concept .pc-oneliner:hover .pc-edit-btn, .hud .pc-oneliner:focus-within .pc-edit-btn { opacity: 1; }
-  .hud .pinned-concept .pc-edit-btn:hover { color: var(--accent); background: #eef3ff; }
-  .hud .pc-edit-area { width: 100%; font-family: inherit; font-size: 0.85rem; line-height: 1.45; border: 1px solid var(--accent); border-radius: 5px; padding: 4px 6px; resize: vertical; box-sizing: border-box; }
-  .hud .pc-edit-actions { display: flex; gap: 4px; margin-top: 6px; }
-  .hud .pc-edit-actions button { font-family: inherit; font-size: 0.67rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; cursor: pointer; border: 1px solid var(--border); background: #fff; }
-  .hud .pc-edit-actions button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .hud .pc-edit-actions button.primary:hover { opacity: 0.85; }
-  .hud .pc-edit-actions button:hover { background: #f0f3f7; }
+  .hud .pinned-concept .pc-oneliner:hover .pc-edit-btn, .hud .pc-oneliner:focus-within .pc-edit-btn, .hud-content .pinned-concept .pc-oneliner:hover .pc-edit-btn, .hud .pc-oneliner:focus-within .pc-edit-btn { opacity: 1; }
+  .hud .pinned-concept .pc-edit-btn:hover, .hud-content .pinned-concept .pc-edit-btn:hover { color: var(--accent); background: #eef3ff; }
+  .hud .pc-edit-area, .hud-content .pc-edit-area { width: 100%; font-family: inherit; font-size: 0.85rem; line-height: 1.45; border: 1px solid var(--accent); border-radius: 5px; padding: 4px 6px; resize: vertical; box-sizing: border-box; }
+  .hud .pc-edit-actions, .hud-content .pc-edit-actions { display: flex; gap: 4px; margin-top: 6px; }
+  .hud .pc-edit-actions button, .hud-content .pc-edit-actions button { font-family: inherit; font-size: 0.67rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; cursor: pointer; border: 1px solid var(--border); background: #fff; }
+  .hud .pc-edit-actions button.primary, .hud-content .pc-edit-actions button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .hud .pc-edit-actions button.primary:hover, .hud-content .pc-edit-actions button.primary:hover { opacity: 0.85; }
+  .hud .pc-edit-actions button:hover, .hud-content .pc-edit-actions button:hover { background: #f0f3f7; }
 
   /* Full-beat editable area */
-  .hud .fb-editable { position: relative; }
-  .hud .fb-edit-btn {
+  .hud .fb-editable, .hud-content .fb-editable { position: relative; }
+  .hud .fb-edit-btn, .hud-content .fb-edit-btn {
     position: absolute; top: 2px; right: 0; cursor: pointer; color: var(--muted);
     font-size: 0.68rem; padding: 2px 4px; border-radius: 4px; border: none;
     background: none; line-height: 1; opacity: 0; transition: opacity .15s;
   }
-  .hud .fb-editable:hover .fb-edit-btn { opacity: 1; }
-  .hud .fb-edit-btn:hover { color: var(--accent); background: #eef3ff; }
-  .hud .fb-edit-area { width: 100%; font-family: inherit; font-size: 0.8rem; line-height: 1.55; border: 1px solid var(--accent); border-radius: 5px; padding: 6px 8px; resize: vertical; box-sizing: border-box; min-height: 60px; }
-  .hud .fb-regen-btn {
+  .hud .fb-editable:hover .fb-edit-btn, .hud-content .fb-editable:hover .fb-edit-btn { opacity: 1; }
+  .hud .fb-edit-btn:hover, .hud-content .fb-edit-btn:hover { color: var(--accent); background: #eef3ff; }
+  .hud .fb-edit-area, .hud-content .fb-edit-area { width: 100%; font-family: inherit; font-size: 0.8rem; line-height: 1.55; border: 1px solid var(--accent); border-radius: 5px; padding: 6px 8px; resize: vertical; box-sizing: border-box; min-height: 60px; }
+  .hud .fb-regen-btn, .hud-content .fb-regen-btn {
     margin-top: 8px; font-family: inherit; font-size: 0.65rem; font-weight: 600;
     padding: 4px 8px; border-radius: 5px; cursor: pointer;
     border: 1px solid var(--border); background: #fff; color: var(--muted);
     display: none;
   }
-  .hud .fb-regen-btn:hover { border-color: var(--accent); color: var(--accent); background: #eef3ff; }
-  .hud .fb-regen-btn.spinning i { animation: spin 0.6s linear infinite; }
+  .hud .fb-regen-btn:hover, .hud-content .fb-regen-btn:hover { border-color: var(--accent); color: var(--accent); background: #eef3ff; }
+  .hud .fb-regen-btn.spinning i, .hud-content .fb-regen-btn.spinning i { animation: spin 0.6s linear infinite; }
   [data-theme="dark"] .hud .fb-regen-btn { background: #1f2230; color: var(--muted); }
 
   /* Version navigation (A/B cycling) */
-  .hud .version-nav {
+  .hud .version-nav, .hud-content .version-nav {
     display: flex; align-items: center; gap: 6px; margin-top: 6px;
     font-size: 0.65rem; color: var(--muted);
   }
-  .hud .version-nav .vn-arrow {
+  .hud .version-nav .vn-arrow, .hud-content .version-nav .vn-arrow {
     background: none; border: 1px solid var(--border); border-radius: 4px;
     padding: 1px 5px; cursor: pointer; color: var(--muted); font-size: 0.7rem;
     line-height: 1; display: flex; align-items: center;
   }
-  .hud .version-nav .vn-arrow:hover { border-color: var(--accent); color: var(--accent); background: #eef3ff; }
-  .hud .version-nav .vn-arrow:disabled { opacity: 0.3; cursor: default; border-color: var(--border); }
-  .hud .version-nav .vn-arrow:disabled:hover { background: none; color: var(--muted); }
-  .hud .version-nav .vn-counter { min-width: 32px; text-align: center; }
+  .hud .version-nav .vn-arrow:hover, .hud-content .version-nav .vn-arrow:hover { border-color: var(--accent); color: var(--accent); background: #eef3ff; }
+  .hud .version-nav .vn-arrow:disabled, .hud-content .version-nav .vn-arrow:disabled { opacity: 0.3; cursor: default; border-color: var(--border); }
+  .hud .version-nav .vn-arrow:disabled:hover, .hud-content .version-nav .vn-arrow:disabled:hover { background: none; color: var(--muted); }
+  .hud .version-nav .vn-counter, .hud-content .version-nav .vn-counter { min-width: 32px; text-align: center; }
   [data-theme="dark"] .hud .version-nav .vn-arrow:hover { background: #1f2230; }
 
   /* Approve / Needs work inline row */
-  .hud .pc-actions { display: flex; gap: 6px; }
-  .hud .pc-actions button {
+  .hud .pc-actions, .hud-content .pc-actions { display: flex; gap: 6px; }
+  .hud .pc-actions button, .hud-content .pc-actions button {
     font-family: inherit; font-size: 0.67rem; font-weight: 600;
     padding: 3px 8px; border-radius: 5px; cursor: pointer; border: 1px solid;
   }
-  .hud .pc-approve { background: #edf7f0; color: #116932; border-color: #b7e4c7; }
-  .hud .pc-approve:hover { background: #d6f0dd; }
-  .hud .pc-approve.flagged { background: #16a34a; color: #fff; border-color: #16a34a; }
-  .hud .pc-needs-work { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
-  .hud .pc-needs-work:hover { background: #fde68a; }
-  .hud .pc-needs-work.flagged { background: #f59e0b; color: #fff; border-color: #f59e0b; }
+  .hud .pc-approve, .hud-content .pc-approve { background: #edf7f0; color: #116932; border-color: #b7e4c7; }
+  .hud .pc-approve:hover, .hud-content .pc-approve:hover { background: #d6f0dd; }
+  .hud .pc-approve.flagged, .hud-content .pc-approve.flagged { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .hud .pc-needs-work, .hud-content .pc-needs-work { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+  .hud .pc-needs-work:hover, .hud-content .pc-needs-work:hover { background: #fde68a; }
+  .hud .pc-needs-work.flagged, .hud-content .pc-needs-work.flagged { background: #f59e0b; color: #fff; border-color: #f59e0b; }
 
   /* Independent toggles */
-  .hud .ind-toggle {
+  .hud .ind-toggle, .dock-reveal-content .ind-toggle {
     display: flex; align-items: center; gap: 8px;
     padding: 6px 10px; margin: 2px 0;
     cursor: pointer; user-select: none; border-radius: 6px;
     transition: background .12s; font-size: 0.72rem; color: var(--ink);
   }
-  .hud .ind-toggle:hover { background: #f5f7fa; }
-  .hud .ind-toggle i.toggle-chevron { font-size: 0.62rem; color: var(--muted); margin-left: auto; }
-  .hud .ind-toggle .toggle-dot {
+  .hud .ind-toggle:hover, .dock-reveal-content .ind-toggle:hover { background: #f5f7fa; }
+  .hud .ind-toggle i.toggle-chevron, .dock-reveal-content .ind-toggle i.toggle-chevron { font-size: 0.62rem; color: var(--muted); margin-left: auto; }
+  .hud .ind-toggle .toggle-dot, .dock-reveal-content .ind-toggle .toggle-dot {
     width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
     background: var(--muted); opacity: 0.5;
   }
   .hud .ind-body, .dock-reveal-content .ind-body { display: none; margin-bottom: 6px; }
   .hud .ind-body.open, .dock-reveal-content .ind-body.open { display: block; }
-  .hud .ind-body .qwrap { margin-top: 0; padding-top: 0; border-top: none; }
+  .hud .ind-body .qwrap, .dock-reveal-content .ind-body .qwrap { margin-top: 0; padding-top: 0; border-top: none; }
 
-  /* Nested drill — sibling nodes expand inside this panel */
-  .hud .drill-item {
+  /* Why these are connected - clustering rationale */
+  .hud .why-connected-body, .dock-reveal-content .why-connected-body, .hud-content .why-connected-body {
+    padding: 10px 12px; border-radius: 8px;
+    border: 1px solid var(--border); background: #fafbfc;
+  }
+  .hud .why-connected-body.weak, .dock-reveal-content .why-connected-body.weak, .hud-content .why-connected-body.weak {
+    background: #fef9ec; border-color: #fcd34d;
+  }
+  [data-theme="dark"] .hud .why-connected-body, [data-theme="dark"] .dock-reveal-content .why-connected-body, [data-theme="dark"] .hud-content .why-connected-body {
+    background: #1f2230; border-color: var(--border);
+  }
+  [data-theme="dark"] .hud .why-connected-body.weak, [data-theme="dark"] .dock-reveal-content .why-connected-body.weak, [data-theme="dark"] .hud-content .why-connected-body.weak {
+    background: #2c2416; border-color: #5c4418;
+  }
+
+  /* Nested drill - sibling nodes expand inside this panel */
+  .hud .drill-item, .dock-reveal-content .drill-item {
     padding: 5px 8px; margin: 3px 0; border-radius: 5px;
     background: #fff; border: 1px solid var(--border);
     cursor: pointer; font-size: 0.7rem; line-height: 1.4;
     display: flex; align-items: center; gap: 6px;
   }
-  .hud .drill-item:hover { border-color: var(--accent); background: #f8faff; }
-  .hud .drill-item .drill-dot {
+  .hud .drill-item:hover, .dock-reveal-content .drill-item:hover { border-color: var(--accent); background: #f8faff; }
+  .hud .drill-item .drill-dot, .dock-reveal-content .drill-item .drill-dot {
     width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
   }
-  .hud .drill-nested {
+  .hud .drill-nested, .dock-reveal-content .drill-nested {
     margin: 4px 0 6px 12px; padding: 4px 8px;
     border-left: 2px solid #d0ddfb; background: #f8faff;
     border-radius: 0 6px 6px 0; display: none;
   }
-  .hud .drill-nested.open { display: block; }
-  .hud .drill-nested .drill-nl-blurb {
+  .hud .drill-nested.open, .dock-reveal-content .drill-nested.open { display: block; }
+  .hud .drill-nested .drill-nl-blurb, .dock-reveal-content .drill-nested .drill-nl-blurb {
     font-size: 0.7rem; color: var(--ink); line-height: 1.4; cursor: pointer;
   }
-  .hud .drill-nested .drill-nl-blurb:hover { color: var(--accent); }
+  .hud .drill-nested .drill-nl-blurb:hover, .dock-reveal-content .drill-nested .drill-nl-blurb:hover { color: var(--accent); }
 
   /* ── Dock-reveal mode (node content inside the dock) ── */
   .dock-reveal-nav {
@@ -415,7 +430,7 @@
   .dock-reveal-content .qwrap { margin-top: 6px; }
   .dock-reveal-content .dict-sect { margin-top: 8px; }
 
-  /* ── Command dock — right-side slide-in panel (MeWorld pattern) ── */
+  /* ── Command dock - right-side slide-in panel (MeWorld pattern) ── */
   .cmd-dock {
     position: fixed; z-index: 20; top: 0; right: 0; bottom: 0;
     width: 0; background: #fff; border-left: 1px solid var(--border);
@@ -439,20 +454,20 @@
   /* Collapse inner body when dock is closed so text doesn't overflow-bleed */
   .cmd-dock:not(.open) .dock-body { display: none; }
 
-  /* Dock toggle tab — always visible on right edge */
+  /* Dock toggle tab - always visible on right edge */
   .dock-toggle {
-    position: fixed; z-index: 51; top: 50%; transform: translateY(-50%);
-    right: 14px; width: 28px; height: 64px;
+    position: fixed; z-index: 19; top: 50%; transform: translateY(-50%);
+    right: calc(var(--dock-w, 0px) + 14px); width: 28px; height: 64px;
     background: #f0f2f5; border: 1px solid var(--border);
     border-radius: 8px 0 0 8px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     color: var(--muted); font-size: 0.85rem;
-    transition: right 0.22s ease, background .15s;
+    transition: right 0.22s ease, background .15s, z-index 0s step-end;
   }
-  .cmd-dock.open ~ .dock-toggle { right: calc(var(--dock-w, 320px) + 14px); }
+  .cmd-dock.open ~ .dock-toggle { z-index: 21; }
   .dock-toggle:hover { background: #e3e8ee; color: var(--ink); }
 
-  /* Dock sections — individual control groups */
+  /* Dock sections - individual control groups */
   .dock-section {
     padding: 6px 10px; border-radius: 8px; background: #f8f9fb;
     border: 1px solid var(--border); font-size: 0.73rem;
@@ -593,7 +608,7 @@
     justify-content: space-between; padding: 0 8px; flex-shrink: 0;
   }
   .hud .drag-bar .drag-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
-  .hud .hud-body-inner { padding: 10px 14px 14px; overflow-y: auto; flex: 1 1 0; min-height: 0; overscroll-behavior: contain; }
+  .hud .hud-body-inner, .hud-content { padding: 10px 14px 14px; overflow-y: auto; flex: 1 1 0; min-height: 0; overscroll-behavior: contain; }
 
   /* ── 8-way resize handles ── */
   .hud .rhdl {
@@ -640,27 +655,27 @@
     font-size: 0.58rem; color: var(--muted); font-weight: 600;
     min-width: 28px; text-align: center;
   }
-  .hud .kicker { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; font-weight: 600; }
+  .hud .kicker, .hud-content .kicker { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; font-weight: 600; }
   .kicker.main { color: var(--coral); }
   .kicker.door { color: var(--accent); }
   .hud h3 { margin: 0 0 6px; font-size: 0.95rem; font-weight: 600; }
   .hud p { margin: 0; color: var(--ink); }
-  .hud .reveal-btn {
+  .hud .reveal-btn, .hud-content .reveal-btn {
     margin-top: 10px; width: 100%; padding: 7px 10px; border-radius: 7px; border: 1px solid var(--accent);
     background: #fff; color: var(--accent); font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: inherit;
   }
-  .hud .reveal-btn:hover { background: #eef3ff; }
-  .hud .qwrap { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
-  .hud .bridge {
+  .hud .reveal-btn:hover, .hud-content .reveal-btn:hover { background: #eef3ff; }
+  .hud .qwrap, .hud-content .qwrap { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+  .hud .bridge, .hud-content .bridge {
     margin: 10px 0 0; padding: 10px 0 0; border-top: 1px solid var(--border);
   }
-  .hud .bridge .beat-label {
+  .hud .bridge .beat-label, .hud-content .bridge .beat-label {
     font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em;
     color: var(--coral); font-weight: 700; margin: 0 0 4px;
   }
-  .hud .bridge p { margin: 0 0 10px; }
-  .hud .answers { margin: 8px 0 0; padding: 0; list-style: none; }
-  .hud .answers li {
+  .hud .bridge p, .hud-content .bridge p { margin: 0 0 10px; }
+  .hud .answers, .hud-content .answers { margin: 8px 0 0; padding: 0; list-style: none; }
+  .hud .answers li, .hud-content .answers li {
     margin: 5px 0; padding: 6px 8px; border-radius: 6px; background: #f5f7fa;
     border: 1px solid var(--border); font-size: 0.78rem; line-height: 1.4;
   }
@@ -670,12 +685,12 @@
     color: #116932; font-size: 0.78rem; font-weight: 600;
     display: none;
   }
-  .hud .answer-toggle {
+  .hud .answer-toggle, .hud-content .answer-toggle {
     margin-top: 10px; width: 100%; padding: 7px 10px; border-radius: 7px;
     border: 1px solid #0f8f5f; background: #fff; color: #0f8f5f;
     font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit;
   }
-  .hud .answer-toggle:hover { background: #eefaf3; }
+  .hud .answer-toggle:hover, .hud-content .answer-toggle:hover { background: #eefaf3; }
   .hud details { margin-top: 8px; color: var(--muted); font-size: 0.78rem; }
   .hud details summary { cursor: pointer; color: var(--accent); }
   .hud details pre {
@@ -700,7 +715,7 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ═══════════════════════════════════════════════════════════════════
-     DARK MODE — applied via <html data-theme="dark">
+     DARK MODE - applied via <html data-theme="dark">
      ═══════════════════════════════════════════════════════════════════ */
   [data-theme="dark"] {
     --bg: #0f1117; --ink: #e0e4eb; --muted: #8b92a0;
@@ -726,34 +741,34 @@
     box-shadow: 0 6px 30px rgba(0,0,0,0.4);
   }
   [data-theme="dark"] .hud .drag-bar { background: #1f2230; border-color: var(--border); }
-  [data-theme="dark"] .hud .pinned-concept { background: #1f2230; border-color: var(--border); }
-  [data-theme="dark"] .hud .pc-oneliner { color: var(--ink); }
-  [data-theme="dark"] .hud .ind-toggle:hover { background: #1f2230; }
-  [data-theme="dark"] .hud .answers li { background: #1f2230; border-color: var(--border); }
-  [data-theme="dark"] .hud .likely { background: #162818; border-color: #2a4a30; color: #4ade80; }
-  [data-theme="dark"] .hud .answer-toggle { background: #1a1d28; border-color: #22c55e; color: #4ade80; }
-  [data-theme="dark"] .hud .answer-toggle:hover { background: #162818; }
-  [data-theme="dark"] .hud .reveal-btn { background: #1a1d28; }
-  [data-theme="dark"] .hud .reveal-btn:hover { background: #1f2740; }
-  [data-theme="dark"] .hud .pc-edit-actions button,
-  [data-theme="dark"] .hud .drill-item,
-  [data-theme="dark"] .hud .mill-tracker .mill-step { background: #1f2230; border-color: var(--border); color: var(--ink); }
-  [data-theme="dark"] .hud .drill-item:hover { background: #252840; }
-  [data-theme="dark"] .hud .drill-nested { background: #1a1e30; border-left-color: #3b5096; }
-  [data-theme="dark"] .hud .pc-approve { background: #162818; border-color: #2a4a30; color: #4ade80; }
-  [data-theme="dark"] .hud .pc-approve:hover { background: #1d3620; }
-  [data-theme="dark"] .hud .pc-needs-work { background: #2c2416; border-color: #5c4418; color: #fbbf24; }
-  [data-theme="dark"] .hud .pc-needs-work:hover { background: #3a301c; }
-  [data-theme="dark"] .hud .pc-approve.flagged { background: #16a34a; }
-  [data-theme="dark"] .hud .pc-needs-work.flagged { background: #f59e0b; }
-  [data-theme="dark"] .hud .distill-result { color: var(--ink); background: #1f2230; }
-  [data-theme="dark"] .hud .distill-btn { background: #1f2230; color: var(--accent); }
-  [data-theme="dark"] .hud .distill-btn:hover { background: #1e2840; }
+  [data-theme="dark"] .hud .pinned-concept, [data-theme="dark"] .hud-content .pinned-concept { background: #1f2230; border-color: var(--border); }
+  [data-theme="dark"] .hud .pc-oneliner, [data-theme="dark"] .hud-content .pc-oneliner { color: var(--ink); }
+  [data-theme="dark"] .hud .ind-toggle:hover, [data-theme="dark"] .hud-content .ind-toggle:hover, [data-theme="dark"] .dock-reveal-content .ind-toggle:hover { background: #1f2230; }
+  [data-theme="dark"] .hud .answers li, [data-theme="dark"] .hud-content .answers li { background: #1f2230; border-color: var(--border); }
+  [data-theme="dark"] .hud .likely, [data-theme="dark"] .dock-reveal-content .likely { background: #162818; border-color: #2a4a30; color: #4ade80; }
+  [data-theme="dark"] .hud .answer-toggle, [data-theme="dark"] .hud-content .answer-toggle { background: #1a1d28; border-color: #22c55e; color: #4ade80; }
+  [data-theme="dark"] .hud .answer-toggle:hover, [data-theme="dark"] .hud-content .answer-toggle:hover { background: #162818; }
+  [data-theme="dark"] .hud .reveal-btn, [data-theme="dark"] .hud-content .reveal-btn { background: #1a1d28; }
+  [data-theme="dark"] .hud .reveal-btn:hover, [data-theme="dark"] .hud-content .reveal-btn:hover { background: #1f2740; }
+  [data-theme="dark"] .hud .pc-edit-actions button, [data-theme="dark"] .hud-content .pc-edit-actions button,
+  [data-theme="dark"] .hud .drill-item, [data-theme="dark"] .dock-reveal-content .drill-item,
+  [data-theme="dark"] .hud .mill-tracker .mill-step, [data-theme="dark"] .hud-content .mill-tracker .mill-step { background: #1f2230; border-color: var(--border); color: var(--ink); }
+  [data-theme="dark"] .hud .drill-item:hover, [data-theme="dark"] .dock-reveal-content .drill-item:hover, [data-theme="dark"] .hud-content .drill-item:hover { background: #252840; }
+  [data-theme="dark"] .hud .drill-nested, [data-theme="dark"] .dock-reveal-content .drill-nested { background: #1a1e30; border-left-color: #3b5096; }
+  [data-theme="dark"] .hud .pc-approve, [data-theme="dark"] .hud-content .pc-approve { background: #162818; border-color: #2a4a30; color: #4ade80; }
+  [data-theme="dark"] .hud .pc-approve:hover, [data-theme="dark"] .hud-content .pc-approve:hover { background: #1d3620; }
+  [data-theme="dark"] .hud .pc-needs-work, [data-theme="dark"] .hud-content .pc-needs-work { background: #2c2416; border-color: #5c4418; color: #fbbf24; }
+  [data-theme="dark"] .hud .pc-needs-work:hover, [data-theme="dark"] .hud-content .pc-needs-work:hover { background: #3a301c; }
+  [data-theme="dark"] .hud .pc-approve.flagged, [data-theme="dark"] .hud-content .pc-approve.flagged { background: #16a34a; }
+  [data-theme="dark"] .hud .pc-needs-work.flagged, [data-theme="dark"] .hud-content .pc-needs-work.flagged { background: #f59e0b; }
+  [data-theme="dark"] .hud .distill-result, [data-theme="dark"] .hud-content .distill-result { color: var(--ink); background: #1f2230; }
+  [data-theme="dark"] .hud .distill-btn, [data-theme="dark"] .hud-content .distill-btn { background: #1f2230; color: var(--accent); }
+  [data-theme="dark"] .hud .distill-btn:hover, [data-theme="dark"] .hud-content .distill-btn:hover { background: #1e2840; }
   [data-theme="dark"] .hud .dict-sect textarea,
   [data-theme="dark"] .hud .pc-edit-area,
   [data-theme="dark"] .hud .fb-edit-area { background: #1a1d28; color: var(--ink); border-color: var(--border); }
-  [data-theme="dark"] .hud .btn-mic { background: #1f2230; color: var(--muted); }
-  [data-theme="dark"] .hud .btn-mic:hover { background: #252840; }
+  [data-theme="dark"] .hud .btn-mic, [data-theme="dark"] .hud-content .btn-mic { background: #1f2230; color: var(--muted); }
+  [data-theme="dark"] .hud .btn-mic:hover, [data-theme="dark"] .hud-content .btn-mic:hover { background: #252840; }
   [data-theme="dark"] .cmd-dock { background: #13151d; border-color: var(--border); }
   [data-theme="dark"] .dock-toggle { background: #1a1d28; }
   [data-theme="dark"] .dock-section select { background: #1a1d28; color: var(--ink); border-color: var(--border); }
@@ -771,7 +786,7 @@
   [data-theme="dark"] .loading { background: rgba(15,17,23,0.88); }
   [data-theme="dark"] .loading .spinner { border-color: var(--border); border-top-color: var(--coral); }
   [data-theme="dark"] .layer2-body { background: #1f2230; border-color: #3b5096; }
-  [data-theme="dark"] .hud .fb-editable .fb-edit-btn:hover { background: #252840; }
+  [data-theme="dark"] .hud .fb-editable .fb-edit-btn:hover, [data-theme="dark"] .hud-content .fb-editable .fb-edit-btn:hover { background: #252840; }
   [data-theme="dark"] .dock-reveal-nav .drn-back,
   [data-theme="dark"] .dock-reveal-nav .drn-arrows button { background: #1f2230; border-color: var(--border); color: var(--ink); }
   [data-theme="dark"] .dock-reveal-nav .drn-back:hover,
@@ -867,7 +882,7 @@
   <div id="chart"></div>
 </div>
 
-<!-- Command dock — right-side slide-in panel -->
+<!-- Command dock - right-side slide-in panel -->
 <div class="cmd-dock" id="cmdDock">
   <div class="dock-resize-handle" id="dockResizeHandle"></div>
   <div class="dock-body" id="dockBody">
@@ -889,10 +904,10 @@
 
 <div class="float-fit" id="fitBtn" title="Fit all nodes in view"><i class="ti ti-maximize"></i>&nbsp;Fit to view</div>
 <button class="float-settings" id="settingsBtn" title="Settings"><i class="ti ti-settings"></i></button>
-<button class="float-toggle on" id="toggleLinesBtn" title="Toggle lines">—</button>
+<button class="float-toggle on" id="toggleLinesBtn" title="Toggle lines">-</button>
 <button class="float-settings" id="spineExtBtn" title="Spine concept extractor" style="top:12px;right:100px;"><i class="ti ti-list-details"></i></button>
 <div class="isolation-banner" id="isolationBanner" style="display:none">
-  <span id="isoLabel">Isolated: —</span>
+  <span id="isoLabel">Isolated: -</span>
   <button id="exitIsoBtn"><i class="ti ti-x"></i>&nbsp;Exit isolation</button>
 </div>
 
@@ -948,7 +963,7 @@
 <div class="spine-extractor" id="spineExtractor">
   <div class="se-panel">
     <div class="se-header">
-      <span class="se-title"><i class="ti ti-list-details"></i>&nbsp;Spine Concepts — <span id="seSetLabel">Set —</span></span>
+      <span class="se-title"><i class="ti ti-list-details"></i>&nbsp;Spine Concepts - <span id="seSetLabel">Set -</span></span>
       <button class="se-close" id="seClose"><i class="ti ti-x"></i></button>
     </div>
     <div class="se-body" id="seBody">
@@ -965,7 +980,7 @@
 <script>
 const COLORS = { primary: '#d8552f', mimic: '#9a9890', thread: '#17916b' };
 
-// ── Set registry — maps set # → story file ────────────────────────────────────
+// ── Set registry - maps set # → story file ────────────────────────────────────
 const SET_REGISTRY = {
   1: 'set-01-story-va.html',
   2: 'set-02-story-va.html',
@@ -1299,7 +1314,7 @@ function setMillState(qid, state) {
 function updateMillHint(el, state) {
   const hint = el.querySelector('.mill-hint');
   if (!hint) return;
-  hint.textContent = state === 1 ? '— partial' : state === 2 ? '— drilled' : '';
+  hint.textContent = state === 1 ? '- partial' : state === 2 ? '- drilled' : '';
 }
 
 function questionHTML(q) {
@@ -1315,7 +1330,7 @@ function questionHTML(q) {
       ${q.likely ? '<button class="answer-toggle" type="button">Show Answer</button><div class="likely">Answer: ' + esc(q.likely) + '</div>' : ''}
       <details><summary>Explanation</summary><pre>${esc(q.explanation || '(none)')}</pre></details>
       <div class="distill-result" id="distill-result-${q.id}"></div>
-      <button class="distill-btn" type="button" data-qid="${q.id}"><i class="ti ti-bulb"></i> Distill — what is this question teaching?</button>
+      <button class="distill-btn" type="button" data-qid="${q.id}"><i class="ti ti-bulb"></i> Distill - what is this question teaching?</button>
       <div class="mill-tracker" data-qid="${q.id}" data-state="${state}">
         <span class="mill-label">Study progress</span>
         <span class="mill-icons">
@@ -1323,7 +1338,7 @@ function questionHTML(q) {
           <span class="mill-step s1" data-mill="1" title="Partially milled">◐</span>
           <span class="mill-step s2" data-mill="2" title="Thoroughly drilled">●</span>
         </span>
-        <span class="mill-hint">${state === 1 ? '— partial' : state === 2 ? '— drilled' : ''}</span>
+        <span class="mill-hint">${state === 1 ? '- partial' : state === 2 ? '- drilled' : ''}</span>
       </div>
       <div class="dict-sect">
         <div class="dict-header">
@@ -1374,7 +1389,7 @@ function makeHudDraggable(hud) {
   });
 }
 
-// ── Universal floater drag — makes any fixed/absolute floater draggable ─────
+// ── Universal floater drag - makes any fixed/absolute floater draggable ─────
 // Works with left/right/bottom-anchored and centered (transform) floaters.
 // On drag: converts right/bottom anchors to left/top, strips transform,
 // saves position to localStorage.
@@ -1398,7 +1413,7 @@ function makeFloaterDraggable(el, storageKey) {
     const startTop = rect.top - boardRect.top;
     const startX = e.clientX, startY = e.clientY;
 
-    // Strip any transform or right/bottom anchors — switch to left/top only
+    // Strip any transform or right/bottom anchors - switch to left/top only
     el.style.left = startLeft + 'px';
     el.style.top = startTop + 'px';
     el.style.right = 'auto';
@@ -1630,7 +1645,7 @@ async function distillConcept(hud, node) {
   const ans = (node.answers || []).map(a => a.label + '. ' + cleanAnsText(a.text)).join(' | ');
   const prompt = `You are a medical educator distilling CCS board questions into their core teaching point.
 
-Given this question and its correct answer, state in ONE sentence what clinical concept this question is testing. Be specific and precise. Do NOT restate the question — extract the takeaway lesson.
+Given this question and its correct answer, state in ONE sentence what clinical concept this question is testing. Be specific and precise. Do NOT restate the question - extract the takeaway lesson.
 
 Question:
 """${node.question}"""
@@ -1658,7 +1673,7 @@ Respond with only the single sentence. No preamble, no markdown.`;
       resultDiv.innerHTML = '<strong>Core concept:</strong> ' + esc(concept);
       logDS(node.id, 'distill', prompt, '', concept);
     } else {
-      resultDiv.textContent = 'No concept returned — try again.';
+      resultDiv.textContent = 'No concept returned - try again.';
     }
   } catch (e) {
     resultDiv.textContent = 'Error: ' + e.message.slice(0, 120);
@@ -1780,7 +1795,7 @@ Respond with ONLY the narrative. No preamble.` }],
       const data = await res.json();
       const story = data.choices?.[0]?.message?.content?.trim() || '';
       if (story) { textarea.value = story; finalText = story; status.textContent = 'Composed!'; logDS(nodeId, 'compose', `Dictation: """${dictation}"""`, '', story); }
-      else { status.textContent = 'Empty response — try more detail.'; }
+      else { status.textContent = 'Empty response - try more detail.'; }
     } catch (e) { status.textContent = 'Error: ' + e.message; }
     finally { composeBtn.disabled = false; }
   };
@@ -1791,7 +1806,7 @@ function applyIsolation() {
   const banner = document.getElementById('isolationBanner');
   const label = document.getElementById('isoLabel');
   if (!isolatedNodeId) {
-    // Full graph — restore everything
+    // Full graph - restore everything
     banner.style.display = 'none';
     if (nodeSel) nodeSel.style('display', null);
     if (linkSel) linkSel.style('display', linesVisible ? null : 'none');
@@ -1820,7 +1835,7 @@ function applyIsolation() {
     nodeSel.style('display', d => neighborhood.has(String(d.id)) ? null : 'none');
   }
   // Filter links: show only edges where both ends are in neighborhood
-  // BUT exclude spine↔spine edges (main story path) — only the node's
+  // BUT exclude spine↔spine edges (main story path) - only the node's
   // direct subsets (mimics/threads) should be visible in isolation
   if (linkSel) {
     linkSel.style('display', d => {
@@ -1828,7 +1843,7 @@ function applyIsolation() {
       const s = String(typeof d.source === 'object' ? d.source.id : d.source);
       const t = String(typeof d.target === 'object' ? d.target.id : d.target);
       if (!neighborhood.has(s) || !neighborhood.has(t)) return 'none';
-      // Hide spine↔spine — only show subset edges radiating from isolated node
+      // Hide spine↔spine - only show subset edges radiating from isolated node
       if (spineSet.has(s) && spineSet.has(t)) return 'none';
       return null;
     });
@@ -1854,7 +1869,7 @@ function toggleLines() {
   const btn = document.getElementById('toggleLinesBtn');
   btn.classList.toggle('on', linesVisible);
   btn.classList.toggle('off', !linesVisible);
-  btn.textContent = linesVisible ? '—' : '╱';
+  btn.textContent = linesVisible ? '-' : '╱';
   if (linkSel) linkSel.style('display', linesVisible ? null : 'none');
   if (!linesVisible) {
     d3.selectAll('.primary-hit').style('display', 'none');
@@ -1890,7 +1905,7 @@ function mdToHtml(text) {
 function cleanDiagnosisLabel(raw) {
   if (!raw) return raw;
   // Human-written labels (containing em-dash, "vs", parentheses, or proper caps) pass through
-  if (/[—–]| vs | \([A-Z]/.test(raw)) return raw;
+  if (/[--]| vs | \([A-Z]/.test(raw)) return raw;
   // Already cleaned ( ·  separator, mixed case): pass through
   if (/ [·•] /.test(raw) && /[A-Z]/.test(raw) && raw.length > 20) return raw;
   // Slash-separated lowercase fragments: collapse to title-case phrase
@@ -1918,7 +1933,7 @@ async function logDS(qid, type, prompt, systemPrompt, response) {
         ts: new Date().toISOString(),
       }),
     });
-  } catch (_) { /* non-critical — don't block UI */ }
+  } catch (_) { /* non-critical - don't block UI */ }
 }
 
 async function fetchLogged(qid, type) {
@@ -1941,38 +1956,38 @@ async function fetchFirstPrinciples(node) {
 
   const ans = (node.answers || []).map(a => a.label + '. ' + cleanAnsText(a.text)).join(' | ');
 
-  const systemPrompt = `You are a brilliant senior attending physician on the Immersa platform — a fellow who genuinely loves teaching. You reveal WHY through physiology and physics, not through memorization. Your goal is mechanistic inevitability: the learner should feel "Of course. How could it be any other way?"
+  const systemPrompt = `You are a brilliant senior attending physician on the Immersa platform - a fellow who genuinely loves teaching. You reveal WHY through physiology and physics, not through memorization. Your goal is mechanistic inevitability: the learner should feel "Of course. How could it be any other way?"
 
 CORE PHILOSOPHY:
-- Mechanism first — the physics or biology that FORCES the finding. Never recite a feature list.
-- Causal chains — short declarative cause→effect sentences: "The liver isn't clearing ammonia. It builds up. It crosses into the CNS."
-- Answer the spatial/physical "why" — distribution, timing, location explainable by geometry, pressure, gravity.
-- Connect findings — they are one underlying process expressing in different tissues, not unrelated facts.
+- Mechanism first - the physics or biology that FORCES the finding. Never recite a feature list.
+- Causal chains - short declarative cause→effect sentences: "The liver isn't clearing ammonia. It builds up. It crosses into the CNS."
+- Answer the spatial/physical "why" - distribution, timing, location explainable by geometry, pressure, gravity.
+- Connect findings - they are one underlying process expressing in different tissues, not unrelated facts.
 - Contrast with a look-alike when it sharpens the distinction by revealing a different mechanism.
 
 VOICE (mandatory):
 - Confident, never condescending. There is joy in mechanism. Direct. Short sentences. No hedging.
 - Visual/spatial language the learner can picture: "the rash is tracing that light map," "the synovium as a sieve."
-- Use concrete models — not abstract descriptions. Make them see it.
+- Use concrete models - not abstract descriptions. Make them see it.
 - Punchy insight declarations: "It's not a tremor. It's a lapse."
 - Occasionally ask a short question back to activate the learner's thinking.
-- 80–180 words. Tight. Every sentence must teach.
+- 80-180 words. Tight. Every sentence must teach.
 
 RESPONSE STRUCTURE:
-[Hook — the surprising or counterintuitive fact]
-[Mechanism — causal chain: what is happening, why it forces this finding]
-[Spatial/temporal logic — why here, now, this distribution]
-[Connect — link to other findings if relevant]
-[Clinical anchor — what this means at the bedside]
+[Hook - the surprising or counterintuitive fact]
+[Mechanism - causal chain: what is happening, why it forces this finding]
+[Spatial/temporal logic - why here, now, this distribution]
+[Connect - link to other findings if relevant]
+[Clinical anchor - what this means at the bedside]
 [Optional: one short question back]
 
 FORBIDDEN:
 - "Here's the breakdown", "Key point:", "What it does:", "For this patient:", "ED relevance:", "This patient has a history of..."
 - Opening on floating patient demographics or bare guideline recitation instead of mechanism
 - Bullet lists, numbered lists, outline headers, stage labels
-- Generic tutor voice disconnected from mechanism — if it sounds like a textbook, delete it
+- Generic tutor voice disconnected from mechanism - if it sounds like a textbook, delete it
 - Passive voice ("it is thought that..."), hedging ("in some cases"), "as an AI", breaking character
-- Em dashes (—) — use commas or periods instead, never em dashes in any reply
+- Em dashes (-) - use commas or periods instead, never em dashes in any reply
 - Pretending to be the patient or writing from patient perspective`;
 
   const prompt = `This CCS board question tests a clinical concept. Teach it from first principles as the Immersa attending.
@@ -2082,7 +2097,7 @@ The Flaw is the load-bearing piece. It's what turns a Freytag-lite two-node spin
 6. **Continuity connects backward explicitly.** If a spine node is the same underlying disease surfacing in a new organ or context, say so directly in the prose.
 7. **State the spine count when done.** After writing, explicitly note how many spine nodes this scene has and which QIDs they are.
 
-## Appendix D — Prose discipline (NON-NEGOTIABLE generation constraints)
+## Appendix D - Prose discipline (NON-NEGOTIABLE generation constraints)
 
 ### D1. No purple prose / adjective overload
 - No promotional or inflated language (vibrant, profound, stunning, breathtaking). Cut clinical equivalents like "his eyes fixed intently."
@@ -2091,14 +2106,14 @@ The Flaw is the load-bearing piece. It's what turns a Freytag-lite two-node spin
 - Vary sentence rhythm: short sentences next to longer ones, not uniform length throughout.
 - Say it plainly. If a sentence could lose a word without losing meaning, cut the word.
 
-### D2. No staccato negatives — HARD BAN
+### D2. No staccato negatives - HARD BAN
 No constructions like "not X, not Y" or "not just X, it's Y." Pick the actual thing and state it. This exact pattern produced nonsense in a prior generation; it is a hard ban, not a style preference. Never write "not this, not that" or any variant.
 
 ### D3. Meta-instruction leakage is FORBIDDEN
-Never echo or reference the generation system's own instructions, skill names, or prompt language in the output. Specifically FORBIDDEN: "humanizer," "storytelling skills," "clairvoyants," or any self-referential content about how the prose was written. This is a pipeline defect, not a prose issue — do not produce it.
+Never echo or reference the generation system's own instructions, skill names, or prompt language in the output. Specifically FORBIDDEN: "humanizer," "storytelling skills," "clairvoyants," or any self-referential content about how the prose was written. This is a pipeline defect, not a prose issue - do not produce it.
 
 ### D4. Character pronoun consistency is LOCKED
-Use ONLY the pronouns explicitly stated for each character. Never infer or default. If the character's gender and pronouns are stated, use them exactly — one wrong pronoun invalidates the entire output.
+Use ONLY the pronouns explicitly stated for each character. Never infer or default. If the character's gender and pronouns are stated, use them exactly - one wrong pronoun invalidates the entire output.
 
 ## Verification
 Check this node's correct answer against what the story claims her diagnosis is. A story reading well is not evidence it's factually consistent with the data underneath it.`;
@@ -2150,9 +2165,9 @@ async function fetchFullBeat(node) {
     ? 'FREYTAG-LITE (exposition → rising action → crisis, no resolution)'
     : spineInScene >= 5
       ? 'FULL HARMON CIRCLE (You/Need/Go/Search/Find/Take/Return/Change)'
-      : 'Partial — use only the beats that the real data supports';
+      : 'Partial - use only the beats that the real data supports';
 
-  if (!isSpine) structureHint = 'WITNESSED CONTENT — avatar is observing or being taught, not her own case';
+  if (!isSpine) structureHint = 'WITNESSED CONTENT - avatar is observing or being taught, not her own case';
 
   const systemPrompt = `You are a clinical fiction writer governed by the following story rules. Do NOT deviate from them.
 
@@ -2229,7 +2244,7 @@ Respond with ONLY the narrative paragraph. No preamble, no headers, no sign-off.
 function validateGeneratedBeat(beat, avatarName, avatarPronoun, mentorName, mentorPronoun, ch) {
   const lower = beat.toLowerCase();
 
-  // 1. Meta-instruction leakage — known skill/prompt vocabulary bleeding into output
+  // 1. Meta-instruction leakage - known skill/prompt vocabulary bleeding into output
   const META_LEAK_WORDS = [
     'humanizer', 'storytelling skills', 'storytelling skill', 'clairvoyants',
     'generation system', 'system prompt', 'system instruction', 'pipeline',
@@ -2242,12 +2257,12 @@ function validateGeneratedBeat(beat, avatarName, avatarPronoun, mentorName, ment
     }
   }
 
-  // 2. Staccato negatives — "not X, not Y" pattern
+  // 2. Staccato negatives - "not X, not Y" pattern
   if (/not\s+\w+[.,]\s*not\s+\w+/.test(lower) || /not\s+(just|only)\s+\w+[.,]\s*it['']s\s+\w+/.test(lower)) {
     return { ok: false, reason: 'Staccato negative pattern detected' };
   }
 
-  // 3. Pronoun consistency — Dr. Iwu must never be "she"/"her"
+  // 3. Pronoun consistency - Dr. Iwu must never be "she"/"her"
   if (mentorName && mentorPronoun === 'he/him/his') {
     // Check for "she" or "her" referring to the mentor
     const mentorPattern = new RegExp('\\b' + mentorName.split(' ')[0] + '\\b.{0,30}\\b(she|her)\\b', 'i');
@@ -2258,7 +2273,7 @@ function validateGeneratedBeat(beat, avatarName, avatarPronoun, mentorName, ment
 
   // 4. Avatar pronoun consistency
   if (avatarPronoun === 'she/her/hers' && ch && ch.gender === 'F') {
-    // Avatar is female — check for "he/his" used in close proximity to her name
+    // Avatar is female - check for "he/his" used in close proximity to her name
     const avPattern = new RegExp('\\b' + avatarName + '\\b.{0,30}\\b(he|his)\\b', 'i');
     if (avPattern.test(beat)) {
       return { ok: false, reason: 'Wrong pronoun: ' + avatarName + ' referred to as he/his' };
@@ -2284,6 +2299,91 @@ function validateGeneratedBeat(beat, avatarName, avatarPronoun, mentorName, ment
   return { ok: true };
 }
 
+// ── Why these are connected: clustering rationale for this scene ──────────
+async function fetchWhyConnected(node) {
+  const key = localStorage.getItem('ds_api_key');
+  if (!key) return null;
+
+  const sceneId = node.sceneId;
+  // Cache key uses sceneId so all nodes in the same scene share one rationale
+  const cacheKey = 'wc_' + GRAPH.meta.set + '_' + sceneId;
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) return JSON.parse(cached);
+
+  // Check logged responses on server
+  const logged = await fetchLogged(node.id, 'whyConnected');
+  if (logged) return JSON.parse(logged);
+
+  // Collect all nodes in the same scene
+  const sceneNodes = GRAPH.nodes.filter(n => String(n.sceneId) === String(sceneId));
+  const sceneSpines = sceneNodes.filter(n => n.category === 'primary');
+  const sceneMimics = sceneNodes.filter(n => n.category === 'mimic');
+  const sceneThreads = sceneNodes.filter(n => n.category === 'thread');
+
+  // Build a summary of what's being tested
+  const whyLines = sceneNodes.map(n => '- ' + (n.why || 'Uncategorized')).join('\n');
+  const stemSamples = sceneNodes.slice(0, 6).map(n => stemOf(n, 200)).join('\n---\n');
+  const catSummary = [
+    sceneSpines.length + ' primary (core diagnostic fork): ' + sceneSpines.map(n=>stemOf(n,60)).join(' | '),
+    sceneMimics.length + ' mimic doors: ' + sceneMimics.map(n=>stemOf(n,60)).join(' | '),
+    sceneThreads.length + ' threads: ' + sceneThreads.map(n=>stemOf(n,60)).join(' | '),
+  ].join('\n');
+
+  // Weak cluster detection: fewer than 3 nodes, or no mimics (no real differential)
+  const isWeak = sceneNodes.length < 3 || sceneMimics.length === 0;
+
+  const systemPrompt = `You are a clinical educator analyzing diagnostic clusters. Your job: write ONE sentence explaining why these specific questions were grouped together as a real differential set.
+
+RULES:
+- Base your answer EXCLUSIVELY on the questions provided. Do not invent conditions not mentioned in the stems.
+- The rationale must reflect the actual diagnostic overlap: "discriminating X vs Y based on Z" or the clinical scenario that ties them together.
+- If the grouping is genuinely weak (fewer than 3 questions or no real differential), say so honestly rather than forcing a rationale.
+- Write in plain clinical English. No em dashes. No bullet points. Just one sentence.
+- Your sentence should read like: "These questions test the ability to discriminate..." or "This cluster presents a patient with... and challenges the learner to distinguish..."`;
+
+  const prompt = `Cluster rationale for Set ${GRAPH.meta.set}, Scene ${sceneId}:
+
+Core diagnosis: ${GRAPH.meta.coreDiagnosis || 'Not specified'}
+${isWeak ? 'NOTE: This scene has only ' + sceneNodes.length + ' questions with ' + sceneMimics.length + ' mimics - it may be a weak cluster.' : ''}
+
+Scene composition:
+- ${sceneNodes.length} total nodes: ${catSummary}
+
+Cluster role descriptions:
+${whyLines}
+
+Sample question stems from this scene:
+${stemSamples}
+
+Write ONE sentence that explains why these questions belong together as a differential set. ${isWeak ? 'If you cannot write a coherent rationale because the grouping is too loose, say: "This cluster is loosely grouped - no single clear diagnostic fork ties these questions together."' : ''}
+
+Respond with ONLY the rationale sentence. No preamble, no sign-off.`;
+
+  try {
+    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt },
+        ],
+        temperature: 0.5, max_tokens: 200,
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const rationale = (data.choices?.[0]?.message?.content?.trim() || '');
+    if (!rationale) return null;
+
+    const result = { rationale, weak: isWeak };
+    localStorage.setItem(cacheKey, JSON.stringify(result));
+    logDS(node.id, 'whyConnected', prompt, systemPrompt, rationale);
+    return result;
+  } catch (_) { return null; }
+}
+
 function buildRevealHTML(d) {
   const triage = readTriage(d.id);
   const line = triage?.concept || '';
@@ -2293,7 +2393,7 @@ function buildRevealHTML(d) {
   return `
     <div class="pinned-concept" data-qid="${esc(String(d.id))}">
       <div class="pc-top">
-        <span class="pc-label"><i class="ti ti-brain"></i>&nbsp;Concept — what is being tested?</span>
+        <span class="pc-label"><i class="ti ti-brain"></i>&nbsp;Concept - what is being tested?</span>
         <button class="pc-refresh" id="pcref-${d.id}" title="Regenerate"><i class="ti ti-refresh"></i></button>
       </div>
       <div class="pc-oneliner${line ? '' : ' loading'}" id="pcone-${d.id}">${line ? esc(line) : 'Distilling…'}
@@ -2326,7 +2426,7 @@ function buildRevealHTML(d) {
 
     <div class="ind-toggle" id="it-firstpri-${d.id}">
       <span class="toggle-dot"></span>
-      <span>First principles — brute force teaching</span>
+      <span>first principles</span>
       <i class="ti ti-chevron-down toggle-chevron"></i>
     </div>
     <div class="ind-body" id="ib-firstpri-${d.id}">
@@ -2345,6 +2445,15 @@ function buildRevealHTML(d) {
     </div>
     <div class="ind-body" id="ib-q-${d.id}">
       ${questionHTML(d)}
+    </div>
+
+    <div class="ind-toggle" id="it-why-${d.id}">
+      <span class="toggle-dot"></span>
+      <span>Why these are connected</span>
+      <i class="ti ti-chevron-down toggle-chevron"></i>
+    </div>
+    <div class="ind-body" id="ib-why-${d.id}">
+      <div class="why-connected-body" id="whybody-${d.id}" style="font-size:0.78rem;line-height:1.55;color:var(--ink);">Loading rationale…</div>
     </div>
 
     <div class="ind-toggle" id="it-rel-${d.id}">
@@ -2494,11 +2603,11 @@ function wireReveal(container, d) {
   if (!readTriage(qid)?.concept) {
     fetchConceptLine(d).then(l => {
       if (l) { oneLinerEl.textContent = l; oneLinerEl.classList.remove('loading'); const t = readTriage(qid) || {}; t.concept = l; writeTriage(qid, t); }
-      else { oneLinerEl.textContent = 'Could not distill — try refresh.'; }
+      else { oneLinerEl.textContent = 'Could not distill - try refresh.'; }
     });
   }
 
-  // Refresh — uses fieldSave so history is preserved
+  // Refresh - uses fieldSave so history is preserved
   refreshBtn.onclick = async () => {
     refreshBtn.classList.add('spinning');
     oneLinerEl.textContent = 'Regenerating…';
@@ -2506,7 +2615,7 @@ function wireReveal(container, d) {
     const l = await fetchConceptLine(d);
     refreshBtn.classList.remove('spinning');
     if (l) { oneLinerEl.classList.remove('loading'); fieldSave(qid, 'concept', l); oneLinerEl.textContent = l; }
-    else { oneLinerEl.textContent = 'Failed — try again.'; }
+    else { oneLinerEl.textContent = 'Failed - try again.'; }
   };
 
   // Approve / Needs work
@@ -2547,7 +2656,7 @@ function wireReveal(container, d) {
     };
   }
 
-  // Show full beat — generate on the fly via DeepSeek
+  // Show full beat - generate on the fly via DeepSeek
   const fbToggle = container.querySelector('#it-full-' + qid);
   const fbBody = container.querySelector('#ib-full-' + qid);
   const fbRegenBtn = container.querySelector('#fbregen-' + qid);
@@ -2568,7 +2677,7 @@ function wireReveal(container, d) {
             fbTextEl.innerHTML = mdToHtml(beat);
             fieldSave(qid, 'fullBeat', beat);
           } else {
-            fbTextEl.innerHTML = '<em>Could not generate — try Regenerate.</em>';
+            fbTextEl.innerHTML = '<em>Could not generate - try Regenerate.</em>';
           }
         }
         wireVersionNav(qid, 'fullBeat', fbTextEl, container.querySelector('#fbnav-' + qid));
@@ -2590,14 +2699,14 @@ function wireReveal(container, d) {
           fbTextEl.innerHTML = mdToHtml(beat);
           fieldSave(qid, 'fullBeat', beat);
         } else {
-          fbTextEl.innerHTML = '<em>Regeneration failed — try again.</em>';
+          fbTextEl.innerHTML = '<em>Regeneration failed - try again.</em>';
         }
         wireVersionNav(qid, 'fullBeat', fbTextEl, container.querySelector('#fbnav-' + qid));
       };
     }
   }
 
-  // First principles — attending voice teaching
+  // First principles - attending voice teaching
   const fpToggle = container.querySelector('#it-firstpri-' + qid);
   const fpBody = container.querySelector('#ib-firstpri-' + qid);
   const fpContent = container.querySelector('#fpbody-' + qid);
@@ -2616,7 +2725,7 @@ function wireReveal(container, d) {
             fpContent.innerHTML = mdToHtml(fp);
             fieldSave(qid, 'firstPrinciples', fp);
           } else {
-            fpContent.textContent = 'Could not generate — try refresh.';
+            fpContent.textContent = 'Could not generate - try refresh.';
           }
         }
         wireVersionNav(qid, 'firstPrinciples', fpContent, container.querySelector('#fpn-' + qid));
@@ -2631,7 +2740,32 @@ function wireReveal(container, d) {
     wireHudDictation(container, qid);
   });
 
-  // Related differentials — with inline nested drill
+  // Why these are connected - clustering rationale
+  const whyToggle = container.querySelector('#it-why-' + qid);
+  const whyBody = container.querySelector('#ib-why-' + qid);
+  const whyContent = container.querySelector('#whybody-' + qid);
+  if (whyToggle && whyBody && whyContent) {
+    whyToggle.onclick = async () => {
+      const isOpen = whyBody.classList.toggle('open');
+      whyToggle.querySelector('.toggle-chevron').className = 'ti ti-chevron-' + (isOpen ? 'up' : 'down') + ' toggle-chevron';
+      if (isOpen) {
+        if (!whyContent.dataset.loaded) {
+          whyContent.textContent = 'Loading rationale…';
+          const result = await fetchWhyConnected(d);
+          if (result && result.rationale) {
+            whyContent.textContent = result.rationale;
+            whyContent.classList.toggle('weak', !!result.weak);
+          } else {
+            whyContent.textContent = 'Could not generate rationale. Verify your DeepSeek API key in Settings.';
+          }
+          whyContent.dataset.loaded = '1';
+        }
+      }
+      resize();
+    };
+  }
+
+  // Related differentials - with inline nested drill
   const relToggle = container.querySelector('#it-rel-' + qid);
   const relBody = container.querySelector('#ib-rel-' + qid);
   if (relToggle && relBody) {
@@ -2906,7 +3040,7 @@ function applyReveal(v) {
 
 // ── Graph rendering ───────────────────────────────────────────────────────────
 function renderGraph() {
-  // Kill old simulation — properly remove listeners to avoid stale closures
+  // Kill old simulation - properly remove listeners to avoid stale closures
   if (simulation) {
     simulation.on('tick', null).on('end', null);
     simulation.stop();
@@ -2927,7 +3061,7 @@ function renderGraph() {
   graphW = el.clientWidth;
   graphH = el.clientHeight;
 
-  // ── ResizeObserver — production pattern from d3-force testing ground ──────
+  // ── ResizeObserver - production pattern from d3-force testing ground ──────
   // Re-measures the container and updates the force center + fit-to-view
   if (resizeObserver) resizeObserver.disconnect();
   resizeObserver = new ResizeObserver(entries => {
@@ -2996,7 +3130,7 @@ function renderGraph() {
       (typeof d.target === 'string' ? d.target : d.target))));
   const otherLinks = links.filter(d => !primaryLinks.includes(d));
 
-  // Visible edges — wrapped in <g class="g-link"> so the slider can select them
+  // Visible edges - wrapped in <g class="g-link"> so the slider can select them
   linkSel = zoomG.append('g').attr('stroke-linecap', 'round')
     .selectAll('g').data(otherLinks.concat(primaryLinks)).join('g')
     .attr('class', 'g-link')
@@ -3014,7 +3148,7 @@ function renderGraph() {
     .attr('x2', d => d.target.x).attr('y2', d => d.target.y)
     .on('click', (event, d) => { event.stopPropagation(); openEdgeHud(d, event); });
 
-  // Nodes — wrapped in <g class="g-node"> for slider targeting
+  // Nodes - wrapped in <g class="g-node"> for slider targeting
   nodeSel = zoomG.append('g').selectAll('g').data(nodes).join('g')
     .attr('class', 'g-node')
     .attr('data-spine', d => spineSet.has(String(d.id)) ? '1' : '0')
@@ -3044,8 +3178,8 @@ function renderGraph() {
             if (selectedNodes.has(d) && selectedNodes.size > 1) {
               this._dragGroup = new Set(selectedNodes);
             }
-            // Priority 2: spine node — drag it + its non-spine subsets only
-            // (do NOT drag other spine nodes — they're the main story path)
+            // Priority 2: spine node - drag it + its non-spine subsets only
+            // (do NOT drag other spine nodes - they're the main story path)
             else if (d3.select(this.parentNode).attr('data-spine') === '1') {
               const group = new Set([d]);
               for (const edge of GRAPH.edges) {
@@ -3117,10 +3251,10 @@ function renderGraph() {
         .style('pointer-events', 'none');
     });
 
-  // Update node positions on tick — target circles and text inside each <g>
+  // Update node positions on tick - target circles and text inside each <g>
   simulation.on('tick', () => {
     // linkSel IS the selection of <line> elements (appended below .join('g')),
-    // so set attributes directly — do NOT .select('line') inside
+    // so set attributes directly - do NOT .select('line') inside
     linkSel
       .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
       .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
@@ -3207,10 +3341,10 @@ function renderGraph() {
 
   // ── Marquee (brush) selection ────────────────────────────────────────────
   // Right-click+drag to marquee-select nodes.
-  //   - brush.filter(right button only) — brush activates on right-click drag
-  //   - brush.keyModifiers(false) — disables D3's built-in key modifiers
+  //   - brush.filter(right button only) - brush activates on right-click drag
+  //   - brush.keyModifiers(false) - disables D3's built-in key modifiers
   //   - brush overlay sits above nodes; CSS pointer-events toggled by right-click
-  //   - zoom.transform inverted for hit-testing — works when zoomed/panned
+  //   - zoom.transform inverted for hit-testing - works when zoomed/panned
   const brush = d3.brush()
     .keyModifiers(false)                    // disable D3's built-in Shift/Alt behavior
     .filter(event => event.button === 2)    // right-click drag only
@@ -3284,7 +3418,7 @@ function updateAiButtons() {
 }
 
 // ── Right-click activates brush overlay pointer-events ────────────────────
-// The D3 brush overlay blocks clicks — only activate it on right-click drag
+// The D3 brush overlay blocks clicks - only activate it on right-click drag
 const chartEl = document.getElementById('chart');
 chartEl.addEventListener('mousedown', event => {
   if (event.button === 2) {
@@ -3545,7 +3679,7 @@ async function loadSet(setNum) {
     const workers = [];
     for (let i = 0; i < CONC; i++) workers.push(worker());
     await Promise.allSettled(workers);
-    console.log('[preFetch] Done — concepts cached for Set', setNum);
+    console.log('[preFetch] Done - concepts cached for Set', setNum);
   }
 
   currentSet = setNum;
@@ -3573,9 +3707,9 @@ async function loadSet(setNum) {
     // Update dropdown label from loading... to real diagnosis
     const sel = document.getElementById('setPicker');
     const opt = sel.querySelector('option[value="' + setNum + '"]');
-    if (opt) opt.textContent = 'Set ' + setNum + ' · ' + cleanDiagnosisLabel(meta.coreDiagnosis || '—').slice(0, 45);
+    if (opt) opt.textContent = 'Set ' + setNum + ' · ' + cleanDiagnosisLabel(meta.coreDiagnosis || '-').slice(0, 45);
     document.getElementById('setInfo').textContent =
-      `Set ${setNum} · ${cleanDiagnosisLabel(meta.coreDiagnosis || '—')} · ${GRAPH.counts.primary}P / ${GRAPH.counts.mimic}M`;
+      `Set ${setNum} · ${cleanDiagnosisLabel(meta.coreDiagnosis || '-')} · ${GRAPH.counts.primary}P / ${GRAPH.counts.mimic}M`;
     if (window._dockUpdateInfo) window._dockUpdateInfo();
     if (window._dockSyncPicker) window._dockSyncPicker();
 
@@ -3607,6 +3741,43 @@ function populatePicker() {
     const v = +sel.value;
     if (v) loadSet(v);
   });
+
+  // Eagerly load all 130 set titles so the dropdown never shows "loading..."
+  eagerLoadTitles();
+}
+
+// ── Eager title loading: fetch coreDiagnosis for all sets on page load ──
+async function eagerLoadTitles() {
+  const sel = document.getElementById('setPicker');
+  const CONCURRENCY = 10; // fetch 10 at a time to avoid hammering the server
+  let idx = 1;
+
+  async function worker() {
+    while (idx <= 130) {
+      const s = idx++;
+      const pad = String(s).padStart(2, '0');
+      const url = 'graph-data-set-' + pad + '.json';
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) continue;
+        const json = await res.json();
+        const label = cleanDiagnosisLabel(json.coreDiagnosis || '-').slice(0, 45);
+        const opt = sel.querySelector('option[value="' + s + '"]');
+        if (opt && opt.textContent.includes('loading...')) {
+          opt.textContent = 'Set ' + s + ' · ' + label;
+        }
+      } catch (_) {
+        // Silently skip missing files — title stays "loading..." only if the JSON is genuinely unreachable
+      }
+    }
+  }
+
+  const workers = [];
+  for (let i = 0; i < CONCURRENCY; i++) workers.push(worker());
+  await Promise.allSettled(workers);
+
+  // Sync the dock picker if it exists
+  if (window._dockSyncPicker) window._dockSyncPicker();
 }
 
 // ── Onboarding hint (Fix #6): dismissible first-use guide ──────────────────
@@ -3671,7 +3842,7 @@ function populatePicker() {
   const closeBtn = document.getElementById('seClose');
   const toggleBtn = document.getElementById('spineExtBtn');
 
-  let draftOrder = [];   // array of [nodeId, conceptText] — the working order
+  let draftOrder = [];   // array of [nodeId, conceptText] - the working order
   let originalIds = [];  // snapshot of GRAPH.mainPath at open-time
   let draggedIdx = -1;
 
@@ -3762,7 +3933,7 @@ function populatePicker() {
     applyBtn.disabled = true;
     // Re-render graph with new order
     if (typeof renderGraph === 'function') renderGraph();
-    status.textContent = 'Order applied — graph and spine rail updated.';
+    status.textContent = 'Order applied - graph and spine rail updated.';
     setTimeout(() => { status.textContent = 'Drag items to reorder. Order changes are not applied until you click "Apply this order."'; }, 3000);
   }
 
@@ -3777,7 +3948,7 @@ function populatePicker() {
   });
 })();
 
-// ── Command dock — right-side slide-in panel (MeWorld pattern) ─────────────
+// ── Command dock - right-side slide-in panel (MeWorld pattern) ─────────────
 (function initCommandDock() {
   const dock = document.getElementById('cmdDock');
   const dockBody = document.getElementById('dockBody');
@@ -3803,6 +3974,7 @@ function populatePicker() {
   function applyDock() {
     const open = state.open;
     const w = Math.max(260, Math.min(600, state.width));
+    document.documentElement.style.setProperty('--dock-w', w + 'px');
     dock.style.setProperty('--dock-w', w + 'px');
     dock.classList.toggle('open', open);
     board.classList.toggle('dock-open', open);
@@ -3989,7 +4161,7 @@ function populatePicker() {
           <button class="drn-next" ${dockNodeIdx >= dockNodeList.length-1 ? 'disabled' : ''}><i class="ti ti-chevron-right"></i></button>
         </div>
       </div>
-      <div class="dock-reveal-content">
+      <div class="dock-reveal-content hud-content">
         ${typeof buildRevealHTML === 'function' ? buildRevealHTML(node) : ''}
       </div>`;
     // Wire reveal on the body (not a .hud element)
@@ -4020,7 +4192,7 @@ function populatePicker() {
           <button class="drn-next" ${dockNodeIdx >= dockNodeList.length-1 ? 'disabled' : ''}><i class="ti ti-chevron-right"></i></button>
         </div>
       </div>
-      <div class="dock-reveal-content">
+      <div class="dock-reveal-content hud-content">
         ${typeof buildRevealHTML === 'function' ? buildRevealHTML(d) : ''}
       </div>`;
     if (typeof wireReveal === 'function') wireReveal(dockBody, d);
