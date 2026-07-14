@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -88,6 +88,44 @@
   .float-ctl .set-cover.placeholder i { opacity: 0.35; }
   .float-ctl .set-cover.has-img { cursor: pointer; }
   .float-ctl .set-cover.has-img:hover { opacity: 0.85; }
+
+  /* ── Search input ── */
+  .hdr-search { position: relative; flex-shrink: 0; }
+  .hdr-search input {
+    font-family: inherit; font-size: 0.7rem; padding: 5px 10px;
+    border: 1px solid var(--border); border-radius: 7px; outline: none;
+    background: #fff; color: var(--ink); width: 140px;
+    transition: width .2s, border-color .15s;
+  }
+  .hdr-search input:focus { width: 200px; border-color: var(--accent); }
+  .hdr-search input::placeholder { color: var(--muted); font-size: 0.65rem; }
+  [data-theme="dark"] .hdr-search input { background: #1a1d28; }
+  .hdr-search .search-results {
+    position: absolute; top: 100%; left: 0; margin-top: 4px;
+    min-width: 240px; max-width: 340px; max-height: 280px;
+    overflow-y: auto; background: #fff; border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: 0 4px 20px rgba(20,25,35,0.14);
+    z-index: 25; display: none;
+  }
+  .hdr-search .search-results.show { display: block; }
+  .hdr-search .sr-item {
+    padding: 6px 12px; font-size: 0.7rem; cursor: pointer;
+    color: var(--ink); border-bottom: 1px solid #f0f1f4;
+    display: flex; align-items: center; gap: 8px; transition: background .1s;
+  }
+  .hdr-search .sr-item:last-child { border-bottom: none; }
+  .hdr-search .sr-item:hover, .hdr-search .sr-item.hl { background: #eef3ff; }
+  [data-theme="dark"] .hdr-search .sr-item { border-color: #2a2d3a; }
+  [data-theme="dark"] .hdr-search .sr-item:hover, [data-theme="dark"] .hdr-search .sr-item.hl { background: #1a2a4a; }
+  [data-theme="dark"] .hdr-search .search-results { background: #1a1d28; }
+  .hdr-search .sr-num {
+    font-size: 0.62rem; font-weight: 700; color: var(--coral);
+    min-width: 22px;
+  }
+  .hdr-search .sr-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hdr-search .sr-empty {
+    padding: 8px 12px; font-size: 0.65rem; color: var(--muted); text-align: center;
+  }
 
   /* ── Lightbox (full-screen image viewer) ── */
   .lightbox {
@@ -221,7 +259,7 @@
 
   /* ── Dictation section INSIDE the HUD ── */
   .hud .dict-sect, .hud-content .dict-sect {
-    margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px;
+    margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
   }
   .hud .dict-sect .dict-header, .hud-content .dict-sect .dict-header {
     display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
@@ -231,7 +269,7 @@
     color: var(--muted); font-weight: 600;
   }
   .hud .dict-sect textarea, .hud-content .dict-sect textarea {
-    font-family: Inter, sans-serif; font-size: 0.72rem; line-height: 1.5;
+    font-family: Inter, sans-serif; font-size: calc(0.72rem * var(--notes-font-scale, 1)); line-height: 1.5;
     border: 1px solid var(--border); border-radius: 7px; padding: 6px 32px 6px 8px;
     resize: vertical; min-height: 60px; max-height: 150px; outline: none;
     width: 100%; color: var(--ink);
@@ -255,6 +293,43 @@
     from { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
     to   { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
   }
+  /* Chat mic - inline variant (not absolute in textarea) */
+  .hud .chat-input-row .btn-mic-chat, .hud-content .chat-input-row .btn-mic-chat {
+    position: static;
+    width: 28px; height: 28px; border-radius: 6px;
+    background: #f8f9fb; color: var(--ink);
+    border: 1px solid var(--border);
+    cursor: pointer; font-size: 0.85rem; display: flex; align-items: center;
+    justify-content: center; transition: all .15s; flex-shrink: 0;
+  }
+  .hud .chat-input-row .btn-mic-chat:hover, .hud-content .chat-input-row .btn-mic-chat:hover {
+    background: #f0f2f5;
+  }
+  .hud .chat-input-row .btn-mic-chat.recording, .hud-content .chat-input-row .btn-mic-chat.recording {
+    background: #ef4444; color: #fff;
+    animation: pulse-mic .8s ease infinite alternate;
+  }
+  [data-theme="dark"] .hud .chat-input-row .btn-mic-chat,
+  [data-theme="dark"] .hud-content .chat-input-row .btn-mic-chat {
+    background: #1f2230; color: #fff; border-color: #2d3148;
+  }
+  [data-theme="dark"] .hud .chat-input-row .btn-mic-chat:hover,
+  [data-theme="dark"] .hud-content .chat-input-row .btn-mic-chat:hover {
+    background: #2d3148;
+  }
+  /* Float-dict chat mic */
+  .float-dict .chat-input-row .btn-mic-chat {
+    position: static;
+    width: 28px; height: 28px; border-radius: 6px;
+    background: #f8f9fb; color: var(--ink);
+    border: 1px solid var(--border);
+    cursor: pointer; font-size: 0.85rem; display: flex; align-items: center;
+    justify-content: center; transition: all .15s; flex-shrink: 0;
+  }
+  .float-dict .chat-input-row .btn-mic-chat:hover { background: #f0f2f5; }
+  .float-dict .chat-input-row .btn-mic-chat.recording { background: #ef4444; color: #fff; animation: pulse-mic .8s ease infinite alternate; }
+  [data-theme="dark"] .float-dict .chat-input-row .btn-mic-chat { background: #1f2230; color: #fff; border-color: #2d3148; }
+  [data-theme="dark"] .float-dict .chat-input-row .btn-mic-chat:hover { background: #2d3148; }
   .hud .dict-interim, .hud-content .dict-interim {
     font-size: 0.65rem; color: var(--muted); font-style: italic;
     min-height: 16px; padding: 2px 2px 0; overflow: hidden; text-overflow: ellipsis;
@@ -274,36 +349,37 @@
   .hud .dict-sect .btn-row button:disabled, .hud-content .dict-sect .btn-row button:disabled { opacity: 0.4; cursor: not-allowed; }
 
   /* ── Two-way dict mode segmented control (Notes · Attending) ── */
-  .hud .mode-seg, .hud-content .mode-seg {
+  .hud .mode-seg, .hud-content .mode-seg, .float-dict .mode-seg {
     position: relative; display: grid; grid-template-columns: 1fr 1fr;
     padding: 3px; border-radius: 999px; background: rgba(0,0,0,0.06);
     margin-bottom: 8px;
   }
-  .hud .mode-seg-thumb, .hud-content .mode-seg-thumb {
+  .hud .mode-seg-thumb, .hud-content .mode-seg-thumb, .float-dict .mode-seg-thumb {
     position: absolute; top: 3px; left: 3px; width: calc(50% - 3px);
     height: calc(100% - 6px); border-radius: 999px; background: #fff;
     box-shadow: 0 1px 4px rgba(0,0,0,0.10);
     transition: transform .22s ease; pointer-events: none;
   }
   .hud .mode-seg[data-mode="chat"] .mode-seg-thumb,
-  .hud-content .mode-seg[data-mode="chat"] .mode-seg-thumb {
+  .hud-content .mode-seg[data-mode="chat"] .mode-seg-thumb,
+  .float-dict .mode-seg[data-mode="chat"] .mode-seg-thumb {
     transform: translateX(100%);
   }
-  .hud .mode-seg-btn, .hud-content .mode-seg-btn {
+  .hud .mode-seg-btn, .hud-content .mode-seg-btn, .float-dict .mode-seg-btn {
     position: relative; z-index: 1; display: inline-flex; align-items: center;
     justify-content: center; gap: 5px; padding: 5px 10px; border: none;
     background: transparent; color: var(--muted); font-size: 0.64rem;
     font-weight: 600; cursor: pointer; border-radius: 999px;
     font-family: inherit; transition: color .15s;
   }
-  .hud .mode-seg-btn.is-active, .hud-content .mode-seg-btn.is-active { color: var(--ink); }
-  [data-theme="dark"] .hud .mode-seg, [data-theme="dark"] .hud-content .mode-seg {
+  .hud .mode-seg-btn.is-active, .hud-content .mode-seg-btn.is-active, .float-dict .mode-seg-btn.is-active { color: var(--ink); }
+  [data-theme="dark"] .hud .mode-seg, [data-theme="dark"] .hud-content .mode-seg, [data-theme="dark"] .float-dict .mode-seg {
     background: rgba(255,255,255,0.06);
   }
-  [data-theme="dark"] .hud .mode-seg-thumb, [data-theme="dark"] .hud-content .mode-seg-thumb {
+  [data-theme="dark"] .hud .mode-seg-thumb, [data-theme="dark"] .hud-content .mode-seg-thumb, [data-theme="dark"] .float-dict .mode-seg-thumb {
     background: #2d3148;
   }
-  [data-theme="dark"] .hud .mode-seg-btn.is-active, [data-theme="dark"] .hud-content .mode-seg-btn.is-active {
+  [data-theme="dark"] .hud .mode-seg-btn.is-active, [data-theme="dark"] .hud-content .mode-seg-btn.is-active, [data-theme="dark"] .float-dict .mode-seg-btn.is-active {
     color: #fff;
   }
 
@@ -313,31 +389,94 @@
   }
   .hud .chat-area .chat-log, .hud-content .chat-area .chat-log {
     max-height: 220px; overflow-y: auto; border: 1px solid var(--border);
-    border-radius: 7px; padding: 8px; font-size: 0.68rem; line-height: 1.45;
+    border-radius: 7px; padding: 8px; font-size: calc(0.68rem * var(--notes-font-scale, 1)); line-height: 1.45;
     background: #fafbfc; color: var(--ink);
   }
   .hud .chat-area .chat-log .chat-msg, .hud-content .chat-area .chat-log .chat-msg {
-    margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    display: flex; flex-direction: column; margin-bottom: 6px;
     animation: chatFadeIn .25s ease;
+    max-width: 90%;
   }
-  .hud .chat-area .chat-log .chat-msg:last-child, .hud-content .chat-area .chat-log .chat-msg:last-child {
-    margin-bottom: 0; padding-bottom: 0; border-bottom: none;
+  .hud .chat-area .chat-log .chat-msg.msg-you, .hud-content .chat-area .chat-log .chat-msg.msg-you {
+    align-self: flex-end; margin-left: auto;
   }
-  .hud .chat-area .chat-log .chat-role, .hud-content .chat-area .chat-log .chat-role {
-    font-weight: 650; font-size: 0.6rem; text-transform: uppercase;
-    letter-spacing: 0.04em; margin-bottom: 2px;
+  .hud .chat-area .chat-log .chat-msg.msg-iwu, .hud-content .chat-area .chat-log .chat-msg.msg-iwu {
+    align-self: flex-start; margin-right: auto;
   }
-  .hud .chat-area .chat-log .chat-role.you, .hud-content .chat-area .chat-log .chat-role.you {
-    color: var(--accent);
+  .hud .chat-area .chat-log .chat-msg .msg-bubble, .hud-content .chat-area .chat-log .chat-msg .msg-bubble {
+    padding: 6px 10px; border-radius: 10px; line-height: 1.45;
+    font-size: calc(0.68rem * var(--notes-font-scale, 1)); word-break: break-word;
   }
-  .hud .chat-area .chat-log .chat-role.iwu, .hud-content .chat-area .chat-log .chat-role.iwu {
+  .hud .chat-area .chat-log .chat-msg.msg-you .msg-bubble, .hud-content .chat-area .chat-log .chat-msg.msg-you .msg-bubble {
+    background: #e0ebff; color: #1a2a4a; border-bottom-right-radius: 3px;
+  }
+  [data-theme="dark"] .hud .chat-area .chat-log .chat-msg.msg-you .msg-bubble,
+  [data-theme="dark"] .hud-content .chat-area .chat-log .chat-msg.msg-you .msg-bubble {
+    background: #1a2a4a; color: #d0dbf0;
+  }
+  .hud .chat-area .chat-log .chat-msg.msg-iwu .msg-bubble, .hud-content .chat-area .chat-log .chat-msg.msg-iwu .msg-bubble {
+    background: #f0f1f4; color: #1e2130; border-bottom-left-radius: 3px;
+  }
+  [data-theme="dark"] .hud .chat-area .chat-log .chat-msg.msg-iwu .msg-bubble,
+  [data-theme="dark"] .hud-content .chat-area .chat-log .chat-msg.msg-iwu .msg-bubble {
+    background: #252832; color: #c8ccd8;
+  }
+  .hud .chat-area .chat-log .chat-msg .msg-sender, .hud-content .chat-area .chat-log .chat-msg .msg-sender {
+    font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.05em;
+    font-weight: 600; margin-bottom: 2px; padding: 0 2px;
+  }
+  .hud .chat-area .chat-log .chat-msg.msg-you .msg-sender, .hud-content .chat-area .chat-log .chat-msg.msg-you .msg-sender {
+    color: var(--accent); text-align: right;
+  }
+  .hud .chat-area .chat-log .chat-msg.msg-iwu .msg-sender, .hud-content .chat-area .chat-log .chat-msg.msg-iwu .msg-sender {
     color: var(--coral);
   }
+  .hud .chat-area .chat-log .chat-msg:last-child, .hud-content .chat-area .chat-log .chat-msg:last-child {
+    margin-bottom: 0;
+  }
+  /* GFM pipe tables inside chat bubbles */
+  .chat-table {
+    width: 100%; border-collapse: collapse; margin: 6px 0;
+    font-size: 0.66rem; line-height: 1.4;
+  }
+  .chat-table th {
+    background: #eef2f7; text-align: left; padding: 4px 8px; font-weight: 650;
+    border-bottom: 2px solid var(--border); color: var(--ink);
+  }
+  .chat-table td {
+    padding: 3px 8px; border-bottom: 1px solid #e3e7ee; color: var(--ink);
+  }
+  .chat-table tr:last-child td { border-bottom: none; }
+  [data-theme="dark"] .chat-table th { background: #1f2230; border-bottom-color: #2d3148; }
+  [data-theme="dark"] .chat-table td { border-bottom-color: #2d3148; }
+  /* Headings and lists inside chat bubbles */
+  .msg-bubble h3 { font-size: 0.78rem; color: var(--coral); }
+  .msg-bubble h4 { font-size: 0.73rem; color: var(--accent); }
+  .msg-bubble ul { padding-left: 18px; margin: 4px 0; }
+  .msg-bubble li { margin-bottom: 2px; }
+  .msg-bubble strong { color: #2563eb; }
+  [data-theme="dark"] .msg-bubble strong { color: #6ea8fe; }
+  .msg-bubble code { background: #eef2f7; padding: 1px 4px; border-radius: 3px; font-size: 0.65em; }
+  [data-theme="dark"] .msg-bubble code { background: #1f2230; }
+  /* Copy button on Dr. Iwu messages */
+  .msg-copy-btn {
+    position: absolute; top: 6px; right: 8px;
+    width: 22px; height: 22px; border-radius: 5px; border: 1px solid transparent;
+    background: transparent; color: var(--muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; transition: all .12s; opacity: 0;
+  }
+  .msg-bubble { position: relative; }
+  .chat-msg.msg-iwu .msg-bubble:hover .msg-copy-btn { opacity: 1; }
+  .msg-copy-btn:hover { background: #eef3ff; color: var(--accent); border-color: var(--accent); }
+  .msg-copy-btn.copied { opacity: 1; color: #16a34a; border-color: #16a34a; background: #f0fdf4; }
+  [data-theme="dark"] .msg-copy-btn:hover { background: #1a2a4a; color: #6ea8fe; border-color: #6ea8fe; }
+  [data-theme="dark"] .msg-copy-btn.copied { color: #4ade80; border-color: #4ade80; background: #052e16; }
   .hud .chat-area .chat-input-row, .hud-content .chat-area .chat-input-row {
     display: flex; gap: 6px;
   }
   .hud .chat-area .chat-input-row input, .hud-content .chat-area .chat-input-row input {
-    flex: 1; font-family: inherit; font-size: 0.68rem; border: 1px solid var(--border);
+    flex: 1; font-family: inherit; font-size: calc(0.68rem * var(--notes-font-scale, 1)); border: 1px solid var(--border);
     border-radius: 7px; padding: 5px 8px; outline: none; color: var(--ink);
   }
   .hud .chat-area .chat-input-row input:focus, .hud-content .chat-area .chat-input-row input:focus {
@@ -367,11 +506,130 @@
   @keyframes chatFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
   .hud .dict-sect .dict-status, .hud-content .dict-sect .dict-status { font-size: 0.62rem; color: var(--muted); margin-top: 4px; min-height: 12px; }
 
+  /* ── Chat undock / redock (header-level, moves entire block) ── */
+  .hud .dict-sect .dict-header .dict-undock, .hud-content .dict-sect .dict-header .dict-undock,
+  .float-dict .fd-header .fd-redock {
+    width: 22px; height: 22px; border-radius: 5px; border: 1px solid var(--border);
+    background: #fff; color: var(--ink); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; transition: all .12s; flex-shrink: 0;
+  }
+  .hud .dict-sect .dict-header .dict-undock:hover, .hud-content .dict-sect .dict-header .dict-undock:hover,
+  .float-dict .fd-header .fd-redock:hover {
+    color: var(--accent); border-color: var(--accent); background: #eef3ff;
+  }
+  [data-theme="dark"] .hud .dict-sect .dict-header .dict-undock,
+  [data-theme="dark"] .hud-content .dict-sect .dict-header .dict-undock,
+  [data-theme="dark"] .float-dict .fd-header .fd-redock { background: #1f2230; }
+  [data-theme="dark"] .hud .dict-sect .dict-header .dict-undock:hover,
+  [data-theme="dark"] .hud-content .dict-sect .dict-header .dict-undock:hover,
+  [data-theme="dark"] .float-dict .fd-header .fd-redock:hover { background: #1a2a4a; }
+
+  /* ── 8-way resize handles for floating chat ── */
+  .fd-resize-handle {
+    position: absolute; z-index: 2;
+  }
+  .fd-resize-handle.fdr-n,  .fd-resize-handle.fdr-s  { left: 8px; right: 8px; height: 6px; }
+  .fd-resize-handle.fdr-e,  .fd-resize-handle.fdr-w  { top: 8px; bottom: 8px; width: 6px; }
+  .fd-resize-handle.fdr-nw, .fd-resize-handle.fdr-ne,
+  .fd-resize-handle.fdr-sw, .fd-resize-handle.fdr-se { width: 12px; height: 12px; }
+  .fd-resize-handle.fdr-n  { top: 0; cursor: n-resize; }
+  .fd-resize-handle.fdr-s  { bottom: 0; cursor: s-resize; }
+  .fd-resize-handle.fdr-e  { right: 0; cursor: e-resize; }
+  .fd-resize-handle.fdr-w  { left: 0; cursor: w-resize; }
+  .fd-resize-handle.fdr-nw { top: 0; left: 0; cursor: nw-resize; }
+  .fd-resize-handle.fdr-ne { top: 0; right: 0; cursor: ne-resize; }
+  .fd-resize-handle.fdr-sw { bottom: 0; left: 0; cursor: sw-resize; }
+  .fd-resize-handle.fdr-se { bottom: 0; right: 0; cursor: se-resize; }
+  .fd-resize-handle.fdr-n:hover,  .fd-resize-handle.fdr-s:hover  { background: rgba(37,99,235,0.08); }
+  .fd-resize-handle.fdr-e:hover,  .fd-resize-handle.fdr-w:hover  { background: rgba(37,99,235,0.08); }
+  .fd-resize-handle.fdr-nw:hover, .fd-resize-handle.fdr-ne:hover,
+  .fd-resize-handle.fdr-sw:hover, .fd-resize-handle.fdr-se:hover { background: rgba(37,99,235,0.12); }
+
+
+  /* ── Floating Notes & Chat widget (undocked full block) ── */
+  .float-dict {
+    position: fixed; z-index: 50; top: 80px; left: 80px;
+    width: 340px; min-width: 260px; min-height: 120px;
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 10px; box-shadow: 0 4px 24px rgba(20,25,35,0.15);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  [data-theme="dark"] .float-dict { background: #1a1c26; }
+  .float-dict .fd-header {
+    display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+    padding: 6px 10px; border-bottom: 1px solid var(--border); cursor: grab;
+    user-select: none;
+  }
+  .float-dict .fd-header:active { cursor: grabbing; }
+  .float-dict .fd-body {
+    flex: 1; display: flex; flex-direction: column; overflow-y: auto;
+    padding: 8px 10px 10px;
+  }
+  /* Inherit dict-sect child styles inside floater */
+  .float-dict .dict-sect { border-top: none; margin-top: 0; padding-top: 0; }
+  .float-dict textarea {
+    font-family: Inter, sans-serif; font-size: 0.72rem; line-height: 1.5;
+    border: 1px solid var(--border); border-radius: 7px; padding: 6px 32px 6px 8px;
+    resize: vertical; min-height: 60px; max-height: 150px; outline: none;
+    width: 100%; color: var(--ink);
+  }
+  .float-dict .chat-log {
+    max-height: 260px; overflow-y: auto; border: 1px solid var(--border);
+    border-radius: 7px; padding: 8px; font-size: calc(0.68rem * var(--notes-font-scale, 1)); line-height: 1.45;
+    background: #fafbfc; color: var(--ink);
+  }
+  [data-theme="dark"] .float-dict .chat-log { background: #1a1d28; }
+  .float-dict .chat-log .chat-msg {
+    display: flex; flex-direction: column; margin-bottom: 6px;
+    animation: chatFadeIn .25s ease; max-width: 90%;
+  }
+  .float-dict .chat-log .chat-msg.msg-you { align-self: flex-end; margin-left: auto; }
+  .float-dict .chat-log .chat-msg.msg-iwu { align-self: flex-start; margin-right: auto; }
+  .float-dict .chat-log .chat-msg .msg-bubble {
+    padding: 6px 10px; border-radius: 10px; line-height: 1.45;
+    font-size: calc(0.68rem * var(--notes-font-scale, 1)); word-break: break-word;
+  }
+  .float-dict .chat-log .chat-msg.msg-you .msg-bubble {
+    background: #e0ebff; color: #1a2a4a; border-bottom-right-radius: 3px;
+  }
+  [data-theme="dark"] .float-dict .chat-log .chat-msg.msg-you .msg-bubble { background: #1a2a4a; color: #d0dbf0; }
+  .float-dict .chat-log .chat-msg.msg-iwu .msg-bubble {
+    background: #f0f1f4; color: #1e2130; border-bottom-left-radius: 3px;
+  }
+  [data-theme="dark"] .float-dict .chat-log .chat-msg.msg-iwu .msg-bubble { background: #252832; color: #c8ccd8; }
+  .float-dict .chat-log .chat-msg .msg-sender {
+    font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.05em;
+    font-weight: 600; margin-bottom: 2px; padding: 0 2px;
+  }
+  .float-dict .chat-log .chat-msg.msg-you .msg-sender { color: var(--accent); text-align: right; }
+  .float-dict .chat-log .chat-msg.msg-iwu .msg-sender { color: var(--coral); }
+  .float-dict .chat-input-row { display: flex; gap: 4px; }
+  .float-dict .chat-input-row input {
+    flex: 1; font-family: inherit; font-size: calc(0.68rem * var(--notes-font-scale, 1)); padding: 5px 7px;
+    border: 1px solid var(--border); border-radius: 6px; outline: none;
+    color: var(--ink); background: #fff;
+  }
+  [data-theme="dark"] .float-dict .chat-input-row input { background: #1a1d28; }
+  .float-dict .chat-input-row button {
+    font-family: inherit; font-size: 0.62rem; font-weight: 600;
+    padding: 4px 8px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--accent); background: var(--accent);
+    color: #fff; white-space: nowrap;
+  }
+  .float-dict .chat-input-row button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .float-dict .dict-input-wrap { position: relative; }
+  .float-dict .dict-interim {
+    font-size: 0.65rem; color: var(--muted); font-style: italic;
+    min-height: 14px; padding: 2px 2px 0;
+  }
+  .float-dict .dict-status { font-size: 0.62rem; color: var(--muted); margin-top: 4px; min-height: 12px; }
+
   /* ── Distill concept ── */
   .hud .distill-result, .hud-content .distill-result {
     margin-top: 0; padding: 8px 10px; border-radius: 7px;
     background: #edf7f0; border: 1px solid #b7e4c7;
-    color: #116932; font-size: 0.78rem; line-height: 1.5;
+    color: #116932; font-size: calc(0.78rem * var(--hud-font-scale, 1)); line-height: 1.5;
   }
 
   /* ── Milling tracker - 3-state study progress per concept ── */
@@ -423,23 +681,21 @@
   .hud .node-img:hover .img-remove, .hud-content .node-img:hover .img-remove { opacity: 1; }
   .hud .node-img .img-remove:hover, .hud-content .node-img .img-remove:hover { background: rgba(239,68,68,0.8); }
   /* Upload placeholder (shown when no image) */
-  .hud .img-upload, .hud-content .img-upload {
-    width: 100%; border-radius: 8px; border: 2px dashed var(--border);
-    padding: 18px 12px; text-align: center; cursor: pointer;
-    color: var(--muted); transition: all .15s; margin-bottom: 8px;
-    font-size: 0.68rem;
+  .hud .img-cam-btn, .hud-content .img-cam-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 7px;
+    border: 1px solid var(--border); background: #f8f9fb;
+    color: var(--muted); cursor: pointer; font-size: 0.9rem;
+    transition: all .15s; margin: 4px 4px 0 auto;
   }
-  .hud .img-upload:hover, .hud-content .img-upload:hover {
-    border-color: var(--accent); background: #f5f8ff;
+  .hud .img-cam-btn:hover, .hud-content .img-cam-btn:hover {
+    border-color: var(--accent); color: var(--accent); background: #eef3ff;
   }
-  .hud .img-upload i, .hud-content .img-upload i {
-    display: block; font-size: 1.4rem; margin-bottom: 4px;
+  [data-theme="dark"] .hud .img-cam-btn, [data-theme="dark"] .hud-content .img-cam-btn {
+    background: #1f2230; border-color: #2d3148; color: #8b92a0;
   }
-  [data-theme="dark"] .hud .img-upload, [data-theme="dark"] .hud-content .img-upload {
-    border-color: #2d3148;
-  }
-  [data-theme="dark"] .hud .img-upload:hover, [data-theme="dark"] .hud-content .img-upload:hover {
-    background: #1a1d28; border-color: var(--accent);
+  [data-theme="dark"] .hud .img-cam-btn:hover, [data-theme="dark"] .hud-content .img-cam-btn:hover {
+    color: var(--accent); border-color: var(--accent);
   }
 
   /* ── Four-layer reveal v2: pinned concept + independent toggles ── */
@@ -448,7 +704,7 @@
     border: 1px solid var(--border); background: #fafbfc;
     margin-bottom: 8px;
   }
-  .hud .node-img + .pinned-concept, .hud-content .node-img + .pinned-concept { border-radius: 0 0 8px 8px; border-top: none; }
+  .hud .node-img-area:has(.node-img) + .pinned-concept, .hud-content .node-img-area:has(.node-img) + .pinned-concept { border-radius: 0 0 8px 8px; border-top: none; }
   .hud .pinned-concept .pc-top, .hud-content .pinned-concept .pc-top {
     display: flex; align-items: center; justify-content: space-between;
     gap: 8px; margin-bottom: 6px;
@@ -518,6 +774,25 @@
   .hud .version-nav .vn-arrow:disabled:hover, .hud-content .version-nav .vn-arrow:disabled:hover { background: none; color: var(--muted); }
   .hud .version-nav .vn-counter, .hud-content .version-nav .vn-counter { min-width: 32px; text-align: center; }
   [data-theme="dark"] .hud .version-nav .vn-arrow:hover { background: #1f2230; }
+
+  /* "Answer this" button — sends probe question directly to Dr. Iwu chat */
+  .hud .fp-answer-btn, .hud-content .fp-answer-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-top: 6px; padding: 4px 10px;
+    font-family: inherit; font-size: 0.67rem; font-weight: 600;
+    border: 1px solid var(--accent); border-radius: 5px;
+    background: #eef3ff; color: var(--accent); cursor: pointer;
+    transition: all .15s;
+  }
+  .hud .fp-answer-btn:hover, .hud-content .fp-answer-btn:hover {
+    background: var(--accent); color: #fff;
+  }
+  [data-theme="dark"] .hud .fp-answer-btn, [data-theme="dark"] .hud-content .fp-answer-btn {
+    background: #1a1f30; border-color: var(--accent); color: var(--accent);
+  }
+  [data-theme="dark"] .hud .fp-answer-btn:hover, [data-theme="dark"] .hud-content .fp-answer-btn:hover {
+    background: var(--accent); color: #0f1117;
+  }
 
   /* Approve / Needs work inline row */
   .hud .pc-actions, .hud-content .pc-actions { display: flex; gap: 6px; }
@@ -644,7 +919,7 @@
   .dock-close-row { display: flex; justify-content: flex-end; margin-bottom: 6px; }
   .dock-close-btn {
     width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border);
-    background: #fff; color: var(--muted); cursor: pointer;
+    background: #fff; color: var(--ink); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     font-size: 0.85rem; transition: all .15s;
   }
@@ -724,6 +999,25 @@
   [data-theme="dark"] .dock-section .dock-fs-ctl .dfs-btn:hover { background: #3d4358; }
   [data-theme="dark"] .dock-section .dock-fs-ctl .dfs-pill { color: #93b4f5; }
 
+  /* Dock notes font-size control */
+  .dock-section .dock-notes-ctl { display: flex; align-items: center; gap: 2px; }
+  .dock-section .dock-notes-ctl .dns-btn {
+    width: auto; font-family: inherit; font-size: 0.6rem; font-weight: 700;
+    padding: 2px 5px; border-radius: 4px; border: 1px solid var(--border);
+    background: #fff; color: var(--accent); cursor: pointer; line-height: 1.3;
+    min-width: 18px; text-align: center;
+  }
+  .dock-section .dock-notes-ctl .dns-btn:hover { background: #eef3ff; }
+  .dock-section .dock-notes-ctl .dns-pill {
+    font-size: 0.56rem; color: var(--muted); font-weight: 600;
+    min-width: 26px; text-align: center;
+  }
+  [data-theme="dark"] .dock-section .dock-notes-ctl .dns-btn {
+    background: #2d3148; color: #93b4f5; border-color: #3d4158;
+  }
+  [data-theme="dark"] .dock-section .dock-notes-ctl .dns-btn:hover { background: #3d4358; }
+  [data-theme="dark"] .dock-section .dock-notes-ctl .dns-pill { color: #93b4f5; }
+
   /* Dark mode toggle in dock */
   .dock-dark-toggle {
     display: flex; align-items: center; gap: 4px; cursor: pointer;
@@ -787,6 +1081,62 @@
   .settings-popup button.primary:hover { background: #1d4ed8; }
   .settings-popup button:disabled { opacity: 0.4; cursor: not-allowed; }
   .settings-popup .status { font-size: 0.65rem; color: var(--muted); min-height: 14px; }
+  .settings-fs-row { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+  .settings-fs-btn {
+    font-family: inherit; font-size: 0.6rem; font-weight: 700;
+    padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border);
+    background: #fff; color: var(--accent); cursor: pointer; line-height: 1.3;
+    min-width: 20px; text-align: center;
+  }
+  .settings-fs-btn:hover { background: #eef3ff; }
+  [data-theme="dark"] .settings-fs-btn { background: #1f2230; color: #93b4f5; border-color: #3d4158; }
+  [data-theme="dark"] .settings-fs-btn:hover { background: #2a3148; }
+  .settings-fs-pill {
+    font-size: 0.6rem; color: var(--muted); font-weight: 600;
+    min-width: 28px; text-align: center;
+  }
+  [data-theme="dark"] .settings-fs-pill { color: #93b4f5; }
+
+  /* ── Attending sliders (creativity + depth) ── */
+  .attending-slider-row {
+    display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px;
+  }
+  .attending-slider-row label {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.68rem; font-weight: 600; color: var(--ink);
+  }
+  .attending-slider-row .asr-val {
+    font-size: 0.6rem; color: var(--accent); font-weight: 700; min-width: 32px; text-align: right;
+  }
+  .attending-slider-row input[type=range] {
+    width: 100%; height: 5px; -webkit-appearance: none; appearance: none;
+    background: linear-gradient(to right, var(--accent) var(--pct, 55%), #e3e7ee var(--pct, 55%));
+    border-radius: 3px; outline: none; margin: 4px 0; cursor: pointer;
+  }
+  .attending-slider-row input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; border-radius: 50%; background: var(--accent);
+    cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .attending-slider-row .asr-bands {
+    display: flex; justify-content: space-between; font-size: 0.56rem; color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .asr-depth-pills {
+    display: flex; gap: 2px; width: 100%;
+  }
+  .asr-depth-pills button {
+    flex: 1; font-family: inherit; font-size: 0.58rem; font-weight: 650;
+    padding: 3px 0; border-radius: 4px; cursor: pointer;
+    border: 1px solid var(--border); background: #fff; color: var(--muted);
+    transition: all .12s;
+  }
+  .asr-depth-pills button.is-active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .asr-depth-pills button:hover:not(.is-active) { background: #eef3ff; color: var(--accent); }
+  [data-theme="dark"] .attending-slider-row input[type=range] { background: #2d3148; }
+  [data-theme="dark"] .asr-depth-pills button { background: #1f2230; border-color: #2d3148; }
+  [data-theme="dark"] .asr-depth-pills button.is-active { background: var(--accent); color: #fff; }
+  [data-theme="dark"] .asr-depth-pills button:hover:not(.is-active) { background: #252840; color: #93b4f5; }
 
   /* ── Backdrop ── */
   .settings-backdrop {
@@ -817,6 +1167,25 @@
     stroke: #f59e0b; stroke-width: 3;
     filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.5));
   }
+
+  /* Active / currently open node — green, scaled up 1.4x */
+  .g-node.live circle {
+    fill: #16a34a !important;
+    transform: scale(1.4);
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+  .g-node.live .live-ring {
+    stroke: #16a34a; stroke-width: 2.5;
+    stroke-opacity: 1;
+  }
+
+  /* Untouched nodes: recede visually (outline style, reduced opacity) */
+  .g-node.untouched circle {
+    fill-opacity: 0.28;
+    stroke-opacity: 0.35;
+  }
+  .g-node.untouched text { opacity: 0.3; }
 
   .err {
     position: fixed; z-index: 20; top: 50%; left: 50%; transform: translate(-50%,-50%);
@@ -907,17 +1276,17 @@
   .hud .answers, .hud-content .answers { margin: 8px 0 0; padding: 0; list-style: none; }
   .hud .answers li, .hud-content .answers li {
     margin: 5px 0; padding: 6px 8px; border-radius: 6px; background: #f5f7fa;
-    border: 1px solid var(--border); font-size: 0.78rem; line-height: 1.4;
+    border: 1px solid var(--border); font-size: calc(0.78rem * var(--hud-font-scale, 1)); line-height: 1.4;
   }
   .hud .likely, .dock-reveal-content .likely {
     margin-top: 0; padding: 8px 10px; border-radius: 7px;
     background: #edf7f0; border: 1px solid #b7e4c7;
-    color: #116932; font-size: 0.78rem; font-weight: 600;
+    color: #116932; font-size: calc(0.78rem * var(--hud-font-scale, 1)); font-weight: 600;
   }
 
   /* Explanation body (replaces <details> with ind-toggle pattern) */
   .hud .explain-body, .dock-reveal-content .explain-body, .hud-content .explain-body {
-    font-size: 0.78rem; line-height: 1.55; white-space: pre-wrap;
+    font-size: calc(0.78rem * var(--hud-font-scale, 1)); line-height: 1.55; white-space: pre-wrap;
     max-height: 200px; overflow-y: auto; padding: 8px 10px;
     border-radius: 7px; background: #fafbfc; color: #40485a;
   }
@@ -947,6 +1316,19 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* ── Dock/header icon color: explicit hex overrides var(--ink) to prevent white-on-white ── */
+  .float-settings,
+  .float-fit,
+  .dock-close-btn,
+  .dict-undock,
+  .fd-redock,
+  .dock-section button,
+  .dock-reveal-nav .drn-back,
+  .dock-reveal-nav .drn-arrows button,
+  .float-toggle {
+    color: #17202b;
+  }
+
   /* ═══════════════════════════════════════════════════════════════════
      DARK MODE - applied via <html data-theme="dark">
      ═══════════════════════════════════════════════════════════════════ */
@@ -954,6 +1336,17 @@
     --bg: #0f1117; --ink: #e0e4eb; --muted: #8b92a0;
     --accent: #5b9cf5; --border: #2a2d36;
     --coral: #e8734d; --gray: #a8a59e; --teal: #3cb38a;
+  }
+  /* Dock/header icon color: explicit light on dark */
+  [data-theme="dark"] .float-settings,
+  [data-theme="dark"] .float-fit,
+  [data-theme="dark"] .dock-close-btn,
+  [data-theme="dark"] .dict-undock,
+  [data-theme="dark"] .fd-redock,
+  [data-theme="dark"] .dock-section button,
+  [data-theme="dark"] .dock-reveal-nav .drn-back,
+  [data-theme="dark"] .dock-reveal-nav .drn-arrows button {
+    color: #e0e4eb;
   }
   [data-theme="dark"] body { background: var(--bg); }
   [data-theme="dark"] .stage-board { background: #13151d; }
@@ -977,7 +1370,7 @@
   }
   [data-theme="dark"] .hud .drag-bar { background: #1f2230; border-color: var(--border); }
   [data-theme="dark"] .hud .pinned-concept, [data-theme="dark"] .hud-content .pinned-concept { background: #1f2230; border-color: var(--border); }
-  [data-theme="dark"] .hud .node-img + .pinned-concept, [data-theme="dark"] .hud-content .node-img + .pinned-concept { border-top: none; }
+  [data-theme="dark"] .hud .node-img-area:has(.node-img) + .pinned-concept, [data-theme="dark"] .hud-content .node-img-area:has(.node-img) + .pinned-concept { border-top: none; }
   [data-theme="dark"] .hud .pc-oneliner, [data-theme="dark"] .hud-content .pc-oneliner { color: var(--ink); }
   [data-theme="dark"] .hud .ind-toggle:hover, [data-theme="dark"] .hud-content .ind-toggle:hover, [data-theme="dark"] .dock-reveal-content .ind-toggle:hover { background: #1f2230; }
   [data-theme="dark"] .hud .answers li, [data-theme="dark"] .hud-content .answers li { background: #1f2230; border-color: var(--border); }
@@ -1118,6 +1511,10 @@
   <select id="setPicker">
     <option value="" disabled>Pick a set…</option>
   </select>
+  <div class="hdr-search">
+    <input type="text" id="setSearch" placeholder="Search sets (23, headache)…" autocomplete="off" />
+    <div class="search-results" id="searchResults"></div>
+  </div>
   <div class="hdr-cluster">
     <button class="hdr-nav-btn shuffle-btn" id="shuffleBtn" title="Shuffle to an unreviewed set"><i class="ti ti-arrows-shuffle"></i>&nbsp;Shuffle</button>
     <span class="hdr-div"></span>
@@ -1149,7 +1546,41 @@
 <div class="settings-popup" id="settingsPopup" style="display:none;">
   <div class="settings-header">Settings</div>
   <div class="settings-body">
-    <label class="settings-label">DeepSeek API Key</label>
+    <label class="settings-label">Display</label>
+    <div class="settings-fs-row">
+      <span class="settings-hint" style="flex:1;">Text size</span>
+      <button class="settings-fs-btn" id="settingsFsDown" title="Smaller text">A\u2212</button>
+      <span class="settings-fs-pill" id="settingsFsPill">100%</span>
+      <button class="settings-fs-btn" id="settingsFsUp" title="Larger text">A+</button>
+      <button class="settings-fs-btn" id="settingsFsReset" title="Reset text size"><i class="ti ti-refresh"></i></button>
+    </div>
+    <div class="settings-fs-row" style="margin-top:4px;">
+      <span class="settings-hint" style="flex:1;">Notes &amp; Chat size</span>
+      <button class="settings-fs-btn" id="settingsNsDown" title="Smaller text">A\u2212</button>
+      <span class="settings-fs-pill" id="settingsNsPill">100%</span>
+      <button class="settings-fs-btn" id="settingsNsUp" title="Larger text">A+</button>
+      <button class="settings-fs-btn" id="settingsNsReset" title="Reset text size"><i class="ti ti-refresh"></i></button>
+    </div>
+    <label class="settings-label" style="margin-top:10px;">Dr. Iwu style</label>
+    <div class="attending-slider-row">
+      <label>Creativity <span class="asr-val" id="asrCreativityVal">55</span></label>
+      <div class="asr-bands"><span>Strict</span><span>Balanced</span><span>Immersive</span></div>
+      <input type="range" id="asrCreativity" min="0" max="100" value="55" step="5" />
+    </div>
+    <div class="attending-slider-row" style="margin-top:6px;">
+      <label>Depth <span class="asr-val" id="asrDepthVal">Standard</span></label>
+      <div class="asr-depth-pills">
+        <button data-d="0">Brief</button>
+        <button data-d="1" class="is-active">Standard</button>
+        <button data-d="2">Deep</button>
+        <button data-d="3">Full arc</button>
+      </div>
+    </div>
+    <label class="settings-toggle-row" style="margin-top:10px;">
+      <input type="checkbox" id="chkShowTimeline" />
+      <span class="settings-label">Show Story timeline bar</span>
+    </label>
+    <label class="settings-label" style="margin-top:12px;">DeepSeek API Key</label>
     <input type="password" id="dsApiKey" placeholder="Loading from server…" />
     <div class="settings-hint">Key is loaded from the server. It stays in your browser's localStorage.</div>
     <button id="settingsSave" class="primary" style="width:100%;margin-top:8px;">Save &amp; Close</button>
@@ -1467,7 +1898,9 @@ function joinGraph(meta, items, storyByQid) {
 function buildSpineRail() {
   const rail = document.getElementById('spineRail');
   if (!GRAPH.mainPath || GRAPH.mainPath.length < 2) { rail.style.display = 'none'; return; }
-  rail.style.display = 'flex';
+  // Hidden by default; user opts in via settings
+  const show = localStorage.getItem('showSpineRail') === 'true';
+  rail.style.display = show ? 'flex' : 'none';
   rail.innerHTML = '';
   const lbl = document.createElement('span');
   lbl.className = 'rail-label';
@@ -1516,11 +1949,14 @@ function closeHud() {
 
 function updateLiveNodeIndicator() {
   if (!nodeSel) return;
+  // Remove .live class from all nodes
+  nodeSel.classed('live', false);
   // Hide all live rings
   nodeSel.selectAll('.live-ring').attr('stroke-opacity', 0);
-  // Show the ring on the currently open node
+  // Show the ring + apply .live class on the currently open node
   if (currentLiveNodeId) {
     nodeSel.filter(d => String(d.id) === String(currentLiveNodeId))
+      .classed('live', true)
       .selectAll('.live-ring')
       .attr('stroke-opacity', 1);
   }
@@ -1550,9 +1986,52 @@ function setMillState(qid, state) {
         if (state === 2) c.attr('stroke', '#16a34a').attr('stroke-width', 3);
         else if (state === 1) c.attr('stroke', '#f59e0b').attr('stroke-width', 2.5);
         else c.attr('stroke', '#fff').attr('stroke-width', spineSet.has(String(d.id)) ? 2 : 1.4);
+        // mill activity counts as "touched" — re-evaluate
+        refreshNodeActivity(String(d.id));
       }
     });
   }
+}
+
+// ── Node activity scan: is this node "touched" (any interaction logged)? ──
+function nodeActivity(qid) {
+  // Triage record: approved, needs work, or concept generated
+  try {
+    const raw = localStorage.getItem(TRIAGE_PREFIX + qid);
+    if (raw) {
+      const t = JSON.parse(raw);
+      if (t.approved || t.needsWork || t.concept) return true;
+    }
+  } catch (_) {}
+  // Notes written
+  try { if (localStorage.getItem('notes-' + qid)) return true; } catch (_) {}
+  // Chat history
+  try {
+    const chatRaw = localStorage.getItem('chat-' + qid);
+    if (chatRaw) { const ch = JSON.parse(chatRaw); if (Array.isArray(ch) && ch.length) return true; }
+  } catch (_) {}
+  // Mill state > 0 (partially or fully milled)
+  if (millState(qid) > 0) return true;
+  return false;
+}
+
+// ── Refresh a single graph node's .untouched class ──
+function refreshNodeActivity(qid) {
+  if (!svg) return;
+  const active = nodeActivity(qid);
+  svg.selectAll('.g-node').each(function (d) {
+    if (String(d.id) === String(qid)) {
+      d3.select(this).classed('untouched', !active);
+    }
+  });
+}
+
+// ── Refresh all graph nodes' .untouched class (set change, full re-render) ──
+function refreshAllNodeActivity() {
+  if (!svg) return;
+  svg.selectAll('.g-node').each(function (d) {
+    d3.select(this).classed('untouched', !nodeActivity(String(d.id)));
+  });
 }
 function updateMillHint(el, state) {
   const hint = el.querySelector('.mill-hint');
@@ -1568,7 +2047,7 @@ function questionHTML(q) {
   const sid = esc(String(q.id));
   return `
     <div class="qwrap">
-      <p style="font-size:0.8rem; white-space:pre-wrap;">${esc(q.question)}</p>
+      <p style="font-size:calc(0.8rem * var(--hud-font-scale,1)); white-space:pre-wrap;">${esc(q.question)}</p>
       <ul class="answers">${ans}</ul>
 
       ${q.likely ? `
@@ -1607,31 +2086,6 @@ function questionHTML(q) {
           <span class="mill-step s2" data-mill="2" title="Thoroughly drilled">●</span>
         </span>
         <span class="mill-hint">${state === 1 ? '- partial' : state === 2 ? '- drilled' : ''}</span>
-      </div>
-      <div class="dict-sect">
-        <div class="dict-header">
-          <span class="dict-label">Notes &amp; Chat</span>
-        </div>
-        <div class="mode-seg" data-mode="notes" id="mode-seg-${q.id}">
-          <span class="mode-seg-thumb"></span>
-          <button class="mode-seg-btn is-active" data-m="notes"><i class="ti ti-pencil"></i>&nbsp;Notes</button>
-          <button class="mode-seg-btn" data-m="chat"><i class="ti ti-messages"></i>&nbsp;Dr. Iwu</button>
-        </div>
-        <!-- Notes mode -->
-        <div class="dict-input-wrap" id="notes-area-${q.id}">
-          <textarea id="dict-text-${q.id}" placeholder="Speak or type notes on this concept…"></textarea>
-          <button class="btn-mic" data-qid="${sid}" title="Toggle microphone"><i class="ti ti-microphone"></i></button>
-        </div>
-        <span class="dict-interim" id="dict-interim-${q.id}"></span>
-        <!-- Chat mode (hidden by default) -->
-        <div class="chat-area" id="chat-area-${q.id}" style="display:none;">
-          <div class="chat-log" id="chat-log-${q.id}"></div>
-          <div class="chat-input-row">
-            <input type="text" id="chat-input-${q.id}" placeholder="Ask Dr. Iwu about this case…" />
-            <button class="primary" id="chat-send-${q.id}">Send</button>
-          </div>
-        </div>
-        <div class="dict-status" id="dict-status-${q.id}"></div>
       </div>
     </div>`;
 }
@@ -1710,11 +2164,12 @@ function makeFloaterDraggable(el, storageKey) {
       el.style.transition = '';
       el.style.cursor = 'grab';
       el.dataset.dragged = '1';
-      // Save position (debounced 40s)
+      // Save position + dimensions (debounced 40s)
       if (storageKey) {
-        debouncedSave(storageKey, JSON.stringify({
-          left: el.style.left, top: el.style.top,
-        }));
+        const data = { left: el.style.left, top: el.style.top };
+        if (el.style.width && el.style.width !== '340px') data.width = el.style.width;
+        if (el.style.height && el.style.height !== 'auto') data.height = el.style.height;
+        debouncedSave(storageKey, JSON.stringify(data));
       }
     };
     document.addEventListener('mousemove', onMove);
@@ -1732,6 +2187,68 @@ function makeFloaterDraggable(el, storageKey) {
       }
     } catch (_) {}
   }
+}
+
+// ── Restore saved floating dict dimensions ──
+function restoreFloaterSize(wrapper, storageKey) {
+  try {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      const p = JSON.parse(saved);
+      if (p.width) { wrapper.style.width = p.width; wrapper.style.minWidth = ''; }
+      if (p.height) wrapper.style.height = p.height;
+    }
+  } catch (_) {}
+}
+
+// ── Wire 8-way resize on floating dict wrapper ──
+function wireFloaterResize(wrapper, storageKey) {
+  const handles = wrapper.querySelectorAll('.fd-resize-handle');
+  handles.forEach(hdl => {
+    const dir = hdl.className.match(/fdr-(\w+)/)?.[1];
+    if (!dir) return;
+    hdl.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const startX = e.clientX, startY = e.clientY;
+      const startW = wrapper.offsetWidth;
+      const startH = wrapper.offsetHeight;
+      const startL = parseInt(wrapper.style.left, 10) || 0;
+      const startT = parseInt(wrapper.style.top, 10) || 0;
+
+      wrapper.style.transition = 'none';
+
+      const onMove = (ev) => {
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        let nw = startW, nh = startH, nl = startL, nt = startT;
+
+        if (dir.includes('e')) nw = Math.max(260, startW + dx);
+        if (dir.includes('w')) { nw = Math.max(260, startW - dx); nl = Math.min(startL + startW - 260, startL + dx); }
+        if (dir.includes('s')) nh = Math.max(120, startH + dy);
+        if (dir.includes('n')) { nh = Math.max(120, startH - dy); nt = Math.min(startT + startH - 120, startT + dy); }
+
+        wrapper.style.width = nw + 'px';
+        wrapper.style.height = nh + 'px';
+        wrapper.style.left = Math.max(-100, nl) + 'px';
+        wrapper.style.top = Math.max(-20, nt) + 'px';
+      };
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        wrapper.style.transition = '';
+        // Save position + dimensions
+        const data = { left: wrapper.style.left, top: wrapper.style.top };
+        const w = wrapper.style.width || (wrapper.offsetWidth + 'px');
+        const h = wrapper.style.height || (wrapper.offsetHeight + 'px');
+        if (w && w !== '340px') data.width = w;
+        if (h && h !== 'auto' && h !== '') data.height = h;
+        debouncedSave(storageKey, JSON.stringify(data));
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  });
 }
 
 function makeHudResizable(hud) {
@@ -1841,7 +2358,7 @@ function hudFontCtlHTML(scale) {
     + '<button class="hfc-btn" data-hfc="-1" title="Smaller text">A\u2212</button>'
     + '<span class="hfc-pill">' + Math.round(scale * 100) + '%</span>'
     + '<button class="hfc-btn" data-hfc="1" title="Larger text">A+</button>'
-    + '<button class="hfc-btn hfc-reset" data-hfc="0" title="Reset text size">\u21ba</button>'
+    + '<button class="hfc-btn hfc-reset" data-hfc="0" title="Reset text size"><i class="ti ti-refresh"></i></button>'
     + '</div>';
 }
 
@@ -1858,11 +2375,88 @@ function wireHudFontCtl(hud) {
       e.stopPropagation();
       const current = readHudFontScale();
       const dir = +btn.dataset.hfc;
-      if (dir === 0) { update(HUD_FONT_DEFAULT); return; }
+      if (dir === 0) { update(HUD_FONT_DEFAULT); updateAllPills(HUD_FONT_DEFAULT); return; }
       const next = Math.round((current + dir * HUD_FONT_STEP) / HUD_FONT_STEP) * HUD_FONT_STEP;
-      update(Math.min(HUD_FONT_MAX, Math.max(HUD_FONT_MIN, next)));
+      const clamped = Math.min(HUD_FONT_MAX, Math.max(HUD_FONT_MIN, next));
+      update(clamped);
+      updateAllPills(clamped);
     };
   });
+}
+
+// ── Global font-scale sync: update document root + all visible pills ──
+function updateAllPills(scale) {
+  document.documentElement.style.setProperty('--hud-font-scale', scale);
+  document.querySelectorAll('.hud').forEach(h => h.style.setProperty('--hud-font-scale', scale));
+  document.querySelectorAll('.hud-font-ctl .hfc-pill').forEach(p => p.textContent = Math.round(scale * 100) + '%');
+  const dfsPill = document.querySelector('.dock-fs-ctl .dfs-pill');
+  if (dfsPill) dfsPill.textContent = Math.round(scale * 100) + '%';
+  const sPill = document.getElementById('settingsFsPill');
+  if (sPill) sPill.textContent = Math.round(scale * 100) + '%';
+}
+
+// ── Notes & Chat font scale (independent of content font) ──────────────
+const NOTES_FONT_DEFAULT = 1.0;
+const NOTES_FONT_MIN = 0.8;
+const NOTES_FONT_MAX = 1.6;
+const NOTES_FONT_STEP = 0.08;
+
+function readNotesFontScale() {
+  try {
+    const v = parseFloat(localStorage.getItem('notes-fs'));
+    if (isFinite(v)) return Math.min(NOTES_FONT_MAX, Math.max(NOTES_FONT_MIN, v));
+  } catch (_) {}
+  return NOTES_FONT_DEFAULT;
+}
+
+function writeNotesFontScale(s) {
+  try { localStorage.setItem('notes-fs', s); } catch (_) {}
+}
+
+function updateAllNotesPills(scale) {
+  document.documentElement.style.setProperty('--notes-font-scale', scale);
+  document.querySelectorAll('.hud').forEach(h => h.style.setProperty('--notes-font-scale', scale));
+  const nsPill = document.getElementById('settingsNsPill');
+  if (nsPill) nsPill.textContent = Math.round(scale * 100) + '%';
+  const dnsPill = document.querySelector('.dock-notes-ctl .dns-pill');
+  if (dnsPill) dnsPill.textContent = Math.round(scale * 100) + '%';
+}
+
+// ── Attending style prefs (MeWorld pattern: creativity slider → temperature, depth → max_tokens) ──
+const ATTENDING_PREFS_KEY = 'cgr_attending_prefs';
+const ATTENDING_CREATIVITY_DEFAULT = 55;
+const ATTENDING_DEPTH_DEFAULT = 1; // 0=Brief 1=Standard 2=Deep 3=Full arc
+
+const DEPTH_CONFIG = {
+  0: { label: 'Brief',     words: 55,  maxTokens: 200 },
+  1: { label: 'Standard',  words: 95,  maxTokens: 360 },
+  2: { label: 'Deep',      words: 150, maxTokens: 560 },
+  3: { label: 'Full arc',  words: 230, maxTokens: 900 },
+};
+
+function readAttendingPrefs() {
+  try {
+    const raw = localStorage.getItem(ATTENDING_PREFS_KEY);
+    if (raw) {
+      const p = JSON.parse(raw);
+      return {
+        creativity: isFinite(p.creativity) ? Math.max(0, Math.min(100, +p.creativity)) : ATTENDING_CREATIVITY_DEFAULT,
+        depth: [0,1,2,3].includes(+p.depth) ? +p.depth : ATTENDING_DEPTH_DEFAULT,
+      };
+    }
+  } catch (_) {}
+  return { creativity: ATTENDING_CREATIVITY_DEFAULT, depth: ATTENDING_DEPTH_DEFAULT };
+}
+
+function writeAttendingPrefs(prefs) {
+  try { localStorage.setItem(ATTENDING_PREFS_KEY, JSON.stringify(prefs)); } catch (_) {}
+}
+
+// Map creativity (0-100) to temperature (MeWorld Immersa band mapping)
+function creativityToTemperature(score) {
+  if (score < 30) return 0.55;  // Strict
+  if (score < 65) return 0.7;   // Balanced (base)
+  return 0.75;                   // Immersive
 }
 
 function restoreHudPosition(hud) {
@@ -1995,7 +2589,8 @@ function wireHudDictation(hud, nodeId) {
   const chatInput = hud.querySelector('#chat-input-' + nodeId);
   const chatSend = hud.querySelector('#chat-send-' + nodeId);
   const modeSeg = hud.querySelector('#mode-seg-' + nodeId);
-  if (!textarea || !micBtn) return;
+  const chatMicBtn = hud.querySelector('.btn-mic-chat[data-qid="' + nodeId + '"]');
+  if (!textarea) return;
 
   // ── Restore last mode for this node ──
   let currentMode = 'notes';
@@ -2006,7 +2601,6 @@ function wireHudDictation(hud, nodeId) {
     modeSeg.querySelectorAll('.mode-seg-btn').forEach(b => b.classList.toggle('is-active', b.dataset.m === mode));
     notesArea.style.display = mode === 'chat' ? 'none' : '';
     chatArea.style.display = mode === 'chat' ? '' : 'none';
-    micBtn.style.display = mode === 'chat' ? 'none' : (window.SpeechRecognition || window.webkitSpeechRecognition ? '' : 'none');
     try { localStorage.setItem('dict-mode-' + nodeId, mode); } catch (_) {}
   }
   modeSeg.querySelectorAll('.mode-seg-btn').forEach(b => {
@@ -2016,27 +2610,84 @@ function wireHudDictation(hud, nodeId) {
 
   // ── Load persisted chat history ──
   let chatHistory = [];
-  try { const raw = localStorage.getItem('chat-'+nodeId); if (raw) chatHistory = JSON.parse(raw); } catch (_) {}
+  function loadChatHistory() {
+    try {
+      const raw = localStorage.getItem('chat-'+nodeId);
+      if (raw) { const parsed = JSON.parse(raw); if (Array.isArray(parsed)) chatHistory = parsed; }
+    } catch (e) { console.warn('[chat] Failed to load history:', e.message); }
+    // If localStorage is empty, try server backup
+    if (!chatHistory.length) {
+      try {
+        fetch('/api/load-chat?nodeId=' + encodeURIComponent(nodeId))
+          .then(r => r.json())
+          .then(data => {
+            if (data && Array.isArray(data.messages) && data.messages.length) {
+              chatHistory = data.messages;
+              localStorage.setItem('chat-'+nodeId, JSON.stringify(chatHistory));
+              renderChatLog();
+              console.debug('[chat] Restored', chatHistory.length, 'messages from server backup');
+            }
+          }).catch(() => {});
+      } catch (_) {}
+    }
+    console.debug('[chat] Loaded', chatHistory.length, 'messages for node', nodeId);
+  }
+  function saveChatHistory() {
+    try {
+      localStorage.setItem('chat-'+nodeId, JSON.stringify(chatHistory));
+      console.debug('[chat] Saved', chatHistory.length, 'messages for node', nodeId);
+      refreshNodeActivity(nodeId);
+      // Also backup to server (fire-and-forget)
+      try {
+        fetch('/api/save-chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nodeId, chatHistory }),
+        }).catch(() => {});
+      } catch (_) {}
+    } catch (e) { console.warn('[chat] Failed to save history:', e.message); }
+  }
+  loadChatHistory();
   function renderChatLog() {
     if (!chatHistory.length) { chatLog.innerHTML = '<div style="color:var(--muted);font-size:0.62rem;text-align:center;padding:10px;">No messages yet. Ask Dr. Iwu about this case.</div>'; return; }
     chatLog.innerHTML = chatHistory.map((m,i) => {
       const isUser = m.role === 'user';
-      return `<div class="chat-msg">
-        <div class="chat-role ${isUser ? 'you' : 'iwu'}">${isUser ? 'You' : 'Dr. Iwu'}</div>
-        <div>${mdToHtml(m.content)}</div>
+      const copyBtn = !isUser
+        ? `<button class="msg-copy-btn" data-idx="${i}" title="Copy response"><i class="ti ti-clipboard"></i></button>`
+        : '';
+      return `<div class="chat-msg ${isUser ? 'msg-you' : 'msg-iwu'}">
+        <div class="msg-sender">${isUser ? 'You' : 'Dr. Iwu'}</div>
+        <div class="msg-bubble">${mdToHtml(m.content)}${copyBtn}</div>
       </div>`;
     }).join('');
     chatLog.scrollTop = chatLog.scrollHeight;
+    // Wire copy buttons
+    chatLog.querySelectorAll('.msg-copy-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.idx);
+        navigator.clipboard.writeText(chatHistory[idx].content).then(() => {
+          btn.innerHTML = '<i class="ti ti-check"></i>';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.innerHTML = '<i class="ti ti-clipboard"></i>'; btn.classList.remove('copied'); }, 1500);
+        }).catch(() => {});
+      };
+    });
   }
   renderChatLog();
 
-  // ── Mic / speech recognition (notes mode only) ──
+  // ── Mic / speech recognition (shared: works on whatever input is active) ──
   const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
   let rec = null;
   let recording = false;
+  let targetInput = textarea;  // current target: textarea (notes) or chatInput (chat)
+  let activeBtn = micBtn;      // current mic button showing recording state
   let finalText = '';
 
-  if (!Ctor) { micBtn.style.display = 'none'; }
+  if (!Ctor) {
+    if (micBtn) micBtn.style.display = 'none';
+    if (chatMicBtn) chatMicBtn.style.display = 'none';
+  }
 
   function initRec() {
     if (!Ctor) return;
@@ -2051,7 +2702,7 @@ function wireHudDictation(hud, nodeId) {
         const txt = r[0]?.transcript || '';
         if (r.isFinal) {
           finalText += (finalText ? ' ' : '') + txt;
-          textarea.value = finalText;
+          targetInput.value = finalText;
         } else {
           inter += txt;
         }
@@ -2070,13 +2721,15 @@ function wireHudDictation(hud, nodeId) {
     };
   }
 
-  function start() {
+  function start(tgt, btn) {
     if (!Ctor) { status.textContent = 'Not supported in this browser.'; return; }
+    targetInput = tgt;
+    activeBtn = btn;
     if (!rec) initRec();
     recording = true;
-    finalText = textarea.value;
-    micBtn.classList.add('recording');
-    micBtn.querySelector('i').className = 'ti ti-player-stop';
+    finalText = targetInput.value;
+    activeBtn.classList.add('recording');
+    activeBtn.querySelector('i').className = 'ti ti-player-stop';
     status.textContent = 'Listening…';
     interim.textContent = '';
     try { rec.start(); } catch (e) { stop(); }
@@ -2085,13 +2738,16 @@ function wireHudDictation(hud, nodeId) {
   function stop() {
     recording = false;
     if (rec) { try { rec.stop(); } catch (_) {} }
-    micBtn.classList.remove('recording');
-    micBtn.querySelector('i').className = 'ti ti-microphone';
+    if (activeBtn) {
+      activeBtn.classList.remove('recording');
+      activeBtn.querySelector('i').className = 'ti ti-microphone';
+    }
     interim.textContent = '';
     status.textContent = '';
   }
 
-  micBtn.onclick = () => recording ? stop() : start();
+  micBtn.onclick = () => recording ? stop() : start(textarea, micBtn);
+  if (chatMicBtn) chatMicBtn.onclick = () => recording ? stop() : start(chatInput, chatMicBtn);
 
   textarea.addEventListener('input', () => {
     finalText = textarea.value;
@@ -2101,6 +2757,7 @@ function wireHudDictation(hud, nodeId) {
   try { const saved = localStorage.getItem('notes-'+nodeId); if (saved) { textarea.value = saved; finalText = saved; } } catch (_) {}
   textarea.addEventListener('input', () => {
     try { localStorage.setItem('notes-'+nodeId, textarea.value); } catch (_) {}
+    refreshNodeActivity(nodeId);
   });
 
   // ── Chat: send to Dr. Iwu via DeepSeek ──
@@ -2110,8 +2767,9 @@ function wireHudDictation(hud, nodeId) {
     const key = localStorage.getItem('ds_api_key');
     if (!key) { status.textContent = 'No API key. Open Settings.'; return; }
 
-    // Add user message
+    // Add user message and persist immediately
     chatHistory.push({ role: 'user', content: text });
+    saveChatHistory();
     renderChatLog();
     chatInput.value = '';
     chatSend.disabled = true;
@@ -2137,24 +2795,42 @@ function wireHudDictation(hud, nodeId) {
           model: 'deepseek-chat',
           messages: [{
             role: 'system',
-            content: `You are Dr. Iwu, a brilliant senior attending physician teaching in the emergency department. You are male (he/him/his). Your teaching voice is mechanism-first, direct, and joyful.
+            content: `You are Dr. Iwu, a brilliant senior attending physician who teaches by mechanism — not by memorization.
 
-VOICE RULES (non-negotiable):
-- Lead with mechanism: what is physically happening in this patient's body.
-- Short sentences. Confident, never condescending. Joy in the craft of diagnosis.
+The learner is chatting with you at the bedside about a USMLE question. Reveal WHY through physiology, pathophysiology, spatial patterns, and what finding rules in or out for THIS patient. They should feel: "Of course — how could it be any other way?"
+
+Teaching stack (weave into flowing prose — never as labeled sections):
+1. Lead with mechanism — what is physically happening in this patient's body?
+2. Spatial/temporal "why" when distribution, timing, or location matters.
+3. Connect findings — one underlying process, not a catalog of unrelated facts.
+4. Contrast with a look-alike when it sharpens the distinction.
+5. Anchor to a bedside decision — expected finding, rule-out, or next step.
+
+Voice (mandatory):
+- Direct. Short sentences. Confident, never condescending. Joy in mechanism.
 - Visual/spatial language the learner can picture at the bedside.
 - Usually 2-5 sentences unless they ask for depth.
-- Never say "as an AI," "as a language model," or break character.
-- Use no em dashes. No bullet lists unless explicitly asked.
+- Always wrap salient mechanistic anchors in **double asterisks**: the core pathophysiology, expected finding, rule-out, spatial pattern, or bedside decision (2-4 bold phrases per reply). Prose only — no bullet lists or headers besides **bold** inline.
+
+FORBIDDEN (these break the attending voice):
+- "Here's the breakdown", "Key point:", "What it does:", "For this patient:", "ED relevance:"
+- Bullet lists, numbered lists, or outline headers unless the learner explicitly asks for a list
+- Generic tutor voice ("first-line treatment per guidelines" without tying to this specific HPI)
+- Passive voice, hedging, "as an AI", "as a language model", breaking character
+- Meta-instructions, skill names, prompt fragments
+- Single-sentence replies that don't teach mechanism
+- Use no em dashes anywhere.
 - Refer to the specific case details provided below when answering.
 
-CASE CONTEXT:
+${(() => { const prefs = readAttendingPrefs(); const dc = DEPTH_CONFIG[prefs.depth]; return `[ATTENDING DEPTH — ${dc.label}: answer in ~${dc.words} words max. ${prefs.depth === 0 ? 'One tight point, no preamble.' : prefs.depth === 1 ? 'Concise but complete.' : prefs.depth === 2 ? 'Mechanism + connection, still focused.' : 'Full connected teaching arc.'}]
+
+`; })()}CASE CONTEXT:
 ${contextBlock}
 
 The learner is asking you questions about this case node. Teach them the mechanism.`
           }].concat(chatHistory),
-          temperature: 0.7,
-          max_tokens: 600,
+          temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(),
+          max_tokens: (() => { const prefs = readAttendingPrefs(); return DEPTH_CONFIG[prefs.depth].maxTokens; })(),
         }),
       });
       if (!res.ok) { const err = await res.text(); throw new Error('HTTP ' + res.status); }
@@ -2167,11 +2843,11 @@ The learner is asking you questions about this case node. Teach them the mechani
       } else {
         status.textContent = 'Empty response.';
       }
-      // Persist chat history
-      try { localStorage.setItem('chat-'+nodeId, JSON.stringify(chatHistory)); } catch (_) {}
+      saveChatHistory();
     } catch (e) {
       const errMsg = 'Error: ' + e.message;
       chatHistory.push({ role: 'assistant', content: errMsg });
+      saveChatHistory();
       renderChatLog();
       status.textContent = errMsg;
     } finally {
@@ -2184,7 +2860,92 @@ The learner is asking you questions about this case node. Teach them the mechani
   chatInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
   });
+
+  // ── Undock / redock (moves entire dict-sect) ──
+  const undockBtn = hud.querySelector('#dict-undock-' + nodeId);
+  function undockDict() {
+    const dictSect = hud.querySelector('.dict-sect');
+    if (!dictSect) return;
+    // Already floating?
+    if (window._floatDict && window._floatDict.dictSect === dictSect) return;
+    // Destroy any existing floater first
+    if (window._floatDict) destroyFloatingDict();
+    createFloatingDict(dictSect, nodeId);
+    updateDockedUI();
+  }
+  if (undockBtn) undockBtn.onclick = undockDict;
+
+  function updateDockedUI() {
+    const isFloating = window._floatDict && window._floatDict.nodeId === nodeId;
+    const dictSect = hud.querySelector('.dict-sect');
+    if (!dictSect) return;
+    if (isFloating) {
+      dictSect.style.display = 'none';
+    } else {
+      dictSect.style.display = '';
+    }
+  }
+  updateDockedUI();
+
+  // ── Register chat control for external access (e.g., "Answer this" button) ──
+  window._chatCtl = window._chatCtl || {};
+  window._chatCtl[nodeId] = { applyMode, chatHistory, renderChatLog, saveChatHistory, chatInput, sendChat };
 }
+
+// ── Floating Notes & Chat widget (undock entire block) ──
+window._floatDict = null;
+const FLOAT_DICT_POS_KEY = 'float-dict-pos-';
+
+function createFloatingDict(dictSect, nodeId) {
+  if (window._floatDict) destroyFloatingDict();
+
+  const tmpl = document.getElementById('floatDictTmpl');
+  if (!tmpl) return;
+  const wrapper = tmpl.cloneNode(true);
+  wrapper.removeAttribute('id');
+  wrapper.style.display = '';
+  document.body.appendChild(wrapper);
+
+  const body = wrapper.querySelector('.fd-body');
+  body.appendChild(dictSect);
+  dictSect.style.display = '';
+
+  // Hide the undock button inside dict-sect (already undocked)
+  const undockBtn = dictSect.querySelector('.dict-undock');
+  if (undockBtn) undockBtn.style.display = 'none';
+
+  wrapper.querySelector('.fd-redock').onclick = () => destroyFloatingDict();
+
+  // Draggable + restore position + size
+  makeFloaterDraggable(wrapper, FLOAT_DICT_POS_KEY + nodeId);
+  // Restore saved size
+  restoreFloaterSize(wrapper, FLOAT_DICT_POS_KEY + nodeId);
+  // Wire 8-way resize handles
+  wireFloaterResize(wrapper, FLOAT_DICT_POS_KEY + nodeId);
+
+  window._floatDict = { wrapper, dictSect, nodeId };
+}
+
+function destroyFloatingDict() {
+  if (!window._floatDict) return;
+  const { wrapper, dictSect, nodeId } = window._floatDict;
+  const parent = document.querySelector('.hud:not([style*="display: none"])') || document.querySelector('.hud') || document.querySelector('.hud-content');
+  if (parent && dictSect) {
+    const concept = parent.querySelector('.pinned-concept');
+    if (concept) {
+      concept.insertAdjacentElement('afterend', dictSect);
+    } else {
+      parent.appendChild(dictSect);
+    }
+    dictSect.style.display = '';
+    // Restore undock button
+    const undockBtn = dictSect.querySelector('.dict-undock');
+    if (undockBtn) undockBtn.style.display = '';
+  }
+  wrapper.remove();
+  window._floatDict = null;
+}
+
 
 // ── Node isolation: Ctrl+click a node to show only it + its 1-hop neighbors ──
 function applyIsolation() {
@@ -2274,16 +3035,93 @@ function toggleLines() {
 // ── Lightweight markdown-to-HTML (handles **bold**, *italic*, `code`, newlines) ─
 function mdToHtml(text) {
   if (!text) return '';
-  // Escape HTML first, then apply markdown rules
+  // Escape HTML first, then apply markdown rules (prevent injection)
   let html = esc(text);
-  // Bold (**text**)
+
+  // --- GFM pipe tables ---
+  // Regex: lines containing | with at least one |...|... pattern, possibly a separator row
+  const lines = html.split('\n');
+  const tableRanges = [];
+  let i = 0;
+  while (i < lines.length) {
+    // Look for a table header: has at least 2 pipe-separated columns
+    if (lines[i].includes('|') && lines[i].split('|').filter(c => c.trim()).length >= 2) {
+      const start = i;
+      // Check for separator row on next line
+      const sepLine = lines[i + 1] || '';
+      const hasSep = /^\s*\|?[\s\-:|]+\|[\s\-:|]+\|?\s*$/.test(sepLine);
+      let end = i;
+      if (hasSep) {
+        end = i + 1; // include separator row
+        // Collect data rows
+        while (end + 1 < lines.length && lines[end + 1].includes('|') && lines[end + 1].split('|').filter(c => c.trim()).length >= 2) {
+          end++;
+        }
+        tableRanges.push({ start, end, hasSep: true });
+        i = end + 1;
+      } else {
+        // No separator — just a single separator-less row, skip table detection
+        i++;
+      }
+    } else {
+      i++;
+    }
+  }
+  // Replace table blocks from bottom to top (preserve indices)
+  const replacements = [];
+  for (const rng of tableRanges.reverse()) {
+    const tableLines = lines.slice(rng.start, rng.end + 1);
+    const headerCells = tableLines[0].split('|').filter(c => c.trim());
+    let tableHtml = '<table class="chat-table"><thead><tr>';
+    for (const hc of headerCells) {
+      tableHtml += `<th>${hc.trim()}</th>`;
+    }
+    tableHtml += '</tr></thead><tbody>';
+    // Data rows start after separator (line index 2 in the slice)
+    for (let ri = 2; ri < tableLines.length; ri++) {
+      const cells = tableLines[ri].split('|').filter(c => c.trim());
+      if (cells.length === 0) continue;
+      tableHtml += '<tr>';
+      for (const c of cells) {
+        tableHtml += `<td>${c.trim()}</td>`;
+      }
+      tableHtml += '</tr>';
+    }
+    tableHtml += '</tbody></table>';
+    replacements.push({ start: rng.start, end: rng.end, html: tableHtml });
+  }
+  // Apply table replacements
+  for (const rep of replacements) {
+    const before = lines.slice(0, rep.start);
+    const after = lines.slice(rep.end + 1);
+    const newLines = before.concat([rep.html], after);
+    lines.length = 0; lines.push(...newLines);
+  }
+
+  // Join remaining with markers
+  html = lines.join('\n');
+
+  // --- Headings (## Title, ### Title) on their own line ---
+  // Unwrap **## Title** → ## Title first (LLM sometimes wraps heading in bold)
+  html = html.replace(/\*\*(\s*(#{1,4})\s*(.+?))\*\*/g, '$2 $3');
+  // Render headings
+  html = html.replace(/^### (.+)$/gm, '<h4 style="margin:8px 0 4px;font-weight:700;">$1</h4>');
+  html = html.replace(/^## (.+)$/gm, '<h3 style="margin:8px 0 4px;font-weight:700;">$1</h3>');
+  html = html.replace(/^# (.+)$/gm, '<h3 style="margin:8px 0 4px;font-weight:700;">$1</h3>');
+
+  // --- Bold (**text**) ---
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  // Italic (*text*)
+  // --- Italic (*text*) ---
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-  // Inline code (`text`)
+  // --- Inline code (`text`) ---
   html = html.replace(/`(.+?)`/g, '<code>$1</code>');
-  // Newlines to <br>
+  // --- Handle bullet lines (- text or * text) ---
+  html = html.replace(/^[\-*] (.+)$/gm, '<li>$1</li>');
+  // Wrap consecutive <li> in <ul>
+  html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
+  // --- Newlines to <br> ---
   html = html.replace(/\n/g, '<br>');
+
   return html;
 }
 
@@ -2291,16 +3129,41 @@ function mdToHtml(text) {
 function cleanDiagnosisLabel(raw) {
   if (!raw) return raw;
   // Human-written labels (containing em-dash, "vs", parentheses, or proper caps) pass through
-  if (/[--]| vs | \([A-Z]/.test(raw)) return raw;
-  // Already cleaned ( ·  separator, mixed case): pass through
-  if (/ [·•] /.test(raw) && /[A-Z]/.test(raw) && raw.length > 20) return raw;
+  if (/[—–]| vs | \([A-Z]/.test(raw)) return raw;
+  // Middle-dot labels: collapse near-duplicates, keep meaningful side
+  if (/ · /.test(raw)) {
+    const parts = raw.split(/\s*·\s*/);
+    if (parts.length === 2) {
+      const a = parts[0].trim();
+      const b = parts[1].trim();
+      // Exact prefix: second starts with first or vice versa
+      if (b.startsWith(a)) return b.slice(0, 45);
+      if (a.startsWith(b)) return a.slice(0, 45);
+      // Shared word prefix (e.g. "The Patient" and "The Patient's")
+      const aWords = a.split(/\s+/);
+      const bWords = b.split(/\s+/);
+      const minLen = Math.min(aWords.length, bWords.length);
+      let shared = 0;
+      for (let i = 0; i < minLen; i++) {
+        if (aWords[i].toLowerCase() === bWords[i].toLowerCase()) shared++;
+        else break;
+      }
+      if (shared >= 2 && shared >= aWords.length - 1) {
+        return b.slice(0, 45);
+      }
+    }
+    return raw;
+  }
   // Slash-separated lowercase fragments: collapse to title-case phrase
   if (raw.includes(' / ') && !/[A-Z]/.test(raw.replace(/\//g,''))) {
     const parts = raw.split(/\s*\/\s*/).filter(Boolean);
     if (parts.length >= 2) {
-      // Title-case each word, join with spaces
       return parts.map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ').slice(0, 48);
     }
+  }
+  // Lowercase phrase with slashes: title-case
+  if (/^[a-z]/.test(raw) && / \/ /.test(raw) && !/[A-Z]/.test(raw.replace(/\//g,''))) {
+    return raw.split(/\s*\/\s*/).map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ').slice(0, 48);
   }
   return raw;
 }
@@ -2453,12 +3316,36 @@ Wrap the key mechanistic anchors in **double asterisks**. No preamble, no sign-o
           { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt },
         ],
-        temperature: 0.4, max_tokens: 300,
+        temperature: 0.4, max_tokens: 500,
       }),
     });
     if (!res.ok) return null;
     const data = await res.json();
-    const reply = (data.choices?.[0]?.message?.content?.trim() || '');
+    let reply = (data.choices?.[0]?.message?.content?.trim() || '');
+    // Truncation check: ends mid-sentence → retry once with more tokens
+    const finishReason = data.choices?.[0]?.finish_reason;
+    const endChars = reply.slice(-5);
+    if (finishReason === 'length' || !/[.?!]$/.test(reply.slice(-1))) {
+      console.warn('firstPrinciples: truncated or incomplete ending, retrying with 600 tokens');
+      try {
+        const retry = await fetch('https://api.deepseek.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+          body: JSON.stringify({
+            model: 'deepseek-chat',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: prompt },
+            ],
+            temperature: 0.4, max_tokens: 600,
+          }),
+        });
+        if (retry.ok) {
+          const rdata = await retry.json();
+          reply = (rdata.choices?.[0]?.message?.content?.trim() || '');
+        }
+      } catch (_) { /* keep original truncated if retry fails */ }
+    }
     // Log it
     logDS(node.id, 'firstPrinciples', prompt, systemPrompt, reply);
     return reply;
@@ -2476,6 +3363,8 @@ function writeTriage(qid, data) {
   try { localStorage.setItem(TRIAGE_PREFIX + qid, JSON.stringify(data)); } catch (_) {}
   // Invalidate shuffle cache - a node was just flagged
   if (window._invalidateShuffleCache) window._invalidateShuffleCache();
+  // Update graph node visual state (touched/untouched)
+  refreshNodeActivity(qid);
 }
 
 async function fetchConceptLine(node) {
@@ -2842,7 +3731,7 @@ function buildRevealHTML(d) {
     <div class="node-img-area" data-qid="${esc(String(d.id))}" id="imgarea-${d.id}">
       ${nodeImg
         ? `<div class="node-img"><img id="nodeimg-${d.id}" src="${nodeImg}" alt="Node image" /><button class="img-remove" id="imgrm-${d.id}" title="Remove image"><i class="ti ti-x"></i></button></div>`
-        : `<label class="img-upload" id="imgupload-${d.id}" title="Upload image for this node"><i class="ti ti-camera-plus"></i>Upload image</label><input type="file" accept="image/*" id="imgfile-${d.id}" style="display:none;" />`}
+        : `<button class="img-cam-btn" id="imgcam-${d.id}" title="Add image"><i class="ti ti-camera-plus"></i></button><input type="file" accept="image/*" id="imgfile-${d.id}" style="display:none;" />`}
     </div>
     <div class="pinned-concept" data-qid="${esc(String(d.id))}">
       <div class="pc-top">
@@ -2858,15 +3747,50 @@ function buildRevealHTML(d) {
       </div>
     </div>
 
+    <div class="ind-toggle" id="it-notes-${d.id}">
+      <span class="toggle-dot"></span>
+      <span>Notes &amp; Chat</span>
+      <i class="ti ti-chevron-down toggle-chevron"></i>
+    </div>
+    <div class="ind-body" id="ib-notes-${d.id}">
+    <div class="dict-sect">
+      <div class="dict-header">
+        <span class="dict-label">Notes &amp; Chat</span>
+        <button class="dict-undock" id="dict-undock-${d.id}" title="Undock Notes & Chat"><i class="ti ti-arrow-forward-up"></i></button>
+      </div>
+      <div class="mode-seg" data-mode="notes" id="mode-seg-${d.id}">
+        <span class="mode-seg-thumb"></span>
+        <button class="mode-seg-btn is-active" data-m="notes"><i class="ti ti-pencil"></i>&nbsp;Notes</button>
+        <button class="mode-seg-btn" data-m="chat"><i class="ti ti-messages"></i>&nbsp;Dr. Iwu</button>
+      </div>
+      <!-- Notes mode -->
+      <div class="dict-input-wrap" id="notes-area-${d.id}">
+        <textarea id="dict-text-${d.id}" placeholder="Speak or type notes on this concept…"></textarea>
+        <button class="btn-mic" data-qid="${d.id}" title="Toggle microphone"><i class="ti ti-microphone"></i></button>
+      </div>
+      <span class="dict-interim" id="dict-interim-${d.id}"></span>
+      <!-- Chat mode (hidden by default) -->
+      <div class="chat-area" id="chat-area-${d.id}" style="display:none;">
+        <div class="chat-log" id="chat-log-${d.id}"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input-${d.id}" placeholder="Ask Dr. Iwu about this case…" />
+          <button class="btn-mic btn-mic-chat" data-qid="${d.id}" title="Toggle microphone"><i class="ti ti-microphone"></i></button>
+          <button class="primary" id="chat-send-${d.id}">Send</button>
+        </div>
+      </div>
+      <div class="dict-status" id="dict-status-${d.id}"></div>
+    </div>
+    </div>
+
     <div class="ind-toggle" id="it-full-${d.id}">
       <span class="toggle-dot"></span>
       <span>Show full beat</span>
       <i class="ti ti-chevron-down toggle-chevron"></i>
     </div>
     <div class="ind-body" id="ib-full-${d.id}">
-      <h3 style="margin:0 0 6px;font-size:0.88rem;font-weight:600;">${esc(stageLabel)}</h3>
+      <h3 style="margin:0 0 6px;font-size:calc(0.88rem * var(--hud-font-scale,1));font-weight:600;">${esc(stageLabel)}</h3>
       <div class="fb-editable">
-        <p style="margin:0 0 10px;font-size:0.8rem;color:var(--ink);" id="fbtext-${d.id}">${esc(d.storyText)}</p>
+        <p style="margin:0 0 10px;font-size:calc(0.8rem * var(--hud-font-scale,1));color:var(--ink);" id="fbtext-${d.id}">${esc(d.storyText)}</p>
         <button class="fb-edit-btn" id="fbedit-${d.id}" title="Edit story beat"><i class="ti ti-pencil"></i></button>
       </div>
       <div class="version-nav" id="fbnav-${d.id}" style="display:none;">
@@ -2889,6 +3813,7 @@ function buildRevealHTML(d) {
         <span class="vn-counter" id="fpn-count-${d.id}"></span>
         <button class="vn-arrow vn-next" id="fpn-next-${d.id}" title="Next version"><i class="ti ti-chevron-right"></i></button>
       </div>
+      <button class="fp-answer-btn" id="fp-answer-${d.id}" style="display:none;" title="Send this probe question to Dr. Iwu chat"><i class="ti ti-arrow-right"></i>&nbsp;Answer this</button>
     </div>
 
     <div class="ind-toggle" id="it-q-${d.id}">
@@ -2968,6 +3893,50 @@ function wireVersionNav(qid, field, contentEl, navContainerEl) {
 
   prevBtn.onclick = (e) => { e.stopPropagation(); if (idx > 0) { idx--; refresh(); } };
   nextBtn.onclick = (e) => { e.stopPropagation(); if (idx < all.length - 1) { idx++; refresh(); } };
+}
+
+// ── Extract the closing probe question from rendered First Principles content ──
+function extractClosingProbe(fpContentEl) {
+  // mdToHtml converts \n→<br>, \n\n→<br><br>. Split on double-break paragraph boundaries.
+  const html = fpContentEl.innerHTML;
+  const blocks = html.split(/<br>\s*<br>/);
+  // Walk backwards to find the last substantial block
+  for (let i = blocks.length - 1; i >= 0; i--) {
+    const text = blocks[i].replace(/<[^>]+>/g, '').trim();
+    if (text.length > 30) return text;
+  }
+  // Fallback: strip all tags, get raw textContent
+  const raw = fpContentEl.textContent.trim();
+  const lastPeriod = raw.lastIndexOf('.');
+  if (lastPeriod > 0) return raw.substring(raw.lastIndexOf('.', lastPeriod - 1) + 1).trim();
+  return raw.length > 30 ? raw : null;
+}
+
+// ── "Answer this" → switch to Dr. Iwu chat, inject the probe question, focus input ──
+function answerThisProbe(qid, probeQ) {
+  const ctl = window._chatCtl && window._chatCtl[qid];
+  if (!ctl) { console.warn('[answerThis] No chat ctl for', qid); return; }
+
+  // 1. Switch to chat mode
+  ctl.applyMode('chat');
+
+  // 2. Inject the probe question if it's not already in the history
+  const alreadyExists = ctl.chatHistory.some(m => m.role === 'user' && m.content === probeQ);
+  if (!alreadyExists) {
+    ctl.chatHistory.push({ role: 'user', content: probeQ });
+    ctl.saveChatHistory();
+    ctl.renderChatLog();
+  }
+
+  // 3. Focus the chat input — use a microtask to ensure DOM is ready after mode switch
+  setTimeout(() => {
+    if (ctl.chatInput) {
+      ctl.chatInput.focus();
+      // Scroll to the newly added message
+      const chatLogEl = ctl.chatInput.closest('.chat-area')?.querySelector('.chat-log');
+      if (chatLogEl) chatLogEl.scrollTop = chatLogEl.scrollHeight;
+    }
+  }, 50);
 }
 
 // ── Inline edit helper: swap display → textarea → save → history ──────────
@@ -3054,26 +4023,25 @@ function wireReveal(container, d) {
 
   // ---- Node image upload (top plate) ----
   const imgArea = container.querySelector('#imgarea-' + qid);
-  const fileInput = container.querySelector('#imgfile-' + qid);
-  const uploadLabel = container.querySelector('#imgupload-' + qid);
+  const fileInput = imgArea.querySelector('#imgfile-' + qid);
+  const camBtn = imgArea.querySelector('#imgcam-' + qid);
 
   function showImage(dataUrl) {
-    imgArea.innerHTML = `<div class="node-img"><img id="nodeimg-${qid}" src="${dataUrl}" alt="Node image" /><button class="img-remove" id="imgrm-${qid}" title="Remove image"><i class="ti ti-x"></i></button></div>`;
+    imgArea.innerHTML = `<div class="node-img"><img id="nodeimg-${qid}" src="${dataUrl}" alt="Node image" /><button class="img-remove" id="imgrm-${qid}" title="Remove image"><i class="ti ti-x"></i></button><input type="file" accept="image/*" id="imgfile-${qid}" style="display:none;" />`;
     const rmBtn = imgArea.querySelector('#imgrm-' + qid);
     rmBtn.onclick = (e) => { e.stopPropagation(); removeImage(); };
-    resize();
+    wireCam(); resize();
   }
   function removeImage() {
     try { localStorage.removeItem('node-img-' + qid); } catch(_) {}
-    imgArea.innerHTML = `<label class="img-upload" id="imgupload-${qid}" title="Upload image for this node"><i class="ti ti-camera-plus"></i>Upload image</label><input type="file" accept="image/*" id="imgfile-${qid}" style="display:none;" />`;
-    wireUpload();
-    resize();
+    imgArea.innerHTML = `<button class="img-cam-btn" id="imgcam-${qid}" title="Add image"><i class="ti ti-camera-plus"></i></button><input type="file" accept="image/*" id="imgfile-${qid}" style="display:none;" />`;
+    wireCam(); resize();
   }
-  function wireUpload() {
-    const lbl = imgArea.querySelector('#imgupload-' + qid);
+  function wireCam() {
+    const btn = imgArea.querySelector('#imgcam-' + qid);
     const inp = imgArea.querySelector('#imgfile-' + qid);
-    if (!lbl || !inp) return;
-    lbl.onclick = () => inp.click();
+    if (!btn || !inp) return;
+    btn.onclick = () => inp.click();
     inp.onchange = () => {
       const file = inp.files[0];
       if (!file) return;
@@ -3086,7 +4054,7 @@ function wireReveal(container, d) {
       reader.readAsDataURL(file);
     };
   }
-  if (!imgArea.querySelector('.node-img')) wireUpload();
+  if (camBtn) wireCam(); // camera button is already in DOM if no image
   // ---- End node image upload ----
 
   // Generate concept line on first view if missing
@@ -3219,6 +4187,17 @@ function wireReveal(container, d) {
           }
         }
         wireVersionNav(qid, 'firstPrinciples', fpContent, container.querySelector('#fpn-' + qid));
+        // Show and wire the "Answer this" button
+        const ansBtn = container.querySelector('#fp-answer-' + qid);
+        if (ansBtn) {
+          const probeQ = extractClosingProbe(fpContent);
+          if (probeQ) {
+            ansBtn.style.display = '';
+            ansBtn.onclick = () => answerThisProbe(qid, probeQ);
+          } else {
+            ansBtn.style.display = 'none';
+          }
+        }
       }
       resize();
     };
@@ -3227,7 +4206,6 @@ function wireReveal(container, d) {
   // Reveal question
   toggleInd('it-q-' + qid, 'ib-q-' + qid, () => {
     wireAnswerToggle(container);
-    wireHudDictation(container, qid);
   });
 
   // Why these are connected - clustering rationale
@@ -3317,6 +4295,28 @@ function wireReveal(container, d) {
       resize();
     };
   }
+
+  // Wire notes-collapse toggle (remembers state, defaults to collapsed)
+  const notesTgl = container.querySelector('#it-notes-' + qid);
+  const notesBody = container.querySelector('#ib-notes-' + qid);
+  if (notesTgl && notesBody) {
+    const notesStateKey = 'notes-collapse-' + qid;
+    const savedState = (() => { try { return localStorage.getItem(notesStateKey); } catch(_) { return null; } })();
+    if (savedState === 'open') {
+      notesBody.classList.add('open');
+      notesTgl.querySelector('.toggle-chevron').className = 'ti ti-chevron-up toggle-chevron';
+    }
+    notesTgl.onclick = () => {
+      const isOpen = notesBody.classList.toggle('open');
+      notesTgl.querySelector('.toggle-chevron').className = 'ti ti-chevron-' + (isOpen ? 'up' : 'down') + ' toggle-chevron';
+      try { localStorage.setItem(notesStateKey, isOpen ? 'open' : 'closed'); } catch(_) {}
+      resize();
+    };
+  }
+
+  // Wire dictation/chat (inside collapsible notes body, undock still works)
+  wireHudDictation(container, d.id);
+  resize();
 }
 
 function openHud(d, event) {
@@ -3611,7 +4611,7 @@ function renderGraph() {
         .attr('stroke', 'rgba(0,0,0,0.06)').attr('stroke-width', 1).attr('stroke-dasharray', '4 6');
     }
   }
-  renderHalos(nodes);
+  // halos deferred to simulation 'end' event
 
   const primaryLinks = links.filter(d =>
     spineSet.has(String(typeof d.source === 'object' ? d.source.id :
@@ -3641,6 +4641,7 @@ function renderGraph() {
   // Nodes - wrapped in <g class="g-node"> for slider targeting
   nodeSel = zoomG.append('g').selectAll('g').data(nodes).join('g')
     .attr('class', 'g-node')
+    .classed('untouched', d => !nodeActivity(String(d.id)))
     .attr('data-spine', d => spineSet.has(String(d.id)) ? '1' : '0')
     .each(function (d) {
       const g = d3.select(this);
@@ -3989,6 +4990,108 @@ window.addEventListener('blur', () => {
 
   gear.onclick = openSettings;
   saveBtn.onclick = saveAndClose;
+
+  // ── Show Story timeline bar toggle ──
+  const chkTimeline = document.getElementById('chkShowTimeline');
+  if (chkTimeline) {
+    chkTimeline.checked = localStorage.getItem('showSpineRail') === 'true';
+    chkTimeline.onchange = () => {
+      localStorage.setItem('showSpineRail', chkTimeline.checked ? 'true' : 'false');
+      const rail = document.getElementById('spineRail');
+      if (rail && GRAPH && GRAPH.mainPath && GRAPH.mainPath.length >= 2) {
+        rail.style.display = chkTimeline.checked ? 'flex' : 'none';
+      }
+    };
+  }
+
+  // ── Settings: attending style sliders (creativity + depth) ──
+  const creativitySlider = document.getElementById('asrCreativity');
+  const creativityVal = document.getElementById('asrCreativityVal');
+  const depthPills = document.querySelectorAll('.asr-depth-pills button');
+  const depthVal = document.getElementById('asrDepthVal');
+
+  function updateCreativityUI(v) {
+    creativitySlider.value = v;
+    creativitySlider.style.setProperty('--pct', v + '%');
+    const band = v < 30 ? 'Strict' : v < 65 ? 'Balanced' : 'Immersive';
+    creativityVal.textContent = v + ' · ' + band;
+  }
+  function updateDepthUI(d) {
+    depthVal.textContent = DEPTH_CONFIG[d].label;
+    depthPills.forEach(b => b.classList.toggle('is-active', +b.dataset.d === d));
+  }
+
+  // Restore saved prefs on settings open
+  const origAttendingPrefs = readAttendingPrefs();
+  let currentCreativity = origAttendingPrefs.creativity;
+  let currentDepth = origAttendingPrefs.depth;
+  updateCreativityUI(currentCreativity);
+  updateDepthUI(currentDepth);
+
+  if (creativitySlider) {
+    creativitySlider.oninput = () => {
+      currentCreativity = +creativitySlider.value;
+      updateCreativityUI(currentCreativity);
+    };
+  }
+  depthPills.forEach(btn => {
+    btn.onclick = () => {
+      currentDepth = +btn.dataset.d;
+      updateDepthUI(currentDepth);
+    };
+  });
+
+  // Override saveAndClose + the button handler to also persist attending prefs
+  const origSaveAndClose = saveAndClose;
+  function saveAndCloseWithPrefs() {
+    writeAttendingPrefs({ creativity: currentCreativity, depth: currentDepth });
+    origSaveAndClose();
+  }
+  saveBtn.onclick = saveAndCloseWithPrefs;
+
+  // ── Settings: font-size controller ──
+  const sfsDn = document.getElementById('settingsFsDown');
+  const sfsUp = document.getElementById('settingsFsUp');
+  const sfsRst = document.getElementById('settingsFsReset');
+  const sfsPill = document.getElementById('settingsFsPill');
+  if (sfsPill) sfsPill.textContent = Math.round(readHudFontScale() * 100) + '%';
+  if (sfsDn) sfsDn.onclick = () => {
+    const cur = readHudFontScale();
+    const next = Math.round((cur - HUD_FONT_STEP) / HUD_FONT_STEP) * HUD_FONT_STEP;
+    const clamped = Math.max(HUD_FONT_MIN, next);
+    writeHudFontScale(clamped);
+    updateAllPills(clamped);
+  };
+  if (sfsUp) sfsUp.onclick = () => {
+    const cur = readHudFontScale();
+    const next = Math.round((cur + HUD_FONT_STEP) / HUD_FONT_STEP) * HUD_FONT_STEP;
+    const clamped = Math.min(HUD_FONT_MAX, next);
+    writeHudFontScale(clamped);
+    updateAllPills(clamped);
+  };
+  if (sfsRst) sfsRst.onclick = () => { writeHudFontScale(HUD_FONT_DEFAULT); updateAllPills(HUD_FONT_DEFAULT); };
+
+  // ── Settings: notes & chat font-size controller ──
+  const nsDn = document.getElementById('settingsNsDown');
+  const nsUp = document.getElementById('settingsNsUp');
+  const nsRst = document.getElementById('settingsNsReset');
+  const nsPill = document.getElementById('settingsNsPill');
+  if (nsPill) nsPill.textContent = Math.round(readNotesFontScale() * 100) + '%';
+  if (nsDn) nsDn.onclick = () => {
+    const cur = readNotesFontScale();
+    const next = Math.round((cur - NOTES_FONT_STEP) / NOTES_FONT_STEP) * NOTES_FONT_STEP;
+    const clamped = Math.max(NOTES_FONT_MIN, next);
+    writeNotesFontScale(clamped);
+    updateAllNotesPills(clamped);
+  };
+  if (nsUp) nsUp.onclick = () => {
+    const cur = readNotesFontScale();
+    const next = Math.round((cur + NOTES_FONT_STEP) / NOTES_FONT_STEP) * NOTES_FONT_STEP;
+    const clamped = Math.min(NOTES_FONT_MAX, next);
+    writeNotesFontScale(clamped);
+    updateAllNotesPills(clamped);
+  };
+  if (nsRst) nsRst.onclick = () => { writeNotesFontScale(NOTES_FONT_DEFAULT); updateAllNotesPills(NOTES_FONT_DEFAULT); };
 
   // Pre-load key on page load
   const saved = localStorage.getItem('ds_api_key');
@@ -4524,7 +5627,16 @@ async function eagerLoadTitles() {
             <button class="dfs-btn" data-fsd="-1" title="Smaller text">A\u2212</button>
             <span class="dfs-pill">${Math.round(fsScale * 100)}%</span>
             <button class="dfs-btn" data-fsd="1" title="Larger text">A+</button>
-            <button class="dfs-btn" data-fsd="0" title="Reset text size">\u21ba</button>
+            <button class="dfs-btn" data-fsd="0" title="Reset text size"><i class="ti ti-refresh"></i></button>
+          </span>
+        </div>
+        <div class="dock-display-row">
+          <span class="ddr-label">Notes size</span>
+          <span class="dock-notes-ctl" id="dockNsCtl">
+            <button class="dns-btn" data-nsd="-1" title="Smaller notes text">A\u2212</button>
+            <span class="dns-pill">${Math.round(readNotesFontScale() * 100)}%</span>
+            <button class="dns-btn" data-nsd="1" title="Larger notes text">A+</button>
+            <button class="dns-btn" data-nsd="0" title="Reset notes size"><i class="ti ti-refresh"></i></button>
           </span>
         </div>
       </div>
@@ -4658,11 +5770,27 @@ async function eagerLoadTitles() {
           e.stopPropagation();
           const current = readHudFontScale();
           const dir = +btn.dataset.fsd;
-          if (dir === 0) { writeHudFontScale(HUD_FONT_DEFAULT); updateDockFsPill(HUD_FONT_DEFAULT); return; }
+          if (dir === 0) { writeHudFontScale(HUD_FONT_DEFAULT); updateAllPills(HUD_FONT_DEFAULT); return; }
           const next = Math.round((current + dir * HUD_FONT_STEP) / HUD_FONT_STEP) * HUD_FONT_STEP;
           const clamped = Math.min(HUD_FONT_MAX, Math.max(HUD_FONT_MIN, next));
           writeHudFontScale(clamped);
-          updateDockFsPill(clamped);
+          updateAllPills(clamped);
+        };
+      });
+    }
+    // Display: notes & chat font-size controller
+    const dnsCtl = document.getElementById('dockNsCtl');
+    if (dnsCtl) {
+      dnsCtl.querySelectorAll('.dns-btn').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const current = readNotesFontScale();
+          const dir = +btn.dataset.nsd;
+          if (dir === 0) { writeNotesFontScale(NOTES_FONT_DEFAULT); updateAllNotesPills(NOTES_FONT_DEFAULT); return; }
+          const next = Math.round((current + dir * NOTES_FONT_STEP) / NOTES_FONT_STEP) * NOTES_FONT_STEP;
+          const clamped = Math.min(NOTES_FONT_MAX, Math.max(NOTES_FONT_MIN, next));
+          writeNotesFontScale(clamped);
+          updateAllNotesPills(clamped);
         };
       });
     }
@@ -4673,19 +5801,14 @@ async function eagerLoadTitles() {
     if (deb) deb.onclick = () => document.getElementById('spineExtBtn').click();
   }
 
-  function updateDockFsPill(scale) {
-    const pill = document.getElementById('dockFsCtl')?.querySelector('.dfs-pill');
-    if (pill) pill.textContent = Math.round(scale * 100) + '%';
-    // Apply globally: set CSS var on root so all HUDs inherit
-    document.documentElement.style.setProperty('--hud-font-scale', scale);
-    // Also update any open HUDs
-    document.querySelectorAll('.hud').forEach(h => h.style.setProperty('--hud-font-scale', scale));
-  }
   // Apply on init
-  updateDockFsPill(readHudFontScale());
+  updateAllPills(readHudFontScale());
+  updateAllNotesPills(readNotesFontScale());
 
   window._closeDockReveal = function () {
     dockNodeList = []; dockNodeIdx = -1;
+    currentLiveNodeId = null;
+    updateLiveNodeIndicator();
     buildDockBody();
     syncDockPicker();
     syncDockInfo();
@@ -4748,6 +5871,9 @@ async function eagerLoadTitles() {
     dockBody.querySelector('.drn-back').onclick = window._closeDockReveal;
     dockBody.querySelector('.drn-prev')?.addEventListener('click', () => navigateDock(-1));
     dockBody.querySelector('.drn-next')?.addEventListener('click', () => navigateDock(1));
+    // Update graph indicator
+    currentLiveNodeId = String(node.id);
+    updateLiveNodeIndicator();
   };
 
   window._renderInDock = function (d) {
@@ -4778,6 +5904,10 @@ async function eagerLoadTitles() {
     dockBody.querySelector('.drn-back').onclick = window._closeDockReveal;
     dockBody.querySelector('.drn-prev')?.addEventListener('click', () => navigateDock(-1));
     dockBody.querySelector('.drn-next')?.addEventListener('click', () => navigateDock(1));
+    // Update graph indicator for dock-open node
+    currentLiveNodeId = String(d.id);
+    updateLiveNodeIndicator();
+    closeHud(); // close any floating HUD if dock takes over
   };
 
   window._isDockOpen = function () { return state.open; };
@@ -4890,6 +6020,122 @@ async function eagerLoadTitles() {
   window._invalidateShuffleCache = () => { unreviewedCache = null; };
 })();
 
+// ── Set search (by number or keyword) ──
+(function initSearch() {
+  const input = document.getElementById('setSearch');
+  const results = document.getElementById('searchResults');
+  if (!input || !results) return;
+  let debounceTid = 0;
+  let hlIdx = -1;
+  let matches = [];
+
+  function getLabels() {
+    const out = {};
+    const sel = document.getElementById('setPicker');
+    if (sel) {
+      Array.from(sel.options).forEach(o => {
+        const v = +o.value;
+        if (v) out[v] = o.textContent.replace(/^Set \d+\s*[·]\s*/, '').trim();
+      });
+    }
+    return out;
+  }
+
+  function filter(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) { matches = []; renderResults(); return; }
+
+    // Exact set number match?
+    const num = +q;
+    const labels = getLabels();
+    const allNums = Object.keys(SET_REGISTRY).map(Number).sort((a,b)=>a-b);
+
+    if (num && num > 0) {
+      // Prefer exact number match
+      const exact = allNums.filter(n => n === num);
+      if (exact.length) {
+        matches = exact.map(n => ({ num: n, label: labels[n] || 'Set ' + n }));
+        hlIdx = 0;
+        renderResults();
+        return;
+      }
+      // Starts-with number
+      const starts = allNums.filter(n => String(n).startsWith(q));
+      if (starts.length) {
+        matches = starts.map(n => ({ num: n, label: labels[n] || 'Set ' + n }));
+        hlIdx = 0;
+        renderResults();
+        return;
+      }
+    }
+
+    // Keyword match against labels
+    const kwResults = [];
+    for (const n of allNums) {
+      const label = (labels[n] || '').toLowerCase();
+      if (label.includes(q)) {
+        kwResults.push({ num: n, label: labels[n] || 'Set ' + n });
+      }
+    }
+    matches = kwResults.slice(0, 10);
+    hlIdx = matches.length > 0 ? 0 : -1;
+    renderResults();
+  }
+
+  function renderResults() {
+    results.innerHTML = '';
+    if (!matches.length) {
+      results.innerHTML = '<div class="sr-empty">No matching sets</div>';
+      results.classList.add('show');
+      return;
+    }
+    matches.forEach((m, i) => {
+      const div = document.createElement('div');
+      div.className = 'sr-item' + (i === hlIdx ? ' hl' : '');
+      div.innerHTML = '<span class="sr-num">' + m.num + '</span><span class="sr-label">' + esc(m.label) + '</span>';
+      div.onmousedown = (e) => { e.preventDefault(); pick(m.num); };
+      results.appendChild(div);
+    });
+    results.classList.add('show');
+  }
+
+  function pick(num) {
+    results.classList.remove('show');
+    input.value = '';
+    matches = [];
+    hlIdx = -1;
+    document.getElementById('setPicker').value = num;
+    loadSet(num);
+  }
+
+  function hide() {
+    results.classList.remove('show');
+  }
+
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTid);
+    debounceTid = setTimeout(() => filter(input.value), 150);
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (matches.length) { hlIdx = Math.min(hlIdx + 1, matches.length - 1); renderResults(); }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (matches.length) { hlIdx = Math.max(hlIdx - 1, 0); renderResults(); }
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (matches.length && hlIdx >= 0) pick(matches[hlIdx].num);
+    } else if (e.key === 'Escape') {
+      hide();
+    }
+  });
+
+  input.addEventListener('blur', () => { setTimeout(hide, 150); });
+  input.addEventListener('focus', () => { if (input.value.trim()) filter(input.value); });
+})();
+
 populatePicker();
 // Restore last session: load previously selected set (defaults to Set 1)
 (function restoreSession() {
@@ -4902,5 +6148,23 @@ populatePicker();
   loadSet(setNum);
 })();
 </script>
+<!-- Floating Notes & Chat wrapper (the dict-sect is moved in when undocked) -->
+<div class="float-dict" id="floatDictTmpl" style="display:none;">
+  <div class="fd-header">
+    <button class="fd-redock" title="Dock back to panel"><i class="ti ti-arrow-back-down"></i></button>
+  </div>
+  <div class="fd-body">
+    <!-- dict-sect is appended here by createFloatingDict -->
+  </div>
+  <div class="fd-resize-handle fdr-n"></div>
+  <div class="fd-resize-handle fdr-s"></div>
+  <div class="fd-resize-handle fdr-e"></div>
+  <div class="fd-resize-handle fdr-w"></div>
+  <div class="fd-resize-handle fdr-nw"></div>
+  <div class="fd-resize-handle fdr-ne"></div>
+  <div class="fd-resize-handle fdr-sw"></div>
+  <div class="fd-resize-handle fdr-se"></div>
+</div>
+
 </body>
 </html>

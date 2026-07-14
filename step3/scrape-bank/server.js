@@ -107,6 +107,66 @@ const server = http.createServer((req, res) => {
       return;
     }
 
+    // ── API: save-chat (POST) — backup chat history per node ──────────
+    if (url.pathname === '/api/save-chat' && req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        try {
+          const { nodeId, chatHistory } = JSON.parse(body);
+          if (!nodeId || !Array.isArray(chatHistory)) throw new Error('nodeId and chatHistory array required');
+          const chatDir = path.join(ROOT, 'user-data', 'chats');
+          fs.mkdirSync(chatDir, { recursive: true });
+          const chatFile = path.join(chatDir, `node-${nodeId}.json`);
+          const entry = { nodeId, updated: new Date().toISOString(), messages: chatHistory };
+          fs.writeFileSync(chatFile, JSON.stringify(entry, null, 2), 'utf8');
+          console.log('[chat-backup] Saved', chatHistory.length, 'messages for node', nodeId);
+          res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify({ ok: true }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify({ ok: false, error: e.message }));
+        }
+      });
+      return;
+    }
+
+    // ── API: load-chat (GET) — load backed-up chat history ──────────
+    if (url.pathname === '/api/load-chat') {
+      const nodeId = url.searchParams.get('nodeId') || '';
+      const chatFile = path.join(ROOT, 'user-data', 'chats', `node-${nodeId}.json`);
+      let chat = null;
+      if (fs.existsSync(chatFile)) {
+        try { chat = JSON.parse(fs.readFileSync(chatFile, 'utf8')); } catch (_) {}
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify(chat));
+      return;
+    }
+
+    // ── API: list-chats (GET) — overview of all chats with activity ──
+    if (url.pathname === '/api/list-chats') {
+      const chatDir = path.join(ROOT, 'user-data', 'chats');
+      const list = [];
+      if (fs.existsSync(chatDir)) {
+        const files = fs.readdirSync(chatDir).filter(f => f.endsWith('.json'));
+        for (const f of files) {
+          try {
+            const data = JSON.parse(fs.readFileSync(path.join(chatDir, f), 'utf8'));
+            list.push({
+              nodeId: data.nodeId,
+              updated: data.updated,
+              messageCount: data.messages?.length || 0,
+            });
+          } catch (_) {}
+        }
+      }
+      list.sort((a, b) => String(b.updated).localeCompare(String(a.updated)));
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify(list));
+      return;
+    }
+
     // ── CORS preflight for POST ─────────────────────────────────────
     if (req.method === 'OPTIONS') {
       res.writeHead(204, {
