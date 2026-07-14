@@ -178,6 +178,30 @@ const server = http.createServer((req, res) => {
       return;
     }
 
+    // ── API: find-node (GET) — locate which set contains a qid ─────────
+    if (req.url.startsWith('/api/find-node') && req.method === 'GET') {
+      const send = (code, obj) => {
+        res.writeHead(code, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify(obj));
+      };
+      const qid = url.searchParams.get('qid') || '';
+      if (!qid) return send(400, { error: 'qid required' });
+      try {
+        for (let i = 1; i <= 130; i++) {
+          const p = path.join(ROOT, 'graph-data-set-' + i + '.json');
+          if (!fs.existsSync(p)) continue;
+          const d = JSON.parse(fs.readFileSync(p, 'utf8'));
+          if ((d.nodes || []).some(n => String(n.id) === qid)) {
+            return send(200, { qid, set: i, coreDiagnosis: d.coreDiagnosis || '' });
+          }
+        }
+        send(404, { qid, error: 'not found in any set' });
+      } catch (e) {
+        send(500, { error: e.message });
+      }
+      return;
+    }
+
     // ── API: append-img (POST) — copy image + link to set ──────────────
     if (url.pathname === '/api/append-img' && req.method === 'POST') {
       let body = '';
