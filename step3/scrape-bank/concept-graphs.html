@@ -1452,6 +1452,77 @@
   [data-theme="dark"] .act-close { color: #6b7280; }
   [data-theme="dark"] .act-close:hover { color: #d0dbf0; background: rgba(255,255,255,0.06); }
 
+  /* ── Study Log timeline panel ── */
+  .studylog-panel {
+    position: fixed; z-index: 26; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 380px; max-height: 80vh; background: #fff; border: 1px solid var(--border);
+    border-radius: 10px; box-shadow: 0 8px 30px rgba(20,25,35,0.18);
+    font-size: 0.72rem; color: var(--ink); display: flex; flex-direction: column;
+  }
+  .studylog-header {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #f0f2f5; border-bottom: 1px solid var(--border);
+    padding: 8px 12px; font-weight: 650; font-size: 0.82rem;
+    border-radius: 10px 10px 0 0;
+  }
+  .studylog-close, .studylog-add-btn {
+    cursor: pointer; background: none; border: none; color: var(--muted);
+    font-size: 0.9rem; line-height: 1; padding: 2px 4px; border-radius: 4px;
+  }
+  .studylog-close:hover, .studylog-add-btn:hover { color: var(--ink); background: rgba(0,0,0,0.06); }
+  .studylog-body { padding: 12px; overflow-y: auto; flex: 1; max-height: 55vh; }
+  .studylog-body .timeline-day {
+    margin-bottom: 14px; border-left: 3px solid var(--accent); padding-left: 12px;
+    position: relative;
+  }
+  .studylog-body .timeline-day::before {
+    content: ''; position: absolute; left: -7px; top: 4px;
+    width: 10px; height: 10px; border-radius: 50%; background: var(--accent);
+  }
+  .studylog-body .tl-date { font-weight: 700; font-size: 0.82rem; margin-bottom: 2px; }
+  .studylog-body .tl-sets { font-size: 0.65rem; color: var(--muted); margin-bottom: 6px; }
+  .studylog-body .tl-content { font-size: 0.72rem; line-height: 1.55; }
+  .studylog-body .tl-content p { margin: 0 0 4px; }
+  .studylog-body .tl-content strong { color: var(--ink); }
+  .studylog-body .tl-content ul { margin: 4px 0; padding-left: 16px; }
+  .studylog-body .tl-content li { margin-bottom: 3px; }
+  .studylog-actions { display: flex; gap: 4px; margin-top: 6px; }
+  .studylog-actions button {
+    font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; cursor: pointer;
+    border: 1px solid var(--border); background: #fff; color: var(--muted);
+  }
+  .studylog-actions button:hover { color: var(--ink); border-color: var(--accent); }
+  .studylog-form { padding: 12px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+  .studylog-form input, .studylog-form textarea {
+    font-family: inherit; font-size: 0.72rem; padding: 5px 8px;
+    border: 1px solid var(--border); border-radius: 6px; outline: none; color: var(--ink);
+  }
+  .studylog-form textarea { resize: vertical; min-height: 80px; }
+  .studylog-form input:focus, .studylog-form textarea:focus { border-color: var(--accent); }
+  .studylog-form button {
+    font-family: inherit; font-size: 0.68rem; font-weight: 600;
+    padding: 4px 10px; border-radius: 6px; cursor: pointer; border: 1px solid var(--border);
+    background: #fff; color: var(--ink);
+  }
+  .studylog-form button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .studylog-form button.primary:hover { background: #1d4ed8; }
+  /* Streamline-to-log button inside chat */
+  .msg-streamline-btn {
+    font-size: 0.62rem; padding: 3px 8px; border-radius: 5px; cursor: pointer;
+    border: 1px solid var(--accent); background: #eef3ff; color: var(--accent);
+    font-weight: 600; margin-top: 4px;
+  }
+  .msg-streamline-btn:hover { background: var(--accent); color: #fff; }
+  [data-theme="dark"] .studylog-panel,
+  [data-theme="dark"] .studylog-header { background: #1a1d28; border-color: var(--border); }
+  [data-theme="dark"] .studylog-close, [data-theme="dark"] .studylog-add-btn { color: #6b7280; }
+  [data-theme="dark"] .studylog-close:hover, [data-theme="dark"] .studylog-add-btn:hover { color: #d0dbf0; }
+  [data-theme="dark"] .studylog-form input, [data-theme="dark"] .studylog-form textarea { background: #13151d; border-color: var(--border); }
+  [data-theme="dark"] .studylog-form button { background: #1f2230; border-color: var(--border); color: var(--ink); }
+  [data-theme="dark"] .studylog-form button.primary { background: var(--accent); color: #fff; }
+  [data-theme="dark"] .studylog-actions button { background: #1f2230; }
+  [data-theme="dark"] .msg-streamline-btn { background: #1a2a4a; }
+
   /* ── Spine extractor overlay ── */
   .spine-extractor {
     position: fixed; z-index: 30; inset: 0;
@@ -1565,6 +1636,7 @@
 
 <div class="float-fit" id="fitBtn" title="Fit all nodes in view"><i class="ti ti-maximize"></i>&nbsp;Fit to view</div>
 <button class="float-settings" id="settingsBtn" title="Settings"><i class="ti ti-settings"></i></button>
+<button class="float-settings" id="studyLogBtn" title="Study logs — timeline of everything we covered" style="top:48px;"><i class="ti ti-book-2"></i></button>
 <button class="float-toggle on" id="toggleLinesBtn" title="Toggle lines">-</button>
 <button class="float-settings" id="spineExtBtn" title="Spine concept extractor" style="top:12px;right:100px;"><i class="ti ti-list-details"></i></button>
 <div class="isolation-banner" id="isolationBanner" style="display:none">
@@ -1631,6 +1703,30 @@
 <div class="activity-popup" id="activityPopup" style="display:none;">
   <div class="activity-header">Today's Activity<button class="act-close" id="actClose" title="Close"><i class="ti ti-x"></i></button></div>
   <div class="activity-body" id="activityBody"></div>
+</div>
+
+<!-- Study Log timeline panel -->
+<div class="studylog-panel" id="studyLogPanel" style="display:none;">
+  <div class="studylog-header">
+    <span><i class="ti ti-book-2"></i>&nbsp;Study Log</span>
+    <div style="display:flex;gap:6px;">
+      <button class="studylog-add-btn" id="slAddBtn" title="Add entry"><i class="ti ti-plus"></i></button>
+      <button class="studylog-close" id="slClose" title="Close"><i class="ti ti-x"></i></button>
+    </div>
+  </div>
+  <div class="studylog-body" id="studyLogBody">
+    <div class="activity-empty">No entries yet. Ask Dr. Iwu to "streamline today's sets into a study log entry" and click the copy button.</div>
+  </div>
+  <!-- Add-entry form (hidden by default) -->
+  <div class="studylog-form" id="slForm" style="display:none;">
+    <input type="date" id="slDate" />
+    <input type="text" id="slSets" placeholder="Sets covered (e.g. Set 6, 14, 20)…" />
+    <textarea id="slText" placeholder="What we covered…" rows="4"></textarea>
+    <div style="display:flex;gap:6px;">
+      <button class="primary" id="slSave">Save</button>
+      <button id="slCancel">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <div class="float-legend">
@@ -2441,6 +2537,155 @@ setTimeout(() => {
   if (badge && !badge._wired) { badge._wired = true; badge.onclick = showActivityPopup; updateActivityBadge(); }
 }, 500);
 
+// ── Study Log ──────────────────────────────────────────────────────────────
+const STUDY_LOG_KEY = 'study-logs';
+
+function getStudyLogs() {
+  try { const raw = localStorage.getItem(STUDY_LOG_KEY); return raw ? JSON.parse(raw) : []; }
+  catch (_) { return []; }
+}
+
+function saveStudyLogs(logs) {
+  try { localStorage.setItem(STUDY_LOG_KEY, JSON.stringify(logs)); } catch (_) {}
+}
+
+function renderStudyLogs() {
+  const body = document.getElementById('studyLogBody');
+  if (!body) return;
+  const logs = getStudyLogs();
+  if (!logs.length) {
+    body.innerHTML = '<div class="activity-empty">No entries yet.<br>Chat with Dr. Iwu, then click <strong>Streamline to Log</strong> on his reply to save it here.</div>';
+    return;
+  }
+  // Reverse chronological
+  logs.sort((a, b) => b.date.localeCompare(a.date));
+  body.innerHTML = logs.map((entry, i) => {
+    const rawIdx = logs.length - 1 - i; // actual index in logs array
+    return `<div class="timeline-day">
+      <div class="tl-date">${entry.date || ''}</div>
+      <div class="tl-sets">${(entry.sets || '').replace(/</g, '&lt;')}</div>
+      <div class="tl-content">${mdToHtml ? mdToHtml(entry.text || '') : (entry.text || '').replace(/</g, '&lt;').replace(/\n/g, '<br>')}</div>
+      <div class="studylog-actions">
+        <button onclick="editStudyLog(${rawIdx})" title="Edit"><i class="ti ti-pencil"></i></button>
+        <button onclick="deleteStudyLog(${rawIdx})" title="Delete"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openStudyLogForm(prefillText) {
+  const panel = document.getElementById('studyLogPanel');
+  const form = document.getElementById('slForm');
+  const dateInput = document.getElementById('slDate');
+  const setsInput = document.getElementById('slSets');
+  const textInput = document.getElementById('slText');
+  if (!panel || !form) return;
+
+  panel.style.display = 'flex';
+  form.style.display = 'flex';
+  dateInput.value = new Date().toISOString().slice(0, 10);
+
+  // Try to auto-detect sets from today's activity
+  const today = new Date().toISOString().slice(0, 10);
+  const activityLog = getActivityLog();
+  const todayQids = [...new Set(activityLog.filter(e => e.ts && e.ts.startsWith(today)).map(e => e.qid))];
+  if (todayQids.length && typeof GRAPH !== 'undefined' && GRAPH && GRAPH.setNumber) {
+    setsInput.value = 'Set ' + GRAPH.setNumber;
+    // Try to also get other sets from server in background
+  }
+
+  textInput.value = prefillText || '';
+  // Store edit target (null = new entry)
+  form._editIdx = null;
+}
+
+function saveStudyLogEntry() {
+  const date = document.getElementById('slDate').value;
+  const sets = document.getElementById('slSets').value;
+  const text = document.getElementById('slText').value.trim();
+  if (!date || !text) return;
+
+  const logs = getStudyLogs();
+  const entry = { date, sets, text, ts: new Date().toISOString() };
+
+  const form = document.getElementById('slForm');
+  if (form._editIdx != null) {
+    logs[form._editIdx] = entry;
+    form._editIdx = null;
+  } else {
+    logs.push(entry);
+    logActivity('study-log', 'logEntry', sets || 'entry saved');
+  }
+
+  saveStudyLogs(logs);
+  renderStudyLogs();
+  document.getElementById('slForm').style.display = 'none';
+}
+
+function editStudyLog(idx) {
+  const logs = getStudyLogs();
+  const entry = logs[idx];
+  if (!entry) return;
+  const form = document.getElementById('slForm');
+  form.style.display = 'flex';
+  form._editIdx = idx;
+  document.getElementById('slDate').value = entry.date || '';
+  document.getElementById('slSets').value = entry.sets || '';
+  document.getElementById('slText').value = entry.text || '';
+}
+
+function deleteStudyLog(idx) {
+  if (!confirm('Delete this study log entry?')) return;
+  const logs = getStudyLogs();
+  logs.splice(idx, 1);
+  saveStudyLogs(logs);
+  renderStudyLogs();
+}
+
+// Wire panel open/close
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('studyLogBtn');
+  const panel = document.getElementById('studyLogPanel');
+  if (btn && panel) {
+    btn.onclick = () => {
+      const isOpen = panel.style.display !== 'none';
+      panel.style.display = isOpen ? 'none' : 'flex';
+      if (!isOpen) {
+        renderStudyLogs();
+        document.getElementById('slForm').style.display = 'none';
+      }
+    };
+  }
+  const closeBtn = document.getElementById('slClose');
+  if (closeBtn) closeBtn.onclick = () => { panel.style.display = 'none'; };
+  const addBtn = document.getElementById('slAddBtn');
+  if (addBtn) addBtn.onclick = () => openStudyLogForm('');
+  const saveBtn = document.getElementById('slSave');
+  if (saveBtn) saveBtn.onclick = saveStudyLogEntry;
+  const cancelBtn = document.getElementById('slCancel');
+  if (cancelBtn) cancelBtn.onclick = () => { document.getElementById('slForm').style.display = 'none'; };
+});
+
+// Also wire immediately (DOMContentLoaded may have already fired)
+setTimeout(() => {
+  const btn = document.getElementById('studyLogBtn');
+  const panel = document.getElementById('studyLogPanel');
+  if (btn && panel && !btn._wiredSl) {
+    btn._wiredSl = true;
+    btn.onclick = () => {
+      const isOpen = panel.style.display !== 'none';
+      panel.style.display = isOpen ? 'none' : 'flex';
+      if (!isOpen) { renderStudyLogs(); document.getElementById('slForm').style.display = 'none'; }
+    };
+  }
+  if (!document.getElementById('slClose').onclick) {
+    document.getElementById('slClose').onclick = () => { panel.style.display = 'none'; };
+    document.getElementById('slAddBtn').onclick = () => openStudyLogForm('');
+    document.getElementById('slSave').onclick = saveStudyLogEntry;
+    document.getElementById('slCancel').onclick = () => { document.getElementById('slForm').style.display = 'none'; };
+  }
+}, 800);
+
 const _dsQueue = {};
 var _dsTimer = null;
 function debouncedSave(key, value) {
@@ -2797,6 +3042,7 @@ function wireHudDictation(hud, nodeId) {
       return `<div class="chat-msg ${isUser ? 'msg-you' : 'msg-iwu'}">
         <div class="msg-sender">${isUser ? 'You' : 'Dr. Iwu'}</div>
         <div class="msg-bubble">${mdToHtml(m.content)}${copyBtn}</div>
+        ${!isUser ? `<button class="msg-streamline-btn" data-idx="${i}" title="Streamline this response into a study log entry"><i class="ti ti-book-2"></i>&nbsp;Streamline to Log</button>` : ''}
       </div>`;
     }).join('');
     chatLog.scrollTop = chatLog.scrollHeight;
@@ -2810,6 +3056,14 @@ function wireHudDictation(hud, nodeId) {
           btn.classList.add('copied');
           setTimeout(() => { btn.innerHTML = '<i class="ti ti-clipboard"></i>'; btn.classList.remove('copied'); }, 1500);
         }).catch(() => {});
+      };
+    });
+    // Wire streamline-to-log buttons
+    chatLog.querySelectorAll('.msg-streamline-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.idx);
+        openStudyLogForm(chatHistory[idx].content);
       };
     });
   }
