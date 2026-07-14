@@ -160,7 +160,7 @@
 
 | # | Feature | Status | Notes |
 |---|---------|--------|-------|
-| 81 | Tabler icons throughout | ✅ | CDN `@tabler/icons-webfont@3.31.0` |
+| 81 | Tabler icons throughout | ✅ | CDN `@tabler/icons-webfont@3.44.0` |
 | 82 | No white background behind slider | ✅ | Transparent |
 | 83 | No overlapping UI elements | ✅ | Z-index + spacing adjustments |
 | 84 | Redundant vertical "Jump To" column removed | ✅ | Horizontal Story tracker suffices |

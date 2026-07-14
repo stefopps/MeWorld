@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/tabler-icons.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.44.0/dist/tabler-icons.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <style>
   :root {
@@ -21,9 +21,13 @@
     font-family: Inter, system-ui, sans-serif;
     background: var(--bg); color: var(--ink);
   }
-  .stage-board {
+  .layout-row {
     position: fixed; inset: 0;
-    background: #fafbfc;
+    display: flex; flex-direction: row;
+  }
+  .stage-board {
+    flex: 1; position: relative;
+    min-width: 0; background: #fafbfc;
   }
   #chart { width: 100%; height: 100%; overflow: hidden; cursor: grab; }
   #chart:active { cursor: grabbing; }
@@ -172,21 +176,23 @@
   }
   .hud .dict-sect textarea, .hud-content .dict-sect textarea {
     font-family: Inter, sans-serif; font-size: 0.72rem; line-height: 1.5;
-    border: 1px solid var(--border); border-radius: 7px; padding: 6px 8px;
+    border: 1px solid var(--border); border-radius: 7px; padding: 6px 32px 6px 8px;
     resize: vertical; min-height: 60px; max-height: 150px; outline: none;
     width: 100%; color: var(--ink);
   }
   .hud .dict-sect textarea:focus, .hud-content .dict-sect textarea:focus { border-color: var(--accent); }
-  .hud .dict-row, .hud-content .dict-row { display: flex; gap: 6px; align-items: center; }
+  .hud .dict-input-wrap, .hud-content .dict-input-wrap { position: relative; }
   .hud .btn-mic, .hud-content .btn-mic {
-    width: 28px; height: 28px; border-radius: 50%; border: none;
-    cursor: pointer; font-size: 0.9rem; display: flex; align-items: center;
+    position: absolute; right: 6px; bottom: 6px;
+    width: 24px; height: 24px; border-radius: 50%; border: none;
+    cursor: pointer; font-size: 0.8rem; display: flex; align-items: center;
     justify-content: center; transition: all .15s; flex-shrink: 0;
-    background: #eef2ff; color: var(--accent);
+    background: #fff; color: var(--ink);
+    border: 1px solid var(--border);
   }
-  .hud .btn-mic:hover, .hud-content .btn-mic:hover { background: #dde4ff; }
+  .hud .btn-mic:hover, .hud-content .btn-mic:hover { background: #f0f2f5; }
   .hud .btn-mic.recording, .hud-content .btn-mic.recording {
-    background: #fef2f2; color: #ef4444;
+    background: #ef4444; color: #fff;
     animation: pulse-mic .8s ease infinite alternate;
   }
   @keyframes pulse-mic {
@@ -195,8 +201,8 @@
   }
   .hud .dict-interim, .hud-content .dict-interim {
     font-size: 0.65rem; color: var(--muted); font-style: italic;
-    min-height: 16px; padding: 0 2px; overflow: hidden; text-overflow: ellipsis;
-    white-space: nowrap; flex: 1;
+    min-height: 16px; padding: 2px 2px 0; overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .hud .dict-sect .btn-row, .hud-content .dict-sect .btn-row { display: flex; gap: 6px; margin-top: 6px; }
   .hud .dict-sect .btn-row button, .hud-content .dict-sect .btn-row button {
@@ -210,21 +216,106 @@
   }
   .hud .dict-sect .btn-row button.primary:hover, .hud-content .dict-sect .btn-row button.primary:hover { background: #1d4ed8; }
   .hud .dict-sect .btn-row button:disabled, .hud-content .dict-sect .btn-row button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── Two-way dict mode segmented control (Notes · Attending) ── */
+  .hud .mode-seg, .hud-content .mode-seg {
+    position: relative; display: grid; grid-template-columns: 1fr 1fr;
+    padding: 3px; border-radius: 999px; background: rgba(0,0,0,0.06);
+    margin-bottom: 8px;
+  }
+  .hud .mode-seg-thumb, .hud-content .mode-seg-thumb {
+    position: absolute; top: 3px; left: 3px; width: calc(50% - 3px);
+    height: calc(100% - 6px); border-radius: 999px; background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+    transition: transform .22s ease; pointer-events: none;
+  }
+  .hud .mode-seg[data-mode="chat"] .mode-seg-thumb,
+  .hud-content .mode-seg[data-mode="chat"] .mode-seg-thumb {
+    transform: translateX(100%);
+  }
+  .hud .mode-seg-btn, .hud-content .mode-seg-btn {
+    position: relative; z-index: 1; display: inline-flex; align-items: center;
+    justify-content: center; gap: 5px; padding: 5px 10px; border: none;
+    background: transparent; color: var(--muted); font-size: 0.64rem;
+    font-weight: 600; cursor: pointer; border-radius: 999px;
+    font-family: inherit; transition: color .15s;
+  }
+  .hud .mode-seg-btn.is-active, .hud-content .mode-seg-btn.is-active { color: var(--ink); }
+  [data-theme="dark"] .hud .mode-seg, [data-theme="dark"] .hud-content .mode-seg {
+    background: rgba(255,255,255,0.06);
+  }
+  [data-theme="dark"] .hud .mode-seg-thumb, [data-theme="dark"] .hud-content .mode-seg-thumb {
+    background: #2d3148;
+  }
+  [data-theme="dark"] .hud .mode-seg-btn.is-active, [data-theme="dark"] .hud-content .mode-seg-btn.is-active {
+    color: #fff;
+  }
+
+  /* ── Chat area (inside dict-sect) ── */
+  .hud .chat-area, .hud-content .chat-area {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .hud .chat-area .chat-log, .hud-content .chat-area .chat-log {
+    max-height: 220px; overflow-y: auto; border: 1px solid var(--border);
+    border-radius: 7px; padding: 8px; font-size: 0.68rem; line-height: 1.45;
+    background: #fafbfc; color: var(--ink);
+  }
+  .hud .chat-area .chat-log .chat-msg, .hud-content .chat-area .chat-log .chat-msg {
+    margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    animation: chatFadeIn .25s ease;
+  }
+  .hud .chat-area .chat-log .chat-msg:last-child, .hud-content .chat-area .chat-log .chat-msg:last-child {
+    margin-bottom: 0; padding-bottom: 0; border-bottom: none;
+  }
+  .hud .chat-area .chat-log .chat-role, .hud-content .chat-area .chat-log .chat-role {
+    font-weight: 650; font-size: 0.6rem; text-transform: uppercase;
+    letter-spacing: 0.04em; margin-bottom: 2px;
+  }
+  .hud .chat-area .chat-log .chat-role.you, .hud-content .chat-area .chat-log .chat-role.you {
+    color: var(--accent);
+  }
+  .hud .chat-area .chat-log .chat-role.iwu, .hud-content .chat-area .chat-log .chat-role.iwu {
+    color: var(--coral);
+  }
+  .hud .chat-area .chat-input-row, .hud-content .chat-area .chat-input-row {
+    display: flex; gap: 6px;
+  }
+  .hud .chat-area .chat-input-row input, .hud-content .chat-area .chat-input-row input {
+    flex: 1; font-family: inherit; font-size: 0.68rem; border: 1px solid var(--border);
+    border-radius: 7px; padding: 5px 8px; outline: none; color: var(--ink);
+  }
+  .hud .chat-area .chat-input-row input:focus, .hud-content .chat-area .chat-input-row input:focus {
+    border-color: var(--accent);
+  }
+  .hud .chat-area .chat-input-row button, .hud-content .chat-area .chat-input-row button {
+    font-family: inherit; font-size: 0.68rem; font-weight: 600;
+    padding: 5px 10px; border-radius: 7px; cursor: pointer;
+    border: 1px solid var(--border); background: #fff; color: var(--ink);
+    white-space: nowrap;
+  }
+  .hud .chat-area .chat-input-row button.primary, .hud-content .chat-area .chat-input-row button.primary {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+  }
+  .hud .chat-area .chat-input-row button.primary:disabled, .hud-content .chat-area .chat-input-row button.primary:disabled {
+    opacity: 0.4; cursor: not-allowed;
+  }
+  [data-theme="dark"] .hud .chat-area .chat-log, [data-theme="dark"] .hud-content .chat-area .chat-log {
+    background: #1a1d28; border-color: var(--border);
+  }
+  [data-theme="dark"] .hud .chat-area .chat-input-row input, [data-theme="dark"] .hud-content .chat-area .chat-input-row input {
+    background: #1a1d28; color: var(--ink); border-color: var(--border);
+  }
+  [data-theme="dark"] .hud .chat-area .chat-input-row button, [data-theme="dark"] .hud-content .chat-area .chat-input-row button {
+    background: #1f2230; color: var(--ink);
+  }
+  @keyframes chatFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
   .hud .dict-sect .dict-status, .hud-content .dict-sect .dict-status { font-size: 0.62rem; color: var(--muted); margin-top: 4px; min-height: 12px; }
 
   /* ── Distill concept ── */
-  .hud .distill-btn, .hud-content .distill-btn {
-    margin-top: 10px; width: 100%; padding: 6px 10px; border-radius: 7px;
-    border: 1px solid var(--teal); background: #fff; color: var(--teal);
-    font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: inherit;
-    display: flex; align-items: center; justify-content: center; gap: 5px;
-  }
-  .hud .distill-btn:hover, .hud-content .distill-btn:hover { background: #eefaf3; }
-  .hud .distill-btn:disabled, .hud-content .distill-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .hud .distill-result, .hud-content .distill-result {
-    margin-top: 8px; padding: 8px 10px; border-radius: 7px;
+    margin-top: 0; padding: 8px 10px; border-radius: 7px;
     background: #edf7f0; border: 1px solid #b7e4c7;
-    color: #116932; font-size: 0.78rem; line-height: 1.5; display: none;
+    color: #116932; font-size: 0.78rem; line-height: 1.5;
   }
 
   /* ── Milling tracker - 3-state study progress per concept ── */
@@ -432,7 +523,7 @@
 
   /* ── Command dock - right-side slide-in panel (MeWorld pattern) ── */
   .cmd-dock {
-    position: fixed; z-index: 20; top: 0; right: 0; bottom: 0;
+    flex-shrink: 0; position: relative;
     width: 0; background: #fff; border-left: 1px solid var(--border);
     box-shadow: -2px 0 16px rgba(20,25,35,0.1);
     display: flex; flex-direction: column;
@@ -454,18 +545,17 @@
   /* Collapse inner body when dock is closed so text doesn't overflow-bleed */
   .cmd-dock:not(.open) .dock-body { display: none; }
 
-  /* Dock toggle tab - always visible on right edge */
-  .dock-toggle {
-    position: fixed; z-index: 19; top: 50%; transform: translateY(-50%);
-    right: calc(var(--dock-w, 0px) + 14px); width: 28px; height: 64px;
-    background: #f0f2f5; border: 1px solid var(--border);
-    border-radius: 8px 0 0 8px; cursor: pointer;
+  /* Dock close button (X) at top right of dock body */
+  .dock-close-row { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+  .dock-close-btn {
+    width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border);
+    background: #fff; color: var(--muted); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    color: var(--muted); font-size: 0.85rem;
-    transition: right 0.22s ease, background .15s, z-index 0s step-end;
+    font-size: 0.85rem; transition: all .15s;
   }
-  .cmd-dock.open ~ .dock-toggle { z-index: 21; }
-  .dock-toggle:hover { background: #e3e8ee; color: var(--ink); }
+  .dock-close-btn:hover { background: #fee2e2; color: #ef4444; border-color: #fca5a5; }
+  [data-theme="dark"] .dock-close-btn { background: #1f2230; }
+  [data-theme="dark"] .dock-close-btn:hover { background: #3c1414; color: #fca5a5; border-color: #5c2020; }
 
   /* Dock sections - individual control groups */
   .dock-section {
@@ -498,9 +588,52 @@
   .dock-legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
   .dock-section input[type=range] { width: 100%; margin-top: 4px; }
 
-  /* Graph area shifts right when dock is open */
-  .stage-board { transition: right 0.22s ease; }
-  .stage-board.dock-open { right: var(--dock-w, 320px); }
+  /* Dock display row (label + control, e.g. dark mode / text size) */
+  .dock-section .dock-display-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 2px 0;
+  }
+  .dock-section .dock-display-row .ddr-label {
+    font-size: 0.66rem; color: var(--ink); font-weight: 500;
+  }
+  .dock-section .dock-display-row .ddr-ctl {
+    display: flex; align-items: center; gap: 4px;
+  }
+  .dock-section .dock-display-row .ddr-btn {
+    width: auto; border: 1px solid var(--border); border-radius: 6px;
+    background: #fff; padding: 3px 7px; cursor: pointer;
+    font-size: 0.75rem; color: var(--ink); line-height: 1;
+  }
+  .dock-section .dock-display-row .ddr-btn:hover { background: #f0f2f5; }
+  [data-theme="dark"] .dock-section .dock-display-row .ddr-btn {
+    background: #2d3148; color: #fff; border-color: #3d4158;
+  }
+  [data-theme="dark"] .dock-section .dock-display-row .ddr-btn:hover { background: #3d4358; }
+
+  /* Dock font-size pill (same pattern as HUD) */
+  .dock-section .dock-fs-ctl { display: flex; align-items: center; gap: 2px; }
+  .dock-section .dock-fs-ctl .dfs-btn {
+    width: auto; font-family: inherit; font-size: 0.6rem; font-weight: 700;
+    padding: 2px 5px; border-radius: 4px; border: 1px solid var(--border);
+    background: #fff; color: var(--accent); cursor: pointer; line-height: 1.3;
+    min-width: 18px; text-align: center;
+  }
+  .dock-section .dock-fs-ctl .dfs-btn:hover { background: #eef3ff; }
+  .dock-section .dock-fs-ctl .dfs-pill {
+    font-size: 0.56rem; color: var(--muted); font-weight: 600;
+    min-width: 26px; text-align: center;
+  }
+  [data-theme="dark"] .dock-section .dock-fs-ctl .dfs-btn {
+    background: #2d3148; color: #93b4f5; border-color: #3d4158;
+  }
+  [data-theme="dark"] .dock-section .dock-fs-ctl .dfs-btn:hover { background: #3d4358; }
+  [data-theme="dark"] .dock-section .dock-fs-ctl .dfs-pill { color: #93b4f5; }
+
+  /* Dark mode toggle in dock */
+  .dock-dark-toggle {
+    display: flex; align-items: center; gap: 4px; cursor: pointer;
+    font-size: 0.8rem; color: var(--ink);
+  }
 
   /* ── Settings gear ── */
   .float-settings {
@@ -515,11 +648,13 @@
   .float-settings:hover { background: #eef3ff; border-color: var(--accent); }
 
   /* ── Shift right-edge toolbar buttons left when dock is open ── */
-  .cmd-dock.open ~ .float-settings { z-index: 22; }
-  .cmd-dock.open ~ #settingsBtn { right: calc(var(--dock-w, 320px) + 16px); }
-  .cmd-dock.open ~ #spineExtBtn { right: calc(var(--dock-w, 320px) + 100px); }
-  .cmd-dock.open ~ .float-fit { right: calc(var(--dock-w, 320px) + 54px); }
-  .cmd-dock.open ~ .float-toggle { right: calc(var(--dock-w, 320px) + 136px); }
+  body.dock-open .float-settings { z-index: 22; }
+  body.dock-open #settingsBtn { right: calc(var(--dock-w, 320px) + 16px); }
+  body.dock-open #spineExtBtn { right: calc(var(--dock-w, 320px) + 100px); }
+  body.dock-open .float-fit { right: calc(var(--dock-w, 320px) + 54px); }
+  body.dock-open .float-toggle { right: calc(var(--dock-w, 320px) + 136px); }
+  body.dock-open #darkModeBtn { right: calc(var(--dock-w, 320px) + 180px); }
+  body.dock-open #dockOpenBtn { display: none; }
 
   /* ── Settings popup ── */
   .settings-popup {
@@ -680,17 +815,20 @@
     border: 1px solid var(--border); font-size: 0.78rem; line-height: 1.4;
   }
   .hud .likely, .dock-reveal-content .likely {
-    margin-top: 8px; padding: 8px 10px; border-radius: 7px;
+    margin-top: 0; padding: 8px 10px; border-radius: 7px;
     background: #edf7f0; border: 1px solid #b7e4c7;
     color: #116932; font-size: 0.78rem; font-weight: 600;
-    display: none;
   }
-  .hud .answer-toggle, .hud-content .answer-toggle {
-    margin-top: 10px; width: 100%; padding: 7px 10px; border-radius: 7px;
-    border: 1px solid #0f8f5f; background: #fff; color: #0f8f5f;
-    font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit;
+
+  /* Explanation body (replaces <details> with ind-toggle pattern) */
+  .hud .explain-body, .dock-reveal-content .explain-body, .hud-content .explain-body {
+    font-size: 0.78rem; line-height: 1.55; white-space: pre-wrap;
+    max-height: 200px; overflow-y: auto; padding: 8px 10px;
+    border-radius: 7px; background: #fafbfc; color: #40485a;
   }
-  .hud .answer-toggle:hover, .hud-content .answer-toggle:hover { background: #eefaf3; }
+  [data-theme="dark"] .hud .explain-body, [data-theme="dark"] .dock-reveal-content .explain-body, [data-theme="dark"] .hud-content .explain-body {
+    background: #1f2230; color: var(--muted);
+  }
   .hud details { margin-top: 8px; color: var(--muted); font-size: 0.78rem; }
   .hud details summary { cursor: pointer; color: var(--accent); }
   .hud details pre {
@@ -746,8 +884,6 @@
   [data-theme="dark"] .hud .ind-toggle:hover, [data-theme="dark"] .hud-content .ind-toggle:hover, [data-theme="dark"] .dock-reveal-content .ind-toggle:hover { background: #1f2230; }
   [data-theme="dark"] .hud .answers li, [data-theme="dark"] .hud-content .answers li { background: #1f2230; border-color: var(--border); }
   [data-theme="dark"] .hud .likely, [data-theme="dark"] .dock-reveal-content .likely { background: #162818; border-color: #2a4a30; color: #4ade80; }
-  [data-theme="dark"] .hud .answer-toggle, [data-theme="dark"] .hud-content .answer-toggle { background: #1a1d28; border-color: #22c55e; color: #4ade80; }
-  [data-theme="dark"] .hud .answer-toggle:hover, [data-theme="dark"] .hud-content .answer-toggle:hover { background: #162818; }
   [data-theme="dark"] .hud .reveal-btn, [data-theme="dark"] .hud-content .reveal-btn { background: #1a1d28; }
   [data-theme="dark"] .hud .reveal-btn:hover, [data-theme="dark"] .hud-content .reveal-btn:hover { background: #1f2740; }
   [data-theme="dark"] .hud .pc-edit-actions button, [data-theme="dark"] .hud-content .pc-edit-actions button,
@@ -762,15 +898,13 @@
   [data-theme="dark"] .hud .pc-approve.flagged, [data-theme="dark"] .hud-content .pc-approve.flagged { background: #16a34a; }
   [data-theme="dark"] .hud .pc-needs-work.flagged, [data-theme="dark"] .hud-content .pc-needs-work.flagged { background: #f59e0b; }
   [data-theme="dark"] .hud .distill-result, [data-theme="dark"] .hud-content .distill-result { color: var(--ink); background: #1f2230; }
-  [data-theme="dark"] .hud .distill-btn, [data-theme="dark"] .hud-content .distill-btn { background: #1f2230; color: var(--accent); }
-  [data-theme="dark"] .hud .distill-btn:hover, [data-theme="dark"] .hud-content .distill-btn:hover { background: #1e2840; }
   [data-theme="dark"] .hud .dict-sect textarea,
   [data-theme="dark"] .hud .pc-edit-area,
   [data-theme="dark"] .hud .fb-edit-area { background: #1a1d28; color: var(--ink); border-color: var(--border); }
-  [data-theme="dark"] .hud .btn-mic, [data-theme="dark"] .hud-content .btn-mic { background: #1f2230; color: var(--muted); }
-  [data-theme="dark"] .hud .btn-mic:hover, [data-theme="dark"] .hud-content .btn-mic:hover { background: #252840; }
+  [data-theme="dark"] .hud .btn-mic, [data-theme="dark"] .hud-content .btn-mic { background: #1f2230; color: #fff; border-color: #2d3148; }
+  [data-theme="dark"] .hud .btn-mic:hover, [data-theme="dark"] .hud-content .btn-mic:hover { background: #2d3148; }
+  [data-theme="dark"] .hud .btn-mic.recording, [data-theme="dark"] .hud-content .btn-mic.recording { background: #ef4444; color: #fff; }
   [data-theme="dark"] .cmd-dock { background: #13151d; border-color: var(--border); }
-  [data-theme="dark"] .dock-toggle { background: #1a1d28; }
   [data-theme="dark"] .dock-section select { background: #1a1d28; color: var(--ink); border-color: var(--border); }
   [data-theme="dark"] .dock-section button { background: #1f2230; color: var(--ink); border-color: var(--border); }
   [data-theme="dark"] .dock-section button:hover { background: #252840; }
@@ -791,20 +925,6 @@
   [data-theme="dark"] .dock-reveal-nav .drn-arrows button { background: #1f2230; border-color: var(--border); color: var(--ink); }
   [data-theme="dark"] .dock-reveal-nav .drn-back:hover,
   [data-theme="dark"] .dock-reveal-nav .drn-arrows button:hover:not(:disabled) { background: #252840; }
-
-  /* ── Dark mode toggle strip (right edge, full height) ── */
-  .dm-toggle-strip {
-    position: fixed; z-index: 50; top: 0; right: 0; bottom: 0;
-    width: 14px; cursor: pointer;
-    background: rgba(15,17,23,0.06);
-    border-left: 1px solid rgba(15,17,23,0.08);
-    display: flex; align-items: center; justify-content: center;
-    transition: background .2s;
-    writing-mode: vertical-rl; font-size: 0.55rem;
-    color: var(--muted); letter-spacing: 0.08em; font-weight: 600;
-    user-select: none;
-  }
-  .dm-toggle-strip:hover { background: rgba(37,99,235,0.1); color: var(--accent); }
 
   /* ── Spine extractor overlay ── */
   .spine-extractor {
@@ -878,6 +998,7 @@
 </head>
 <body>
 
+<div class="layout-row">
 <div class="stage-board" id="board">
   <div id="chart"></div>
 </div>
@@ -889,9 +1010,9 @@
     <!-- Controls are injected by JS -->
   </div>
 </div>
-<div class="dock-toggle" id="dockToggle" title="Toggle command panel">
-  <i class="ti ti-layout-sidebar-right"></i>
 </div>
+
+<button class="float-settings" id="dockOpenBtn" title="Open command panel" style="top:12px;right:220px;"><i class="ti ti-layout-sidebar-right"></i></button>
 
 <!-- Floating controls OVER the canvas -->
 <div class="float-ctl float-ctl-top">
@@ -954,10 +1075,8 @@
 
 <div class="err" id="err"></div>
 
-<!-- Dark mode toggle strip (right edge, full height) -->
-<div class="dm-toggle-strip" id="darkModeStrip" title="Toggle dark mode">
-  <span id="dmLabel">DARK</span>
-</div>
+<!-- Dark mode toggle button -->
+<button class="float-settings" id="darkModeBtn" title="Toggle dark mode" style="top:12px;right:180px;"><i class="ti ti-moon"></i></button>
 
 <!-- Spine concept extractor overlay -->
 <div class="spine-extractor" id="spineExtractor">
@@ -1127,6 +1246,17 @@ let zoomG = null;
 let selectedNodes = new Set();
 let generatedStory = null;
 let linesVisible = true;
+// Restore lines toggle from session
+(function () {
+  try {
+    const v = localStorage.getItem('lines_visible');
+    if (v === '0') {
+      linesVisible = false;
+      const btn = document.getElementById('toggleLinesBtn');
+      if (btn) { btn.classList.add('off'); btn.classList.remove('on'); btn.textContent = '╱'; }
+    }
+  } catch (_) {}
+})();
 let isolatedNodeId = null; // null = full graph, string = isolated node QID
 let currentLiveNodeId = null; // which node's panel is currently open (for "live" ring indicator)
 let resizeObserver = null;
@@ -1327,10 +1457,35 @@ function questionHTML(q) {
     <div class="qwrap">
       <p style="font-size:0.8rem; white-space:pre-wrap;">${esc(q.question)}</p>
       <ul class="answers">${ans}</ul>
-      ${q.likely ? '<button class="answer-toggle" type="button">Show Answer</button><div class="likely">Answer: ' + esc(q.likely) + '</div>' : ''}
-      <details><summary>Explanation</summary><pre>${esc(q.explanation || '(none)')}</pre></details>
-      <div class="distill-result" id="distill-result-${q.id}"></div>
-      <button class="distill-btn" type="button" data-qid="${q.id}"><i class="ti ti-bulb"></i> Distill - what is this question teaching?</button>
+
+      ${q.likely ? `
+      <div class="ind-toggle" id="it-ans-${q.id}">
+        <span class="toggle-dot"></span>
+        <span>Show Answer</span>
+        <i class="ti ti-chevron-down toggle-chevron"></i>
+      </div>
+      <div class="ind-body" id="ib-ans-${q.id}">
+        <div class="likely">Answer: ${esc(q.likely)}</div>
+      </div>` : ''}
+
+      <div class="ind-toggle" id="it-explain-${q.id}">
+        <span class="toggle-dot"></span>
+        <span>Explanation</span>
+        <i class="ti ti-chevron-down toggle-chevron"></i>
+      </div>
+      <div class="ind-body" id="ib-explain-${q.id}">
+        <div class="explain-body">${esc(q.explanation || '(none)')}</div>
+      </div>
+
+      <div class="ind-toggle" id="it-distill-${q.id}">
+        <span class="toggle-dot"></span>
+        <span>Distill concept</span>
+        <i class="ti ti-chevron-down toggle-chevron"></i>
+      </div>
+      <div class="ind-body" id="ib-distill-${q.id}">
+        <div class="distill-result" id="distill-result-${q.id}"></div>
+      </div>
+
       <div class="mill-tracker" data-qid="${q.id}" data-state="${state}">
         <span class="mill-label">Study progress</span>
         <span class="mill-icons">
@@ -1342,16 +1497,26 @@ function questionHTML(q) {
       </div>
       <div class="dict-sect">
         <div class="dict-header">
-          <span class="dict-label"><i class="ti ti-microphone"></i>&nbsp;Dictate notes</span>
+          <span class="dict-label">Notes &amp; Chat</span>
         </div>
-        <div class="dict-row">
+        <div class="mode-seg" data-mode="notes" id="mode-seg-${q.id}">
+          <span class="mode-seg-thumb"></span>
+          <button class="mode-seg-btn is-active" data-m="notes"><i class="ti ti-pencil"></i>&nbsp;Notes</button>
+          <button class="mode-seg-btn" data-m="chat"><i class="ti ti-messages"></i>&nbsp;Dr. Iwu</button>
+        </div>
+        <!-- Notes mode -->
+        <div class="dict-input-wrap" id="notes-area-${q.id}">
+          <textarea id="dict-text-${q.id}" placeholder="Speak or type notes on this concept…"></textarea>
           <button class="btn-mic" data-qid="${sid}" title="Toggle microphone"><i class="ti ti-microphone"></i></button>
-          <span class="dict-interim" id="dict-interim-${q.id}"></span>
         </div>
-        <textarea id="dict-text-${q.id}" placeholder="Speak or type notes on this concept…"></textarea>
-        <div class="btn-row">
-          <button class="primary" id="dict-compose-${q.id}" data-qid="${q.id}" disabled>Compose story with AI</button>
-          <button id="dict-clear-${q.id}" data-qid="${q.id}">Clear</button>
+        <span class="dict-interim" id="dict-interim-${q.id}"></span>
+        <!-- Chat mode (hidden by default) -->
+        <div class="chat-area" id="chat-area-${q.id}" style="display:none;">
+          <div class="chat-log" id="chat-log-${q.id}"></div>
+          <div class="chat-input-row">
+            <input type="text" id="chat-input-${q.id}" placeholder="Ask Dr. Iwu about this case…" />
+            <button class="primary" id="chat-send-${q.id}">Send</button>
+          </div>
         </div>
         <div class="dict-status" id="dict-status-${q.id}"></div>
       </div>
@@ -1601,23 +1766,15 @@ function restoreHudPosition(hud) {
 }
 
 function wireAnswerToggle(hud) {
-  hud.querySelectorAll('.answer-toggle').forEach(btn => {
-    btn.onclick = () => {
-      const likely = hud.querySelector('.likely');
-      if (likely) { likely.style.display = 'block'; }
-      btn.remove();
-    };
-  });
-  // Wire distill button
-  hud.querySelectorAll('.distill-btn').forEach(btn => {
-    btn.onclick = () => {
-      const qid = btn.dataset.qid;
-      if (!qid) return;
-      const node = byId[qid];
-      if (!node) return;
-      distillConcept(hud, node);
-    };
-  });
+  // Show Answer — plain toggle, no async
+  toggleIndInContainer(hud, 'it-ans-', 'ib-ans-');
+
+  // Explanation — plain toggle, no async
+  toggleIndInContainer(hud, 'it-explain-', 'ib-explain-');
+
+  // Distill concept — async, trigger DeepSeek on first expand
+  const distillReady = wireDistillToggle(hud);
+
   // Wire milling tracker
   hud.querySelectorAll('.mill-step').forEach(step => {
     step.onclick = () => {
@@ -1629,6 +1786,40 @@ function wireAnswerToggle(hud) {
   });
 }
 
+function toggleIndInContainer(container, togglePrefix, bodyPrefix) {
+  const toggle = container.querySelector('[id^="' + togglePrefix + '"]');
+  const body = container.querySelector('[id^="' + bodyPrefix + '"]');
+  if (!toggle || !body) return;
+  toggle.onclick = () => {
+    const isOpen = body.classList.toggle('open');
+    toggle.querySelector('.toggle-chevron').className = 'ti ti-chevron-' + (isOpen ? 'up' : 'down') + ' toggle-chevron';
+  };
+}
+
+function wireDistillToggle(hud) {
+  const toggle = hud.querySelector('[id^="it-distill-"]');
+  const body = hud.querySelector('[id^="ib-distill-"]');
+  if (!toggle || !body) return;
+  const qid = toggle.id.replace('it-distill-', '');
+  const node = byId[qid];
+  if (!node) return;
+
+  toggle.onclick = async () => {
+    const isOpen = body.classList.toggle('open');
+    toggle.querySelector('.toggle-chevron').className = 'ti ti-chevron-' + (isOpen ? 'up' : 'down') + ' toggle-chevron';
+    if (isOpen) {
+      if (!body.dataset.loaded) {
+        const resultDiv = hud.querySelector('#distill-result-' + qid);
+        if (resultDiv) {
+          resultDiv.textContent = 'Analyzing…';
+          distillConcept(hud, node);
+        }
+        body.dataset.loaded = '1';
+      }
+    }
+  };
+}
+
 // ── Distill concept: extract the ONE core teaching from a question ─────
 async function distillConcept(hud, node) {
   const key = localStorage.getItem('ds_api_key');
@@ -1636,10 +1827,7 @@ async function distillConcept(hud, node) {
 
   const resultDiv = hud.querySelector('#distill-result-' + node.id);
   if (!resultDiv) return;
-  const btn = hud.querySelector('.distill-btn[data-qid="' + node.id + '"]');
-  if (btn) btn.disabled = true;
 
-  resultDiv.style.display = 'block';
   resultDiv.textContent = 'Analyzing…';
 
   const ans = (node.answers || []).map(a => a.label + '. ' + cleanAnsText(a.text)).join(' | ');
@@ -1688,16 +1876,53 @@ function wireHudDictation(hud, nodeId) {
   const micBtn = hud.querySelector('.btn-mic[data-qid="' + nodeId + '"]');
   const interim = hud.querySelector('#dict-interim-' + nodeId);
   const status = hud.querySelector('#dict-status-' + nodeId);
-  const composeBtn = hud.querySelector('#dict-compose-' + nodeId);
-  const clearBtn = hud.querySelector('#dict-clear-' + nodeId);
+  const notesArea = hud.querySelector('#notes-area-' + nodeId);
+  const chatArea = hud.querySelector('#chat-area-' + nodeId);
+  const chatLog = hud.querySelector('#chat-log-' + nodeId);
+  const chatInput = hud.querySelector('#chat-input-' + nodeId);
+  const chatSend = hud.querySelector('#chat-send-' + nodeId);
+  const modeSeg = hud.querySelector('#mode-seg-' + nodeId);
   if (!textarea || !micBtn) return;
 
+  // ── Restore last mode for this node ──
+  let currentMode = 'notes';
+  try { const m = localStorage.getItem('dict-mode-' + nodeId); if (m === 'chat') currentMode = 'chat'; } catch (_) {}
+  function applyMode(mode) {
+    currentMode = mode;
+    modeSeg.setAttribute('data-mode', mode);
+    modeSeg.querySelectorAll('.mode-seg-btn').forEach(b => b.classList.toggle('is-active', b.dataset.m === mode));
+    notesArea.style.display = mode === 'chat' ? 'none' : '';
+    chatArea.style.display = mode === 'chat' ? '' : 'none';
+    micBtn.style.display = mode === 'chat' ? 'none' : (window.SpeechRecognition || window.webkitSpeechRecognition ? '' : 'none');
+    try { localStorage.setItem('dict-mode-' + nodeId, mode); } catch (_) {}
+  }
+  modeSeg.querySelectorAll('.mode-seg-btn').forEach(b => {
+    b.onclick = () => applyMode(b.dataset.m);
+  });
+  applyMode(currentMode);
+
+  // ── Load persisted chat history ──
+  let chatHistory = [];
+  try { const raw = localStorage.getItem('chat-'+nodeId); if (raw) chatHistory = JSON.parse(raw); } catch (_) {}
+  function renderChatLog() {
+    if (!chatHistory.length) { chatLog.innerHTML = '<div style="color:var(--muted);font-size:0.62rem;text-align:center;padding:10px;">No messages yet. Ask Dr. Iwu about this case.</div>'; return; }
+    chatLog.innerHTML = chatHistory.map((m,i) => {
+      const isUser = m.role === 'user';
+      return `<div class="chat-msg">
+        <div class="chat-role ${isUser ? 'you' : 'iwu'}">${isUser ? 'You' : 'Dr. Iwu'}</div>
+        <div>${mdToHtml(m.content)}</div>
+      </div>`;
+    }).join('');
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+  renderChatLog();
+
+  // ── Mic / speech recognition (notes mode only) ──
   const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
   let rec = null;
   let recording = false;
   let finalText = '';
 
-  composeBtn.disabled = !textarea.value.trim();
   if (!Ctor) { micBtn.style.display = 'none'; }
 
   function initRec() {
@@ -1714,7 +1939,6 @@ function wireHudDictation(hud, nodeId) {
         if (r.isFinal) {
           finalText += (finalText ? ' ' : '') + txt;
           textarea.value = finalText;
-          composeBtn.disabled = !finalText.trim();
         } else {
           inter += txt;
         }
@@ -1758,47 +1982,95 @@ function wireHudDictation(hud, nodeId) {
 
   textarea.addEventListener('input', () => {
     finalText = textarea.value;
-    composeBtn.disabled = !textarea.value.trim();
   });
 
-  clearBtn.onclick = () => {
-    textarea.value = '';
-    finalText = '';
-    composeBtn.disabled = true;
-    status.textContent = '';
-  };
+  // Restore persisted notes
+  try { const saved = localStorage.getItem('notes-'+nodeId); if (saved) { textarea.value = saved; finalText = saved; } } catch (_) {}
+  textarea.addEventListener('input', () => {
+    try { localStorage.setItem('notes-'+nodeId, textarea.value); } catch (_) {}
+  });
 
-  composeBtn.onclick = async () => {
+  // ── Chat: send to Dr. Iwu via DeepSeek ──
+  async function sendChat() {
+    const text = chatInput.value.trim();
+    if (!text) return;
     const key = localStorage.getItem('ds_api_key');
     if (!key) { status.textContent = 'No API key. Open Settings.'; return; }
-    const dictation = textarea.value.trim();
-    if (!dictation) return;
-    composeBtn.disabled = true;
-    status.textContent = 'Composing…';
+
+    // Add user message
+    chatHistory.push({ role: 'user', content: text });
+    renderChatLog();
+    chatInput.value = '';
+    chatSend.disabled = true;
+    status.textContent = 'Dr. Iwu is thinking…';
+
+    // Build node context
+    const node = (typeof byId !== 'undefined' && byId) ? byId[nodeId] : null;
+    let contextBlock = '';
+    if (node) {
+      contextBlock = `Current case node: "${node.why || ''}". `;
+      if (node.q) {
+        const q = node.q;
+        contextBlock += `Question stem: "${q.stem || ''}". Answer options: ${(q.options||[]).join('; ')}. Correct answer: ${q.answer || 'unknown'}. Explanation: ${q.explain || ''}. `;
+      }
+      if (node.triggermd) contextBlock += `Clinical trigger: ${node.triggermd}. `;
+    }
+
     try {
       const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
         body: JSON.stringify({
           model: 'deepseek-chat',
-          messages: [{ role: 'user', content: `You are a clinical educator. Turn this raw dictation into a polished clinical narrative (150-350 words). One continuous story, no bullets. Start like a case presentation.
+          messages: [{
+            role: 'system',
+            content: `You are Dr. Iwu, a brilliant senior attending physician teaching in the emergency department. You are male (he/him/his). Your teaching voice is mechanism-first, direct, and joyful.
 
-Raw dictation:
-"""${dictation}"""
+VOICE RULES (non-negotiable):
+- Lead with mechanism: what is physically happening in this patient's body.
+- Short sentences. Confident, never condescending. Joy in the craft of diagnosis.
+- Visual/spatial language the learner can picture at the bedside.
+- Usually 2-5 sentences unless they ask for depth.
+- Never say "as an AI," "as a language model," or break character.
+- Use no em dashes. No bullet lists unless explicitly asked.
+- Refer to the specific case details provided below when answering.
 
-Respond with ONLY the narrative. No preamble.` }],
+CASE CONTEXT:
+${contextBlock}
+
+The learner is asking you questions about this case node. Teach them the mechanism.`
+          }].concat(chatHistory),
           temperature: 0.7,
-          max_tokens: 800,
+          max_tokens: 600,
         }),
       });
       if (!res.ok) { const err = await res.text(); throw new Error('HTTP ' + res.status); }
       const data = await res.json();
-      const story = data.choices?.[0]?.message?.content?.trim() || '';
-      if (story) { textarea.value = story; finalText = story; status.textContent = 'Composed!'; logDS(nodeId, 'compose', `Dictation: """${dictation}"""`, '', story); }
-      else { status.textContent = 'Empty response - try more detail.'; }
-    } catch (e) { status.textContent = 'Error: ' + e.message; }
-    finally { composeBtn.disabled = false; }
-  };
+      const reply = data.choices?.[0]?.message?.content?.trim() || '';
+      if (reply) {
+        chatHistory.push({ role: 'assistant', content: reply });
+        renderChatLog();
+        logDS(nodeId, 'chat', text, 'Dr. Iwu attending chat', reply);
+      } else {
+        status.textContent = 'Empty response.';
+      }
+      // Persist chat history
+      try { localStorage.setItem('chat-'+nodeId, JSON.stringify(chatHistory)); } catch (_) {}
+    } catch (e) {
+      const errMsg = 'Error: ' + e.message;
+      chatHistory.push({ role: 'assistant', content: errMsg });
+      renderChatLog();
+      status.textContent = errMsg;
+    } finally {
+      chatSend.disabled = false;
+      status.textContent = '';
+    }
+  }
+
+  chatSend.onclick = sendChat;
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+  });
 }
 
 // ── Node isolation: Ctrl+click a node to show only it + its 1-hop neighbors ──
@@ -1876,6 +2148,7 @@ function toggleLines() {
   } else if (!isolatedNodeId) {
     d3.selectAll('.primary-hit').style('display', null);
   }
+  try { localStorage.setItem('lines_visible', linesVisible ? '1' : '0'); } catch (_) {}
 }
 
 // Wire up buttons
@@ -3275,9 +3548,17 @@ function renderGraph() {
   nodes.forEach(n => { byId[n.id] = n; });
 
   const slider = document.getElementById('revealSlider');
-  slider.oninput = () => applyReveal(+slider.value);
-  slider.value = 100;
-  applyReveal(100);
+  slider.oninput = () => {
+    applyReveal(+slider.value);
+    // Debounce persist
+    clearTimeout(slider._persistTimer);
+    slider._persistTimer = setTimeout(() => { try { localStorage.setItem('reveal_pos', slider.value); } catch (_) {} }, 1000);
+  };
+  // Restore saved position, default to 100 (full)
+  let savedPos = 100;
+  try { const v = localStorage.getItem('reveal_pos'); if (v !== null) savedPos = +v; } catch (_) {}
+  slider.value = savedPos;
+  applyReveal(savedPos);
 
   // ── Smooth zoom & pan: scroll = zoom, drag empty space = pan ──
   zoomInstance = d3.zoom()
@@ -3715,6 +3996,9 @@ async function loadSet(setNum) {
 
     renderGraph();
 
+    // Persist last-opened set so we pick up where we left off
+    try { localStorage.setItem('last_set', setNum); } catch (_) {}
+
     // Background: pre-fetch concept lines for all nodes so Layer 1 is populated
     preFetchConcepts();
   } catch (e) {
@@ -3750,11 +4034,13 @@ function populatePicker() {
 async function eagerLoadTitles() {
   const sel = document.getElementById('setPicker');
   const CONCURRENCY = 10; // fetch 10 at a time to avoid hammering the server
-  let idx = 1;
+  // Only fetch sets that actually have entries in SET_REGISTRY
+  const setNums = Object.keys(SET_REGISTRY).map(Number);
+  let idx = 0;
 
   async function worker() {
-    while (idx <= 130) {
-      const s = idx++;
+    while (idx < setNums.length) {
+      const s = setNums[idx++];
       const pad = String(s).padStart(2, '0');
       const url = 'graph-data-set-' + pad + '.json';
       try {
@@ -3811,20 +4097,20 @@ async function eagerLoadTitles() {
   makeFloaterDraggable(document.getElementById('marqueeBadge'), 'flt-marquee');
 })();
 
-// ── Dark mode toggle (right-edge vertical strip) ───────────────────────────
+// ── Dark mode toggle (simple icon button) ───────────────────────────
 (function initDarkMode() {
-  const strip = document.getElementById('darkModeStrip');
-  const label = document.getElementById('dmLabel');
+  const btn = document.getElementById('darkModeBtn');
+  const icon = btn.querySelector('i');
   const KEY = 'dark_mode';
 
   function apply(isDark) {
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : '');
-    label.textContent = isDark ? 'LIGHT' : 'DARK';
+    icon.className = 'ti ti-' + (isDark ? 'sun' : 'moon');
   }
   const saved = localStorage.getItem(KEY);
   if (saved === '1') apply(true);
 
-  strip.onclick = () => {
+  btn.onclick = () => {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     apply(!isDark);
     localStorage.setItem(KEY, !isDark ? '1' : '0');
@@ -3952,9 +4238,8 @@ async function eagerLoadTitles() {
 (function initCommandDock() {
   const dock = document.getElementById('cmdDock');
   const dockBody = document.getElementById('dockBody');
-  const toggle = document.getElementById('dockToggle');
+  const openBtn = document.getElementById('dockOpenBtn');
   const handle = document.getElementById('dockResizeHandle');
-  const board = document.getElementById('board');
   const DOCK_KEY = 'cmd-dock-layout';
 
   // ── Read/write dock state ───────────────────────────────────────────
@@ -3974,27 +4259,56 @@ async function eagerLoadTitles() {
   function applyDock() {
     const open = state.open;
     const w = Math.max(260, Math.min(600, state.width));
-    document.documentElement.style.setProperty('--dock-w', w + 'px');
     dock.style.setProperty('--dock-w', w + 'px');
     dock.classList.toggle('open', open);
-    board.classList.toggle('dock-open', open);
+    document.body.classList.toggle('dock-open', open);
+    // Auto-refit graph after CSS transition completes
+    if (typeof fitToView === 'function') {
+      setTimeout(() => { if (typeof fitToView === 'function') fitToView(); }, 250);
+    }
   }
 
   // ── Build dock body HTML with control replicas ─────────────────────
   function buildDockBody() {
+    const fsScale = readHudFontScale();
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     dockBody.innerHTML = `
+      <div class="dock-close-row">
+        <button class="dock-close-btn" id="dockCloseBtn" title="Close panel"><i class="ti ti-x"></i></button>
+      </div>
       <div class="dock-section">
-        <div class="dock-sec-title"><i class="ti ti-list-search"></i>&nbsp;Choose Graph Set</div>
+        <div class="dock-sec-title"><i class="ti ti-list-search"></i>&nbsp;Set</div>
         <select id="dockPicker"></select>
         <div class="set-info" id="dockSetInfo"></div>
       </div>
       <div class="dock-section">
-        <div class="dock-sec-title"><i class="ti ti-command"></i>&nbsp;Actions</div>
-        <div class="dock-btn-row" style="margin-bottom:6px;">
-          <button id="dockFitBtn"><i class="ti ti-maximize"></i>&nbsp;Fit</button>
-          <button id="dockSettingsBtn"><i class="ti ti-settings"></i>&nbsp;Settings</button>
+        <div class="dock-sec-title"><i class="ti ti-eye"></i>&nbsp;View</div>
+        <div class="dock-btn-row">
+          <button id="dockFitBtn"><i class="ti ti-maximize"></i>&nbsp;Fit to view</button>
           <button id="dockLinesBtn"><i class="ti ti-line-dashed"></i>&nbsp;Lines</button>
-          <button id="dockSpineExtBtn"><i class="ti ti-list-details"></i>&nbsp;Concepts</button>
+        </div>
+      </div>
+      <div class="dock-section">
+        <div class="dock-sec-title"><i class="ti ti-adjustments-horizontal"></i>&nbsp;Spine</div>
+        <span style="font-size:0.65rem;color:var(--muted);">Main spine only ↔ Full map</span>
+        <input type="range" id="dockRevealSlider" min="0" max="100" value="100"/>
+      </div>
+      <div class="dock-section">
+        <div class="dock-sec-title"><i class="ti ti-palette"></i>&nbsp;Display</div>
+        <div class="dock-display-row">
+          <span class="ddr-label">Dark mode</span>
+          <button class="ddr-btn" id="dockDarkBtn" title="${isDark ? 'Switch to light mode' : 'Switch to dark mode'}">
+            <i class="ti ti-${isDark ? 'sun' : 'moon'}"></i>
+          </button>
+        </div>
+        <div class="dock-display-row">
+          <span class="ddr-label">Text size</span>
+          <span class="dock-fs-ctl" id="dockFsCtl">
+            <button class="dfs-btn" data-fsd="-1" title="Smaller text">A\u2212</button>
+            <span class="dfs-pill">${Math.round(fsScale * 100)}%</span>
+            <button class="dfs-btn" data-fsd="1" title="Larger text">A+</button>
+            <button class="dfs-btn" data-fsd="0" title="Reset text size">\u21ba</button>
+          </span>
         </div>
       </div>
       <div class="dock-section">
@@ -4006,9 +4320,11 @@ async function eagerLoadTitles() {
         </div>
       </div>
       <div class="dock-section">
-        <div class="dock-sec-title"><i class="ti ti-adjustments-horizontal"></i>&nbsp;Reveal</div>
-        <span style="font-size:0.65rem;color:var(--muted);">Main spine only ↔ Full map</span>
-        <input type="range" id="dockRevealSlider" min="0" max="100" value="100"/>
+        <div class="dock-sec-title"><i class="ti ti-tool"></i>&nbsp;Tools</div>
+        <div class="dock-btn-row">
+          <button id="dockSettingsBtn"><i class="ti ti-settings"></i>&nbsp;Settings</button>
+          <button id="dockSpineExtBtn"><i class="ti ti-list-details"></i>&nbsp;Concepts</button>
+        </div>
       </div>`;
   }
   buildDockBody();
@@ -4043,33 +4359,8 @@ async function eagerLoadTitles() {
   syncDockPicker();
   syncDockInfo();
 
-  // Wire dock action buttons
-  document.getElementById('dockFitBtn').onclick = () => {
-    if (typeof fitToView === 'function') fitToView();
-  };
-  document.getElementById('dockSettingsBtn').onclick = () => {
-    document.getElementById('settingsBtn').click();
-  };
-  document.getElementById('dockLinesBtn').onclick = () => {
-    if (typeof toggleLines === 'function') toggleLines();
-  };
-  document.getElementById('dockSpineExtBtn').onclick = () => {
-    document.getElementById('spineExtBtn').click();
-  };
-
-  // Wire dock slider
-  const dockSlider = document.getElementById('dockRevealSlider');
-  const realSlider = document.getElementById('revealSlider');
-  dockSlider.addEventListener('input', () => {
-    realSlider.value = dockSlider.value;
-    if (typeof applyReveal === 'function') applyReveal(+dockSlider.value);
-  });
-  // Keep dock slider in sync from real slider
-  if (realSlider) {
-    realSlider.addEventListener('input', () => {
-      dockSlider.value = realSlider.value;
-    });
-  }
+  // Wire dock controls via dockRewire (handles all sections)
+  dockRewire();
 
   // Override sync functions used elsewhere so dock stays updated
   const _origPopulatePicker = populatePicker;
@@ -4078,15 +4369,108 @@ async function eagerLoadTitles() {
     syncDockPicker();
   };
 
-  // ── Toggle open/close ──────────────────────────────────────────────
-  toggle.addEventListener('click', () => {
-    state.open = !state.open;
+  // ── Open button (floating, outside dock) ───────────────────────────
+  openBtn.addEventListener('click', () => {
+    state.open = true;
     writeDock(state);
     applyDock();
     syncDockPicker();
+    buildDockBody();
+    dockRewire();
   });
 
-  // ── Resize handle (drag left edge to resize width) ─────────────────
+  // ── Close X inside dock ────────────────────────────────────────────
+  function wireDockClose() {
+    const closeBtn = document.getElementById('dockCloseBtn');
+    if (closeBtn) {
+      closeBtn.onclick = () => {
+        state.open = false;
+        writeDock(state);
+        applyDock();
+      };
+    }
+  }
+  wireDockClose();
+
+  // ── Rebuild helper (call after dock body is rebuilt) ───────────────
+  function dockRewire() {
+    wireDockClose();
+    syncDockPicker();
+    syncDockInfo();
+    // View buttons
+    const dfb = document.getElementById('dockFitBtn');
+    const dlb = document.getElementById('dockLinesBtn');
+    if (dfb) dfb.onclick = () => { if (typeof fitToView === 'function') fitToView(); };
+    if (dlb) dlb.onclick = () => { if (typeof toggleLines === 'function') toggleLines(); };
+    // Spine slider
+    const drs = document.getElementById('dockRevealSlider');
+    if (drs) {
+      const real = document.getElementById('revealSlider');
+      if (real) drs.value = real.value;
+      drs.addEventListener('input', () => {
+        const real = document.getElementById('revealSlider');
+        if (real) { real.value = drs.value; if (typeof applyReveal === 'function') applyReveal(+drs.value); }
+      });
+      if (real) {
+        real.addEventListener('input', () => { drs.value = real.value; });
+      }
+    }
+    // Display: dark mode toggle
+    const ddb = document.getElementById('dockDarkBtn');
+    if (ddb) {
+      ddb.onclick = () => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
+        localStorage.setItem('dark_mode', isDark ? '0' : '1');
+        // Rebuild to update icon
+        buildDockBody();
+        dockRewire();
+        // Also sync floating dark mode button
+        const dmBtn = document.getElementById('darkModeBtn');
+        if (dmBtn) { const ic = dmBtn.querySelector('i'); if (ic) ic.className = 'ti ti-' + (isDark ? 'moon' : 'sun'); }
+      };
+    }
+    // Display: font-size controller
+    const dfsCtl = document.getElementById('dockFsCtl');
+    if (dfsCtl) {
+      dfsCtl.querySelectorAll('.dfs-btn').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const current = readHudFontScale();
+          const dir = +btn.dataset.fsd;
+          if (dir === 0) { writeHudFontScale(HUD_FONT_DEFAULT); updateDockFsPill(HUD_FONT_DEFAULT); return; }
+          const next = Math.round((current + dir * HUD_FONT_STEP) / HUD_FONT_STEP) * HUD_FONT_STEP;
+          const clamped = Math.min(HUD_FONT_MAX, Math.max(HUD_FONT_MIN, next));
+          writeHudFontScale(clamped);
+          updateDockFsPill(clamped);
+        };
+      });
+    }
+    // Tools buttons
+    const dsb = document.getElementById('dockSettingsBtn');
+    const deb = document.getElementById('dockSpineExtBtn');
+    if (dsb) dsb.onclick = () => document.getElementById('settingsBtn').click();
+    if (deb) deb.onclick = () => document.getElementById('spineExtBtn').click();
+  }
+
+  function updateDockFsPill(scale) {
+    const pill = document.getElementById('dockFsCtl')?.querySelector('.dfs-pill');
+    if (pill) pill.textContent = Math.round(scale * 100) + '%';
+    // Apply globally: set CSS var on root so all HUDs inherit
+    document.documentElement.style.setProperty('--hud-font-scale', scale);
+    // Also update any open HUDs
+    document.querySelectorAll('.hud').forEach(h => h.style.setProperty('--hud-font-scale', scale));
+  }
+  // Apply on init
+  updateDockFsPill(readHudFontScale());
+
+  window._closeDockReveal = function () {
+    dockNodeList = []; dockNodeIdx = -1;
+    buildDockBody();
+    syncDockPicker();
+    syncDockInfo();
+    dockRewire();
+  };
   let dragging = false;
   handle.addEventListener('mousedown', (e) => {
     e.preventDefault();
@@ -4099,7 +4483,6 @@ async function eagerLoadTitles() {
       const dx = startX - ev.clientX;
       state.width = Math.max(260, Math.min(600, startW + dx));
       dock.style.setProperty('--dock-w', state.width + 'px');
-      board.style.setProperty('right', state.width + 'px');
     };
     const onUp = () => {
       dragging = false;
@@ -4107,6 +4490,8 @@ async function eagerLoadTitles() {
       writeDock(state);
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
+      // Auto-refit after resize
+      if (typeof fitToView === 'function') fitToView();
     };
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
@@ -4118,32 +4503,6 @@ async function eagerLoadTitles() {
   // ── Dock-reveal mode: render node content inside the dock ──────────
   let dockNodeList = [];  // ordered node IDs for prev/next nav
   let dockNodeIdx = -1;   // current position in that list
-
-  function dockRewire() {
-    // Re-wire control replicas after rebuildDockBody restores them
-    const _dfb = document.getElementById('dockFitBtn');
-    const _dsb = document.getElementById('dockSettingsBtn');
-    const _dlb = document.getElementById('dockLinesBtn');
-    const _dsl = document.getElementById('dockRevealSlider');
-    if (_dfb) _dfb.onclick = () => { if (typeof fitToView === 'function') fitToView(); };
-    if (_dsb) _dsb.onclick = () => document.getElementById('settingsBtn').click();
-    if (_dlb) _dlb.onclick = () => { if (typeof toggleLines === 'function') toggleLines(); };
-    if (_dsl && document.getElementById('revealSlider')) {
-      _dsl.addEventListener('input', () => {
-        document.getElementById('revealSlider').value = _dsl.value;
-        if (typeof applyReveal === 'function') applyReveal(+_dsl.value);
-      });
-      document.getElementById('revealSlider').addEventListener('input', () => { _dsl.value = document.getElementById('revealSlider').value; });
-    }
-  }
-
-  window._closeDockReveal = function () {
-    dockNodeList = []; dockNodeIdx = -1;
-    buildDockBody();
-    syncDockPicker();
-    syncDockInfo();
-    dockRewire();
-  };
 
   function navigateDock(dir) {
     const newIdx = dockNodeIdx + dir;
@@ -4209,8 +4568,16 @@ async function eagerLoadTitles() {
 })();
 
 populatePicker();
-// Auto-load Set 1 on open
-loadSet(1);
+// Restore last session: load previously selected set (defaults to Set 1)
+(function restoreSession() {
+  let setNum = 1;
+  try {
+    const saved = localStorage.getItem('last_set');
+    if (saved) { const v = +saved; if (v >= 1 && v <= 130) setNum = v; }
+  } catch (_) {}
+  document.getElementById('setPicker').value = setNum;
+  loadSet(setNum);
+})();
 </script>
 </body>
 </html>
