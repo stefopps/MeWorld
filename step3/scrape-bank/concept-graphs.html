@@ -1423,6 +1423,35 @@
   [data-theme="dark"] .dock-reveal-nav .drn-back:hover,
   [data-theme="dark"] .dock-reveal-nav .drn-arrows button:hover:not(:disabled) { background: #252840; }
 
+  /* ── Activity tracker popup ── */
+  .activity-popup {
+    position: fixed; z-index: 26; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 300px; background: #fff; border: 1px solid var(--border);
+    border-radius: 10px; box-shadow: 0 8px 30px rgba(20,25,35,0.18);
+    font-size: 0.72rem; color: var(--ink);
+  }
+  .activity-header {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #f0f2f5; border-bottom: 1px solid var(--border);
+    padding: 8px 12px; font-weight: 650; font-size: 0.82rem;
+    border-radius: 10px 10px 0 0;
+  }
+  .act-close {
+    cursor: pointer; background: none; border: none; color: var(--muted);
+    font-size: 0.9rem; line-height: 1; padding: 2px; border-radius: 4px;
+  }
+  .act-close:hover { color: var(--ink); background: rgba(0,0,0,0.06); }
+  .activity-body { padding: 12px; max-height: 320px; overflow-y: auto; }
+  .activity-day { font-weight: 700; margin-bottom: 4px; }
+  .activity-sets { font-size: 0.68rem; color: var(--muted); margin-bottom: 8px; }
+  .activity-section { font-size: 0.68rem; margin-bottom: 8px; }
+  .activity-section strong { color: var(--ink); }
+  .activity-empty { color: var(--muted); text-align: center; padding: 20px; font-size: 0.78rem; }
+  [data-theme="dark"] .activity-popup,
+  [data-theme="dark"] .activity-header { background: #1a1d28; border-color: var(--border); }
+  [data-theme="dark"] .act-close { color: #6b7280; }
+  [data-theme="dark"] .act-close:hover { color: #d0dbf0; background: rgba(255,255,255,0.06); }
+
   /* ── Spine extractor overlay ── */
   .spine-extractor {
     position: fixed; z-index: 30; inset: 0;
@@ -1526,6 +1555,10 @@
     <span class="hdr-div"></span>
     <button class="hdr-nav-btn" id="prevSetBtn" title="Previous set">◀</button>
     <button class="hdr-nav-btn" id="nextSetBtn" title="Next set">▶</button>
+    <span class="hdr-div"></span>
+    <button class="hdr-nav-btn" id="activityBadge" title="Today's activity" style="font-size:0.65rem;gap:4px;">
+      <i class="ti ti-activity"></i><span id="activityCount">0</span>
+    </button>
   </div>
   <span class="set-cover" id="setCover" title="Set cover image"></span>
 </div>
@@ -1592,6 +1625,12 @@
     <button id="settingsSave" class="primary" style="width:100%;margin-top:8px;">Save &amp; Close</button>
     <div class="status" id="aiStatus" style="margin-top:6px;"></div>
   </div>
+</div>
+
+<!-- Activity tracker popup -->
+<div class="activity-popup" id="activityPopup" style="display:none;">
+  <div class="activity-header">Today's Activity<button class="act-close" id="actClose" title="Close"><i class="ti ti-x"></i></button></div>
+  <div class="activity-body" id="activityBody"></div>
 </div>
 
 <div class="float-legend">
@@ -1981,6 +2020,7 @@ function millState(qid) {
 }
 function setMillState(qid, state) {
   try { localStorage.setItem('mill-' + qid, state); } catch (_) {}
+  if (state > 0) logActivity(qid, 'mill', state === 2 ? 'Thoroughly drilled' : 'Partially milled');
   // Update both the HUD DOM and the graph node marker if currently open
   const el = document.querySelector('.mill-tracker[data-qid="' + qid + '"]');
   if (el) { el.dataset.state = state; updateMillHint(el, state); }
@@ -2310,6 +2350,97 @@ function hudStorageKey(hud) {
 }
 
 // ── 40-second debounced localStorage write (single timer, collects all pending) ─
+// ── Activity logging ────────────────────────────────────────────────────────
+const ACTIVITY_KEY = 'activity-log';
+const ACTIVITY_MAX = 500; // keep last 500 entries
+
+function logActivity(qid, type, detail) {
+  try {
+    let log = [];
+    const raw = localStorage.getItem(ACTIVITY_KEY);
+    if (raw) { try { log = JSON.parse(raw); } catch (_) {} }
+    log.push({ qid, type, detail: (detail || '').slice(0, 120), ts: new Date().toISOString() });
+    if (log.length > ACTIVITY_MAX) log = log.slice(-ACTIVITY_MAX);
+    localStorage.setItem(ACTIVITY_KEY, JSON.stringify(log));
+    updateActivityBadge();
+  } catch (_) {}
+}
+
+function updateActivityBadge() {
+  const badge = document.getElementById('activityCount');
+  if (!badge) return;
+  const today = new Date().toISOString().slice(0, 10);
+  const log = getActivityLog();
+  const todayEntries = log.filter(e => e.ts && e.ts.startsWith(today));
+  const uniqueQids = new Set(todayEntries.map(e => e.qid));
+  badge.textContent = uniqueQids.size;
+}
+
+function getActivityLog() {
+  try {
+    const raw = localStorage.getItem(ACTIVITY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (_) { return []; }
+}
+
+function showActivityPopup() {
+  const popup = document.getElementById('activityPopup');
+  const body = document.getElementById('activityBody');
+  if (!popup || !body) return;
+
+  const log = getActivityLog();
+  // Group by date
+  const byDate = {};
+  log.forEach(e => {
+    const day = (e.ts || '').slice(0, 10);
+    if (!byDate[day]) byDate[day] = [];
+    byDate[day].push(e);
+  });
+
+  const days = Object.keys(byDate).sort().reverse();
+  if (!days.length) {
+    body.innerHTML = '<div class="activity-empty">No activity logged yet.<br>Chat, write notes, or mill nodes to build a record.</div>';
+  } else {
+    body.innerHTML = days.map(day => {
+      const entries = byDate[day];
+      const uniqueQids = new Set(entries.map(e => e.qid));
+      const chats = entries.filter(e => e.type === 'chat').length;
+      const notes = entries.filter(e => e.type === 'notes').length;
+      const firstPri = entries.filter(e => e.type === 'firstPrinciples').length;
+      const mills = entries.filter(e => e.type === 'mill').length;
+      const stories = entries.filter(e => e.type === 'storyBeat').length;
+      const distills = entries.filter(e => e.type === 'distill').length;
+      const parts = [];
+      if (chats) parts.push(chats + ' chats');
+      if (notes) parts.push(notes + ' notes');
+      if (firstPri) parts.push(firstPri + ' FP');
+      if (mills) parts.push(mills + ' mills');
+      if (stories) parts.push(stories + ' beats');
+      if (distills) parts.push(distills + ' distills');
+      return `<div style="margin-bottom:12px;">
+        <div class="activity-day">${day}</div>
+        <div class="activity-sets">${uniqueQids.size} nodes touched</div>
+        <div class="activity-section">${parts.length ? parts.join(' &middot; ') : '<span style="color:var(--muted);">no details</span>'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  popup.style.display = 'block';
+  document.getElementById('actClose').onclick = () => { popup.style.display = 'none'; };
+}
+
+// Wire badge click
+document.addEventListener('DOMContentLoaded', () => {
+  const badge = document.getElementById('activityBadge');
+  if (badge) badge.onclick = showActivityPopup;
+  updateActivityBadge();
+});
+// Also wire immediately (DOMContentLoaded may have already fired in some load orders)
+setTimeout(() => {
+  const badge = document.getElementById('activityBadge');
+  if (badge && !badge._wired) { badge._wired = true; badge.onclick = showActivityPopup; updateActivityBadge(); }
+}, 500);
+
 const _dsQueue = {};
 var _dsTimer = null;
 function debouncedSave(key, value) {
@@ -2573,6 +2704,7 @@ Respond with only the single sentence. No preamble, no markdown.`;
     if (concept) {
       resultDiv.innerHTML = '<strong>Core concept:</strong> ' + esc(concept);
       logDS(node.id, 'distill', prompt, '', concept);
+      logActivity(node.id, 'distill', concept.slice(0, 120));
     } else {
       resultDiv.textContent = 'No concept returned - try again.';
     }
@@ -2643,6 +2775,7 @@ function wireHudDictation(hud, nodeId) {
       localStorage.setItem('chat-'+nodeId, JSON.stringify(chatHistory));
       console.debug('[chat] Saved', chatHistory.length, 'messages for node', nodeId);
       refreshNodeActivity(nodeId);
+      logActivity(nodeId, 'chat', chatHistory.length + ' messages');
       // Also backup to server (fire-and-forget)
       try {
         fetch('/api/save-chat', {
@@ -2764,6 +2897,13 @@ function wireHudDictation(hud, nodeId) {
   textarea.addEventListener('input', () => {
     try { localStorage.setItem('notes-'+nodeId, textarea.value); } catch (_) {}
     refreshNodeActivity(nodeId);
+    // Log notes activity (throttled: max once per 5 min per node)
+    const notesLogKey = 'notes-logged-' + new Date().toISOString().slice(0, 10) + '-' + nodeId;
+    if (!sessionStorage.getItem(notesLogKey)) {
+      sessionStorage.setItem(notesLogKey, '1');
+      setTimeout(() => sessionStorage.removeItem(notesLogKey), 300000);
+      if (textarea.value.trim().length > 3) logActivity(nodeId, 'notes', 'Took notes');
+    }
   });
 
   // ── Chat: send to Dr. Iwu via DeepSeek ──
@@ -3400,6 +3540,7 @@ Wrap the key mechanistic anchors in **double asterisks**. No preamble, no sign-o
     }
     // Log it
     logDS(node.id, 'firstPrinciples', prompt, systemPrompt, reply);
+    logActivity(node.id, 'firstPrinciples', 'Mechanism explanation generated');
     return reply;
   } catch (_) { return null; }
 }
@@ -3767,6 +3908,7 @@ Respond with ONLY the rationale sentence. No preamble, no sign-off.`;
     const result = { rationale, weak: isWeak };
     localStorage.setItem(cacheKey, JSON.stringify(result));
     logDS(node.id, 'whyConnected', prompt, systemPrompt, rationale);
+    logActivity(node.id, 'whyConnected', 'Rationale generated');
     return result;
   } catch (_) { return null; }
 }
@@ -4208,6 +4350,7 @@ function wireReveal(container, d) {
         if (beat) {
           fbTextEl.innerHTML = mdToHtml(beat);
           fieldSave(qid, 'fullBeat', beat);
+          logActivity(qid, 'storyBeat', 'Regenerated story');
         } else {
           fbTextEl.innerHTML = '<em>Regeneration failed - try again.</em>';
         }
