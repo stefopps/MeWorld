@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Journey — Drive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; background: #262626; overflow: hidden;
+    font-family: 'Inter', sans-serif; }
+  #c { display: block; width: 100vw; height: 100vh; background: #262626; touch-action: none; cursor: grab; }
+  #c:active { cursor: grabbing; }
+
+  #hud { position: fixed; top: 26px; left: 50%; transform: translateX(-50%);
+    font-size: 28px; font-weight: 700; color: #fff; letter-spacing: 0.5px;
+    transition: color 0.3s ease; pointer-events: none; text-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+  #hud.blocked { color: #E05040; }
+  #sub { position: fixed; top: 62px; left: 50%; transform: translateX(-50%);
+    font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.45); pointer-events: none; }
+
+  #keys { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; align-items: center; padding: 10px 18px;
+    background: rgba(38,38,38,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 999px; pointer-events: none;
+    font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.7); letter-spacing: 0.2px; }
+  #keys b { color: #46DC96; font-weight: 700; }
+  #keys span { opacity: 0.4; margin: 0 2px; }
+
+  /* roadblock is resolved by accumulation now — no modal styles needed */
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">0 m</div>
+<div id="sub">the road is your timeline</div>
+<div id="keys">
+  <b>W</b>/<b>S</b> drive <span>·</span> <b>A</b>/<b>D</b> steer <span>·</span>
+  hold <b>W</b> at a block to accumulate <span>·</span> <b>Q</b>/<b>E</b> cam <span>·</span> <b>scroll</b> zoom <span>·</span> <b>R</b> reset <span>·</span> loops forever
+</div>
+<!-- roadblock is now an energy barrier resolved by accumulation, no modal -->
+
+<script>
+(function () {
+  'use strict';
+
+  // ============================================================
+  // Canvas + DPI
+  // ============================================================
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, DPR = 1;
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W * DPR; canvas.height = H * DPR;
+    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ============================================================
+  // Constants
+  // ============================================================
+  const COL = {
+    road: '#46DC96', edge: 'rgba(0,0,0,0.25)', milestone: 'rgba(255,255,255,0.25)',
+    body: '#3a3a3a', cabin: '#4a4a4a', windshield: 'rgba(110,160,230,0.85)',
+    headlight: '#f4d35e', wheel: '#1b1b1b', hub: '#8a8a8a',
+    barrier: '#c23b32', stripe: '#f2f2f2'
+  };
+  const ROAD_W = 90;
+  const BLOCK_T = 0.52;          // progress (0..1) of the barrier
+  const MAX_LATERAL = 30;
+  const SAMPLES = 1200;          // spline bake resolution
+  const FIXED_DT = 1 / 120;      // fixed-timestep for sim
+  const CAR_SCREEN_Y = 0.66;     // car anchor height fraction
+  const ISO_SQUASH = 0.72;       // vertical compression -> pseudo-isometric tilt
+
+  // roadblock as an activation-energy barrier, fed organically by two rear tires
+  const ACTIVATION = 100;        // metabolites needed to break through
+  const TIRE_SPAWN_MIN = 0.05;   // seconds between blobs per tire (organic irregularity)
+  const TIRE_SPAWN_MAX = 0.16;
+  const TIRE_GAIN_MIN = 3;       // metabolites per blob
+  const TIRE_GAIN_MAX = 7;
+
+  const LOOP_AT = 0.98;          // progress that triggers a replay loop
+  const BLOB_HOLD = 1.1;         // seconds a blob stays fully visible before fading
+  const BLOB_FADE = 1.6;         // seconds to fade out after the hold
+
+  const MILESTONES = [
+    ['Birth', 0.02], ['School', 0.15], ['University', 0.28], ['Career Peak', 0.41],
+    ['Marriage', 0.66], ['Children', 0.80], ['Retirement', 0.96]
+  ];
+
+  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+  const lerp = (a, b, f) => a + (b - a) * f;
+
+  // ============================================================
+  // Catmull-Rom spline -> pre-baked Float32Array [x, y, angle]
+  // Baked ONCE. Runtime never recomputes spline geometry.
+  // ============================================================
+  const WAY = [
+    [0,0],[140,-720],[-160,-1460],[210,-2220],[-110,-3020],[260,-3820],
+    [-220,-4620],[110,-5420],[-260,-6220],[160,-7020],[0,-7820]
+  ];
+  function catmull(p0,p1,p2,p3,t){
+    const t2=t*t, t3=t2*t;
+    return 0.5*((2*p1)+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t2+(-p0+3*p1-3*p2+p3)*t3);
+  }
+  // baked arrays
+  const bakedX = new Float32Array(SAMPLES + 1);
+  const bakedY = new Float32Array(SAMPLES + 1);
+  const bakedA = new Float32Array(SAMPLES + 1); // tangent angle (radians)
+  (function bake(){
+    const n = WAY.length;
+    const pts = [];
+    for (let i = 0; i <= SAMPLES; i++) {
+      const u = (i / SAMPLES) * (n - 1);
+      let seg = Math.floor(u);
+      let f = u - seg;
+      if (seg >= n - 1) { seg = n - 2; f = 1; }
+      const p0 = WAY[Math.max(seg-1,0)], p1 = WAY[seg], p2 = WAY[seg+1], p3 = WAY[Math.min(seg+2,n-1)];
+      const x = catmull(p0[0],p1[0],p2[0],p3[0],f);
+      const y = catmull(p0[1],p1[1],p2[1],p3[1],f);
+      pts.push([x,y]);
+      bakedX[i] = x; bakedY[i] = y;
+    }
+    for (let i = 0; i <= SAMPLES; i++) {
+      const a = pts[Math.max(i-1,0)], b = pts[Math.min(i+1,SAMPLES)];
+      bakedA[i] = Math.atan2(b[1]-a[1], b[0]-a[0]);
+    }
+  })();
+
+  function sample(t){
+    const u = clamp(t,0,1) * SAMPLES;
+    const i = Math.floor(u);
+    const f = u - i;
+    const j = Math.min(i+1, SAMPLES);
+    return {
+      x: lerp(bakedX[i], bakedX[j], f),
+      y: lerp(bakedY[i], bakedY[j], f),
+      a: bakedA[i]  // angle: nearest sample is fine at this resolution
+    };
+  }
+
+  // ============================================================
+  // State
+  // ============================================================
+  const S = {
+    progress: 0,
+    speed: 0,            // signed velocity along timeline
+    steer: 0,            // smoothed -1..1
+    steerTarget: 0,
+    blocked: false,
+    resolved: false,
+    metabolites: 0,      // accumulated "energy" at the barrier
+    breakT: 0,           // barrier-break effect timer
+    checkpoint: 0,       // furthest point a loop is allowed to restart from
+    tireTimerL: 0.08, tireTimerR: 0.05,  // organic per-tire spawn countdowns
+    // camera
+    camRot: 0,           // additional rotation offset (Q/E)
+    camRotTarget: 0,
+    camZoom: 1,
+    camZoomTarget: 1,
+    carAngleVis: 0,      // smoothed visual car angle
+  };
+
+  const keys = {};
+  window.addEventListener('keydown', e => {
+    keys[e.key.toLowerCase()] = true;
+    if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase())) e.preventDefault();
+    if (e.key.toLowerCase() === 'r') { S.camRotTarget = 0; S.camZoomTarget = 1; }
+  });
+  window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+  // wheel zoom
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    S.camZoomTarget = clamp(S.camZoomTarget - e.deltaY * 0.0012, 0.55, 2.2);
+  }, { passive: false });
+
+  // pointer drag also steers (nice on top of A/D)
+  let dragging = false, dragX = 0, dragSteer0 = 0;
+  canvas.addEventListener('pointerdown', e => { dragging = true; dragX = e.clientX; dragSteer0 = S.steerTarget; });
+  window.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    S.steerTarget = clamp(dragSteer0 + (e.clientX - dragX) / 140, -1, 1);
+  });
+  window.addEventListener('pointerup', () => { dragging = false; });
+
+  // ============================================================
+  // Trail blobs — trivial in immediate mode
+  // ============================================================
+  // Solid-black blobs: drift trail while moving, metabolites while accumulating.
+  const trail = [];
+  function spawnBlob(wx, wy, size){
+    trail.push({ x: wx, y: wy, r: size, hold: BLOB_HOLD, life: 1 });
+    if (trail.length > 400) trail.shift();
+  }
+
+  // ============================================================
+  // Roadblock UI
+  // ============================================================
+  const hud = document.getElementById('hud');
+  const sub = document.getElementById('sub');
+
+  // ============================================================
+  // Fixed-timestep sim update
+  // ============================================================
+  function update(dt){
+    // ---- input: throttle / reverse ----
+    let throttle = 0;
+    if (keys['w'] || keys['arrowup']) throttle += 1;
+    if (keys['s'] || keys['arrowdown']) throttle -= 1;
+
+    // when blocked you may reverse but not go forward past the barrier
+    const targetSpeed = throttle * 0.10;
+    S.speed = lerp(S.speed, targetSpeed, Math.min(dt * 4, 1));
+
+    let next = S.progress + S.speed * dt;
+
+    // --- activation-energy barrier -------------------------------------
+    // Forward motion into the wall is blocked; the push is spent by the two
+    // REAR TIRES individually digging in — each fires its own irregular
+    // blobs at its own pace, so accumulation is lumpy/organic rather than
+    // a smooth timer. Once total metabolites cross the threshold, break.
+    if (!S.resolved && next >= BLOCK_T) {
+      next = BLOCK_T;
+      S.blocked = true;
+      if (throttle <= 0) S.speed = Math.min(S.speed, 0);
+    } else if (S.blocked) {
+      S.blocked = false; // reversed back off the wall
+    }
+    S.progress = clamp(next, 0, 1);
+    if (S.breakT > 0) S.breakT = Math.max(0, S.breakT - dt * 1.6);
+
+    // ---- steering ----
+    let steerIn = 0;
+    if (keys['a'] || keys['arrowleft']) steerIn -= 1;
+    if (keys['d'] || keys['arrowright']) steerIn += 1;
+    if (steerIn !== 0) S.steerTarget = clamp(S.steerTarget + steerIn * dt * 3, -1, 1);
+    else if (!dragging) S.steerTarget = lerp(S.steerTarget, 0, Math.min(dt * 3, 1));
+    S.steer = lerp(S.steer, S.steerTarget, Math.min(dt * 8, 1));
+
+    // ---- camera ----
+    if (keys['q']) S.camRotTarget += dt * 0.9;
+    if (keys['e']) S.camRotTarget -= dt * 0.9;
+    S.camRot = lerp(S.camRot, S.camRotTarget, Math.min(dt * 5, 1));
+    S.camZoom = lerp(S.camZoom, S.camZoomTarget, Math.min(dt * 6, 1));
+
+    // ---- rear tire contact points ----
+    const p = sample(S.progress);
+    const nx = Math.cos(p.a + Math.PI/2), ny = Math.sin(p.a + Math.PI/2);
+    const fx = Math.cos(p.a), fy = Math.sin(p.a);
+    const latX = p.x + nx * S.steer * MAX_LATERAL;
+    const latY = p.y + ny * S.steer * MAX_LATERAL;
+    const rcx = latX - fx * 18, rcy = latY - fy * 18;         // rear-axle center
+    const tireL = { x: rcx - nx * 13, y: rcy - ny * 13 };     // rear-left contact
+    const tireR = { x: rcx + nx * 13, y: rcy + ny * 13 };     // rear-right contact
+
+    if (S.blocked && throttle > 0) {
+      // each tire digs in on its own irregular schedule -> organic accumulation
+      S.tireTimerL -= dt;
+      if (S.tireTimerL <= 0) {
+        spawnBlob(tireL.x + (Math.random()-0.5)*10, tireL.y + (Math.random()-0.5)*10, 5 + Math.random()*7);
+        S.metabolites += TIRE_GAIN_MIN + Math.random() * (TIRE_GAIN_MAX - TIRE_GAIN_MIN);
+        S.tireTimerL = TIRE_SPAWN_MIN + Math.random() * (TIRE_SPAWN_MAX - TIRE_SPAWN_MIN);
+      }
+      S.tireTimerR -= dt;
+      if (S.tireTimerR <= 0) {
+        spawnBlob(tireR.x + (Math.random()-0.5)*10, tireR.y + (Math.random()-0.5)*10, 5 + Math.random()*7);
+        S.metabolites += TIRE_GAIN_MIN + Math.random() * (TIRE_GAIN_MAX - TIRE_GAIN_MIN);
+        S.tireTimerR = TIRE_SPAWN_MIN + Math.random() * (TIRE_SPAWN_MAX - TIRE_SPAWN_MIN);
+      }
+      if (S.metabolites >= ACTIVATION) {
+        S.metabolites = ACTIVATION;
+        S.resolved = true;
+        S.blocked = false;
+        S.breakT = 1;
+        S.checkpoint = clamp(BLOCK_T - 0.06, 0, 1); // future loops fast-restart here
+        spawnBreakBurst();
+      }
+    } else if (!S.blocked && Math.abs(S.speed) > 0.015) {
+      // ordinary drift trail while driving, sized by steer, like the reference image
+      const size = 3 + Math.abs(S.steer) * 11 + Math.random()*1.5;
+      spawnBlob(rcx, rcy, size);
+    }
+
+    // ---- trail life: hold fully visible, THEN fade (stays much longer) ----
+    for (let i = trail.length - 1; i >= 0; i--) {
+      const b = trail[i];
+      if (b.hold > 0) { b.hold -= dt; }
+      else { b.life -= dt / BLOB_FADE; b.r *= (1 - dt * 0.05); }
+      if (b.life <= 0) trail.splice(i, 1);
+    }
+
+    // ---- loop: replay indefinitely once the road runs out ----
+    if (S.progress >= LOOP_AT) {
+      S.progress = S.checkpoint;
+      S.metabolites = 0;
+      S.blocked = false;
+      S.resolved = false;     // barrier reappears so the mechanic replays too
+      S.breakT = 0;
+      S.speed = 0;
+      S.steer = 0; S.steerTarget = 0;
+      trail.length = 0;
+    }
+  }
+
+  // barrier shatter: fling blobs outward along the wall
+  function spawnBreakBurst(){
+    const p = sample(BLOCK_T);
+    const nx = Math.cos(p.a + Math.PI/2), ny = Math.sin(p.a + Math.PI/2);
+    for (let i = 0; i < 34; i++) {
+      const s = (Math.random()-0.5) * ROAD_W;
+      trail.push({ x: p.x + nx*s, y: p.y + ny*s, r: 4 + Math.random()*7, hold: BLOB_HOLD, life: 1 });
+    }
+  }
+
+  // ============================================================
+  // Render (immediate mode, camera = ctx transform, culled)
+  // ============================================================
+  function render(){
+    // motion-blur trail: translucent fill instead of hard clear
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.fillStyle = 'rgba(38,38,38,0.35)';
+    ctx.fillRect(0, 0, W, H);
+
+    const car = sample(S.progress);
+    // lateral offset of car within lane
+    const nx = Math.cos(car.a + Math.PI/2), ny = Math.sin(car.a + Math.PI/2);
+    const carX = car.x + nx * S.steer * MAX_LATERAL;
+    const carY = car.y + ny * S.steer * MAX_LATERAL;
+
+    // --- world camera transform ---
+    // screen anchor where the car sits
+    const anchorX = W / 2, anchorY = H * CAR_SCREEN_Y;
+    ctx.save();
+    ctx.translate(anchorX, anchorY);
+    ctx.scale(S.camZoom, S.camZoom);
+    // rotate so the road's forward tangent points "up" the screen, plus user camRot
+    ctx.rotate(-car.a - Math.PI/2 + S.camRot);
+    // pseudo-isometric tilt: compress the forward/back axis (now "up" on screen)
+    // while leaving left/right full width -> reads as a tilted 3/4 view, not flat top-down
+    ctx.scale(1, ISO_SQUASH);
+    ctx.translate(-carX, -carY);
+
+    // --- draw road (culled to visible progress window) ---
+    // window of samples around the car keeps cost constant for any road length
+    const winBack = 90, winFwd = 260;
+    const ci = Math.round(clamp(S.progress,0,1) * SAMPLES);
+    const i0 = Math.max(0, ci - winBack);
+    const i1 = Math.min(SAMPLES, ci + winFwd);
+
+    // ribbon
+    ctx.beginPath();
+    for (let i = i0; i <= i1; i++) {
+      const a = bakedA[i];
+      const ox = Math.cos(a + Math.PI/2) * ROAD_W/2, oy = Math.sin(a + Math.PI/2) * ROAD_W/2;
+      const x = bakedX[i] + ox, y = bakedY[i] + oy;
+      if (i === i0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    for (let i = i1; i >= i0; i--) {
+      const a = bakedA[i];
+      const ox = -Math.cos(a + Math.PI/2) * ROAD_W/2, oy = -Math.sin(a + Math.PI/2) * ROAD_W/2;
+      ctx.lineTo(bakedX[i] + ox, bakedY[i] + oy);
+    }
+    ctx.closePath();
+    ctx.fillStyle = COL.road;
+    ctx.fill();
+
+    // edge lines
+    ctx.lineWidth = 2; ctx.strokeStyle = COL.edge;
+    for (const side of [1, -1]) {
+      ctx.beginPath();
+      for (let i = i0; i <= i1; i++) {
+        const a = bakedA[i];
+        const ox = Math.cos(a + Math.PI/2) * side * ROAD_W/2;
+        const oy = Math.sin(a + Math.PI/2) * side * ROAD_W/2;
+        const x = bakedX[i] + ox, y = bakedY[i] + oy;
+        if (i === i0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    // milestones
+    ctx.fillStyle = COL.milestone;
+    ctx.font = '600 22px Inter';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (const [name, t] of MILESTONES) {
+      const mi = Math.round(t * SAMPLES);
+      if (mi < i0 || mi > i1) continue;
+      const p = sample(t);
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.a + Math.PI/2);
+      ctx.fillText(name, 0, 0);
+      ctx.restore();
+    }
+
+    // roadblock barrier — dissolves as metabolites accumulate, gone once resolved
+    if (!S.resolved && BLOCK_T * SAMPLES >= i0 && BLOCK_T * SAMPLES <= i1) {
+      const p = sample(BLOCK_T);
+      const dist = BLOCK_T - S.progress;
+      const fill = S.metabolites / ACTIVATION;         // 0..1 accumulation
+      let op = 1 - fill * 0.7;                          // fades as it weakens
+      if (S.blocked || (dist > 0 && dist <= 0.04)) op *= (0.65 + 0.35 * Math.abs(Math.sin(performance.now()/120)));
+      ctx.save();
+      ctx.globalAlpha = op;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.a + Math.PI/2);
+      // barrier narrows from both ends as it's eaten away
+      const half = (ROAD_W/2) * (1 - fill * 0.55);
+      ctx.fillStyle = COL.barrier;
+      ctx.fillRect(-half, -10, half * 2, 20);
+      ctx.beginPath(); ctx.rect(-half, -10, half * 2, 20); ctx.clip();
+      ctx.fillStyle = COL.stripe;
+      for (let sx = -ROAD_W/2 - 20; sx < ROAD_W/2 + 20; sx += 22) {
+        ctx.save(); ctx.translate(sx, 0); ctx.rotate(0.7);
+        ctx.fillRect(-4, -30, 8, 60); ctx.restore();
+      }
+      ctx.restore();
+    }
+
+    // black-blob trail (drift + metabolites) — matches reference image
+    for (const b of trail) {
+      ctx.fillStyle = 'rgba(15,15,15,' + (0.85 * clamp(b.life,0,1)) + ')';
+      ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill();
+    }
+
+    // checkpoint marker: appears once the barrier has been cleared at least once
+    if (S.checkpoint > 0) {
+      const cpi = Math.round(S.checkpoint * SAMPLES);
+      if (cpi >= i0 && cpi <= i1) {
+        const cp = sample(S.checkpoint);
+        ctx.save();
+        ctx.translate(cp.x, cp.y);
+        ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // --- car (drawn in world space at car position, aligned to tangent) ---
+    ctx.save();
+    ctx.translate(carX, carY);
+    // visual lean: align to tangent + small steer tilt
+    S.carAngleVis = lerp(S.carAngleVis, car.a + Math.PI/2 + S.steer * 0.10, 0.4);
+    ctx.rotate(S.carAngleVis);
+    drawCar(ctx);
+    ctx.restore();
+
+    ctx.restore(); // world transform
+
+    // HUD (screen space) — distance normally, metabolite accumulation while blocked
+    if (S.blocked) {
+      hud.classList.add('blocked');
+      hud.textContent = Math.round(S.metabolites) + ' / ' + ACTIVATION;
+      sub.textContent = 'accumulating — hold W to break through';
+    } else {
+      hud.classList.remove('blocked');
+      hud.textContent = Math.round(S.progress * 1000) + ' m';
+      sub.textContent = S.resolved ? 'barrier cleared' : 'the road is your timeline';
+    }
+  }
+
+  function drawCar(g){
+    // wheels
+    g.fillStyle = COL.wheel;
+    for (const [wx,wy] of [[-17,-15],[17,-15],[-17,15],[17,15]]) {
+      g.beginPath(); g.arc(wx, wy, 6, 0, Math.PI*2); g.fill();
+      g.fillStyle = COL.hub; g.beginPath(); g.arc(wx, wy, 2.4, 0, Math.PI*2); g.fill();
+      g.fillStyle = COL.wheel;
+    }
+    // body
+    g.fillStyle = COL.body;
+    g.strokeStyle = 'rgba(0,0,0,0.35)'; g.lineWidth = 1.5;
+    g.beginPath();
+    const b = [[-17,27],[17,27],[20,4],[16,-22],[9,-27],[-9,-27],[-16,-22],[-20,4]];
+    b.forEach((p,i)=> i? g.lineTo(p[0],p[1]) : g.moveTo(p[0],p[1]));
+    g.closePath(); g.fill(); g.stroke();
+    // cabin
+    g.fillStyle = COL.cabin;
+    g.beginPath();
+    [[-11,10],[11,10],[9,-12],[-9,-12]].forEach((p,i)=> i? g.lineTo(p[0],p[1]) : g.moveTo(p[0],p[1]));
+    g.closePath(); g.fill();
+    // windshield
+    g.fillStyle = COL.windshield;
+    g.beginPath();
+    [[-8,-6],[8,-6],[6,-18],[-6,-18]].forEach((p,i)=> i? g.lineTo(p[0],p[1]) : g.moveTo(p[0],p[1]));
+    g.closePath(); g.fill();
+    // headlights (nose at -y)
+    g.fillStyle = COL.headlight;
+    g.beginPath(); g.arc(-8,-25,3,0,Math.PI*2); g.fill();
+    g.beginPath(); g.arc(8,-25,3,0,Math.PI*2); g.fill();
+  }
+
+  // ============================================================
+  // Loop: fixed-timestep sim + render (the "correct" realtime loop)
+  // ============================================================
+  let last = performance.now();
+  let acc = 0;
+  function frame(now){
+    let dt = (now - last) / 1000; last = now;
+    if (dt > 0.25) dt = 0.25;   // avoid spiral of death after tab-away
+    acc += dt;
+    while (acc >= FIXED_DT) { update(FIXED_DT); acc -= FIXED_DT; }
+    render();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

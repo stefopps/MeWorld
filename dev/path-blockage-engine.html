@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Neural Crest Migration — FAS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/tabler-icons.min.css">
+<style>
+:root{
+  --bg:#262626;--road:#46DC96;--pool:#E05040;--label:rgba(255,255,255,0.55);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:#000;color:#FFF;
+  font-family:'Inter',-apple-system,sans-serif;
+  height:100vh;overflow:hidden;user-select:none;
+}
+.ti{font-size:1.15em;vertical-align:-0.14em;display:inline-block;line-height:1;}
+
+/* ═══ VIEWPORT — full-screen SVG panels ═══ */
+#viewport{
+  position:fixed;top:0;left:0;width:100vw;height:100vh;
+  overflow:hidden;background:var(--bg);z-index:0;
+}
+#vp-svg{width:100vw;height:100vh;transition:opacity .4s;}
+
+/* ═══ PHASE LABEL ═══ */
+#phase-label{
+  position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:10;
+  font-size:0.78rem;font-weight:600;color:var(--label);
+  letter-spacing:0.06em;text-transform:uppercase;
+  background:rgba(38,38,38,0.85);backdrop-filter:blur(8px);
+  border-radius:999px;padding:5px 16px;border:1px solid rgba(255,255,255,0.1);
+  opacity:0;transition:opacity .5s;
+}
+#phase-label.show{opacity:1;}
+
+/* ═══ SLIDER ═══ */
+#slider-zone{
+  position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:15;
+  width:min(500px,70vw);display:flex;align-items:center;gap:12px;
+  opacity:0;transition:opacity .4s;
+}
+#slider-zone.visible{opacity:1;}
+#slide-track{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:4px;border-radius:2px;
+  background:rgba(255,255,255,0.18);outline:none;cursor:pointer;
+}
+#slide-track::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:18px;height:18px;border-radius:50%;
+  background:#FFF;border:none;box-shadow:0 2px 10px rgba(0,0,0,0.3);cursor:grab;
+}
+#slide-dots{display:flex;gap:6px;flex-shrink:0;}
+#slide-dots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.3);transition:all .3s;}
+#slide-dots span.active{background:var(--road);transform:scale(1.5);box-shadow:0 0 8px rgba(70,220,150,0.4);}
+
+/* ═══ CAPTION ═══ */
+#caption{
+  position:fixed;bottom:120px;left:50%;transform:translateX(-50%);z-index:10;
+  font-size:0.76rem;color:var(--label);text-align:center;
+  max-width:420px;opacity:0;transition:opacity .5s;line-height:1.55;
+}
+#caption.show{opacity:1;}
+
+/* ═══ INTERACT BUTTON ═══ */
+#interact-btn{
+  position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:16;
+  display:flex;align-items:center;gap:8px;
+  padding:11px 26px;border-radius:999px;
+  background:var(--road);color:#1A1A17;
+  font-size:0.82rem;font-weight:700;font-family:'Inter',sans-serif;
+  border:none;cursor:pointer;
+  box-shadow:0 4px 24px rgba(70,220,150,0.3);
+  opacity:0;pointer-events:none;transition:all .5s;
+}
+#interact-btn.visible{opacity:1;pointer-events:auto;transform:translateX(-50%) scale(1);}
+#interact-btn.visible:hover{transform:translateX(-50%) scale(1.04);box-shadow:0 6px 32px rgba(70,220,150,0.45);}
+#interact-btn.visible:active{transform:translateX(-50%) scale(0.96);}
+
+/* ═══ GAME LAYER ═══ */
+#game-layer{
+  position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:20;
+  display:none;
+}
+#game-layer.active{display:block;}
+#game-layer canvas{width:100%;height:100%;display:block;}
+
+/* ═══ GAME HUD ═══ */
+#game-hud{
+  position:fixed;top:0;left:0;right:0;z-index:25;padding:16px;
+  display:none;justify-content:space-between;align-items:flex-start;
+}
+#game-hud.active{display:flex;}
+#game-title{
+  font-size:0.76rem;font-weight:600;color:var(--label);
+  letter-spacing:0.06em;text-transform:uppercase;
+}
+#game-close-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--label);transition:all .2s;font-size:1.1rem;
+}
+#game-close-btn:hover{background:rgba(255,255,255,0.18);color:#FFF;}
+
+/* ═══ GAME DOCK ═══ */
+#game-dock{
+  position:fixed;bottom:0;left:0;right:0;z-index:25;
+  background:rgba(38,38,38,0.92);backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-top:1px solid rgba(255,255,255,0.08);
+  padding:12px 20px 16px;
+  display:none;transition:opacity .4s;
+}
+#game-dock.active{display:block;}
+#scrub-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+#scrub-row button{
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--label);transition:all .2s;flex-shrink:0;
+}
+#scrub-row button:hover{background:rgba(70,220,150,0.15);color:var(--road);border-color:rgba(70,220,150,0.3);}
+#scrub-row button:active{transform:scale(0.93);}
+
+#scrub-wrap{flex:1;}
+#game-scrub{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:4px;border-radius:2px;
+  background:rgba(255,255,255,0.12);outline:none;cursor:pointer;
+}
+#game-scrub::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--road);border:3px solid var(--bg);
+  box-shadow:0 2px 10px rgba(70,220,150,0.35);cursor:grab;
+}
+#game-scrub::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.2);}
+
+#scrub-labels{
+  display:flex;justify-content:space-between;font-size:0.62rem;
+  color:rgba(255,255,255,0.35);padding:0 2px;
+}
+#game-consequence{
+  margin-top:8px;padding:8px 14px;border-radius:8px;
+  background:rgba(224,80,64,0.12);border:1px solid rgba(224,80,64,0.18);
+  font-size:0.72rem;line-height:1.5;color:var(--label);
+  max-height:0;overflow:hidden;opacity:0;transition:all .5s;
+}
+#game-consequence.visible{max-height:100px;opacity:1;margin-top:10px;}
+#game-consequence b{color:var(--pool);}
+</style>
+</head>
+<body>
+
+<div id="viewport">
+  <svg id="vp-svg" viewBox="0 0 688 384" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <image id="panel-img" href="fas-grid.png" width="1376" height="768" x="0" y="0"/>
+  </svg>
+</div>
+
+<div id="phase-label"></div>
+<div id="caption"></div>
+
+<div id="slider-zone">
+  <input type="range" id="slide-track" min="0" max="3" value="0" step="1">
+  <div id="slide-dots"><span class="active"></span><span></span><span></span><span></span></div>
+</div>
+
+<button id="interact-btn"><i class="ti ti-player-play-filled"></i> Simulate Migration</button>
+
+<div id="game-layer"><canvas id="game-canvas"></canvas></div>
+<div id="game-hud"><span id="game-title">Cell Migration</span><button id="game-close-btn" class="ti ti-x"></button></div>
+<div id="game-dock">
+  <div id="scrub-row">
+    <button id="play-btn"><i class="ti ti-player-play-filled"></i></button>
+    <div id="scrub-wrap"><input type="range" id="game-scrub" min="0" max="1000" value="0" step="1"></div>
+    <button id="reset-btn"><i class="ti ti-refresh"></i></button>
+  </div>
+  <div id="scrub-labels"><span>Migration begins</span><span>Barrier</span><span>Accumulation</span></div>
+  <div id="game-consequence"><b>Fetal Alcohol Syndrome</b> — Failed migration → <b>microcephaly</b>, <b>smooth philtrum</b>, thin upper lip.</div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   1. SLIDE SYSTEM — 4 panels, slider navigation
+   2. GAME ENGINE — organic smoke-blob migration simulator
+   ══════════════════════════════════════════════════════════════ */
+
+// ── DOM refs ──
+const els = {
+  vpSvg:     document.getElementById('vp-svg'),
+  panelImg:  document.getElementById('panel-img'),
+  phaseLbl:  document.getElementById('phase-label'),
+  caption:   document.getElementById('caption'),
+  slideTrack:document.getElementById('slide-track'),
+  slideDots: [...document.querySelectorAll('#slide-dots span')],
+  sliderZone:document.getElementById('slider-zone'),
+  interactBtn:document.getElementById('interact-btn'),
+  gameLayer: document.getElementById('game-layer'),
+  gameHud:   document.getElementById('game-hud'),
+  gameDock:  document.getElementById('game-dock'),
+  gameCanvas:document.getElementById('game-canvas'),
+  gameScrub: document.getElementById('game-scrub'),
+  gameCons:  document.getElementById('game-consequence'),
+  playBtn:   document.getElementById('play-btn'),
+  resetBtn:  document.getElementById('reset-btn'),
+  closeBtn:  document.getElementById('game-close-btn'),
+};
+
+// ── Slide data ──
+const SLIDES = [
+  { ox:0,    oy:0,    label:'Phase 1 — Origin',    cap:'Neural crest cells emerge from the neural tube during early embryogenesis. They are pluripotent — capable of becoming many different cell types.' },
+  { ox:-688, oy:0,    label:'Phase 2 — Migration',  cap:'Cells migrate outward along defined pathways. Ethanol exposure blocks the signaling they need to navigate — the cells physically stall.' },
+  { ox:0,    oy:-384, label:'Phase 3 — Destination', cap:'When migration succeeds, neural crest cells populate the developing face and brain, building craniofacial structures and neural components.' },
+  { ox:-688, oy:-384, label:'Phase 4 — Consequence',cap:'Failed migration → microcephaly, smooth philtrum, thin upper lip. This is the mechanism of fetal alcohol syndrome.' },
+];
+let slide = 0;
+let inGame = false;
+
+function goSlide(n){
+  if(n < 0 || n > 3 || inGame) return;
+  slide = n;
+  const s = SLIDES[n];
+  els.panelImg.setAttribute('x', String(s.ox));
+  els.panelImg.setAttribute('y', String(s.oy));
+
+  els.phaseLbl.textContent = s.label;
+  els.phaseLbl.classList.add('show');
+  setTimeout(()=>els.phaseLbl.classList.remove('show'), 3000);
+
+  els.caption.textContent = s.cap;
+  els.caption.classList.add('show');
+
+  els.slideDots.forEach((d,i)=>d.classList.toggle('active', i===n));
+  els.slideTrack.value = n;
+  els.interactBtn.classList.toggle('visible', n===3);
+}
+
+els.slideTrack.addEventListener('input', ()=>goSlide(+els.slideTrack.value));
+els.slideDots.forEach((d,i)=>d.addEventListener('click', ()=>goSlide(i)));
+document.addEventListener('keydown', e=>{
+  if(inGame) return;
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') goSlide(Math.min(3,slide+1));
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') goSlide(Math.max(0,slide-1));
+});
+
+// ── GAME CANVAS ──
+const canvas = els.gameCanvas;
+const ctx = canvas.getContext('2d');
+
+function sizeCanvas(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.style.width = window.innerWidth + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+}
+sizeCanvas();
+window.addEventListener('resize', ()=>{ if(inGame) sizeCanvas(); });
+
+// ── GAME STATE ──
+let simVal = 0;       // 0..1000
+let playing = false;
+let rafId = null;
+let startTs = 0;
+let startVal = 0;
+const DURATION = 15000; // ms for full play
+const BARRIER = 520;    // barrier at 52%
+let consShown = false;
+
+// ── ORGANIC SMOKE PARTICLES ──
+let particles = [];
+
+function spawnParticle(x, y){
+  // Organic blobs — irregular, varied sizes, slow drift
+  particles.push({
+    x:x+(Math.random()-0.5)*28, y:y+(Math.random()-0.5)*16,
+    vx:(Math.random()-0.5)*0.25, vy:(Math.random()-0.5)*0.15-0.1,
+    r:4+Math.random()*9,   // varied blob sizes
+    life:1.0, decay:0.006+Math.random()*0.008,
+    // Irregular shape data
+    deform:Array.from({length:5},()=>Math.random()),
+  });
+  // Cap
+  if(particles.length>160) particles.splice(0, particles.length-160);
+}
+
+function updateParticles(){
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx; p.y+=p.vy;
+    p.vx*=0.99; p.vy*=0.99;
+    p.life-=p.decay;
+    p.r+=0.03; // gradually expand
+    if(p.life<=0) particles.splice(i,1);
+  }
+}
+
+function drawParticle(ctx, p){
+  if(p.life<=0) return;
+  const alpha=p.life*0.55;
+  const r=p.r;
+  ctx.beginPath();
+  // Draw irregular organic blob
+  const segs=5, d=p.deform;
+  for(let i=0;i<segs;i++){
+    const a=i/segs*Math.PI*2;
+    const rr=r*(0.7+d[i]*0.6);
+    const sx=Math.cos(a)*rr, sy=Math.sin(a)*rr;
+    i===0?ctx.moveTo(p.x+sx,p.y+sy):ctx.lineTo(p.x+sx,p.y+sy);
+  }
+  ctx.closePath();
+  ctx.fillStyle=`rgba(70,220,150,${alpha})`;
+  ctx.fill();
+
+  // Tiny companion blobs
+  for(let b=0;b<2;b++){
+    ctx.beginPath();
+    ctx.arc(p.x+(Math.random()-0.5)*r*1.4,p.y+(Math.random()-0.5)*r*1.2,r*0.35,0,Math.PI*2);
+    ctx.fillStyle=`rgba(70,220,150,${alpha*0.45})`;
+    ctx.fill();
+  }
+}
+
+// ── DRAW ──
+function drawScene(val){
+  const w=window.innerWidth, h=window.innerHeight;
+  const rw=w*0.22;
+  const cx=w*0.5;
+  const roadTop=h*0.06, roadBlock=h*0.40, roadBot=h*0.84;
+
+  ctx.clearRect(0,0,w,h);
+
+  // BG — dark graphite
+  ctx.fillStyle='#262626';
+  ctx.fillRect(0,0,w,h);
+
+  // ── MINT RIBBON ROAD ──
+  // S-curve from bottom-center → upper-right
+  const blx = cx+rw*0.1, bly=roadBlock+h*0.12;
+  const btx = cx+rw*2.4, bty=roadTop+h*0.06;
+
+  ctx.beginPath();
+  ctx.moveTo(cx-rw/2, roadBot);
+  ctx.bezierCurveTo(cx-rw/2, roadBot-h*0.12, blx, bly, cx+rw*0.5, roadBlock-rw*0.3);
+  ctx.bezierCurveTo(cx+rw*1.0, roadBlock-rw*0.8, btx, bty, cx+rw*4.5, roadTop);
+  // Far edge
+  ctx.lineTo(cx+rw*4.5+rw, roadTop);
+  ctx.bezierCurveTo(btx+rw, bty+rw, cx+rw*1.0+rw, roadBlock-rw*0.8+rw, cx+rw*0.5+rw, roadBlock-rw*0.3+rw);
+  ctx.bezierCurveTo(blx+rw, bly+rw, cx-rw/2+rw, roadBot-h*0.12+rw, cx+rw/2, roadBot);
+  ctx.closePath();
+  ctx.fillStyle='#46DC96';
+  ctx.fill();
+  ctx.strokeStyle='rgba(38,38,38,0.15)';
+  ctx.lineWidth=2;
+  ctx.stroke();
+
+  // ── TOKEN POSITION ──
+  const frac=val/1000;
+  let tokFrac;
+  if(frac<=BARRIER/1000) tokFrac=frac/(BARRIER/1000);
+  else tokFrac=1.0;
+
+  // Token moves along road center curve
+  const tY=roadBot+tokFrac*(roadBlock-roadBot);
+  const tX=cx+Math.sin(tokFrac*Math.PI*1.3)*rw*2.2;
+
+  // ── BARRIER ──
+  const barT=BARRIER/1000;
+  const barY=roadBot+barT*(roadBlock-roadBot);
+  const barX=cx+Math.sin(barT*Math.PI*1.3)*rw*2.2;
+
+  const barW=rw*1.6, barH=14;
+  ctx.fillStyle='#E05040';
+  // Use regular rect (roundRect not supported everywhere)
+  ctx.fillRect(barX-barW/2, barY-barH/2, barW, barH);
+  // Stripes
+  ctx.fillStyle='rgba(255,255,255,0.25)';
+  for(let sx=barX-barW/2+10; sx<barX+barW/2; sx+=18){
+    ctx.fillRect(sx, barY-barH/2+2, 7, barH-4);
+  }
+  // Barrier icon (tabler ×)
+  ctx.fillStyle='#FFF';
+  ctx.font='16px Inter';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText('✕', barX, barY);
+
+  // ── HEXAGONAL TOKEN ──
+  const tokSize=16;
+  const stuck=frac>=BARRIER/1000;
+  ctx.save();
+  ctx.translate(tX, tY);
+  ctx.beginPath();
+  for(let i=0;i<6;i++){
+    const a=Math.PI/2+i*Math.PI/3;
+    const px=Math.cos(a)*tokSize, py=Math.sin(a)*tokSize;
+    i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+  }
+  ctx.closePath();
+  ctx.fillStyle=stuck?'#E05040':'#46DC96';
+  ctx.fill();
+  ctx.strokeStyle='#262626';
+  ctx.lineWidth=2.5;
+  ctx.stroke();
+  // Inner circle
+  ctx.beginPath();
+  ctx.arc(0,0,tokSize*0.35,0,Math.PI*2);
+  ctx.fillStyle='#FFF';
+  ctx.globalAlpha=0.55;
+  ctx.fill();
+  ctx.globalAlpha=1;
+  ctx.restore();
+
+  // Stuck pulse
+  if(stuck){
+    const pulse=Math.sin(Date.now()*0.006)*0.5+0.5;
+    ctx.beginPath();
+    ctx.arc(tX, tY, tokSize*1.6+pulse*8, 0, Math.PI*2);
+    ctx.fillStyle=`rgba(224,80,64,${0.06+pulse*0.07})`;
+    ctx.fill();
+  }
+
+  // ── ACCUMULATION (organic blobs) ──
+  if(frac>BARRIER/1000){
+    const accum=(frac-BARRIER/1000)/(1-BARRIER/1000);
+    const count=Math.floor(accum*16);
+    for(let i=0;i<count;i++){
+      const py=barY+i*13+8;
+      if(py<roadBot){
+        const px=cx+Math.sin((py-roadBot)/(roadBlock-roadBot)*Math.PI*1.3)*rw*2.2;
+        // Spawn particle if needed
+        const existing=particles.filter(p=>Math.abs(p.x-px)<8&&Math.abs(p.y-py)<8).length;
+        if(existing<2) spawnParticle(px, py);
+        // Extra spawn for density
+        if(i%3===0 && Math.random()<0.3 && existing<3) spawnParticle(px+(Math.random()-0.5)*16, py+(Math.random()-0.5)*8);
+      }
+    }
+    if(count>=5&&!consShown){ consShown=true; els.gameCons.classList.add('visible'); }
+    if(count<5){ consShown=false; els.gameCons.classList.remove('visible'); }
+  }
+
+  // Draw & update particles
+  updateParticles();
+  for(const p of particles) drawParticle(ctx, p);
+
+  // ── LABELS ──
+  ctx.fillStyle='rgba(255,255,255,0.22)';
+  ctx.font='10px Inter, sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('Neural tube', cx, roadBot+22);
+  ctx.fillText('Cranium · Face', cx+rw*4.5, roadTop-10);
+  ctx.fillStyle='rgba(255,255,255,0.45)';
+  ctx.font='11px Inter, sans-serif';
+  ctx.fillText('Ethanol', barX, barY-18);
+}
+
+// ── ANIMATION LOOP ──
+function loop(ts){
+  if(!playing){ rafId=null; return; }
+  if(!startTs){ startTs=ts; startVal=simVal; }
+
+  const raw=startVal+(ts-startTs)/DURATION*1000;
+  if(raw>=1000){ simVal=1000; playing=false; updatePlayIcon(); }
+  else simVal=raw;
+
+  els.gameScrub.value=Math.round(simVal);
+  drawScene(simVal);
+
+  if(playing) rafId=requestAnimationFrame(loop);
+}
+
+function updatePlayIcon(){
+  els.playBtn.innerHTML=playing
+    ? '<i class="ti ti-player-pause-filled"></i>'
+    : '<i class="ti ti-player-play-filled"></i>';
+}
+
+// ── OPEN / CLOSE GAME ──
+function openGame(){
+  if(inGame) return;
+  inGame=true;
+
+  // Hide slides
+  els.vpSvg.style.opacity='0';
+  els.sliderZone.classList.remove('visible');
+  els.interactBtn.classList.remove('visible');
+  els.phaseLbl.classList.remove('show');
+  els.caption.classList.remove('show');
+  els.slideTrack.disabled=true;
+
+  // Show game
+  els.gameLayer.classList.add('active');
+  els.gameHud.classList.add('active');
+  els.gameDock.classList.add('active');
+
+  // Reset + draw
+  simVal=0; playing=true; startTs=0; startVal=0; consShown=false;
+  particles=[];
+  els.gameScrub.value=0;
+  els.gameCons.classList.remove('visible');
+  sizeCanvas();
+  updatePlayIcon();
+  drawScene(0);
+  rafId=requestAnimationFrame(loop);
+}
+
+function closeGame(){
+  playing=false;
+  if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
+  inGame=false;
+  particles=[];
+
+  els.gameLayer.classList.remove('active');
+  els.gameHud.classList.remove('active');
+  els.gameDock.classList.remove('active');
+  els.gameCons.classList.remove('visible');
+
+  els.vpSvg.style.opacity='1';
+  els.sliderZone.classList.add('visible');
+  els.slideTrack.disabled=false;
+  goSlide(3);
+  els.interactBtn.classList.add('visible');
+}
+
+els.interactBtn.addEventListener('click', openGame);
+els.closeBtn.addEventListener('click', closeGame);
+
+// ── SCRUB ──
+els.gameScrub.addEventListener('input', ()=>{
+  simVal=+els.gameScrub.value;
+  startTs=0; startVal=simVal;
+  drawScene(simVal);
+});
+
+// ── PLAY / PAUSE ──
+els.playBtn.addEventListener('click', ()=>{
+  playing=!playing;
+  updatePlayIcon();
+  if(playing){
+    if(simVal>=999) simVal=0;
+    startTs=0;
+    rafId=requestAnimationFrame(loop);
+  } else {
+    if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
+  }
+});
+
+// ── RESET ──
+els.resetBtn.addEventListener('click', ()=>{
+  playing=false; updatePlayIcon();
+  if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
+  simVal=0; startTs=0; startVal=0; consShown=false;
+  particles=[];
+  els.gameScrub.value=0;
+  els.gameCons.classList.remove('visible');
+  drawScene(0);
+});
+
+// ── INIT ──
+els.sliderZone.classList.add('visible');
+goSlide(0);
+console.log('Engine ready — click "Simulate Migration" on slide 4');
+</script>
+</body>
+</html>

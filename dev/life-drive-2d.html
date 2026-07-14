@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Life Drive — 2D Winding Road</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#262626;--road:#46DC96;--pool:#E05040;--hint:rgba(255,255,255,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--bg);font-family:'Inter',-apple-system,sans-serif;
+  height:100vh;overflow:hidden;user-select:none;
+  cursor:grab;
+}
+body:active{cursor:grabbing;}
+
+canvas{display:block;position:fixed;top:0;left:0;}
+
+/* ═══ HUD ═══ */
+#hud{
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:10;
+  font-size:1.5rem;font-weight:700;color:#FFF;
+  text-shadow:0 1px 8px rgba(0,0,0,0.5);
+}
+#hud.blocked{color:var(--pool);}
+
+/* ═══ HINT ═══ */
+.hint{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:10;
+  font-size:0.72rem;color:var(--hint);
+  background:rgba(38,38,38,0.8);backdrop-filter:blur(8px);
+  border-radius:999px;padding:5px 18px;border:1px solid rgba(255,255,255,0.08);
+}
+
+/* ═══ BLOCK OVERLAY ═══ */
+#block-overlay{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;
+  background:rgba(255,255,255,0.92);backdrop-filter:blur(14px);
+  border-radius:16px;padding:20px 26px;text-align:center;
+  border:1px solid rgba(0,0,0,0.08);
+  box-shadow:0 4px 32px rgba(0,0,0,0.3);
+  font-family:'Inter',sans-serif;color:#1A1A17;
+  opacity:0;pointer-events:none;transition:all .4s;
+}
+#block-overlay.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+#block-overlay h2{font-size:1rem;margin-bottom:6px;color:var(--pool);}
+#block-overlay p{font-size:0.78rem;color:#888;margin-bottom:14px;line-height:1.5;max-width:280px;}
+#block-overlay button{
+  background:var(--pool);color:#FFF;border:none;
+  border-radius:999px;padding:9px 26px;font-size:0.82rem;
+  font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;
+}
+#block-overlay button:hover{filter:brightness(1.1);transform:scale(1.04);}
+#block-overlay button:active{transform:scale(0.96);}
+#debug{position:fixed;top:16px;right:16px;z-index:30;font-size:10px;color:gray;display:none;}
+</style>
+</head>
+<body>
+
+<canvas id="game"></canvas>
+
+<div id="hud"><span id="hud-val">0</span> m</div>
+
+<div id="block-overlay">
+  <h2>Roadblock</h2>
+  <p>Ethanol exposure blocks neural crest cell migration. Cells cannot reach their destination.</p>
+  <button id="block-resolve">Push Through</button>
+</div>
+
+<div class="hint">Click &amp; drag to steer &nbsp;&middot;&nbsp; the road is your timeline</div>
+<div id="debug"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   PAPER.JS — PURE 2D WINDING ROAD (regular JS, not paperscript)
+   ══════════════════════════════════════════════════════════════ */
+
+const canvas = document.getElementById('game');
+const debugEl = document.getElementById('debug');
+
+function log(msg){
+  debugEl.style.display = 'block';
+  debugEl.textContent += msg + '\n';
+  console.log('[LifeDrive]', msg);
+}
+
+log('Init — setting up Paper.js...');
+
+// Install Paper.js on the canvas
+paper.setup(canvas);
+paper.view.viewSize = new paper.Size(window.innerWidth, window.innerHeight);
+
+const { Path, Point, PointText, Group, Segment, Color, Path:PCircle } = paper;
+
+log('Paper.js ready — building world...');
+
+// ═══ WAYPOINTS ═══
+const WAYPOINTS = [
+  [  0,    0],   // Birth
+  [300,  -80],   // Early childhood
+  [600, -160],   // Elementary
+  [900,  -60],   // High school
+  [800,  140],   // University (curve swings south)
+  [500,  200],   // Early career peak
+  [200,  150],   // Mid career
+  [-50,   80],   // Marriage
+  [-200,   0],   // Children
+  [-300, -100],  // Later life
+  [-400, -200],  // Retirement
+];
+
+const ROAD_WIDTH = 90;
+const CAM_TRAIL = 0.06;
+const BLOCK_POINT = 0.52;
+const PLAY_SPEED = 0.06;
+
+// ═══ BUILD SPLINE ═══
+const centerPath = new Path({ strokeColor: null, fillColor: null });
+WAYPOINTS.forEach(p => centerPath.add(new Segment(new Point(p[0], p[1]))));
+centerPath.smooth({ type: 'catmull-rom', factor: 0.5 });
+const centerLen = centerPath.length;
+log('Spline built — length=' + Math.round(centerLen));
+
+// ═══ ROAD RIBBON ═══
+const roadGroup = new Group();
+const SEGS = 400;
+const leftPts = [], rightPts = [];
+
+for (let i = 0; i <= SEGS; i++) {
+  const t = i / SEGS;
+  const pt = centerPath.getPointAt(t * centerLen);
+  const tangent = centerPath.getTangentAt(t * centerLen);
+  const normal = tangent.rotate(-90).normalize();
+  leftPts.push(pt.add(normal.multiply(ROAD_WIDTH / 2)));
+  rightPts.push(pt.subtract(normal.multiply(ROAD_WIDTH / 2)));
+}
+
+const roadVerts = [];
+for (let i = 0; i < leftPts.length; i++) roadVerts.push(leftPts[i]);
+for (let i = rightPts.length - 1; i >= 0; i--) roadVerts.push(rightPts[i]);
+
+const roadPath = new Path({
+  segments: roadVerts.map(p => new Segment(p)),
+  fillColor: '#46DC96',
+  strokeColor: null,
+  closed: true,
+});
+roadGroup.addChild(roadPath);
+
+// Edge lines
+const leftEdge = new Path({
+  segments: leftPts.map(p => new Segment(p)),
+  strokeColor: '#1A1A1A', strokeWidth: 1.5, opacity: 0.25,
+});
+const rightEdge = new Path({
+  segments: rightPts.map(p => new Segment(p)),
+  strokeColor: '#1A1A1A', strokeWidth: 1.5, opacity: 0.25,
+});
+roadGroup.addChild(leftEdge);
+roadGroup.addChild(rightEdge);
+
+// ═══ MILESTONE LABELS ═══
+const LABELS = ['Birth','School','University','Career Peak','Marriage','Children','Retirement'];
+const LABEL_TS = [0, 0.12, 0.28, 0.42, 0.62, 0.78, 0.92];
+
+LABEL_TS.forEach((t, idx) => {
+  const pt = centerPath.getPointAt(t * centerLen);
+  const tan = centerPath.getTangentAt(t * centerLen);
+  const norm = tan.rotate(-90).normalize();
+
+  const text = new PointText({
+    point: pt.add(norm.multiply(ROAD_WIDTH / 2 + 18)),
+    content: LABELS[idx],
+    fontSize: 9,
+    fillColor: new Color(1,1,1,0.25),
+    fontFamily: 'Inter',
+    justification: 'center',
+  });
+  roadGroup.addChild(text);
+
+  const dot = new PCircle.Circle({
+    center: pt.add(norm.multiply(ROAD_WIDTH / 2 + 5)),
+    radius: 2.5,
+    fillColor: new Color(1,1,1,0.2),
+  });
+  roadGroup.addChild(dot);
+});
+
+log('Road ribbon built — ' + SEGS + ' segments, ' + LABELS.length + ' milestones');
+
+// ═══ CAR TOKEN ═══
+const carGroup = new Group();
+{
+  const body = new Path({
+    segments: [[-18,-10],[18,-10],[20,-4],[20,6],[16,10],[-16,10],[-20,6],[-20,-4]],
+    fillColor:'#3A3A3A', strokeColor:'#222', strokeWidth:1.5, closed:true,
+  });
+  carGroup.addChild(body);
+
+  const cabin = new Path({
+    segments: [[-10,-10],[8,-10],[6,-5],[-8,-5]],
+    fillColor:'#1A1A1A', strokeColor:'#111', strokeWidth:1, closed:true,
+  });
+  carGroup.addChild(cabin);
+
+  const windshield = new Path({
+    segments: [[-8,-10],[6,-10],[4,-8],[-6,-8]],
+    fillColor:'#4466AA', opacity:0.5, closed:true,
+  });
+  carGroup.addChild(windshield);
+
+  carGroup.addChild(new PCircle.Circle({ center:[-16,-7], radius:3, fillColor:'#FFEE88' }));
+  carGroup.addChild(new PCircle.Circle({ center:[16,-7], radius:3, fillColor:'#FFEE88' }));
+
+  function makeWheel(x,y){
+    const g = new Group();
+    g.addChild(new PCircle.Circle({ center:[x,y], radius:6, fillColor:'#1A1A1A' }));
+    g.addChild(new PCircle.Circle({ center:[x,y], radius:3.5, fillColor:'#DDD' }));
+    return g;
+  }
+  carGroup.addChild(makeWheel(-13,9));
+  carGroup.addChild(makeWheel(13,9));
+  carGroup.addChild(makeWheel(-13,-9));
+  carGroup.addChild(makeWheel(13,-9));
+}
+
+// ═══ BLOCKADE ═══
+const blockGroup = new Group();
+const blockPt = centerPath.getPointAt(BLOCK_POINT * centerLen);
+const blockTan = centerPath.getTangentAt(BLOCK_POINT * centerLen);
+const blockNorm = blockTan.rotate(-90).normalize();
+
+const barrier = new Path({
+  segments: [
+    blockPt.add(blockNorm.multiply(ROAD_WIDTH/2+2)).subtract(blockTan.multiply(3)),
+    blockPt.subtract(blockNorm.multiply(ROAD_WIDTH/2+2)).subtract(blockTan.multiply(3)),
+    blockPt.subtract(blockNorm.multiply(ROAD_WIDTH/2+2)).add(blockTan.multiply(3)),
+    blockPt.add(blockNorm.multiply(ROAD_WIDTH/2+2)).add(blockTan.multiply(3)),
+  ],
+  fillColor:'#E05040', strokeColor:'#B03030', strokeWidth:2, closed:true,
+});
+blockGroup.addChild(barrier);
+
+// White stripes
+for (let sx = -ROAD_WIDTH/2+12; sx < ROAD_WIDTH/2; sx += 18) {
+  const sp = blockPt.add(blockNorm.multiply(sx));
+  const stripe = new Path.Rectangle(sp.x-2.5, sp.y-4, 5, 8);
+  stripe.fillColor = '#FFF';
+  stripe.opacity = 0.25;
+  stripe.rotate(blockTan.angle, sp);
+  blockGroup.addChild(stripe);
+}
+
+log('Blockade placed at progress=' + BLOCK_POINT);
+
+// ═══ STATE ═══
+let progress = 0;
+let steer = 0;
+let steerTarget = 0;
+let blocked = false;
+let blockResolved = false;
+const cameraPos = new Point(paper.view.center);
+
+// ═══ POINTER STEERING ═══
+let pointerDown = false;
+let pointerStartX = 0;
+
+paper.view.onMouseDown = function(e) {
+  pointerDown = true;
+  pointerStartX = e.point.x;
+};
+paper.view.onMouseDrag = function(e) {
+  if (!pointerDown) return;
+  const dx = e.point.x - pointerStartX;
+  steerTarget = Math.max(-1, Math.min(1, dx / 100));
+};
+paper.view.onMouseUp = function() {
+  pointerDown = false;
+  steerTarget = 0;
+};
+
+// ═══ DOM ELEMENTS ═══
+const blockOverlay = document.getElementById('block-overlay');
+const hudEl = document.getElementById('hud');
+const hudVal = document.getElementById('hud-val');
+
+document.getElementById('block-resolve').addEventListener('click', () => {
+  blocked = false;
+  blockResolved = true;
+  blockOverlay.classList.remove('show');
+  hudEl.classList.remove('blocked');
+  log('Block resolved — progress resumes');
+});
+
+// ═══ ANIMATION ═══
+let frameCount = 0;
+
+paper.view.onFrame = function(e) {
+  frameCount++;
+  const dt = Math.min(e.delta, 0.05);
+
+  // Steer inertia
+  steer += (steerTarget - steer) * Math.min(1, dt * 8);
+
+  // Progress
+  if (!blocked) {
+    progress += PLAY_SPEED * dt;
+    if (progress > 1) progress = 1;
+
+    if (!blockResolved && progress >= BLOCK_POINT) {
+      progress = BLOCK_POINT;
+      blocked = true;
+      blockOverlay.classList.add('show');
+      hudEl.classList.add('blocked');
+      log('ROADBLOCK triggered at ' + Math.round(BLOCK_POINT*1000) + 'm');
+    }
+  }
+
+  // Car position
+  const carPt = centerPath.getPointAt(progress * centerLen);
+  const carTan = centerPath.getTangentAt(progress * centerLen);
+  const carNormal = carTan.rotate(-90).normalize();
+  const laneOffset = steer * (ROAD_WIDTH / 2 - 20);
+
+  // Camera
+  const targetCam = carPt;
+  cameraPos.x += (targetCam.x - cameraPos.x) * CAM_TRAIL;
+  cameraPos.y += (targetCam.y - cameraPos.y) * CAM_TRAIL;
+
+  // Offset — road scrolls, car stays center-screen
+  const offset = paper.view.center.subtract(cameraPos);
+  roadGroup.position = offset;
+  blockGroup.position = offset;
+
+  // Car at view center
+  carGroup.position = paper.view.center;
+
+  // Car rotation
+  carGroup.rotation = carTan.angle + 90;
+
+  // HUD
+  hudVal.textContent = Math.round(progress * 1000);
+
+  // Barrier pulse on approach
+  if (!blocked && !blockResolved && progress > BLOCK_POINT - 0.04 && progress < BLOCK_POINT) {
+    const pulse = Math.sin(Date.now() * 0.006) * 0.5 + 0.5;
+    barrier.opacity = 0.4 + pulse * 0.6;
+  } else {
+    barrier.opacity = 1;
+  }
+
+  // Smoke test log every 300 frames
+  if (frameCount % 300 === 0) {
+    log('Frame ' + frameCount + ' — progress=' + (progress*1000).toFixed(0) + 'm steer=' + steer.toFixed(2));
+  }
+};
+
+// ═══ RESIZE ═══
+window.addEventListener('resize', () => {
+  paper.view.viewSize = new paper.Size(window.innerWidth, window.innerHeight);
+});
+
+log('Engine running — drag to steer, road is the timeline');
+log('Paper.js view: ' + paper.view.viewSize.width + 'x' + paper.view.viewSize.height);
+</script>
+</body>
+</html>

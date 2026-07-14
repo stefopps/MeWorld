@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pathway Mindmaps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/tabler-icons.min.css">
+<style>
+  :root{
+    --accent:#C64B87; --accent-bg:#FBEAF1;
+    --pool:#E0684A; --pool-bg:#FBE9E2;
+    --starve:#C9C7C0;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#FFFFFF;color:#1A1A17;font-family:'Inter',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;overflow:hidden;}
+
+  .ti{font-size:1.15em;vertical-align:-0.12em;display:inline-block;line-height:1;}
+
+  /* ── MINDMAP: full viewport ── */
+  #mindmap{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;}
+
+  /* ── FLOATERS: glass panels ── */
+  .floater{
+    position:fixed;z-index:10;
+    background:rgba(255,255,255,0.88);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(0,0,0,0.08);
+    border-radius:16px;
+    box-shadow:0 2px 16px rgba(0,0,0,0.07),0 0 0 1px rgba(0,0,0,0.04);
+    transition:all .2s ease;
+  }
+  .floater:hover{box-shadow:0 4px 24px rgba(0,0,0,0.10),0 0 0 1px rgba(0,0,0,0.06);}
+
+  /* ── Score pill ── */
+  #score-pill{top:16px;right:16px;padding:8px 18px;display:flex;align-items:center;gap:8px;font-size:0.88rem;font-weight:600;white-space:nowrap;}
+  #score-pill .val{color:var(--pool);font-size:1.15rem;}
+  #score-pill .lvl{color:#8C8A82;font-size:0.7rem;border-left:1px solid #E5E3DC;padding-left:10px;margin-left:2px;}
+  #score-pill .lvl b{color:#1A1A17;}
+
+  /* ── Tabs ── */
+  #tabs{top:16px;left:16px;display:flex;gap:4px;padding:6px;}
+  #tabs button{
+    font-family:inherit;font-size:0.8rem;color:#8C8A82;
+    background:transparent;border:1px solid transparent;border-radius:999px;
+    padding:6px 14px;cursor:pointer;transition:all .15s ease;white-space:nowrap;
+  }
+  #tabs button:hover{color:#1A1A17;border-color:#E5E3DC;background:rgba(0,0,0,0.03);}
+  #tabs button.active{color:#1A1A17;border-color:var(--accent);background:var(--accent-bg);font-weight:600;}
+  #tabs button .ti{color:inherit;font-size:0.9em;margin-right:2px;}
+
+  /* ── Modes ── */
+  #modes{bottom:16px;left:16px;display:flex;gap:5px;flex-wrap:wrap;padding:8px 10px;max-width:52vw;}
+  #modes button{
+    font-family:inherit;font-size:0.75rem;letter-spacing:0.01em;
+    color:#1A1A17;background:rgba(0,0,0,0.04);border:1px solid transparent;
+    padding:6px 11px;border-radius:999px;cursor:pointer;transition:all .15s ease;white-space:nowrap;
+  }
+  #modes button:hover{border-color:var(--accent);background:rgba(0,0,0,0.06);}
+  #modes button.active{background:#1A1A17;color:#fff;border-color:#1A1A17;}
+  #modes button.active.blocked-mode{background:var(--pool);color:#fff;border-color:var(--pool);}
+
+  /* ── Status bar ── */
+  #status{bottom:72px;left:16px;right:16px;max-width:50vw;padding:10px 14px;font-size:0.82rem;line-height:1.5;opacity:0;pointer-events:none;transition:opacity .25s;}
+  #status.visible{opacity:1;pointer-events:auto;}
+  #status b{color:var(--pool);}
+
+  /* ── Side detail panel ── */
+  #side{bottom:16px;right:16px;width:288px;max-height:45vh;padding:18px;overflow-y:auto;font-size:0.85rem;line-height:1.6;}
+  #side .tag{display:inline-block;font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:#8C8A82;border:1px solid #E5E3DC;border-radius:5px;padding:2px 7px;margin-bottom:8px;}
+  #side h2{font-size:0.95rem;margin:0 0 6px;color:var(--accent);}
+  #side p{font-size:0.82rem;margin:0 0 6px;}
+  #side .placeholder{color:#8C8A82;font-style:italic;}
+  #side .pool-tag{display:inline-block;background:var(--pool-bg);color:var(--pool);font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:4px;margin-right:4px;margin-bottom:6px;}
+  #side .starve-tag{display:inline-block;background:#F5F4F1;color:var(--starve);font-size:0.68rem;font-weight:500;padding:2px 8px;border-radius:4px;margin-right:4px;margin-bottom:6px;}
+
+  /* ── Hint strip ── */
+  .hint{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:10;font-size:0.72rem;color:#8C8A82;background:rgba(255,255,255,0.75);backdrop-filter:blur(8px);border-radius:999px;padding:5px 16px;border:1px solid rgba(0,0,0,0.06);pointer-events:none;opacity:0;transition:opacity .4s;}
+  .hint.show{opacity:1;}
+
+  /* ── Custom SVG node styles ── */
+  .sv-node{cursor:pointer;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.06));}
+  .sv-node rect{fill:#F8F7F4;stroke:#E5E3DC;stroke-width:1.5;rx:12;}
+  .sv-node text{font-family:'Inter',sans-serif;font-size:14px;fill:#1A1A17;font-weight:600;text-anchor:middle;dominant-baseline:central;}
+  .sv-node .sv-sub{font-size:10.5px;fill:#8C8A82;font-weight:500;}
+  .sv-node:hover rect{stroke:var(--accent);stroke-width:2;}
+  .sv-node.active rect{stroke:var(--accent);stroke-width:2.5;fill:var(--accent-bg);}
+  .sv-node.pool rect{stroke:var(--pool);stroke-width:2;fill:var(--pool-bg);}
+  .sv-node.pool text{fill:var(--pool);}
+  .sv-node.starve rect{stroke:#D5D3CB;stroke-width:1.5;fill:#FCFCFA;opacity:0.55;}
+  .sv-node.starve text{fill:#C9C7C0;}
+  .sv-node .sv-badge{font-size:9.5px;font-weight:700;letter-spacing:0.04em;}
+
+  /* Enzyme node: rounded pill, slightly darker */
+  .sv-enzyme rect{fill:#F0EFEB;stroke:#DAD8D1;stroke-width:1.5;rx:99;}
+  .sv-enzyme text{font-size:14px;fill:#1A1A17;font-weight:600;}
+
+  /* Cofactor node: smaller, lighter */
+  .sv-cofactor rect{fill:#FAF9F6;stroke:#E5E3DC;stroke-width:1;rx:10;}
+  .sv-cofactor text{font-size:12px;fill:#6B6964;font-weight:500;}
+
+  /* Substrate/product node: the main pathway nodes */
+  .sv-substrate rect{fill:#F8F7F4;stroke:#DAD8D1;stroke-width:1.5;rx:12;}
+  .sv-substrate text{font-size:14px;fill:#1A1A17;font-weight:600;}
+
+  /* Homocysteine hub: larger, visually central */
+  .sv-hub rect{fill:#F0EFEB;stroke:var(--accent);stroke-width:3;rx:20;}
+  .sv-hub text{font-size:16px;fill:var(--accent);font-weight:700;}
+
+  /* Edges */
+  .sv-edge{fill:none;stroke:#DAD8D1;stroke-width:2.5;stroke-linecap:round;}
+  .sv-edge.blocked{stroke-dasharray:8,6;stroke:#D5D3CB;stroke-width:2;}
+  .sv-edge.active{stroke:var(--accent);stroke-width:3;}
+  .sv-arrow{fill:#DAD8D1;}
+  .sv-arrow.blocked{fill:#D5D3CB;}
+
+  /* Cofactor labels on edges */
+  .sv-coflabel{font-size:11px;fill:#8C8A82;font-weight:500;font-family:'Inter',sans-serif;}
+  .sv-blockmark{font-size:18px;fill:var(--pool);font-weight:700;text-anchor:middle;dominant-baseline:central;}
+</style>
+</head>
+<body>
+
+<!-- MINDMAP FULL PAGE -->
+<div id="mindmap"></div>
+
+<!-- CUSTOM SVG for remethylation cycle -->
+<svg id="svgcanvas" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background:#FFFFFF;">
+  <defs>
+    <linearGradient id="roadGradient" x1="0" y1="0" x2="1" y2="0">
+      <stop id="roadStop1" offset="0%" stop-color="#8FA89E"/>
+      <stop id="roadStop2" offset="100%" stop-color="#8FA89E"/>
+    </linearGradient>
+  </defs>
+  <path id="roadPath" fill="none" stroke="url(#roadGradient)" stroke-width="4" stroke-linecap="round" opacity="0.45"/>
+  <g id="svg-spine"></g>
+  <g id="svg-edges"></g>
+  <g id="svg-nodes"></g>
+  <g id="traffic"></g>
+</svg>
+
+<!-- FLOATERS -->
+<div class="floater" id="score-pill">
+  <i class="ti ti-bolt" style="color:#F39C12;font-size:1.1rem;"></i>
+  <span class="val" id="score-val">0</span>
+  <span class="lvl"><i class="ti ti-trending-up" style="margin-right:3px;"></i><b id="lvl-val">1</b></span>
+</div>
+
+<div class="floater" id="tabs"></div>
+
+<div class="floater" id="modes"></div>
+
+<div class="floater" id="status"></div>
+
+<div class="floater" id="side">
+  <i class="ti ti-eye" style="font-size:0.72rem;color:#8C8A82;display:inline-block;margin-bottom:8px;"></i>
+  <span class="tag">Node detail</span>
+  <h2 id="side-title"><i class="ti ti-circle-dot"></i> The root</h2>
+  <p class="placeholder" id="side-body">Click <b>+</b> to unfold branches one at a time. Click any node for details.</p>
+</div>
+
+<div class="hint show" id="hint"><i class="ti ti-plus"></i> unfold branch &nbsp;·&nbsp; <i class="ti ti-zoom-scan"></i> scroll to zoom &nbsp;·&nbsp; <i class="ti ti-hand-move"></i> drag to pan</div>
+
+<script src="porphyry.min.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   GAME STATE
+   ══════════════════════════════════════════════════════════════ */
+let atpScore = 0, playerLevel = 1;
+const LEVEL_THRESHOLDS = [0, 500, 2000, 5000, 12000, 30000];
+
+function addATP(amt){
+  atpScore += amt;
+  document.getElementById('score-val').textContent = atpScore;
+  let nl = 1;
+  for(let i=1;i<LEVEL_THRESHOLDS.length;i++) if(atpScore>=LEVEL_THRESHOLDS[i]) nl=i+1;
+  if(nl>playerLevel){ playerLevel=nl; document.getElementById('lvl-val').textContent=playerLevel; renderTabs(); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PATHWAY DATA
+   ══════════════════════════════════════════════════════════════ */
+const folateNodes = [
+  {id:'folicacid', spine:0, label:'Folic Acid', sub:'diet / supplement',
+    why:"Synthetic, fully oxidized form from supplements/fortified food. Inert until reduced twice.",
+    feeds:"reduced to DHF by DHFR.", fedby:"Diet, prenatal vitamins, fortified grain."},
+  {id:'dhf', spine:1, label:'Dihydrofolate', sub:'DHF',
+    why:"Halfway reduced—piles up if DHFR is inhibited.",
+    feeds:"reduced again to THF, by the SAME enzyme, DHFR.", fedby:"Folic acid, via DHFR (1st reduction)."},
+  {id:'thf', spine:2, label:'Tetrahydrofolate', sub:'THF, active carrier',
+    why:"Active form. THF carries one-carbon units like ATP carries phosphate.",
+    feeds:"picks up a carbon from serine → 5,10-Methylene-THF. Also branches to purine synthesis.",
+    fedby:"DHF, via DHFR (2nd reduction)—the step trimethoprim/methotrexate block."},
+  {id:'purines', branchOf:'thf', label:'Purines', sub:'DNA, RNA',
+    why:"Built using a one-carbon unit carried on THF. Scarce THF stalls purine synthesis—part of why folate deficiency causes megaloblastic anemia.",
+    feeds:"DNA / RNA.", fedby:"THF pool (via 10-formyl-THF)."},
+  {id:'methylenethf', spine:3, label:'5,10-Methylene-THF', sub:'carries the 1-carbon',
+    why:"THF has picked up a carbon from serine. Forks: DNA (thymidine) or via MTHFR toward methionine.",
+    feeds:"Thymidylate directly, OR 5-Methyl-THF via MTHFR.", fedby:"THF + serine—serine enters HERE, not at DHFR."},
+  {id:'thymidine', branchOf:'methylenethf', label:'Thymidylate', sub:'dTMP',
+    why:"Direct donation—no MTHFR or B12 needed. Thymidine synthesis is untouched by B12 deficiency.",
+    feeds:"DNA.", fedby:"5,10-Methylene-THF, via thymidylate synthase."},
+  {id:'methylthf', spine:4, label:'5-Methyl-THF', sub:'hands off to B12',
+    why:"MTHFR's product. One-way: can only return to THF by handing its methyl to homocysteine via B12. If that handoff breaks, folate gets trapped here—the methyl trap.",
+    feeds:"hands CH3 to Homocysteine (via methionine synthase + B12), regenerating THF.",
+    fedby:"5,10-Methylene-THF, via MTHFR."},
+  {id:'homocysteine', spine:5, label:'Homocysteine', sub:'the fork',
+    why:"Key junction: remethylated to methionine (B12+folate) or shunted via B6 to cysteine. Block exit #1 = homocysteine backs up and blood levels rise.",
+    feeds:"Methionine (B12, loop) OR Cystathionine (B6, exit).", fedby:"SAH."},
+  {id:'cystathionine', branchOf:'homocysteine', label:'Cystathionine', sub:'',
+    why:"The committed exit—transsulfuration, not recycling.",
+    feeds:"Cysteine.", fedby:"Homocysteine + serine, via cystathionine synthase (B6)."},
+  {id:'cysteine', branchOf:'cystathionine', label:'Cysteine', sub:'',
+    why:"Used for glutathione, taurine, protein. Cystathionine synthase deficiency = classic homocystinuria.",
+    feeds:"glutathione, taurine, protein.", fedby:"Cystathionine, via cystathionase (B6)."},
+  {id:'methionine', spine:6, label:'Methionine', sub:'',
+    why:"Regenerated when homocysteine accepts methyl from 5-methyl-THF. Needs BOTH B12 (cofactor) + folate (methyl donor)—why the two deficiencies mimic each other.",
+    feeds:"activated by ATP → SAM.", fedby:"Homocysteine + methyl-THF, via methionine synthase (B12)."},
+  {id:'sam', spine:7, label:'SAM', sub:'methyl currency',
+    why:"Methionine + ATP = SAM, the spendable methyl donor: DNA methylation, neurotransmitters, creatine, phospholipids.",
+    feeds:"donates CH3 to targets → SAH.", fedby:"Methionine + ATP."},
+  {id:'methylacceptors', branchOf:'sam', label:'Methyl acceptors', sub:'DNA, NE, creatine',
+    why:"Everything SAM methylates—why B12/folate problems show up so broadly.",
+    feeds:"methylated products.", fedby:"SAM."},
+  {id:'sah', spine:8, label:'SAH', sub:'S-adenosylhomocysteine',
+    why:"Left after SAM gives up its methyl. A waiting-room molecule on the way to homocysteine.",
+    feeds:"Homocysteine (loop, closes the cycle).", fedby:"SAM, after donation."},
+];
+const folateModes = {
+  normal: {label:'Normal', pool:[], starve:[], text:'Normal state—folate cycles through, hands off to B12/methionine cleanly.'},
+  dhfr:   {label:'Block DHFR (MTX / TMP)', pool:['folicacid','dhf'], starve:['thf','purines','methylenethf','thymidine','methylthf','homocysteine','methionine','sam','methylacceptors','sah','cystathionine','cysteine'],
+    text:'<b>DHFR blocked.</b> Folic acid + DHF pool up. Everything downstream starves at once. Leucovorin (folinic acid) rescue works because it enters downstream of DHFR.'},
+  mthfr:  {label:'Block MTHFR', pool:['methylenethf'], starve:['methylthf'],
+    text:'<b>MTHFR blocked.</b> 5,10-methylene-THF pools. 5-methyl-THF never forms. Homocysteine can\'t remethylate, so it rises.'},
+  b12:    {label:'Block B12 (methyl trap)', pool:['methylthf'], starve:['thf','purines','methylenethf','thymidine','homocysteine','methionine','sam','methylacceptors','sah'],
+    text:'<b>B12 blocked = methyl trap.</b> 5-methyl-THF can\'t hand off, folate trapped. Same megaloblastic anemia as folate deficiency; nerve damage from separate methylmalonic-acid reaction folate can\'t fix.'},
+};
+
+const hemeNodes = [
+  {id:'precursors', spine:0, label:'Succinyl-CoA + Glycine', sub:'mitochondria',
+    why:"Starting substrates, condensed by ALA synthase—rate-limiting, committed step.",
+    feeds:"ALA, via ALA synthase (B6-dependent).", fedby:"TCA cycle (succinyl-CoA) + glycine."},
+  {id:'ala', spine:1, label:'ALA', sub:'aminolevulinic acid',
+    why:"First committed intermediate. Needs B6. Spikes in BOTH lead poisoning and AIP, for different reasons.",
+    feeds:"crosses into cytoplasm → Porphobilinogen via ALA dehydratase.",
+    fedby:"Succinyl-CoA + glycine, via ALA synthase (B6-dependent, rate-limiting)."},
+  {id:'porphobilinogen', spine:2, label:'Porphobilinogen', sub:'cytoplasm',
+    why:"Formed from two ALA. The step lead poisoning blocks directly—ALA dehydratase is exquisitely lead-sensitive.",
+    feeds:"Hydroxymethylbilane, via porphobilinogen deaminase.", fedby:"ALA, via ALA dehydratase."},
+  {id:'hydroxymethylbilane', spine:3, label:'Hydroxymethylbilane', sub:'',
+    why:"Blocked in Acute Intermittent Porphyria. PBG + ALA back up behind it—port-wine urine, the 5 P's.",
+    feeds:"Uroporphyrinogen III (spontaneous ring closure).", fedby:"Porphobilinogen, via PBG deaminase."},
+  {id:'uroporphyrinogen', spine:4, label:'Uroporphyrinogen III', sub:'',
+    why:"Substrate for enzyme deficient in Porphyria Cutanea Tarda—the most common porphyria.",
+    feeds:"Coproporphyrinogen III, via uroporphyrinogen decarboxylase.", fedby:"Hydroxymethylbilane."},
+  {id:'coproporphyrinogen', spine:5, label:'Coproporphyrinogen III', sub:'',
+    why:"Re-enters mitochondria for final oxidation toward protoporphyrin.",
+    feeds:"Protoporphyrin (back in mitochondria).", fedby:"Uroporphyrinogen III, via uroporphyrinogen decarboxylase."},
+  {id:'protoporphyrin', spine:6, label:'Protoporphyrin', sub:'mitochondria',
+    why:"Last intermediate before iron. Lead blocks ferrochelatase HERE too.",
+    feeds:"Heme, via ferrochelatase + Fe2+.", fedby:"Coproporphyrinogen III (oxidized back in mitochondria)."},
+  {id:'heme', spine:7, label:'Heme', sub:'',
+    why:"Final product. Negative feedback on ALA synthase. Needed for hemoglobin, cytochromes, catalase.",
+    feeds:"Hemoglobin, cytochromes, catalase.", fedby:"Protoporphyrin + Fe2+, via ferrochelatase."},
+];
+const hemeModes = {
+  normal: {label:'Normal', pool:[], starve:[], text:'Normal—ALA made in mitochondria → cytoplasm → back to mitochondria.'},
+  lead:   {label:'Lead poisoning', pool:['ala','protoporphyrin'], starve:['porphobilinogen','hydroxymethylbilane','uroporphyrinogen','coproporphyrinogen','heme'],
+    text:'<b>Lead.</b> Inhibits BOTH ALA dehydratase AND ferrochelatase at once—two separate blocks, one disease. ALA pools after 1st block; protoporphyrin pools before 2nd. Everything between starves.'},
+  aip:    {label:'Acute intermittent porphyria', pool:['ala','porphobilinogen'], starve:['hydroxymethylbilane','uroporphyrinogen','coproporphyrinogen','protoporphyrin','heme'],
+    text:'<b>PBG deaminase blocked = AIP.</b> PBG + ALA back up. Precipitated by CYP450 inducers, alcohol, starvation. Treatment: hemin + glucose.'},
+  pct:    {label:'Porphyria cutanea tarda', pool:['uroporphyrinogen'], starve:['coproporphyrinogen','protoporphyrin','heme'],
+    text:'<b>Uroporphyrinogen decarboxylase blocked = PCT.</b> Most common porphyria. Worsened by alcohol, linked to Hep C. Blistering photosensitivity.'},
+  sideroblastic: {label:'Sideroblastic anemia', pool:[], starve:['ala','porphobilinogen','hydroxymethylbilane','uroporphyrinogen','coproporphyrinogen','protoporphyrin','heme'],
+    text:'<b>ALA synthase blocked</b> (X-linked or severe B6 deficiency). Nothing pools—first step. Whole chain starves top-down. Iron piles up unused in mitochondria → ringed sideroblast.'},
+};
+
+const faoxidNodes = [
+  {id:'fatty_acid', spine:0, label:'Fatty Acid', sub:'cytosol',
+    why:"Dietary or adipose-derived long-chain FA. Too large to cross mitochondrial membrane without help.",
+    feeds:"Fatty Acyl-CoA, via fatty acyl-CoA synthetase (ATP).", fedby:"Diet / adipose lipolysis."},
+  {id:'fatty_acyl_coa', spine:1, label:'Fatty Acyl-CoA', sub:'activated',
+    why:"Activated but stuck in cytosol. Carnitine shuttle must transfer it across inner mitochondrial membrane.",
+    feeds:"enters mitochondria via Carnitine Shuttle (CPT-I rate-limiting).", fedby:"FA + CoA + ATP, via acyl-CoA synthetase."},
+  {id:'carnitine_shuttle', spine:2, label:'Carnitine Shuttle', sub:'CPT-I / CPT-II',
+    why:"Gatekeeper. CPT-I swaps CoA for carnitine, allowing entry. CPT-II reverses inside. CPT-I inhibited by malonyl-CoA—when glucose is abundant, FA oxidation pauses.",
+    feeds:"Fatty Acyl-CoA inside mitochondria, ready for β-oxidation.", fedby:"Fatty Acyl-CoA + carnitine, via CPT-I (inhibited by malonyl-CoA)."},
+  {id:'beta_ox', spine:3, label:'β-Oxidation Spiral', sub:'repeat 2C removal',
+    why:"Each turn removes 2 carbons as acetyl-CoA, shortens the chain by 2. Repeats until the chain is gone.",
+    feeds:"Acetyl-CoA (even chain) OR Propionyl-CoA (odd chain, last 3C).", fedby:"Fatty Acyl-CoA inside mitochondria."},
+  {id:'acetyl_coa', spine:4, label:'Acetyl-CoA', sub:'even-chain endpoint',
+    why:"Standard product of even-chain FA oxidation. Feeds TCA. Excess → ketone bodies (liver, fasting).",
+    feeds:"TCA cycle → ATP; OR ketogenesis (liver, fasting).", fedby:"β-oxidation spiral + pyruvate dehydrogenase."},
+  {id:'ketones', branchOf:'acetyl_coa', label:'Ketone Bodies', sub:'fasting fuel',
+    why:"When acetyl-CoA overwhelms TCA (fasting, DKA), liver diverts to ketones: acetoacetate + β-hydroxybutyrate. Brain uses them after ~3 days of starvation.",
+    feeds:"Brain, muscle (fasting); excreted in urine if excessive.", fedby:"Acetyl-CoA (liver, HMG-CoA synthase)."},
+  {id:'propionyl_coa', spine:5, label:'Propionyl-CoA', sub:'odd-chain endpoint',
+    why:"Odd-chain FAs leave a 3-carbon stub. Requires BOTH biotin AND B12—two vitamin dependencies on one molecule.",
+    feeds:"Methylmalonyl-CoA, via propionyl-CoA carboxylase (BIOTIN).", fedby:"β-oxidation of odd-chain FA + BCAA catabolism."},
+  {id:'methylmalonyl_coa', spine:6, label:'Methylmalonyl-CoA', sub:'B12-dependent',
+    why:"Rearranged to succinyl-CoA by methylmalonyl-CoA mutase (B12). THIS is the step that fails in B12 deficiency → methylmalonic acidemia. THE lab finding that distinguishes B12 from folate deficiency.",
+    feeds:"Succinyl-CoA, via methylmalonyl-CoA mutase (B12).", fedby:"Propionyl-CoA, via propionyl-CoA carboxylase (BIOTIN)."},
+  {id:'succinyl_coa', spine:7, label:'Succinyl-CoA', sub:'enters TCA',
+    why:"Happy ending for odd-chain FAs. After biotin + B12, succinyl-CoA enters TCA cycle seamlessly. Also feeds into heme synthesis (condenses with glycine → ALA).",
+    feeds:"TCA cycle; heme synthesis.", fedby:"Methylmalonyl-CoA, via methylmalonyl-CoA mutase (B12)."},
+];
+const faoxidModes = {
+  normal: {label:'Normal', pool:[], starve:[], text:'Normal—even-chain → acetyl-CoA → TCA. Odd-chain → propionyl-CoA → B12+biotin → succinyl-CoA.'},
+  mcad:   {label:'MCAD deficiency', pool:['fatty_acid','fatty_acyl_coa','carnitine_shuttle'], starve:['beta_ox','acetyl_coa','ketones','propionyl_coa','methylmalonyl_coa','succinyl_coa'],
+    text:'<b>MCAD blocked.</b> Can\'t break down medium-chain FA (C6-C12). Hypoketotic hypoglycemia in fasting infants—no ketones because no acetyl-CoA is produced.'},
+  carnitine: {label:'Carnitine deficiency', pool:['fatty_acid','fatty_acyl_coa'], starve:['carnitine_shuttle','beta_ox','acetyl_coa','ketones','propionyl_coa','methylmalonyl_coa','succinyl_coa'],
+    text:'<b>Carnitine shuttle broken.</b> FA activated but can\'t cross inner mitochondrial membrane. Hypoketotic hypoglycemia + cardiomyopathy (heart relies heavily on FA oxidation).'},
+  b12_fa: {label:'B12 deficiency', pool:['propionyl_coa','methylmalonyl_coa'], starve:['succinyl_coa'],
+    text:'<b>B12 blocked → methylmalonyl-CoA mutase fails.</b> Methylmalonic acid spills into urine—THE lab finding that distinguishes B12 from folate deficiency (homocysteine rises in both, MMA rises only in B12).'},
+  biotin: {label:'Biotin deficiency', pool:['propionyl_coa'], starve:['methylmalonyl_coa','succinyl_coa'],
+    text:'<b>Biotin blocked → propionyl-CoA carboxylase fails.</b> Propionyl-CoA pools. Odd-chain FA oxidation stalls. Rare (avidin in raw eggs binds biotin).'},
+};
+
+/* ══════════════════════════════════════════════════════════════
+   REMETHYLATION CYCLE — Homocysteine-centered custom SVG
+   ══════════════════════════════════════════════════════════════ */
+const remethylNodes = [
+  {id:'methylfolate', type:'substrate', x:200, y:500, label:'Methyl Folate', sub:'+ B12',
+    why:"5-Methyl-THF donates its methyl group to B12, creating Methyl-B12. This is the methyl source for the remethylation arm.",
+    feeds:"Methyl-B12 (cofactor for methionine synthase).", fedby:"5-Methyl-THF via MTHFR."},
+  {id:'methylb12', type:'cofactor', x:330, y:500, label:'Methyl-B12', sub:'cofactor pool',
+    why:"The activated cofactor form of B12. Transfers the methyl group to methionine synthase. If B12 or methyl folate is deficient, this pool runs dry.",
+    feeds:"Methionine synthase (donates methyl).", fedby:"Methyl folate + B12 (methylation of cobalamin)."},
+  {id:'methioninesynth', type:'enzyme', x:500, y:500, label:'Methionine', sub:'Synthase',
+    why:"The enzyme that remethylates homocysteine back to methionine. Uses Methyl-B12 as its cofactor. THE enzyme blocked in B12 deficiency.",
+    feeds:"Methionine.", fedby:"Methyl-B12 (cofactor) + Homocysteine (substrate)."},
+  {id:'methionine', type:'substrate', x:680, y:500, label:'Methionine', sub:'',
+    why:"Regenerated when homocysteine accepts the methyl group. Activated by ATP → SAM (the body's methyl currency). Falls when remethylation is blocked.",
+    feeds:"SAM → DNA methylation, creatine, neurotransmitters.", fedby:"Homocysteine + Methyl-B12, via Methionine Synthase."},
+  {id:'homocysteine', type:'hub', x:500, y:260, label:'Homocysteine', sub:'the bottleneck',
+    why:"THE central junction. Both the remethylation arm (down to methionine) and the transsulfuration arm (right to cysteine) converge here. Block either path, homocysteine backs up.",
+    feeds:"Methionine OR Cystathionine.", fedby:"SAH (from methionine cycle)."},
+  {id:'serine', type:'cofactor', x:720, y:180, label:'Serine', sub:'co-substrate',
+    why:"Joins homocysteine in the transsulfuration pathway. Donates its carbon skeleton.",
+    feeds:"Cystathionine (with homocysteine, via cystathionine synthase + B6).", fedby:"3-phosphoglycerate → serine."},
+  {id:'cystathioninesynth', type:'enzyme', x:720, y:260, label:'Cystathionine', sub:'Synthase (B6)',
+    why:"Condenses homocysteine + serine into cystathionine. Requires PLP (B6/ pyridoxal phosphate) as cofactor. THE enzyme blocked in classical homocystinuria.",
+    feeds:"Cystathionine.", fedby:"Homocysteine + Serine, via Cystathionine Synthase (B6/PLP-dependent)."},
+  {id:'cystathionine', type:'substrate', x:920, y:260, label:'Cystathionine', sub:'',
+    why:"The committed intermediate of the transsulfuration pathway — the irreversible exit from the methionine cycle.",
+    feeds:"Cysteine, via Cystathionase (B6).", fedby:"Homocysteine + Serine, via Cystathionine Synthase (B6)."},
+  {id:'cystathioninase', type:'enzyme', x:1070, y:260, label:'Cystathioninase', sub:'(B6)',
+    why:"Cleaves cystathionine into cysteine. Also B6-dependent. If B6 is deficient, BOTH transsulfuration enzymes fail.",
+    feeds:"Cysteine.", fedby:"Cystathionine, via Cystathioninase (B6/PLP-dependent)."},
+  {id:'cysteine', type:'substrate', x:1150, y:260, label:'Cysteine', sub:'',
+    why:"The final product of transsulfuration. Used for glutathione (antioxidant), taurine, and protein synthesis.",
+    feeds:"Glutathione, taurine, protein.", fedby:"Cystathionine, via Cystathioninase (B6)."},
+];
+
+const remethylModes = {
+  normal:  {label:'Normal', blockedEdges:[], pool:[], starve:[], text:'Normal—both arms clear: homocysteine remethylates to methionine (B12 arm) AND transsulfurs to cysteine (B6 arm).'},
+  b12def:  {label:'Block B12 / Methyl Folate', blockedEdges:['mf_to_mb12','mb12_to_ms','ms_to_meth'], pool:['homocysteine'], starve:['methionine'],
+    text:'<b>B12 or methyl folate deficiency.</b> Methyl-B12 pool runs dry → Methionine Synthase starved → remethylation arm blocked. Homocysteine backs up because the left exit is closed. Methionine falls. <i>Treat with B12 injections (pernicious anemia) or high-dose folate.</i>'},
+  b6def:   {label:'Block B6 (PLP)', blockedEdges:['hcy_to_cs','cs_to_cysta','cysta_to_cys'], pool:['homocysteine'], starve:['cystathionine','cysteine'],
+    text:'<b>B6 deficiency.</b> Both transsulfuration enzymes (Cystathionine Synthase + Cystathioninase) require PLP/B6. Right arm blocked. Homocysteine backs up. Cysteine production falls → low glutathione. <i>Classic homocystinuria presents with marfanoid habitus, lens dislocation, thrombosis, intellectual disability.</i>'},
+  both:    {label:'Block BOTH arms', blockedEdges:['mf_to_mb12','mb12_to_ms','ms_to_meth','hcy_to_cs','cs_to_cysta','cysta_to_cys'], pool:['homocysteine'], starve:['methionine','cystathionine','cysteine'],
+    text:'<b>Both arms blocked.</b> Homocysteine has nowhere to go — pools severely. Neither methionine nor cysteine are produced. <i>This is the biochemical picture of combined B12 + B6 deficiency, or the aftermath of severe malnutrition affecting both vitamin pathways.</i>'},
+};
+
+const graphs = {
+  folate: {title:'Folate \u21c4 Methionine', subtitle:'folate cycle',
+    nodes:folateNodes, modes:folateModes, unlockLevel:1},
+  heme:   {title:'Heme Synthesis', subtitle:'porphyrias',
+    nodes:hemeNodes, modes:hemeModes, unlockLevel:1},
+  faoxid: {title:'Fatty Acid Oxidation', subtitle:'beta oxidation',
+    nodes:faoxidNodes, modes:faoxidModes, unlockLevel:2},
+  remethyl: {title:'Remethylation Cycle', subtitle:'Homocysteine hub',
+    nodes:remethylNodes, modes:remethylModes, unlockLevel:1, svgRender:true},
+};
+
+/* ══════════════════════════════════════════════════════════════
+   PORPHYRY MINDMAP BUILDER
+   ══════════════════════════════════════════════════════════════ */
+const DEFAULT_PALETTE = ['#4A90D9','#E05C5C','#4CAF82','#9B59B6','#F39C12','#1ABC9C','#E67E22','#2980B9','#27AE60','#8E44AD','#D35400','#2C3E50','#16A085','#3498DB'];
+const POOL_COLOR = '#E0684A';
+const STARVE_COLOR = '#C9C7C0';
+
+let currentGraph='folate', currentMode='normal', porphyryInstance=null;
+
+function buildPorphyryTree(graphKey, modeKey){
+  const g = graphs[graphKey];
+  const mode = g.modes[modeKey];
+  const nodes = g.nodes;
+  const spineNodes = nodes.filter(n=>n.spine!==undefined).sort((a,b)=>a.spine-b.spine);
+
+  const children = spineNodes.map(n => {
+    const status = mode.pool.includes(n.id)?'pool':mode.starve.includes(n.id)?'starve':'normal';
+    const prefix = status==='pool'?'\u26D4 ':'';
+    const dash = status==='starve'?'\u2014 ':'';
+    const topic = prefix + dash + n.label + (n.sub?' ('+n.sub+')':'');
+    const cn = [];
+    const branches = nodes.filter(b=>b.branchOf===n.id);
+    branches.forEach(b=>{
+      const bs = mode.pool.includes(b.id)?'pool':mode.starve.includes(b.id)?'starve':'normal';
+      cn.push({
+        topic:(bs==='pool'?'\u26D4 ':'')+(bs==='starve'?'\u2014 ':'\u2192 ')+b.label,
+        children:[
+          {topic:'\u2139\ufe0f Why: '+b.why},
+          {topic:'\u2b05\ufe0f Fed by: '+b.fedby},
+          {topic:'\u27a1\ufe0f Feeds: '+b.feeds},
+        ],
+        __nodeId:b.id,
+      });
+    });
+    // summary children for the spine node
+    cn.push({topic:'\u2139\ufe0f Why: '+n.why});
+    cn.push({topic:'\u2b05\ufe0f Fed by: '+n.fedby});
+    cn.push({topic:'\u27a1\ufe0f Feeds: '+n.feeds});
+    return {topic, children:cn, __nodeId:n.id};
+  });
+
+  return {topic:g.title+' ('+g.subtitle+')', children};
+}
+
+function buildColors(graphKey, modeKey){
+  const g = graphs[graphKey];
+  const mode = g.modes[modeKey];
+  const spineNodes = g.nodes.filter(n=>n.spine!==undefined).sort((a,b)=>a.spine-b.spine);
+  return spineNodes.map((n,i)=>{
+    if(mode.pool.includes(n.id)) return POOL_COLOR;
+    if(mode.starve.includes(n.id)) return STARVE_COLOR;
+    return DEFAULT_PALETTE[i % DEFAULT_PALETTE.length];
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RENDER — full-page mindmap OR custom SVG
+   ══════════════════════════════════════════════════════════════ */
+function renderMindmap(){
+  const g = graphs[currentGraph];
+  if(g.svgRender){
+    // Hide Porphyry, show SVG
+    document.getElementById('mindmap').style.display='none';
+    document.getElementById('svgcanvas').style.display='';
+    if(porphyryInstance){ try{ porphyryInstance.destroy(); }catch(e){} }
+    drawSvg();
+    return;
+  }
+  // Hide SVG, show Porphyry
+  document.getElementById('svgcanvas').style.display='none';
+  document.getElementById('mindmap').style.display='';
+
+  const container = document.getElementById('mindmap');
+  container.innerHTML = '';
+  if(porphyryInstance){
+    try{ porphyryInstance.destroy(); }catch(e){}
+  }
+
+  const tree = buildPorphyryTree(currentGraph, currentMode);
+  const colors = buildColors(currentGraph, currentMode);
+
+  porphyryInstance = new Porphyry('#mindmap', {
+    layout: 'auto',
+    theme: 'classic',
+    colors: colors,
+    spacing: 0.85,
+    branchSpacingX: 200,
+    subSpacingX: 150,
+    verticalSpacing: 42,
+    center: {fontSize:15, paddingX:28, paddingY:18, maxWidth:280},
+    branch: {fontSize:13, paddingX:16, paddingY:8, maxWidth:220},
+    leaf: {fontSize:12, paddingX:12, paddingY:6, maxWidth:220},
+    interactions: {pan:true, zoom:true, collapse:true, hud:true, tips:false, download:false},
+    animationDuration: 300,
+  });
+
+  // Walk tree to add onclick on nodes
+  function addClicks(node){
+    if(node.__nodeId){
+      const nd = graphs[currentGraph].nodes.find(x=>x.id===node.__nodeId);
+      if(nd){
+        node.onclick = function(){
+          const mode = graphs[currentGraph].modes[currentMode];
+          const status = mode.pool.includes(nd.id)?'pool':mode.starve.includes(nd.id)?'starve':'normal';
+          document.getElementById('side-title').innerHTML = nd.label;
+          let extra = '';
+          if(status==='pool') extra += '<span class="pool-tag"><i class="ti ti-alert-triangle"></i> POOLING</span> ';
+          if(status==='starve') extra += '<span class="starve-tag"><i class="ti ti-circle-minus"></i> STARVING</span> ';
+          document.getElementById('side-body').innerHTML = extra +
+            '<p><i class="ti ti-question-mark" style="font-size:0.7rem;color:#8C8A82;"></i> '+nd.why+'</p><p><i class="ti ti-arrow-left" style="font-size:0.7rem;color:#8C8A82;"></i> <b>Fed by:</b> '+nd.fedby+'</p><p><i class="ti ti-arrow-right" style="font-size:0.7rem;color:#8C8A82;"></i> <b>Feeds:</b> '+nd.feeds+'</p>';
+          addATP(3);
+        };
+      }
+    }
+    if(node.children) node.children.forEach(addClicks);
+  }
+  addClicks(tree);
+
+  // Render full tree
+  porphyryInstance.render(tree);
+
+  // Collapse ALL branches (start fully collapsed, user unfolds one at a time)
+  // Porphyry assigns internal IDs depth-first: root=0, then children 1..N
+  // Add IDs 1-100 to the collapsed set, then re-render internal
+  for(let i=1;i<=100;i++) porphyryInstance._collapsed.add(i);
+  porphyryInstance._renderInternal(false);
+
+  // Hide the hint after first interaction
+  const hint = document.getElementById('hint');
+  const onInteract = ()=>{ hint.classList.remove('show'); document.removeEventListener('click',onInteract); document.removeEventListener('wheel',onInteract); };
+  document.addEventListener('click', onInteract);
+  document.addEventListener('wheel', onInteract);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CUSTOM SVG RENDERER + CAR-ON-ROAD ANIMATION
+   ══════════════════════════════════════════════════════════════ */
+
+const CAR_ICON = `
+  <g>
+    <rect x="-16" y="-8" width="32" height="13" rx="5" fill="#C64B87"/>
+    <rect x="-9" y="-14" width="15" height="8" rx="3.5" fill="#C64B87"/>
+    <circle cx="-9" cy="7" r="3.5" fill="#2B2B27"/>
+    <circle cx="9" cy="7" r="3.5" fill="#2B2B27"/>
+  </g>`;
+
+const REMETHYL_ROAD_NODES = ['methylfolate','methylb12','methioninesynth','methionine','homocysteine','cystathioninesynth','cystathionine','cystathioninase','cysteine'];
+
+// Map mode blockedEdge keys to the index along REMETHYL_ROAD_NODES where the car jams
+const FORWARD_BLOCK_SPINE_IDX = {
+  'mf_to_mb12': 0,       // between methylfolate and methylb12
+  'mb12_to_ms': 1,       // between methylb12 and methioninesynth
+  'ms_to_meth': 2,       // between methioninesynth and methionine
+  'hcy_to_cs': 5,        // between homocysteine and cystathioninesynth
+  'cs_to_cysta': 6,      // between cystathioninesynth and cystathionine
+  'cysta_to_cys': 7,     // between cystathionine and cystathioninase
+};
+
+let roadPathEl, roadLen = 0;
+let carProgress = 0;
+let queueCars = [];
+let lastQueueSpawn = 0;
+let trafficRafId = null;
+
+function initRoad(){
+  roadPathEl = document.getElementById('roadPath');
+  if(!roadPathEl) return;
+  roadLen = roadPathEl.getTotalLength() || 1;
+}
+
+function currentBlockFraction(){
+  const m = graphs[currentGraph].modes[currentMode];
+  if(!m.blockedEdges || !m.blockedEdges.length) return null;
+  let minIdx = REMETHYL_ROAD_NODES.length;
+  for(const key of m.blockedEdges){
+    if(FORWARD_BLOCK_SPINE_IDX[key] !== undefined){
+      minIdx = Math.min(minIdx, FORWARD_BLOCK_SPINE_IDX[key]);
+    }
+  }
+  if(minIdx >= REMETHYL_ROAD_NODES.length) return null;
+  return minIdx / (REMETHYL_ROAD_NODES.length - 1);
+}
+
+function updateRoadGradient(){
+  const frac = currentBlockFraction();
+  const s1 = document.getElementById('roadStop1');
+  const s2 = document.getElementById('roadStop2');
+  let s3 = document.getElementById('roadStop3');
+  if(!s1||!s2) return;
+  if(frac===null){
+    s1.setAttribute('offset','0%'); s1.setAttribute('stop-color','#8FA89E');
+    s2.setAttribute('offset','100%'); s2.setAttribute('stop-color','#8FA89E');
+    if(s3) s3.setAttribute('stop-color','#8FA89E');
+  } else {
+    const pct = (frac*100).toFixed(1)+'%';
+    s1.setAttribute('offset','0%'); s1.setAttribute('stop-color','#8FA89E');
+    s2.setAttribute('offset',pct); s2.setAttribute('stop-color','#8FA89E');
+    if(!s3){
+      s3 = document.createElementNS('http://www.w3.org/2000/svg','stop');
+      s3.setAttribute('id','roadStop3');
+      s3.setAttribute('offset','100%');
+      const grad = document.getElementById('roadGradient');
+      if(grad) grad.appendChild(s3);
+    }
+    if(s3) s3.setAttribute('stop-color','#D5D3CB');
+  }
+}
+
+function drawTraffic(){
+  const trafficG = document.getElementById('traffic');
+  if(!trafficG) return;
+  trafficG.innerHTML='';
+  if(!roadPathEl||!roadLen) return;
+  const frac = currentBlockFraction();
+
+  let dist;
+  if(frac!==null){
+    dist = Math.min(carProgress, frac) * roadLen;
+  } else {
+    dist = (carProgress % 1) * roadLen;
+  }
+  placeCarAt(trafficG, dist, false);
+
+  // Queued cars stacking behind the block
+  if(frac!==null){
+    const blockLen = frac*roadLen;
+    const qc = queueCars.filter(q => q.opacity > 0.05);
+    qc.forEach((q,i)=>{
+      const backDist = Math.max(0, blockLen - (i+1)*28);
+      placeCarAt(trafficG, backDist, true, q.opacity);
+    });
+  }
+}
+
+function placeCarAt(parent, dist, isQueued, opacity){
+  if(!roadPathEl) return;
+  const p = roadPathEl.getPointAtLength(Math.min(roadLen, dist));
+  const p2 = roadPathEl.getPointAtLength(Math.min(roadLen, dist+3));
+  const angle = Math.atan2(p2.y-p.y, p2.x-p.x) * 180/Math.PI + 90;
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('transform', `translate(${p.x},${p.y}) rotate(${angle}) ${isQueued?'scale(0.82)':''}`);
+  if(isQueued) g.setAttribute('opacity', opacity!==undefined?opacity:0.7);
+  g.innerHTML = CAR_ICON;
+  parent.appendChild(g);
+}
+
+function tickTraffic(ts){
+  const frac = currentBlockFraction();
+  if(frac===null){
+    carProgress += 0.0010;
+    queueCars = [];
+  } else {
+    if(carProgress < frac) carProgress += 0.0020;
+    else {
+      if(!lastQueueSpawn || ts-lastQueueSpawn > 1400){
+        if(queueCars.length < 6){
+          queueCars.push({opacity:0});
+        }
+        lastQueueSpawn = ts;
+      }
+      queueCars.forEach(q=>{ q.opacity = Math.min(0.85, q.opacity+0.03); });
+    }
+  }
+  drawTraffic();
+  trafficRafId = requestAnimationFrame(tickTraffic);
+}
+
+function startTraffic(){
+  stopTraffic();
+  carProgress = 0; queueCars = []; lastQueueSpawn = 0;
+  trafficRafId = requestAnimationFrame(tickTraffic);
+}
+
+function stopTraffic(){
+  if(trafficRafId){ cancelAnimationFrame(trafficRafId); trafficRafId = null; }
+}
+function drawSvg(){
+  const g = graphs[currentGraph];
+  const m = g.modes[currentMode];
+  const N = g.nodes;
+  const lookup = {};
+  N.forEach(n=>{ lookup[n.id]=n; });
+
+  const spine = document.getElementById('svg-spine');
+  const edgesG = document.getElementById('svg-edges');
+  const nodesG = document.getElementById('svg-nodes');
+  spine.innerHTML=''; edgesG.innerHTML=''; nodesG.innerHTML='';
+
+  function svgEl(tag, attrs){
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for(const k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+
+  // Draw arrows
+  function arrow(dir, x, y, len, edgeId){
+    const blocked = m.blockedEdges.includes(edgeId);
+    const cls = 'sv-edge' + (blocked?' blocked':'');
+    const arrCls = 'sv-arrow' + (blocked?' blocked':'');
+    const g2 = svgEl('g',{});
+    if(dir==='left'){
+      g2.appendChild(svgEl('line',{x1:x, y1:y, x2:x-len, y2:y, class:cls}));
+      g2.appendChild(svgEl('polygon',{points:`${x-len+8},${y-6} ${x-len+8},${y+6} ${x-len-2},${y}`, class:arrCls}));
+    } else if(dir==='right'){
+      g2.appendChild(svgEl('line',{x1:x, y1:y, x2:x+len, y2:y, class:cls}));
+      g2.appendChild(svgEl('polygon',{points:`${x+len-8},${y-6} ${x+len-8},${y+6} ${x+len+2},${y}`, class:arrCls}));
+    } else if(dir==='down'){
+      g2.appendChild(svgEl('line',{x1:x, y1:y, x2:x, y2:y+len, class:cls}));
+      g2.appendChild(svgEl('polygon',{points:`${x-6},${y+len-8} ${x+6},${y+len-8} ${x},${y+len+2}`, class:arrCls}));
+    } else if(dir==='up'){
+      g2.appendChild(svgEl('line',{x1:x, y1:y, x2:x, y2:y-len, class:cls}));
+      g2.appendChild(svgEl('polygon',{points:`${x-6},${y-len+8} ${x+6},${y-len+8} ${x},${y-len-2}`, class:arrCls}));
+    }
+    if(blocked){
+      const mx = dir==='left'?x-len/2:dir==='right'?x+len/2:x;
+      const my = dir==='up'?y-len/2:dir==='down'?y+len/2:y;
+      g2.appendChild(svgEl('text',{x:mx, y:my+16, class:'sv-blockmark'})).textContent='\u2715';
+    }
+    edgesG.appendChild(g2);
+  }
+
+  // Edge definitions (from-to, direction, length, id)
+  const edges = [
+    // Remethylation arm (left side)
+    {from:'methylfolate', to:'methylb12', dir:'right', len:90, id:'mf_to_mb12'},
+    {from:'methylb12', to:'methioninesynth', dir:'right', len:130, id:'mb12_to_ms'},
+    {from:'methioninesynth', to:'methionine', dir:'right', len:130, id:'ms_to_meth'},
+    // Homocysteine hub → left to methionine synthase, right to cystathionine synthase
+    {from:'homocysteine', to:'methioninesynth', dir:'down', len:160, id:'hcy_to_ms'},
+    {from:'homocysteine', to:'cystathioninesynth', dir:'down', len:160, id:'hcy_to_cs'},
+    // Serine → cystathionine synthase
+    {from:'serine', to:'cystathioninesynth', dir:'down', len:60, id:'ser_to_cs'},
+    // Transsulfuration arm (right side)
+    {from:'cystathioninesynth', to:'cystathionine', dir:'right', len:150, id:'cs_to_cysta'},
+    {from:'cystathionine', to:'cystathioninase', dir:'right', len:110, id:'cysta_to_cys'},
+    {from:'cystathioninase', to:'cysteine', dir:'right', len:70, id:'cyn_to_cysteine'},
+  ];
+
+  edges.forEach(e=>{
+    const fn = lookup[e.from];
+    if(!fn) return;
+    arrow(e.dir, fn.x, fn.y, e.len, e.id);
+  });
+
+  // Cofactor labels on edges
+  const coflabels = [
+    {x:315, y:485, text:'B12'},
+    {x:245, y:530, text:'Methyl donor'},
+    {x:525, y:335, text:'Methyl-B12'},
+    {x:740, y:202, text:'+'},
+    {x:875, y:330, text:'B6 / PLP'},
+    {x:1040, y:330, text:'B6 / PLP'},
+  ];
+  coflabels.forEach(cl=>{
+    edgesG.appendChild(svgEl('text',{x:cl.x, y:cl.y, class:'sv-coflabel'})).textContent=cl.text;
+  });
+
+  // Draw nodes
+  N.forEach(n=>{
+    const status = m.blockedEdges.length===0?'normal':
+      (selectedNode===n.id?'active':m.pool.includes(n.id)?'pool':m.starve.includes(n.id)?'starve':'normal');
+    let typeClass = 'sv-substrate';
+    if(n.type==='enzyme') typeClass='sv-enzyme';
+    else if(n.type==='cofactor') typeClass='sv-cofactor';
+    else if(n.type==='hub') typeClass='sv-hub';
+
+    const group = svgEl('g',{
+      class:'sv-node ' + typeClass + (status!=='normal'?' '+status:''),
+      transform:`translate(${n.x},${n.y})`,
+    });
+    group.addEventListener('click', ()=>svgSelectNode(n.id));
+
+    const w = n.type==='hub'?180:n.type==='enzyme'?160:n.type==='cofactor'?110:150;
+    const h = n.type==='hub'?60:n.type==='cofactor'?36:46;
+
+    group.appendChild(svgEl('rect',{x:-w/2, y:-h/2, width:w, height:h}));
+
+    const lbl = svgEl('text',{y:n.sub?-8:0});
+    lbl.textContent = n.label;
+    group.appendChild(lbl);
+
+    if(n.sub){
+      const sub = svgEl('text',{y:11, class:'sv-sub'});
+      sub.textContent = n.sub;
+      group.appendChild(sub);
+    }
+
+    // Badge for pool/starve
+    if(status==='pool'){
+      const badge = svgEl('text',{x:w/2+8, y:-8, class:'sv-badge', style:'font-size:9px;fill:var(--pool);text-anchor:start;'});
+      badge.textContent = 'POOL';
+      group.appendChild(badge);
+    }
+    if(status==='starve'){
+      const badge = svgEl('text',{x:w/2+8, y:-8, class:'sv-badge', style:'font-size:9px;fill:#C9C7C0;text-anchor:start;'});
+      badge.textContent = 'STARVE';
+      group.appendChild(badge);
+    }
+
+    nodesG.appendChild(group);
+  });
+
+  // Auto-hide hint on first click (SVG mode)
+  const hint = document.getElementById('hint');
+  const onInteract = ()=>{ hint.classList.remove('show'); document.removeEventListener('click',onInteract); };
+  document.addEventListener('click', onInteract);
+
+  // --- ROAD + CAR ANIMATION ---
+  // Build the road path through all spine nodes
+  const spineForRoad = REMETHYL_ROAD_NODES.map(id=>lookup[id]).filter(n=>n);
+  if(spineForRoad.length > 1){
+    let roadD = '';
+    spineForRoad.forEach((n,i)=>{
+      roadD += (i===0 ? `M${n.x},${n.y}` : ` L${n.x},${n.y}`);
+    });
+    roadPathEl = document.getElementById('roadPath');
+    if(roadPathEl){
+      roadPathEl.setAttribute('d', roadD);
+      roadLen = roadPathEl.getTotalLength() || 1;
+    }
+    updateRoadGradient();
+    drawTraffic();
+  }
+}
+
+function svgSelectNode(id){
+  selectedNode = id;
+  const nd = graphs[currentGraph].nodes.find(x=>x.id===id);
+  const mode = graphs[currentGraph].modes[currentMode];
+  const status = mode.pool.includes(id)?'pool':mode.starve.includes(id)?'starve':'normal';
+  document.getElementById('side-title').innerHTML = nd.label;
+  let extra = '';
+  if(status==='pool') extra += '<span class="pool-tag"><i class="ti ti-alert-triangle"></i> POOLING</span> ';
+  if(status==='starve') extra += '<span class="starve-tag"><i class="ti ti-circle-minus"></i> STARVING</span> ';
+  document.getElementById('side-body').innerHTML = extra +
+    '<p><i class="ti ti-question-mark" style="font-size:0.7rem;color:#8C8A82;"></i> '+nd.why+'</p><p><i class="ti ti-arrow-left" style="font-size:0.7rem;color:#8C8A82;"></i> <b>Fed by:</b> '+nd.fedby+'</p><p><i class="ti ti-arrow-right" style="font-size:0.7rem;color:#8C8A82;"></i> <b>Feeds:</b> '+nd.feeds+'</p>';
+  addATP(3);
+  drawSvg();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODE + GRAPH SWITCHING
+   ══════════════════════════════════════════════════════════════ */
+function renderModes(){
+  const div = document.getElementById('modes');
+  div.innerHTML='';
+  const g = graphs[currentGraph];
+  Object.keys(g.modes).forEach(key=>{
+    const btn = document.createElement('button');
+    btn.textContent = g.modes[key].label;
+    btn.dataset.key = key;
+    if(key===currentMode) btn.classList.add('active');
+    btn.addEventListener('click', ()=>setMode(key));
+    div.appendChild(btn);
+  });
+}
+
+function setMode(key){
+  currentMode = key;
+  const st = document.getElementById('status');
+  const isBlock = key!=='normal';
+  st.innerHTML = (isBlock?'<i class="ti ti-alert-triangle-filled" style="color:var(--pool);margin-right:6px;"></i>':'') + graphs[currentGraph].modes[key].text;
+  if(key==='normal') st.classList.remove('visible'); else st.classList.add('visible');
+  document.querySelectorAll('.modes button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.key===key);
+    b.classList.toggle('blocked-mode', b.dataset.key===key && key!=='normal');
+  });
+  // Reset traffic on mode change in SVG tab
+  if(graphs[currentGraph].svgRender){
+    carProgress = 0; queueCars = []; lastQueueSpawn = 0;
+  }
+  renderMindmap();
+}
+
+function setGraph(key){
+  // Stop traffic if we're leaving the SVG tab
+  if(graphs[currentGraph] && graphs[currentGraph].svgRender) stopTraffic();
+  currentGraph = key; currentMode='normal'; selectedNode=null;
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.key===key));
+  document.getElementById('side-title').innerHTML = '<i class="ti ti-circle-dot"></i> The root';
+  document.getElementById('side-body').innerHTML = '<p class="placeholder">Click any node for details. Pick a disease mode to see pooling and starvation.</p>';
+  document.getElementById('status').classList.remove('visible');
+  const hint = document.getElementById('hint');
+  hint.classList.add('show');
+  if(graphs[key].svgRender){
+    hint.innerHTML = '<i class="ti ti-car"></i> watch the car drive the pathway &nbsp;·&nbsp; <i class="ti ti-road"></i> pick a disease to block the road';
+  } else {
+    hint.innerHTML = '<i class="ti ti-plus"></i> unfold branch &nbsp;·&nbsp; <i class="ti ti-zoom-scan"></i> scroll to zoom &nbsp;·&nbsp; <i class="ti ti-hand-move"></i> drag to pan';
+  }
+  renderModes();
+  setMode('normal');
+  // Start traffic if we just entered the SVG tab
+  if(graphs[key].svgRender) startTraffic();
+}
+
+function renderTabs(){
+  const div = document.getElementById('tabs');
+  const TAB_ICONS = {
+    folate: '<i class="ti ti-circuit-diode"></i> ',
+    heme: '<i class="ti ti-droplet-filled"></i> ',
+    faoxid: '<i class="ti ti-flame"></i> ',
+    remethyl: '<i class="ti ti-arrows-split"></i> ',
+  };
+  div.innerHTML='';
+  Object.entries(graphs).forEach(([key,g])=>{
+    const btn = document.createElement('button');
+    btn.innerHTML = (TAB_ICONS[key]||'') + g.title;
+    btn.dataset.key = key;
+    if(key===currentGraph) btn.classList.add('active');
+    const unlocked = playerLevel >= g.unlockLevel;
+    if(!unlocked){ btn.disabled=true; btn.style.opacity='0.4'; btn.innerHTML+=' <i class="ti ti-lock"></i>'; btn.title='Unlocks at Level '+g.unlockLevel; }
+    btn.addEventListener('click', ()=>{
+      if(playerLevel < g.unlockLevel) return;
+      setGraph(key);
+    });
+    div.appendChild(btn);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════════════ */
+renderTabs();
+setGraph('folate');
+</script>
+</body>
+</html>

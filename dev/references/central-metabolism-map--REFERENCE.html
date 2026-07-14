@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Central Metabolism — Glycolysis as the Spine</title>
+<style>
+  :root{
+    --bg:#F3F2EE; --card:#FBFAF8; --ink:#2B2B27; --muted:#ADABA2;
+    --spine:#DEDCD5; --accent:#C64B87; --accent-bg:#FBEAF1;
+    --pool:#E0684A; --pool-bg:#FBE9E2; --starve:#C9C7C0;
+    --branch:#4E8C8A; --branch-bg:#E7F1EF;
+    --thumb:#3A3A36;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 60px;}
+  h1{font-size:1.35rem; font-weight:600; margin:0 0 4px;}
+  .sub{color:var(--muted); font-size:0.9rem; margin:0 0 18px; max-width:700px; line-height:1.5;}
+  .modes{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
+  .modes button{font-family:inherit; font-size:0.8rem; background:var(--card); color:var(--ink); border:1px solid var(--spine); padding:8px 14px; border-radius:999px; cursor:pointer;}
+  .modes button:hover{border-color:var(--accent);}
+  .modes button.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .modes button.active.blocked-mode{background:var(--pool); color:#fff; border-color:var(--pool);}
+  .status{background:var(--card); border:1px solid var(--spine); border-radius:14px; padding:14px 18px; margin-bottom:16px; font-size:0.92rem; line-height:1.55;}
+  .status b{color:var(--pool);}
+  .hint{font-size:0.82rem; color:var(--muted); margin-bottom:16px;}
+  .layout{display:flex; gap:20px; align-items:flex-start;}
+  svg{flex:1 1 720px; min-width:0; background:var(--card); border-radius:28px; border:1px solid var(--spine);}
+  .side{flex:0 0 300px; background:var(--card); border:1px solid var(--spine); border-radius:20px; padding:20px; min-height:600px; position:sticky; top:20px;}
+  .side .tag{display:inline-block; font-size:0.68rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); border:1px solid var(--spine); border-radius:5px; padding:2px 7px; margin-bottom:12px;}
+  .side h2{font-size:1.05rem; margin:0 0 10px; color:var(--accent);}
+  .side p{font-size:0.88rem; line-height:1.6; margin:0 0 10px;}
+  .side .placeholder{color:var(--muted); font-style:italic; font-size:0.86rem;}
+  .curve-line{fill:none; stroke:var(--spine); stroke-width:1.5;}
+  .thumb{fill:var(--thumb); rx:16;}
+  .label-pill{fill:var(--card); stroke:var(--spine); stroke-width:1.4;}
+  .label-selected{font-size:14px; font-weight:600; fill:var(--ink);}
+  .label-plain{font-size:12px; fill:var(--muted); font-weight:500;}
+  .blockmark{fill:var(--pool); font-size:14px; font-weight:700;}
+  .plusmark{font-size:12px; font-weight:700; pointer-events:none;}
+  .connector{fill:none; stroke:var(--spine); stroke-width:1.3; stroke-dasharray:3,4;}
+  @media (max-width:880px){.layout{flex-direction:column;} .side{position:static; width:100%;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Central Metabolism — Glycolysis as the spine</h1>
+  <p class="sub">Click any node to bring it to focus — the chain re-centers around it, like scrolling a wheel. Nodes with a small + expand a side pathway exactly where it connects. Click a node again for its causal explanation in the panel.</p>
+  <div class="modes" id="modes"></div>
+  <div class="status" id="status"></div>
+  <div class="hint">Watch the small car drive down the pale road behind the nodes — flux flowing normally. Hit a "Block" mode and it stalls at the actual blocked step, with traffic queuing up behind it while the road ahead goes flat and pale (starved).</div>
+
+  <div class="layout">
+    <svg id="canvas" viewBox="0 0 1000 1980" width="100%" height="900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="roadGradient" x1="0" y1="0" x2="0" y2="1">
+          <stop id="roadStop1" offset="0%" stop-color="#8FA89E"/>
+          <stop id="roadStop2" offset="100%" stop-color="#8FA89E"/>
+        </linearGradient>
+      </defs>
+      <path id="roadPath" fill="none" stroke="url(#roadGradient)" stroke-width="5" stroke-linecap="round" opacity="0.55"></path>
+      <g id="curve"></g>
+      <g id="connectors"></g>
+      <g id="nodes"></g>
+      <g id="traffic"></g>
+    </svg>
+    <div class="side" id="side">
+      <span class="tag">Node detail</span>
+      <h2 id="side-title">Nothing selected</h2>
+      <p class="placeholder" id="side-body">Click a node in the diagram.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const ICONS = {
+  leaf: `<path d="M5 20c9 0 15-6.5 15-15.5 0 0-1.2-.5-3-.5-9 0-12.5 7.5-12.5 12 0 2 .5 4 .5 4z"/><path d="M6.5 17.5c3-3 6-6.5 8.5-10"/>`,
+  droplet: `<path d="M12 3.5c-3.7 4.6-5.8 7.7-5.8 10.4a5.8 5.8 0 0 0 11.6 0c0-2.7-2-5.8-5.8-10.4z"/>`,
+  atom: `<circle cx="12" cy="12" r="1.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/>`,
+  molecule: `<circle cx="6" cy="7" r="2.4"/><circle cx="18" cy="7" r="2.4"/><circle cx="12" cy="18" r="2.4"/><path d="M8 8.3 10.3 15.7 M15.9 8.3 13.7 15.7 M8.4 6.6h7.2"/>`,
+  link: `<rect x="3.2" y="8.5" width="8" height="7" rx="3.5"/><rect x="12.8" y="8.5" width="8" height="7" rx="3.5"/><path d="M9.5 12h5"/>`,
+  bolt: `<path d="M13 2 5 14h6l-1 8 9-12h-6z"/>`,
+  flame: `<path d="M12 3c1 3-2 4-2 7a4 4 0 0 0 8 0c0-1-.5-2-1-2.5.3 2-1 3-2 2.5-1.2-.6-.5-2.5-1-4C13.5 4.5 12.6 4 12 3z"/><path d="M9.5 13a3.5 3.5 0 0 0 7 0"/>`,
+  circle: `<circle cx="12" cy="12" r="7"/>`,
+};
+const PALETTE = ['#4F86B8','#D9944F','#5FA893','#B85D8C','#8B7BC4','#C2A24E','#6AA36E','#C4694F','#5A9AB0','#A67BB0'];
+
+const spine = [
+  {id:'glucose', label:'Glucose', sub:'diet / glycogenolysis', icon:'leaf',
+    why:"Entry point. Free glucose either came from food or was just released from glycogen.",
+    feeds:"phosphorylated to G6P, trapping it inside the cell.", fedby:"Diet, or glycogen breakdown, or gluconeogenesis."},
+  {id:'g6p', label:'Glucose-6-P', sub:'the central hub', icon:'molecule',
+    why:"The busiest intersection in metabolism: can go to glycolysis, branch to glycogen storage, branch to the HMP shunt, or (in liver/kidney) be released back to free glucose.",
+    feeds:"isomerized to Fructose-6-P, continuing glycolysis.", fedby:"Glucose (hexokinase), glycogen breakdown, or gluconeogenesis."},
+  {id:'f6p', label:'Fructose-6-P', sub:'', icon:'molecule',
+    why:"The pathway's rate-limiting control point sits on the NEXT step (PFK-1) — this is the last molecule before that committed, irreversible decision.",
+    feeds:"phosphorylated again to Fructose-1,6-BP.", fedby:"G6P, or the HMP shunt returning ribulose-5-P via transketolase."},
+  {id:'f16bp', label:'Fructose-1,6-BP', sub:'committed here', icon:'molecule',
+    why:"PFK-1 made this — the single most important regulatory step in glycolysis, and the point gluconeogenesis has to bypass entirely rather than simply reverse.",
+    feeds:"split into two 3-carbon halves: G3P directly, DHAP indirectly.", fedby:"Fructose-6-P, via PFK-1."},
+  {id:'g3p', label:'Glyceraldehyde-3-P', sub:'', icon:'molecule',
+    why:"Both halves of the split 6-carbon sugar end up here — also where fructose metabolism dumps its products back into glycolysis.",
+    feeds:"oxidized and phosphorylated to 1,3-BPG.", fedby:"Fructose-1,6-BP (aldolase), or fructose branch (DHAP + glyceraldehyde)."},
+  {id:'bpg13', label:'1,3-BPG', sub:'', icon:'bolt',
+    why:"A high-energy phosphate bond, about to be spent making ATP directly (substrate-level phosphorylation).",
+    feeds:"gives up its phosphate to ADP, making 3-phosphoglycerate + ATP.", fedby:"G3P, via GAPDH."},
+  {id:'pg3', label:'3-Phosphoglycerate', sub:'', icon:'molecule',
+    why:"Just a positional shuffle of the phosphate group, setting up the next step's leaving group.",
+    feeds:"→ 2-Phosphoglycerate.", fedby:"1,3-BPG, after ATP is generated."},
+  {id:'pg2', label:'2-Phosphoglycerate', sub:'', icon:'molecule',
+    why:"Dehydration here creates the second high-energy phosphate bond of glycolysis.",
+    feeds:"→ PEP (loses water).", fedby:"3-Phosphoglycerate."},
+  {id:'pep', label:'PEP', sub:'high-energy', icon:'bolt',
+    why:"The second and last substrate-level phosphorylation of glycolysis — and this exact step is what gluconeogenesis can't simply reverse.",
+    feeds:"gives up its phosphate to ADP, making pyruvate + ATP.", fedby:"2-Phosphoglycerate."},
+  {id:'pyruvate', label:'Pyruvate', sub:'aerobic vs anaerobic fork', icon:'atom',
+    why:"End of glycolysis proper. Oxygen present → Acetyl-CoA and the TCA cycle. Oxygen absent → lactate. Also interconverts with alanine.",
+    feeds:"oxidatively decarboxylated to Acetyl-CoA (needs thiamine) — or reduced to lactate, or transaminated to alanine.",
+    fedby:"PEP, via pyruvate kinase."},
+  {id:'acetylcoa', label:'Acetyl-CoA', sub:'commits to TCA', icon:'link',
+    why:"The universal fuel-currency intersection: carbs, fats, and ketogenic amino acids all funnel through this one molecule.",
+    feeds:"condenses with oxaloacetate to form citrate — OR branches to fatty acid / cholesterol / ketone synthesis.",
+    fedby:"Pyruvate (via PDH, thiamine-dependent), fatty acid oxidation, or ketogenic amino acids."},
+  {id:'citrate', label:'Citrate', sub:'', icon:'molecule',
+    why:"First stop in the TCA cycle. When abundant, citrate feeds back to inhibit PFK-1 — an energy-plentiful signal.",
+    feeds:"→ Isocitrate.", fedby:"Acetyl-CoA + Oxaloacetate, via citrate synthase."},
+  {id:'isocitrate', label:'Isocitrate', sub:'', icon:'molecule',
+    why:"First of three NADH-generating oxidative steps in the cycle.",
+    feeds:"oxidatively decarboxylated to α-ketoglutarate (releases CO2, makes NADH).", fedby:"Citrate, via aconitase."},
+  {id:'akg', label:'α-Ketoglutarate', sub:'', icon:'molecule',
+    why:"Second CO2-releasing, NADH-generating step — and the amino-acid connection point (glutamate ⇄ α-KG).",
+    feeds:"oxidatively decarboxylated to Succinyl-CoA (needs thiamine again).", fedby:"Isocitrate, via isocitrate dehydrogenase."},
+  {id:'succinylcoa', label:'Succinyl-CoA', sub:'protein/fat branch point', icon:'link',
+    why:"Where the protein-catabolism world (propionyl-CoA, methylmalonyl-CoA, B12) rejoins the TCA cycle, and where heme synthesis begins.",
+    feeds:"→ Succinate (generates one GTP/ATP directly).", fedby:"α-Ketoglutarate, or methylmalonyl-CoA (via B12-dependent mutase)."},
+  {id:'succinate', label:'Succinate', sub:'', icon:'molecule',
+    why:"The one TCA enzyme embedded directly in the electron transport chain (Complex II).",
+    feeds:"→ Fumarate.", fedby:"Succinyl-CoA."},
+  {id:'fumarate', label:'Fumarate', sub:'urea cycle exit', icon:'molecule',
+    why:"Exactly where the urea cycle hands its carbon skeleton back to the TCA cycle.",
+    feeds:"→ Malate.", fedby:"Succinate, or the urea cycle (via arginase)."},
+  {id:'malate', label:'Malate', sub:'', icon:'droplet',
+    why:"Last oxidative step, generates the cycle's third NADH.",
+    feeds:"→ Oxaloacetate.", fedby:"Fumarate, via fumarase."},
+  {id:'oaa', label:'Oxaloacetate', sub:'closes the loop', icon:'molecule',
+    why:"The cycle's regeneration point, and the only TCA intermediate that can exit toward gluconeogenesis.",
+    feeds:"remakes Citrate (closing the cycle), OR exits toward PEP/gluconeogenesis.",
+    fedby:"Malate, or pyruvate (via pyruvate carboxylase, biotin-dependent)."},
+];
+
+const branches = [
+  {id:'gal', parent:'glucose', trigger:'glucose', dx:-260, dy:-40, icon:'leaf', label:'Galactose', sub:'',
+    why:"From dietary lactose (galactose + glucose).", feeds:"→ Galactose-1-P, via galactokinase.", fedby:"Dietary lactose."},
+  {id:'gal1p', parent:'gal', trigger:'glucose', dx:0, dy:80, icon:'molecule', label:'Galactose-1-P', sub:'',
+    why:"Accumulates in BOTH galactosemias — mild (galactokinase deficiency, backs up at Galactose instead) vs severe (GALT deficiency, backs up here: cataracts, hepatomegaly, intellectual disability).",
+    feeds:"→ Glucose-1-P, via GALT, rejoining glycolysis.", fedby:"Galactose, via galactokinase."},
+  {id:'glycogen', parent:'g6p', trigger:'g6p', dx:260, dy:-90, icon:'molecule', label:'Glycogen', sub:'storage',
+    why:"Built up when glucose is abundant, broken down between meals.",
+    feeds:"→ Glucose-1-P (glycogenolysis).", fedby:"UDP-glucose (glycogenesis), via glycogen synthase."},
+  {id:'udpglucose', parent:'glycogen', trigger:'g6p', dx:0, dy:75, icon:'bolt', label:'UDP-Glucose', sub:'',
+    why:"The activated donor form used to build glycogen.",
+    feeds:"→ Glucose-1-P, or added to growing glycogen.", fedby:"Glucose-1-P + UTP."},
+  {id:'g1p', parent:'udpglucose', trigger:'g6p', dx:0, dy:75, icon:'molecule', label:'Glucose-1-P', sub:'',
+    why:"Freely interconverts with G6P — also exactly where galactose rejoins the main chain.",
+    feeds:"→ Glucose-6-P, via phosphoglucomutase.", fedby:"Glycogen breakdown, or galactose (via GALT)."},
+  {id:'pgl6', parent:'g6p', trigger:'g6p', dx:-260, dy:-90, icon:'droplet', label:'6-Phosphogluconolactone', sub:'',
+    why:"The committed, rate-limiting HMP shunt step — makes NADPH for antioxidant defense and reductive biosynthesis.",
+    feeds:"→ Ribulose-5-P.", fedby:"G6P, via G6PD — deficiency causes hemolytic anemia under oxidative stress."},
+  {id:'ru5p', parent:'pgl6', trigger:'g6p', dx:0, dy:75, icon:'molecule', label:'Ribulose-5-P', sub:'',
+    why:"Feeds nucleotide synthesis and loops back into glycolysis.",
+    feeds:"→ Fructose-6-P, via transketolase (thiamine-dependent).", fedby:"6-Phosphogluconolactone pathway."},
+  {id:'fructose', parent:'f16bp', trigger:'f16bp', dx:260, dy:-40, icon:'leaf', label:'Fructose', sub:'',
+    why:"Dietary sugar (fruit, sucrose, HFCS).",
+    feeds:"→ Fructose-1-P, via fructokinase. Deficiency = benign essential fructosuria.", fedby:"Diet."},
+  {id:'fructose1p', parent:'fructose', trigger:'f16bp', dx:0, dy:75, icon:'molecule', label:'Fructose-1-P', sub:'',
+    why:"Accumulates in Hereditary Fructose Intolerance (aldolase B deficiency) — severe hypoglycemia and liver damage.",
+    feeds:"→ DHAP + Glyceraldehyde, via aldolase B.", fedby:"Fructose, via fructokinase."},
+  {id:'dhap_gly', parent:'fructose1p', trigger:'f16bp', dx:0, dy:75, icon:'molecule', label:'DHAP + Glyceraldehyde', sub:'',
+    why:"Both pieces feed directly into glycolysis at Glyceraldehyde-3-P.",
+    feeds:"→ Glyceraldehyde-3-P.", fedby:"Fructose-1-P, via aldolase B."},
+  {id:'malonylcoa', parent:'acetylcoa', trigger:'acetylcoa', dx:280, dy:-70, icon:'bolt', label:'Malonyl-CoA', sub:'',
+    why:"Commits Acetyl-CoA to fatty acid SYNTHESIS, the opposite of beta-oxidation.",
+    feeds:"→ Fatty acids.", fedby:"Acetyl-CoA, via acetyl-CoA carboxylase (biotin)."},
+  {id:'fattyacids', parent:'malonylcoa', trigger:'acetylcoa', dx:0, dy:75, icon:'leaf', label:'Fatty Acids', sub:'',
+    why:"Building blocks for triglycerides and membranes.",
+    feeds:"→ Triglycerides.", fedby:"Malonyl-CoA chain elongation."},
+  {id:'hmgcoa', parent:'acetylcoa', trigger:'acetylcoa', dx:280, dy:100, icon:'molecule', label:'HMG-CoA', sub:'cholesterol/ketone fork',
+    why:"One molecule, two fates: HMG-CoA reductase sends it toward cholesterol; HMG-CoA lyase sends it toward ketones.",
+    feeds:"→ Mevalonate → Cholesterol, OR → Acetoacetate (ketogenesis).",
+    fedby:"Acetyl-CoA + Acetoacetyl-CoA."},
+  {id:'cholesterol', parent:'hmgcoa', trigger:'acetylcoa', dx:0, dy:75, icon:'molecule', label:'Cholesterol', sub:'',
+    why:"Membrane component and steroid hormone precursor.",
+    feeds:"(end product).", fedby:"HMG-CoA via mevalonate; statins block this step."},
+  {id:'ketones', parent:'hmgcoa', trigger:'acetylcoa', dx:180, dy:75, icon:'flame', label:'Ketone Bodies', sub:'',
+    why:"Alternative fuel during fasting/DKA — only the liver can make them.",
+    feeds:"(exported as fuel).", fedby:"HMG-CoA, via HMG-CoA lyase."},
+  {id:'propionylcoa', parent:'succinylcoa', trigger:'succinylcoa', dx:-280, dy:-40, icon:'link', label:'Propionyl-CoA', sub:'',
+    why:"From odd-chain fats and Valine, Odd-chain fat, Methionine, Isoleucine, Threonine (VOMIT).",
+    feeds:"→ Methylmalonyl-CoA.", fedby:"Odd-chain fatty acid or branched-chain amino acid catabolism."},
+  {id:'methylmalonylcoa', parent:'propionylcoa', trigger:'succinylcoa', dx:0, dy:75, icon:'molecule', label:'Methylmalonyl-CoA', sub:'',
+    why:"Piles up in BOTH propionic acidemia and methylmalonic acidemia, same molecule, two different broken enzymes.",
+    feeds:"→ Succinyl-CoA.", fedby:"Propionyl-CoA, via propionyl-CoA carboxylase (biotin)."},
+  {id:'nh3co2', parent:'fumarate', trigger:'fumarate', dx:-280, dy:-260, icon:'droplet', label:'NH3 + CO2', sub:'',
+    why:"Waste ammonia + CO2, the entry point for nitrogen disposal.",
+    feeds:"→ Carbamoyl Phosphate.", fedby:"Amino acid deamination + respiration."},
+  {id:'carbamoylp', parent:'nh3co2', trigger:'fumarate', dx:0, dy:75, icon:'bolt', label:'Carbamoyl Phosphate', sub:'',
+    why:"The committed, rate-limiting step of the urea cycle.",
+    feeds:"→ Citrulline.", fedby:"NH3 + CO2, via CPS1."},
+  {id:'ornithine', parent:'carbamoylp', trigger:'fumarate', dx:-90, dy:75, icon:'molecule', label:'Ornithine', sub:'',
+    why:"Regenerated every time arginine is cleaved, so the cycle can run again.",
+    feeds:"→ Citrulline.", fedby:"Arginine, via arginase."},
+  {id:'citrulline', parent:'carbamoylp', trigger:'fumarate', dx:90, dy:75, icon:'molecule', label:'Citrulline', sub:'',
+    why:"Leaves the mitochondria to continue in the cytoplasm.",
+    feeds:"→ Argininosuccinate.", fedby:"Carbamoyl phosphate + Ornithine."},
+  {id:'argininosuccinate', parent:'citrulline', trigger:'fumarate', dx:0, dy:80, icon:'molecule', label:'Argininosuccinate', sub:'',
+    why:"Where aspartate's nitrogen enters the urea cycle.",
+    feeds:"→ Arginine + Fumarate.", fedby:"Citrulline + Aspartate."},
+  {id:'arginine', parent:'argininosuccinate', trigger:'fumarate', dx:0, dy:75, icon:'molecule', label:'Arginine', sub:'',
+    why:"Last intermediate before urea is cleaved off.",
+    feeds:"→ Urea + Ornithine.", fedby:"Argininosuccinate."},
+  {id:'urea', parent:'arginine', trigger:'fumarate', dx:0, dy:75, icon:'droplet', label:'Urea', sub:'',
+    why:"The excreted waste, water-soluble and non-toxic, unlike ammonia.",
+    feeds:"(excreted).", fedby:"Arginine, via arginase."},
+];
+
+const extraEdges = [
+  {from:'g6p', to:'glucose', label:'G6Pase', block:'g6pase', always:true},
+  {from:'gal1p', to:'g6p', label:'GALT', block:'galt', trigger:'glucose'},
+  {from:'g1p', to:'g6p', label:'', trigger:'g6p'},
+  {from:'ru5p', to:'f6p', label:'', trigger:'g6p'},
+  {from:'dhap_gly', to:'g3p', label:'', trigger:'f16bp'},
+  {from:'methylmalonylcoa', to:'succinylcoa', label:'B12', trigger:'succinylcoa'},
+  {from:'oaa', to:'citrate', label:'closes TCA loop', loop:true, always:true},
+];
+
+const modes = {
+  normal: {label:'Normal', blockedEdges:[], pool:[], starve:[], text:'Normal state. Click any node to focus it, the chain re-centers there. Bordered nodes expand a side pathway on click.'},
+  pdh: {label:'Block PDH (thiamine deficiency)', blockedEdges:['pyruvate-acetylcoa'], pool:['pyruvate'], starve:['acetylcoa','citrate','isocitrate','akg','succinylcoa','succinate','fumarate','malate','oaa'],
+    text:'<b>Pyruvate dehydrogenase blocked</b> (thiamine/B1 deficiency — beriberi, Wernicke). Pyruvate backs up and shunts to lactate instead. The TCA cycle starves from this route, though fat and ketogenic amino acids can still feed in via Acetyl-CoA.'},
+  g6pase: {label:'Block G6Pase (von Gierke)', blockedEdges:['g6pase'], pool:['g6p'], starve:[],
+    text:'<b>G6Pase blocked</b> (von Gierke disease). The liver can\'t release G6P as free glucose — it pools, causing severe fasting hypoglycemia, while excess gets shunted into glycogen and lactate.'},
+  galt: {label:'Block GALT (severe galactosemia)', blockedEdges:['galt'], pool:['gal1p'], starve:[],
+    text:'<b>GALT blocked</b> (classic galactosemia). Galactose-1-P pools and becomes toxic — cataracts, hepatomegaly, intellectual disability. Click Glucose to expand the branch.'},
+  galk: {label:'Block galactokinase (mild)', blockedEdges:['gal-gal1p'], pool:['gal'], starve:['gal1p'],
+    text:'<b>Galactokinase blocked</b> (mild galactosemia). Galactose itself backs up instead — milder, usually just cataracts.'},
+};
+
+/* ---------- ROAD + CAR (native SVG path animation, no dependencies) ---------- */
+const CAR_ICON = `
+  <g>
+    <rect x="-14" y="-7" width="28" height="12" rx="4" fill="#C64B87"/>
+    <rect x="-8" y="-12" width="14" height="7" rx="3" fill="#C64B87"/>
+    <circle cx="-8" cy="6" r="3.2" fill="#2B2B27"/>
+    <circle cx="8" cy="6" r="3.2" fill="#2B2B27"/>
+  </g>`;
+
+function roadFixedD(){
+  // fixed, non-carousel layout: even spacing top to bottom, same wobble as the interactive spine
+  let d = '';
+  spine.forEach((n,i)=>{
+    const x = 640 + Math.sin(i*0.8)*18;
+    const y = 60 + i*100;
+    d += (i===0? `M${x},${y}` : ` L${x},${y}`);
+  });
+  return d;
+}
+
+// map a mode's blocked edge to a forward spine-edge index (only main-chain forward blocks jam traffic)
+const FORWARD_BLOCK_SPINE_IDX = { 'pyruvate-acetylcoa': 9 }; // edge between spine[9] and spine[10]
+
+let roadPathEl, roadLen = 0;
+let carProgress = 0; // 0..1 along the road
+let queueCars = [];
+let lastQueueSpawn = 0;
+let rafId = null;
+
+function initRoad(){
+  roadPathEl = document.getElementById('roadPath');
+  roadPathEl.setAttribute('d', roadFixedD());
+  roadLen = roadPathEl.getTotalLength();
+}
+
+function currentBlockFraction(){
+  const m = modes[currentMode];
+  for(const key of m.blockedEdges){
+    if(FORWARD_BLOCK_SPINE_IDX[key] !== undefined){
+      return FORWARD_BLOCK_SPINE_IDX[key] / (spine.length-1);
+    }
+  }
+  return null; // no forward jam for this mode
+}
+
+function updateRoadGradient(){
+  const frac = currentBlockFraction();
+  const s1 = document.getElementById('roadStop1');
+  const s2 = document.getElementById('roadStop2');
+  if(frac===null){
+    s1.setAttribute('offset','0%'); s1.setAttribute('stop-color','#8FA89E');
+    s2.setAttribute('offset','100%'); s2.setAttribute('stop-color','#8FA89E');
+  } else {
+    const pct = (frac*100).toFixed(1)+'%';
+    s1.setAttribute('offset','0%'); s1.setAttribute('stop-color','#8FA89E');
+    s2.setAttribute('offset', pct); s2.setAttribute('stop-color','#8FA89E');
+    // second stop segment (downstream, flat/inactive) via a stop right after
+    let s3 = document.getElementById('roadStop3');
+    if(!s3){
+      s3 = document.createElementNS('http://www.w3.org/2000/svg','stop');
+      s3.setAttribute('id','roadStop3');
+      document.getElementById('roadPath').previousElementSibling.appendChild(s3);
+    }
+    s3.setAttribute('offset','100%'); s3.setAttribute('stop-color','#D9D7D0');
+  }
+}
+
+function drawTraffic(){
+  const trafficG = document.getElementById('traffic');
+  trafficG.innerHTML='';
+  const frac = currentBlockFraction();
+
+  // main car
+  let dist;
+  if(frac!==null){
+    dist = Math.min(carProgress, frac) * roadLen;
+  } else {
+    dist = (carProgress % 1) * roadLen;
+  }
+  placeCarAt(trafficG, dist, false);
+
+  // queued cars stacking behind the block
+  if(frac!==null){
+    const blockLen = frac*roadLen;
+    queueCars.forEach((q,i)=>{
+      const backDist = Math.max(0, blockLen - (i+1)*26);
+      placeCarAt(trafficG, backDist, true, q.opacity);
+    });
+  }
+}
+
+function placeCarAt(parent, dist, isQueued, opacity){
+  const p = roadPathEl.getPointAtLength(dist);
+  const p2 = roadPathEl.getPointAtLength(Math.min(roadLen, dist+2));
+  const angle = Math.atan2(p2.y-p.y, p2.x-p.x) * 180/Math.PI + 90;
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('transform', `translate(${p.x},${p.y}) rotate(${angle}) ${isQueued?'scale(0.85)':''}`);
+  if(isQueued) g.setAttribute('opacity', opacity!==undefined?opacity:0.7);
+  g.innerHTML = CAR_ICON;
+  parent.appendChild(g);
+}
+
+function tick(ts){
+  const frac = currentBlockFraction();
+  if(frac===null){
+    carProgress += 0.0011; // continuous loop, no jam
+    queueCars = [];
+  } else {
+    if(carProgress < frac) carProgress += 0.0022;
+    else {
+      // hit the roadblock: spawn a queued car every ~1.3s, up to 6, fading in
+      if(!lastQueueSpawn || ts-lastQueueSpawn > 1300){
+        if(queueCars.length < 6){
+          queueCars.push({opacity:0});
+        }
+        lastQueueSpawn = ts;
+      }
+      queueCars.forEach(q=>{ q.opacity = Math.min(0.85, q.opacity+0.03); });
+    }
+  }
+  drawTraffic();
+  rafId = requestAnimationFrame(tick);
+}
+
+
+const GAP = 128;
+let currentMode='normal';
+let focusIdx = 9; // pyruvate, centered by default
+let selected = spine[focusIdx].id;
+const expanded = new Set();
+
+function nm(){ const m={}; spine.forEach(n=>m[n.id]=n); branches.forEach(n=>m[n.id]=n); return m; }
+
+function spinePositions(){
+  const pos = {};
+  const midY = 990;
+  spine.forEach((n,i)=>{
+    const dist = i - focusIdx;
+    const y = midY + dist*GAP;
+    const wobble = Math.sin(i*0.8)*18;
+    pos[n.id] = {x: 640+wobble, y, dist};
+  });
+  branches.forEach(n=>{
+    const p = pos[n.parent];
+    pos[n.id] = {x:p.x+n.dx, y:p.y+n.dy, dist: p.dist+1};
+  });
+  return pos;
+}
+
+function svgEl(tag, attrs){
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for(const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+
+function draw(){
+  const pos = spinePositions();
+  const map = nm();
+  const m = modes[currentMode];
+  const curveG = document.getElementById('curve');
+  const connG = document.getElementById('connectors');
+  const nodesG = document.getElementById('nodes');
+  curveG.innerHTML=''; connG.innerHTML=''; nodesG.innerHTML='';
+
+  // right-side guide curve
+  let cd = 'M 950,0 ';
+  for(let y=0; y<=1980; y+=60){
+    const t = (y-990)/700;
+    const bulge = 40*Math.exp(-t*t*1.5);
+    cd += `L ${950-bulge},${y} `;
+  }
+  curveG.appendChild(svgEl('path',{d:cd, class:'curve-line'}));
+  // thumb near the focused row
+  const focusY = pos[spine[focusIdx].id].y;
+  curveG.appendChild(svgEl('rect',{x:930, y:focusY-16, width:26, height:32, rx:13, class:'thumb'}));
+
+  const hasBranch = new Set(branches.map(b=>b.trigger));
+
+  // extra edges
+  extraEdges.forEach(e=>{
+    if(!e.always && !expanded.has(e.trigger)) return;
+    const a=pos[e.from], b=pos[e.to];
+    if(!a||!b) return;
+    const blocked = e.block && m.blockedEdges.includes(e.block);
+    const midx=(a.x+b.x)/2+(e.loop?90:26), midy=(a.y+b.y)/2;
+    const path = svgEl('path',{d:`M${a.x},${a.y} Q${midx},${midy} ${b.x},${b.y}`, class:'connector'});
+    if(blocked) path.setAttribute('stroke', 'var(--pool)');
+    connG.appendChild(path);
+    if(blocked) connG.appendChild(svgEl('text',{x:midx,y:midy,class:'blockmark'})).textContent='\u2715';
+  });
+  if(expanded.has('glucose') && m.blockedEdges.includes('gal-gal1p')){
+    const a=pos['gal'], b=pos['gal1p'];
+    connG.appendChild(svgEl('text',{x:(a.x+b.x)/2+16,y:(a.y+b.y)/2,class:'blockmark'})).textContent='\u2715';
+  }
+  const pyrA=pos['pyruvate'], pyrB=pos['acetylcoa'];
+  if(m.blockedEdges.includes('pyruvate-acetylcoa') && pyrA && pyrB){
+    connG.appendChild(svgEl('text',{x:(pyrA.x+pyrB.x)/2+16,y:(pyrA.y+pyrB.y)/2,class:'blockmark'})).textContent='\u2715';
+  }
+  branches.forEach(n=>{
+    if(!expanded.has(n.trigger)) return;
+    const a=pos[n.parent], b=pos[n.id];
+    connG.appendChild(svgEl('path',{d:`M${a.x},${a.y} L${b.x},${b.y}`, class:'connector'}));
+  });
+
+  function stateOf(id){
+    if(m.pool.includes(id)) return 'pool';
+    if(m.starve.includes(id)) return 'starve';
+    return 'default';
+  }
+
+  // draw spine
+  spine.forEach((n,i)=>{
+    const p = pos[n.id];
+    if(p.y < -80 || p.y > 2060) return;
+    const isFocus = i===focusIdx;
+    const dist = Math.abs(p.dist);
+    const scale = Math.max(0.45, 1 - dist*0.11);
+    const opacity = Math.max(0.18, 1 - dist*0.14);
+    const state = stateOf(n.id);
+    const color = PALETTE[i % PALETTE.length];
+    const r = 30*scale*(isFocus?1.25:1);
+
+    const gg = svgEl('g',{transform:`translate(${p.x},${p.y})`, opacity: isFocus?1:opacity});
+    gg.style.cursor='pointer';
+    gg.addEventListener('click', ()=>{
+      if(isFocus){
+        selectNode(n.id);
+        if(hasBranch.has(n.id)){ expanded.has(n.id)?expanded.delete(n.id):expanded.add(n.id); }
+      } else {
+        focusIdx = i; selected = n.id;
+        document.getElementById('side-title').textContent = n.label;
+        document.getElementById('side-body').innerHTML = `<p>${n.why}</p><p><b>Fed by:</b> ${n.fedby}</p><p><b>Feeds:</b> ${n.feeds}</p>`;
+      }
+      draw();
+    });
+
+    let fill = '#ECEAE4', stroke='none', strokeW=0;
+    if(state==='pool'){ fill='var(--pool-bg)'; stroke='var(--pool)'; strokeW=2; }
+    else if(state==='starve'){ fill='#F2F1EC'; }
+    if(isFocus){ fill='var(--accent-bg)'; stroke='var(--accent)'; strokeW=2.5; }
+
+    if(isFocus){
+      gg.appendChild(svgEl('rect',{x:-38,y:-30,width:76,height:60,rx:28,fill,stroke,'stroke-width':strokeW}));
+    } else {
+      gg.appendChild(svgEl('circle',{r, fill, stroke, 'stroke-width':strokeW,
+        class: hasBranch.has(n.id)&&state==='default' ? '' : ''}));
+      if(hasBranch.has(n.id) && state==='default'){
+        gg.lastChild.setAttribute('stroke','var(--branch)');
+        gg.lastChild.setAttribute('stroke-width','1.6');
+        gg.lastChild.setAttribute('stroke-dasharray','2,3');
+      }
+    }
+
+    const iconSize = isFocus?32:r*1.05;
+    const iconSvg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    iconSvg.setAttribute('x',-iconSize/2); iconSvg.setAttribute('y',-iconSize/2);
+    iconSvg.setAttribute('width',iconSize); iconSvg.setAttribute('height',iconSize);
+    iconSvg.setAttribute('viewBox','0 0 24 24');
+    iconSvg.innerHTML = ICONS[n.icon]||ICONS.circle;
+    const iconColor = state==='starve' ? 'var(--starve)' : (isFocus?'var(--accent)':color);
+    iconSvg.querySelectorAll('path,circle,ellipse,rect').forEach(el=>{
+      el.setAttribute('stroke', iconColor); el.setAttribute('stroke-width','1.8');
+    });
+    gg.appendChild(iconSvg);
+
+    if(hasBranch.has(n.id)){
+      const plus = svgEl('text',{x: isFocus?46:r+8, y:isFocus?-22:-r, class:'plusmark', fill:'var(--branch)'});
+      plus.textContent = expanded.has(n.id) ? '\u2212' : '+';
+      gg.appendChild(plus);
+    }
+
+    if(isFocus){
+      const pillW = Math.max(120, n.label.length*8+40);
+      const pill = svgEl('rect',{x:-pillW-56, y:-20, width:pillW, height:40, rx:20, class:'label-pill'});
+      gg.appendChild(pill);
+      const lab = svgEl('text',{x:-56-pillW/2, y:5, 'text-anchor':'middle', class:'label-selected'});
+      lab.textContent = n.label; gg.appendChild(lab);
+    } else {
+      const lab = svgEl('text',{x:-r-14, y:-r*0.3, 'text-anchor':'end', class:'label-plain',
+        transform:`rotate(-7 ${-r-14} ${-r*0.3})`});
+      lab.textContent = n.label; gg.appendChild(lab);
+    }
+    nodesG.appendChild(gg);
+  });
+
+  // draw branch nodes (only expanded)
+  branches.forEach(n=>{
+    if(!expanded.has(n.trigger)) return;
+    const p = pos[n.id];
+    const state = stateOf(n.id);
+    const gg = svgEl('g',{transform:`translate(${p.x},${p.y})`});
+    gg.style.cursor='pointer';
+    gg.addEventListener('click', ()=>selectNode(n.id));
+    let fill='var(--branch-bg)', stroke='none', strokeW=0;
+    if(selected===n.id){ fill='var(--accent-bg)'; stroke='var(--accent)'; strokeW=2.5; }
+    else if(state==='pool'){ fill='var(--pool-bg)'; stroke='var(--pool)'; strokeW=2; }
+    else if(state==='starve'){ fill='#F2F1EC'; }
+    gg.appendChild(svgEl('circle',{r:24, fill, stroke, 'stroke-width':strokeW}));
+    const iconSvg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    iconSvg.setAttribute('x',-13); iconSvg.setAttribute('y',-13); iconSvg.setAttribute('width',26); iconSvg.setAttribute('height',26);
+    iconSvg.setAttribute('viewBox','0 0 24 24');
+    iconSvg.innerHTML = ICONS[n.icon]||ICONS.circle;
+    iconSvg.querySelectorAll('path,circle,ellipse,rect').forEach(el=>{
+      el.setAttribute('stroke', state==='starve'?'var(--starve)':'var(--branch)'); el.setAttribute('stroke-width','1.7');
+    });
+    gg.appendChild(iconSvg);
+    const side = n.dx<0?-1:1;
+    const lab = svgEl('text',{x:side*36, y:-2, 'text-anchor': side<0?'end':'start', class:'label-plain'});
+    lab.textContent = n.label; gg.appendChild(lab);
+    nodesG.appendChild(gg);
+  });
+}
+
+function selectNode(id){
+  selected = id;
+  const n = nm()[id];
+  document.getElementById('side-title').textContent = n.label;
+  document.getElementById('side-body').innerHTML = `<p>${n.why}</p><p><b>Fed by:</b> ${n.fedby}</p><p><b>Feeds:</b> ${n.feeds}</p>`;
+  draw();
+}
+
+function renderModes(){
+  const modesDiv = document.getElementById('modes');
+  modesDiv.innerHTML='';
+  Object.keys(modes).forEach(key=>{
+    const btn = document.createElement('button');
+    btn.textContent = modes[key].label; btn.dataset.key=key;
+    if(key===currentMode) btn.classList.add('active');
+    btn.addEventListener('click', ()=>setMode(key));
+    modesDiv.appendChild(btn);
+  });
+}
+function setMode(key){
+  currentMode = key;
+  document.getElementById('status').innerHTML = modes[key].text;
+  document.querySelectorAll('.modes button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.key===key);
+    b.classList.toggle('blocked-mode', b.dataset.key===key && key!=='normal');
+  });
+  if(key==='galt'||key==='galk') expanded.add('glucose');
+  queueCars = []; lastQueueSpawn = 0;
+  updateRoadGradient();
+  draw();
+}
+
+try{
+  renderModes();
+  initRoad();
+  updateRoadGradient();
+  selectNode(selected);
+  rafId = requestAnimationFrame(tick);
+}catch(e){
+  document.getElementById('status').innerHTML = '<b>Render error:</b> '+e.message;
+  console.error(e);
+}
+</script>
+</body>
+</html>
