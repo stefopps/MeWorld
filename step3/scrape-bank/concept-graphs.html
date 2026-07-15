@@ -3606,7 +3606,7 @@ Wrap the key mechanistic anchors in **double asterisks**. No preamble, no sign-o
           { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt },
         ],
-        temperature: 0.4, max_tokens: 500,
+        temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(), max_tokens: 500,
       }),
     });
     if (!res.ok) return null;
@@ -3627,7 +3627,7 @@ Wrap the key mechanistic anchors in **double asterisks**. No preamble, no sign-o
               { role: 'system', content: systemPrompt },
               { role: 'user', content: prompt },
             ],
-            temperature: 0.4, max_tokens: 600,
+            temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(), max_tokens: 600,
           }),
         });
         if (retry.ok) {
