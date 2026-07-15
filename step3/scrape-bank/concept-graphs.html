@@ -3150,6 +3150,8 @@ The learner is asking you questions about this case node. Teach them the mechani
     if (window._floatDict) destroyFloatingDict();
     createFloatingDict(dictSect, nodeId);
     updateDockedUI();
+    // Persist: remember that the user wants floating mode across set navigation
+    try { localStorage.setItem('dict-is-floating', '1'); } catch (_) {}
   }
   if (undockBtn) undockBtn.onclick = undockDict;
 
@@ -3164,6 +3166,14 @@ The learner is asking you questions about this case node. Teach them the mechani
     }
   }
   updateDockedUI();
+
+  // ── Auto-restore floating state across set navigation ──
+  // If the user had the dict floating before navigating, re-apply now
+  let wasFloating = false;
+  try { wasFloating = localStorage.getItem('dict-is-floating') === '1'; } catch (_) {}
+  if (wasFloating && !(window._floatDict && window._floatDict.nodeId === nodeId)) {
+    undockDict();
+  }
 
   // ── Register chat control for external access (e.g., "Answer this" button) ──
   window._chatCtl = window._chatCtl || {};
@@ -3222,6 +3232,8 @@ function destroyFloatingDict() {
   }
   wrapper.remove();
   window._floatDict = null;
+  // Clear persistence flag so next node doesn't auto-undock
+  try { localStorage.removeItem('dict-is-floating'); } catch (_) {}
 }
 
 
@@ -4197,10 +4209,20 @@ function answerThisProbe(qid, probeQ) {
   const ctl = window._chatCtl && window._chatCtl[qid];
   if (!ctl) { console.warn('[answerThis] No chat ctl for', qid); return; }
 
-  // 1. Switch to chat mode
+  // 1. Auto-undock the Notes & Chat panel if it's currently docked
+  // Find the dict undock button in the current HUD or dock body and click it
+  if (!(window._floatDict && window._floatDict.nodeId === qid)) {
+    const hud = document.querySelector('.hud[data-hud-id="node-' + qid + '"], .hud:not([style*="display: none"]), .dock-reveal-content');
+    if (hud) {
+      const undockBtn = hud.querySelector('.dict-undock');
+      if (undockBtn) undockBtn.click();
+    }
+  }
+
+  // 2. Switch to chat mode
   ctl.applyMode('chat');
 
-  // 2. Inject the probe question if it's not already in the history
+  // 3. Inject the probe question if it's not already in the history
   const alreadyExists = ctl.chatHistory.some(m => m.role === 'user' && m.content === probeQ);
   if (!alreadyExists) {
     ctl.chatHistory.push({ role: 'user', content: probeQ });
