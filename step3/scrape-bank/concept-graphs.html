@@ -1286,6 +1286,17 @@
   .hud .answers li, .hud-content .answers li {
     margin: 5px 0; padding: 6px 8px; border-radius: 6px; background: #f5f7fa;
     border: 1px solid var(--border); font-size: calc(0.78rem * var(--hud-font-scale, 1)); line-height: 1.4;
+    cursor: pointer; transition: background .1s, border-color .1s;
+  }
+  .hud .answers li:hover, .hud-content .answers li:hover { background: #eef3ff; border-color: var(--accent); }
+  .hud .answers li.sel, .hud-content .answers li.sel {
+    background: #dbeafe; border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent);
+  }
+  .hud .answers li.correct, .hud-content .answers li.correct {
+    background: #dcfce7; border-color: #22c55e; box-shadow: inset 0 0 0 1px #22c55e;
+  }
+  .hud .answers li.wrong, .hud-content .answers li.wrong {
+    background: #fee2e2; border-color: #ef4444; box-shadow: inset 0 0 0 1px #ef4444;
   }
   .hud .likely, .dock-reveal-content .likely {
     margin-top: 0; padding: 8px 10px; border-radius: 7px;
@@ -1383,6 +1394,9 @@
   [data-theme="dark"] .hud .pc-oneliner, [data-theme="dark"] .hud-content .pc-oneliner { color: var(--ink); }
   [data-theme="dark"] .hud .ind-toggle:hover, [data-theme="dark"] .hud-content .ind-toggle:hover, [data-theme="dark"] .dock-reveal-content .ind-toggle:hover { background: #1f2230; }
   [data-theme="dark"] .hud .answers li, [data-theme="dark"] .hud-content .answers li { background: #1f2230; border-color: var(--border); }
+  [data-theme="dark"] .hud .answers li.sel, [data-theme="dark"] .hud-content .answers li.sel { background: #1e2a45; border-color: var(--accent); }
+  [data-theme="dark"] .hud .answers li.correct, [data-theme="dark"] .hud-content .answers li.correct { background: #0d2b1a; border-color: #22c55e; }
+  [data-theme="dark"] .hud .answers li.wrong, [data-theme="dark"] .hud-content .answers li.wrong { background: #2d1414; border-color: #ef4444; }
   [data-theme="dark"] .hud .likely, [data-theme="dark"] .dock-reveal-content .likely { background: #162818; border-color: #2a4a30; color: #4ade80; }
   [data-theme="dark"] .hud .reveal-btn, [data-theme="dark"] .hud-content .reveal-btn { background: #1a1d28; }
   [data-theme="dark"] .hud .reveal-btn:hover, [data-theme="dark"] .hud-content .reveal-btn:hover { background: #1f2740; }
@@ -2093,7 +2107,7 @@ function updateMillHint(el, state) {
 
 function questionHTML(q) {
   const ans = (q.answers || []).map(a =>
-    '<li><strong>' + esc(a.label) + '.</strong> ' + esc(cleanAnsText(a.text)) + '</li>'
+    '<li data-label="' + esc(a.label) + '" onclick="selectAnswer(event, \'' + esc(String(q.id)) + '\')"><strong>' + esc(a.label) + '.</strong> ' + esc(cleanAnsText(a.text)) + '</li>'
   ).join('');
   const state = millState(q.id);
   const sid = esc(String(q.id));
@@ -2616,8 +2630,22 @@ function restoreHudPosition(hud) {
 }
 
 function wireAnswerToggle(hud) {
-  // Show Answer — plain toggle, no async
-  toggleIndInContainer(hud, 'it-ans-', 'ib-ans-');
+  // Show Answer — plain toggle, no async, but also trigger comparison
+  const ansToggle = hud.querySelector('[id^="it-ans-"]');
+  const ansBody = hud.querySelector('[id^="ib-ans-"]');
+  if (ansToggle && ansBody) {
+    const qid = ansToggle.id.replace('it-ans-', '');
+    const node = byId[qid];
+    ansToggle.onclick = () => {
+      const isOpen = ansBody.classList.toggle('open');
+      ansToggle.querySelector('.toggle-chevron').className = 'ti ti-chevron-' + (isOpen ? 'up' : 'down') + ' toggle-chevron';
+      if (isOpen && node && node.likely) {
+        compareAnswer(hud, qid, node.likely);
+      } else {
+        resetAnswerSelection(hud, qid);
+      }
+    };
+  }
 
   // Explanation — plain toggle, no async
   toggleIndInContainer(hud, 'it-explain-', 'ib-explain-');
@@ -2634,6 +2662,58 @@ function wireAnswerToggle(hud) {
       setMillState(qid, newState);
     };
   });
+}
+
+// ── Answer selection ──────────────────────────────────────────────────────────
+// Click an answer choice to select it; compared against correct answer on reveal
+window.selectAnswer = function(event, qid) {
+  const li = event.currentTarget;
+  const container = li.closest('.hud, .hud-content, .dock-reveal-content');
+  if (!container) return;
+  // Deselect all siblings, select this one
+  container.querySelectorAll('.answers li').forEach(el => el.classList.remove('sel', 'correct', 'wrong'));
+  li.classList.add('sel');
+  // Store selection
+  try { localStorage.setItem('ans-sel-' + qid, li.dataset.label); } catch (_) {}
+  // If answer is already visible, compare immediately
+  const ansBody = container.querySelector('[id^="ib-ans-"]');
+  if (ansBody && ansBody.classList.contains('open')) {
+    const node = byId[qid];
+    if (node && node.likely) compareAnswer(container, qid, node.likely);
+  }
+};
+
+function compareAnswer(container, qid, likelyText) {
+  const sel = container.querySelector('.answers li.sel');
+  if (!sel) return;
+  const picked = sel.dataset.label;
+  const correctLabel = String(likelyText || '').charAt(0).toUpperCase();
+  // Reset all
+  container.querySelectorAll('.answers li').forEach(el => el.classList.remove('sel', 'correct', 'wrong'));
+  // Mark the correct answer
+  container.querySelectorAll('.answers li').forEach(el => {
+    if (el.dataset.label === correctLabel) el.classList.add('correct');
+  });
+  // Mark user's pick
+  if (picked === correctLabel) {
+    container.querySelector('.answers li[data-label="' + picked + '"]').classList.add('correct');
+  } else {
+    container.querySelector('.answers li[data-label="' + picked + '"]').classList.add('wrong');
+    // Also highlight correct answer
+    container.querySelector('.answers li[data-label="' + correctLabel + '"]').classList.add('correct');
+  }
+}
+
+function resetAnswerSelection(container, qid) {
+  container.querySelectorAll('.answers li').forEach(el => el.classList.remove('sel', 'correct', 'wrong'));
+  // Restore saved selection
+  try {
+    const saved = localStorage.getItem('ans-sel-' + qid);
+    if (saved) {
+      const target = container.querySelector('.answers li[data-label="' + saved + '"]');
+      if (target) target.classList.add('sel');
+    }
+  } catch (_) {}
 }
 
 function toggleIndInContainer(container, togglePrefix, bodyPrefix) {
