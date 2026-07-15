@@ -2881,9 +2881,7 @@ function wireHudDictation(hud, nodeId) {
     if (!chatHistory.length) { chatLog.innerHTML = '<div style="color:var(--muted);font-size:0.62rem;text-align:center;padding:10px;">No messages yet. Ask Dr. Iwu about this case.</div>'; return; }
     chatLog.innerHTML = chatHistory.map((m,i) => {
       const isUser = m.role === 'user';
-      const copyBtn = !isUser
-        ? `<button class="msg-copy-btn" data-idx="${i}" title="Copy response"><i class="ti ti-clipboard"></i></button>`
-        : '';
+      const copyBtn = `<button class="msg-copy-btn" data-idx="${i}" title="Copy message"><i class="ti ti-clipboard"></i></button>`;
       return `<div class="chat-msg ${isUser ? 'msg-you' : 'msg-iwu'}">
         <div class="msg-sender">${isUser ? 'You' : 'Dr. Iwu'}</div>
         <div class="msg-bubble">${mdToHtml(m.content)}${copyBtn}</div>
@@ -2973,6 +2971,10 @@ function wireHudDictation(hud, nodeId) {
     }
     interim.textContent = '';
     status.textContent = '';
+    // Auto-send if we were recording into the chat input (not notes)
+    if (targetInput === chatInput && finalText && finalText.trim()) {
+      setTimeout(() => sendChat(), 100);
+    }
   }
 
   micBtn.onclick = () => recording ? stop() : start(textarea, micBtn);
