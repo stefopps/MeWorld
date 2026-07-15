@@ -243,19 +243,6 @@
     margin: 0 1px;
   }
 
-  /* ── First-use hint (Fix #6) ── */
-  .onboarding {
-    position: fixed; z-index: 18; bottom: 110px; left: 50%; transform: translateX(-50%);
-    background: #1e293b; color: #e2e8f0; border-radius: 10px;
-    padding: 10px 18px; font-size: 0.78rem; line-height: 1.5;
-    box-shadow: 0 4px 20px rgba(20,25,35,0.25);
-    display: flex; align-items: flex-start; gap: 12px; max-width: 420px;
-  }
-  .onboarding .ob-close {
-    background: none; border: none; color: #94a3b8; cursor: pointer;
-    font-size: 1rem; line-height: 1; padding: 0; margin-top: -2px;
-  }
-  .onboarding .ob-close:hover { color: #fff; }
 
   /* ── Dictation section INSIDE the HUD ── */
   .hud .dict-sect, .hud-content .dict-sect {
@@ -467,7 +454,9 @@
     font-size: 0.7rem; transition: all .12s; opacity: 0;
   }
   .msg-bubble { position: relative; }
+  .chat-msg.msg-you .msg-bubble:hover .msg-copy-btn,
   .chat-msg.msg-iwu .msg-bubble:hover .msg-copy-btn { opacity: 1; }
+  .chat-msg.msg-you .msg-bubble .msg-copy-btn { opacity: 0; transition: opacity .12s; }
   .msg-copy-btn:hover { background: #eef3ff; color: var(--accent); border-color: var(--accent); }
   .msg-copy-btn.copied { opacity: 1; color: #16a34a; border-color: #16a34a; background: #f0fdf4; }
   [data-theme="dark"] .msg-copy-btn:hover { background: #1a2a4a; color: #6ea8fe; border-color: #6ea8fe; }
@@ -727,6 +716,35 @@
   }
   .hud .pinned-concept .pc-refresh:hover, .hud-content .pinned-concept .pc-refresh:hover { color: var(--accent); background: #eef3ff; }
   .hud .pinned-concept .pc-refresh.spinning i, .hud-content .pinned-concept .pc-refresh.spinning i { animation: spin 0.6s linear infinite; }
+
+  /* Node number badge in panel body */
+  .node-num-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--coral); color: #fff;
+    font-size: 0.62rem; font-weight: 700;
+    margin-right: 6px; vertical-align: middle;
+    flex-shrink: 0;
+  }
+  .node-id-row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 2px 8px; margin-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .node-id-label {
+    font-size: 0.62rem; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.03em; font-weight: 600;
+  }
+
+  /* FP refresh on toggle row */
+  .ind-fp-refresh {
+    cursor: pointer; color: var(--muted); font-size: 0.72rem;
+    padding: 2px 5px; border-radius: 4px; border: none; background: none;
+    line-height: 1; margin-left: auto; transition: all .12s;
+  }
+  .ind-fp-refresh:hover { color: var(--accent); background: #eef3ff; }
+  [data-theme="dark"] .ind-fp-refresh:hover { background: #1a1f30; }
+  .ind-fp-refresh.spinning i { animation: spin 0.6s linear infinite; }
   .hud .pinned-concept .pc-oneliner, .hud-content .pinned-concept .pc-oneliner {
     font-size: 0.85rem; font-weight: 650; color: var(--ink);
     line-height: 1.45; margin-bottom: 8px; min-height: 20px;
@@ -1177,15 +1195,10 @@
     filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.5));
   }
 
-  /* Active / currently open node — gray, scaled up 1.4x */
-  .g-node.live circle {
-    fill: #9a9890 !important;
-    transform: scale(1.4);
-    transform-origin: center;
-    transform-box: fill-box;
-  }
+  /* Active / currently open node — gray, 30% larger radius (set via D3 attr) */
+  .g-node.live circle { fill: #9a9890 !important; }
   .g-node.live .live-ring {
-    stroke: #9a9890; stroke-width: 2.5;
+    stroke: #16a34a; stroke-width: 3;
     stroke-opacity: 1;
   }
 
@@ -1282,6 +1295,21 @@
     color: var(--coral); font-weight: 700; margin: 0 0 4px;
   }
   .hud .bridge p, .hud-content .bridge p { margin: 0 0 10px; }
+  /* Edge bridge text — plain, no callout styling */
+  .edge-bridge-text {
+    font-size: 0.82rem; line-height: 1.55; color: var(--ink);
+    margin: 8px 0; padding: 4px 40px 4px 2px; position: relative;
+  }
+  .bridge-refresh-btn {
+    position: absolute; top: 8px; right: 12px; width: 24px; height: 24px;
+    border-radius: 5px; border: 1px solid var(--border); background: #fff;
+    color: var(--muted); cursor: pointer; display: flex; align-items: center;
+    justify-content: center; font-size: 0.7rem; transition: all .12s;
+  }
+  [data-theme="dark"] .bridge-refresh-btn { background: #1f2230; }
+  .bridge-refresh-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .bridge-refresh-btn.spinning .ti { animation: spin .6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
   .hud .answers, .hud-content .answers { margin: 8px 0 0; padding: 0; list-style: none; }
   .hud .answers li, .hud-content .answers li {
     margin: 5px 0; padding: 6px 8px; border-radius: 6px; background: #f5f7fa;
@@ -1378,7 +1406,6 @@
   [data-theme="dark"] .float-ctl select,
   [data-theme="dark"] .float-ctl .set-cover,
   [data-theme="dark"] .spine-rail,
-  [data-theme="dark"] .onboarding { background: #1a1c26; color: var(--ink); border-color: var(--border); }
   [data-theme="dark"] .spine-rail { background: rgba(20,22,30,0.94); }
   [data-theme="dark"] .float-ctl .set-cover { background: #212433; border-color: var(--border); }
   [data-theme="dark"] .spine-rail .rail-dot { background: #1a1c26; }
@@ -1666,11 +1693,6 @@
 </div>
 
 <div class="float-zoom-hint" id="zoomHint">scroll zoom &nbsp;·&nbsp; drag pan &nbsp;·&nbsp; click node &nbsp;·&nbsp; Ctrl+click isolate &nbsp;·&nbsp; right-drag marquee</div>
-
-<div class="onboarding" id="onboarding">
-  <span><i class="ti ti-arrow-right"></i>&nbsp;<b>Coral numbers</b> = story spine in order. Tap one to start. <b>Gray dots</b> = comparison cases. <b>Green</b> = thematic thread.</span>
-  <button class="ob-close" id="obClose" title="Dismiss"><i class="ti ti-x"></i></button>
-</div>
 
 <div class="err" id="err"></div>
 
@@ -2014,18 +2036,28 @@ function closeHud() {
 
 function updateLiveNodeIndicator() {
   if (!nodeSel) return;
-  // Reset all nodes: remove .live class, restore original circle fill, hide rings
+  // Reset all nodes: remove .live class, restore original radius + fill, hide rings
   nodeSel.classed('live', false)
     .each(function (d) {
-      const orig = spineSet.has(String(d.id)) ? COLORS.primary : (COLORS[d.category] || COLORS.mimic);
-      d3.select(this).select('circle').attr('fill', orig);
+      const isSpine = spineSet.has(String(d.id));
+      const origFill = isSpine ? COLORS.primary : (COLORS[d.category] || COLORS.mimic);
+      const origR = isSpine ? 10 : 6;
+      const ringR = isSpine ? 13 : 9;
+      d3.select(this).select('circle').attr('fill', origFill).attr('r', origR);
+      d3.select(this).select('.live-ring').attr('r', ringR);
     })
     .selectAll('.live-ring').attr('stroke-opacity', 0);
-  // Apply .live class + direct D3 fill (bypasses CSS/SVG attribute priority issues) on the open node
+  // Apply .live class + scaled radius (30% bigger) + direct D3 fill on the open node
   if (currentLiveNodeId) {
     nodeSel.filter(d => String(d.id) === String(currentLiveNodeId))
       .classed('live', true)
-      .each(function () { d3.select(this).select('circle').attr('fill', '#9a9890'); })
+      .each(function (d) {
+        const isSpine = spineSet.has(String(d.id));
+        const bigR = Math.round((isSpine ? 10 : 6) * 1.3);
+        const ringR = bigR + 3;
+        d3.select(this).select('circle').attr('fill', '#9a9890').attr('r', bigR);
+        d3.select(this).select('.live-ring').attr('r', ringR);
+      })
       .selectAll('.live-ring')
       .attr('stroke-opacity', 1);
   }
@@ -2881,7 +2913,7 @@ function wireHudDictation(hud, nodeId) {
     if (!chatHistory.length) { chatLog.innerHTML = '<div style="color:var(--muted);font-size:0.62rem;text-align:center;padding:10px;">No messages yet. Ask Dr. Iwu about this case.</div>'; return; }
     chatLog.innerHTML = chatHistory.map((m,i) => {
       const isUser = m.role === 'user';
-      const copyBtn = `<button class="msg-copy-btn" data-idx="${i}" title="Copy message"><i class="ti ti-clipboard"></i></button>`;
+      const copyBtn = isUser ? `<button class="msg-copy-btn" data-idx="${i}" title="Copy message"><i class="ti ti-clipboard"></i></button>` : '';
       return `<div class="chat-msg ${isUser ? 'msg-you' : 'msg-iwu'}">
         <div class="msg-sender">${isUser ? 'You' : 'Dr. Iwu'}</div>
         <div class="msg-bubble">${mdToHtml(m.content)}${copyBtn}</div>
@@ -2943,7 +2975,17 @@ function wireHudDictation(hud, nodeId) {
     };
     rec.onend = () => {
       if (recording) {
-        try { rec.start(); } catch (_) { stop(); }
+        // Browser ended naturally (silence timeout) — restart if possible
+        try { rec.start(); } catch (_) {
+          // Restart failed — clean up UI but do NOT auto-send (user didn't tap stop)
+          recording = false;
+          if (activeBtn) {
+            activeBtn.classList.remove('recording');
+            activeBtn.querySelector('i').className = 'ti ti-microphone';
+          }
+          interim.textContent = '';
+          status.textContent = '';
+        }
       }
     };
   }
@@ -2973,6 +3015,7 @@ function wireHudDictation(hud, nodeId) {
     status.textContent = '';
     // Auto-send if we were recording into the chat input (not notes)
     if (targetInput === chatInput && finalText && finalText.trim()) {
+      status.textContent = 'Sent \u2713';
       setTimeout(() => sendChat(), 100);
     }
   }
@@ -3421,6 +3464,22 @@ function mdToHtml(text) {
   return html;
 }
 
+// ── FP body renderer: wraps <br><br> boundaries into <p> blocks for paragraph spacing ─
+function fpBodyHtml(mdText) {
+  if (!mdText) return '';
+  const html = mdToHtml(mdText);
+  // Split on <br><br> to create paragraph blocks
+  const parts = html.split(/<br>\s*<br>/);
+  // Wrap non-empty parts in <p> tags
+  return parts.map(p => {
+    const trimmed = p.trim();
+    if (!trimmed) return '';
+    // If the part already starts/ends with a block element (h4, ul, table), don't wrap
+    if (/^<(h[3-4]|ul|table|ol)/.test(trimmed)) return trimmed;
+    return '<p>' + trimmed + '</p>';
+  }).join('');
+}
+
 // ── Clean diagnosis label for display (collapse slash-fragments, cap length) ─
 function cleanDiagnosisLabel(raw) {
   if (!raw) return raw;
@@ -3566,16 +3625,31 @@ CORE PHILOSOPHY:
 - Connect findings - they are one underlying process expressing in different tissues, not unrelated facts.
 - Contrast with a look-alike when it sharpens the distinction by revealing a different mechanism.
 
+NARRATIVE CRAFT (this is about how the sentences MOVE, not what they say — apply these to the prose, not the content):
+- CAUSAL CHAINING (McKee): Each sentence must create a question or tension that the NEXT sentence resolves. The reader should feel pulled forward sentence by sentence, not informed in a flat sequence. Example: "The heart isn't pumping enough blood." That creates the question "so what happens?" — and the next sentence answers: "The kidneys sense the drop." Never let two adjacent sentences simply coexist without one creating pressure the other releases.
+- STAKES BEFORE MECHANISM: Lead with why the finding MATTERS — what's at stake for this patient, what could go wrong, what the physician must not miss — before unpacking the physiology behind it. The mechanism is the answer to a question the reader already cares about, not a fact dropped in their lap.
+- ECONOMY (Truby): Every sentence must earn its place. No filler transitions ("Additionally...", "It is also worth noting that..."), no restating what was just said in different words, no wind-up before the punch. Cut every word that doesn't advance understanding or narrative momentum. If you can remove a sentence and nothing is lost, remove it.
+- COMPRESSION ANCHOR: This is the model sentence for your prose style: "The combination of a big baby and polyhydramnios mechanically overdistends the uterus." Two causal forces named directly, compressed into one sentence, producing one clear mechanical effect. No throat-clearing. No setup. No restating. Every clinical finding you mention should get this treatment — name the finding and what it DOES in the same breath, not separate sentences for "here's the number" then "here's what the number means."
+- FINDINGS IN THE CAUSAL BREATH: When a lab value, vital sign, or exam finding appears, it must feed directly into the causal chain without a bridge sentence. Not "The glucose is 190 on a one-hour screen. This is abnormal. High glucose drives fetal hyperinsulinemia..." — instead: "A glucose of 190 on a one-hour screen means the fetus is bathing in insulin, and insulin is a growth factor." The number and its consequence share the same sentence. Never state a finding and then explain it; state it in the act of explaining.
+
 VOICE (mandatory):
 - Confident, never condescending. There is joy in mechanism. Direct. Short sentences. No hedging.
 - Visual/spatial language the learner can picture: "the rash is tracing that light map," "the synovium as a sieve."
 - Use concrete models - not abstract descriptions. Make them see it.
 - Punchy insight declarations: "It's not a tremor. It's a lapse."
 - Occasionally ask a short question back to activate the learner's thinking.
+- Every sentence should feel like the next inevitable step in a chain, not the next item on a list.
 - 80-180 words. Tight. Every sentence must teach.
 
-RESPONSE FLOW (this is a natural thought sequence, NOT labeled sections — never announce the structure, just move through it):
-Start with the surprising or counterintuitive fact that hooks the learner. Then walk a causal chain: what is physically happening in this patient's body? Why does this finding follow inevitably from the pathophysiology? If distribution, timing, or location matters, explain the spatial/temporal "why" through geometry, pressure, gravity. Link to any other findings as one underlying process expressing in different tissues — not a catalog, a single story. Ground it in what this means at the bedside. End with a closing probe question that changes one variable and asks what it would imply — the learner must apply the mechanism just taught, not recall a fact. Example: after explaining a blown pupil with third nerve palsy means a PCOM aneurysm, end with "What would you do if the pupil were normal but the eye was still deviated?" — forces differential reasoning, not regurgitation. Every generation must end with this mechanism-testing probe.
+RESPONSE FLOW (natural thought sequence, NOT labeled sections):
+1. STAKES FIRST: Open with what's at stake — the clinical danger, the diagnostic trap, or the decision the physician can't afford to get wrong. Make the reader feel why this case demands attention before you explain how it works. "If you miss this, the patient arrests." "This lab value looks reassuring. It's lying to you."
+2. PULL, DON'T PUSH: From that opening, every sentence creates pressure the next one releases. The opening raises a question ("why would this lab be normal when the patient is clearly sick?") — the next sentence starts to answer it. That answer raises a deeper question, and so on. The reader should be pulled through by curiosity, not pushed through by enumeration.
+3. SPATIAL/TEMPORAL LOGIC: When distribution, timing, or location explains the finding, show it through geometry, pressure, gravity — the reader should picture it.
+4. ONE STORY, NOT A CATALOG: Link findings as one underlying process expressing in different tissues.
+5. BEDSIDE GROUNDING: What does this mean right now for this patient?
+6. CLOSING PROBE: End with a mechanism-testing question that changes one variable — "What would you do if the pupil were normal but the eye was still deviated?" Forces reasoning, not recall. Every generation must end with this probe.
+
+Break into paragraphs — 3-5 short paragraphs total, separated by a blank line. Start a new paragraph whenever the reasoning shifts (mechanism → spatial logic → clinical connection → closing probe). This is normal prose structure, not labeled sections.
 
 KEY MECHANISTIC PHRASES: wrap only the core pathophysiology anchors in **double asterisks** (a single concept, a single causal link, a single bedside decision) — not the lead-in of a paragraph, not an announcement of what you're about to do, not a section label disguised as text. Bold a verb, a process, a finding — bold what the learner must carry forward.
 
@@ -3588,15 +3662,21 @@ FORBIDDEN:
 - Em dashes (-) - use commas or periods instead, never em dashes in any reply
 - Pretending to be the patient or writing from patient perspective
 - Closing with a generic question ("Did that make sense?", "What else would you like to know?", "Any questions?") — the closing probe must be mechanism-testing, change one variable and ask what it would imply
-- Skipping the closing probe or writing a response that trails off without it — every generation must end with the required mechanism probe question`;
+- Skipping the closing probe or writing a response that trails off without it — every generation must end with the required mechanism probe question
+- Opening with "The surprising thing" or any variation of "The surprising thing isn't that... it's that..." or any fixed sentence template reused across cases — every opening must be fresh and specific to this case's mechanism
+- IMPORTANT: blank-line paragraph breaks are normal prose convention and are REQUIRED — the forbidden "labeled sections" means bolded headers or outline markers announcing each section's purpose, not dividing text into readable paragraphs
+- Filler transitions ("Additionally...", "Furthermore...", "It should also be noted that...", "Another important consideration is...") — these signal list-thinking, not chain-thinking. Cut them. Start the next sentence directly.
+- Flat sequencing: adjacent sentences that coexist without one creating pressure the next releases. Every sentence pair should feel like a question and its answer, not two facts in a row.
+- Stating the mechanism before establishing why anyone should care — always earn the mechanism by showing the stakes first
+- Stating a finding in one sentence and explaining it in the next ("The glucose is 190. This suggests diabetes.") — the finding must carry its meaning in the same sentence. If you find yourself writing two sentences where the second starts "This..." or "That..." and explains the first, you've split what should be one causal unit. Compress them.`;
 
-  const prompt = `This CCS board question tests a clinical concept. Teach it from first principles as the Immersa attending — walk the learner through the reasoning as natural prose, no structural signposts, no bolded paragraph lead-ins.
+  const prompt = `This CCS board question tests a clinical concept. Teach it from first principles as the Immersa attending — lead with stakes, pull the reader forward sentence by sentence through causal chaining, no flat sequencing.
 
 Question: """${node.question}"""
 Correct answer: ${node.likely || 'N/A'}
 Answer choices: ${ans}
 
-Move naturally from the surprising hook, through the causal chain, to the spatial/temporal logic, connecting to related findings if they share the same underlying process, grounding in bedside meaning, and closing with a mechanism-testing probe question that changes one variable. Bold only the key mechanistic anchors mid-sentence. No preamble, no sign-off. No em dashes.`;
+Open with what's at stake for this patient. Every sentence after must create pressure the next releases. Integrate every lab value, vital sign, or exam finding directly into the causal chain — never state a finding in one sentence and explain it in the next. The number and its consequence share the same breath. Break into short paragraphs. Bold only key mechanistic anchors mid-sentence. No preamble, no sign-off, no filler transitions, no em dashes.`;
 
   try {
     const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -4019,6 +4099,8 @@ function buildRevealHTML(d) {
   const approved = triage?.approved === true;
   const needsWork = triage?.needsWork === true;
   const stageLabel = d.storyStage || 'Story beat';
+  const spineNum = GRAPH.mainPath.indexOf(d.id);
+  const isMain = d.category === 'primary';
   // Check for persisted node image
   const nodeImg = (() => { try { return localStorage.getItem('node-img-' + d.id); } catch(_) { return null; } })();
   return `
@@ -4026,6 +4108,10 @@ function buildRevealHTML(d) {
       ${nodeImg
         ? `<div class="node-img"><img id="nodeimg-${d.id}" src="${nodeImg}" alt="Node image" /><button class="img-remove" id="imgrm-${d.id}" title="Remove image"><i class="ti ti-x"></i></button></div>`
         : `<button class="img-cam-btn" id="imgcam-${d.id}" title="Add image"><i class="ti ti-camera-plus"></i></button><input type="file" accept="image/*" id="imgfile-${d.id}" style="display:none;" />`}
+    </div>
+    <div class="node-id-row">
+      <span class="node-num-badge">${isMain && spineNum >= 0 ? '#' + (spineNum + 1) : (d.category === 'mimic' ? 'M' : 'T')}</span>
+      <span class="node-id-label">${isMain ? 'Spine node' + (spineNum >= 0 ? ' ' + (spineNum + 1) : '') : (d.category === 'mimic' ? 'Mimic' : 'Thread')} / QID ${d.id} / Scene ${d.sceneId}</span>
     </div>
     <div class="pinned-concept" data-qid="${esc(String(d.id))}">
       <div class="pc-top">
@@ -4098,6 +4184,7 @@ function buildRevealHTML(d) {
     <div class="ind-toggle" id="it-firstpri-${d.id}">
       <span class="toggle-dot"></span>
       <span>first principles</span>
+      <button class="ind-fp-refresh" id="fpref-${d.id}" title="Regenerate explanation"><i class="ti ti-refresh"></i></button>
       <i class="ti ti-chevron-down toggle-chevron"></i>
     </div>
     <div class="ind-body" id="ib-firstpri-${d.id}">
@@ -4480,12 +4567,12 @@ function wireReveal(container, d) {
       if (isOpen) {
         const triage = readTriage(qid);
         if (triage?.firstPrinciples) {
-          fpContent.innerHTML = mdToHtml(triage.firstPrinciples);
+          fpContent.innerHTML = fpBodyHtml(triage.firstPrinciples);
         } else {
           fpContent.textContent = 'Teaching…';
           const fp = await fetchFirstPrinciples(d);
           if (fp) {
-            fpContent.innerHTML = mdToHtml(fp);
+            fpContent.innerHTML = fpBodyHtml(fp);
             fieldSave(qid, 'firstPrinciples', fp);
           } else {
             fpContent.textContent = 'Could not generate - try refresh.';
@@ -4506,6 +4593,33 @@ function wireReveal(container, d) {
       }
       resize();
     };
+    // FP refresh button — regenerate only the explanation, not the whole card
+    const fpRefBtn = container.querySelector('#fpref-' + qid);
+    if (fpRefBtn) {
+      fpRefBtn.onclick = async (e) => {
+        e.stopPropagation(); // don't toggle the section
+        fpRefBtn.classList.add('spinning');
+        const fp = await fetchFirstPrinciples(d);
+        fpRefBtn.classList.remove('spinning');
+        if (fp) {
+          fpContent.innerHTML = fpBodyHtml(fp);
+          fieldSave(qid, 'firstPrinciples', fp);
+          wireVersionNav(qid, 'firstPrinciples', fpContent, container.querySelector('#fpn-' + qid));
+          const ansBtn = container.querySelector('#fp-answer-' + qid);
+          if (ansBtn) {
+            const probeQ = extractClosingProbe(fpContent);
+            if (probeQ) {
+              ansBtn.style.display = '';
+              ansBtn.onclick = () => answerThisProbe(qid, probeQ);
+            }
+          }
+          // Auto-open the section so user sees the result
+          fpBody.classList.add('open');
+          fpToggle.querySelector('.toggle-chevron').className = 'ti ti-chevron-up toggle-chevron';
+          resize();
+        }
+      };
+    }
   }
 
   // Reveal question
@@ -4738,7 +4852,7 @@ function orderBySpine(a, b) {
   return [a, b];
 }
 
-function openEdgeHud(link, event) {
+async function openEdgeHud(link, event) {
   closeHud();
   let [a, b] = resolveEnds(link);
   if (!a || !b) return;
@@ -4749,8 +4863,8 @@ function openEdgeHud(link, event) {
   const boardRect = board.getBoundingClientRect();
   const nodeX = event.clientX - boardRect.left;
   const nodeY = event.clientY - boardRect.top;
-  let hx = Math.min(nodeX + 18, boardRect.width - 330);
-  let hy = Math.max(10, Math.min(nodeY - 30, boardRect.height - 280));
+  let hx = Math.min(nodeX + 18, boardRect.width - 280);
+  let hy = Math.max(10, Math.min(nodeY - 30, boardRect.height - 180));
   hx = Math.max(8, hx);
 
   const na = GRAPH.mainPath.indexOf(a.id);
@@ -4759,48 +4873,28 @@ function openEdgeHud(link, event) {
   const title = adjacent
     ? ('Spine step #' + (Math.min(na, nb) + 1) + ' → #' + (Math.max(na, nb) + 1))
     : ('Spine link · #' + (na + 1) + ' ↔ #' + (nb + 1));
-  const bridge = adjacent
-    ? 'The story walks from one beat into the next.'
-    : 'These two spine beats are joined across the main diagnosis thread.';
+
+  // Check localStorage cache
+  const bridgeKey = 'bridge-' + a.id + '-' + b.id;
+  let bridge = null;
+  try { bridge = localStorage.getItem(bridgeKey); } catch (_) {}
 
   const hud = document.createElement('div');
   hud.className = 'hud';
   hud.dataset.hudId = 'edge-' + Math.min(na, nb) + '-' + Math.max(na, nb);
-  hud.style.width = '320px';
+  hud.style.width = '300px';
   hud.style.left = hx + 'px';
   hud.style.top = hy + 'px';
   hud.innerHTML = `
-    <div class="drag-bar"><span class="drag-label">Main spine line · Scene ${a.sceneId} → ${b.sceneId}</span><button class="close" type="button" aria-label="Close"><i class="ti ti-x"></i></button></div>
+    <div class="drag-bar"><span class="drag-label">Spine link · Scene ${a.sceneId} → ${b.sceneId}</span><button class="close" type="button" aria-label="Close"><i class="ti ti-x"></i></button></div>
     <div class="hud-body-inner">
       <h3>${esc(title)}</h3>
-      <p>${esc(bridge)}</p>
-      <div class="bridge">
-        <div class="beat-label">#${na + 1} · ${esc(a.storyStage || 'Beat')} · QID ${esc(a.id)}</div>
-        <p>${esc(a.storyText)}</p>
-        <div class="beat-label">#${nb + 1} · ${esc(b.storyStage || 'Beat')} · QID ${esc(b.id)}</div>
-        <p>${esc(b.storyText)}</p>
-      </div>
-      <button class="reveal-btn" type="button" data-which="a">Reveal question #${na + 1} →</button>
-      <button class="reveal-btn" type="button" data-which="b" style="margin-top:6px;">Reveal question #${nb + 1} →</button>
-      <div id="edge-q"></div>
+      <p id="bridge-p" class="edge-bridge-text">${esc(bridge || 'Generating the clinical thread…')}<button id="bridge-refresh" class="bridge-refresh-btn" title="Regenerate connection"><i class="ti ti-refresh"></i></button></p>
     </div>
   `;
   board.appendChild(hud);
   hud.querySelector('.close').onclick = () => { removeHudSave(hud); closeHud(); };
-  hud.querySelectorAll('.reveal-btn').forEach(btn => {
-    btn.onclick = () => {
-      const q = btn.dataset.which === 'a' ? a : b;
-      btn.remove();
-      const slot = hud.querySelector('#edge-q');
-      slot.innerHTML = questionHTML(q);
-      wireAnswerToggle(hud);
-      wireHudDictation(hud, q.id);
-      requestAnimationFrame(() => {
-        hud.style.height = hud.scrollHeight + 'px';
-        saveHudPosition(hud);
-      });
-    };
-  });
+
   makeHudDraggable(hud);
   makeHudResizable(hud);
   restoreHudPosition(hud);
@@ -4810,6 +4904,82 @@ function openEdgeHud(link, event) {
     const my = (a.y + b.y) / 2;
     svg.append('line').attr('class', 'leader').attr('x1', mx).attr('y1', my).attr('x2', hx + 20).attr('y2', hy + 20);
   }
+
+  // Fetch real bridge line if not cached
+  if (!bridge) {
+    fetchBridgeLine(a, b).then(line => {
+      const bt = hud.querySelector('#bridge-text') || hud.querySelector('#bridge-p');
+      const bp = hud.querySelector('#bridge-p');
+      if (bt && line) {
+        bt.textContent = line;
+        if (bp) bp.classList.add('loaded');
+        try { localStorage.setItem(bridgeKey, line); } catch (_) {}
+      }
+    });
+  } else {
+    const bp = hud.querySelector('#bridge-p');
+    if (bp) bp.classList.add('loaded');
+  }
+
+  // Wire refresh button
+  const refreshBtn = hud.querySelector('#bridge-refresh');
+  if (refreshBtn) {
+    refreshBtn.onclick = async () => {
+      refreshBtn.classList.add('spinning');
+      const bt = hud.querySelector('#bridge-text') || hud.querySelector('#bridge-p');
+      const bp = hud.querySelector('#bridge-p');
+      if (bt) { bt.textContent = 'Regenerating…'; }
+      if (bp) bp.classList.remove('loaded');
+      try { localStorage.removeItem(bridgeKey); } catch (_) {}
+      const line = await fetchBridgeLine(a, b);
+      if (bt && line) {
+        bt.textContent = line;
+        if (bp) bp.classList.add('loaded');
+        try { localStorage.setItem(bridgeKey, line); } catch (_) {}
+      }
+      refreshBtn.classList.remove('spinning');
+    };
+  }
+}
+
+// ── Fetch a specific clinical bridge between two spine beats ──
+async function fetchBridgeLine(a, b) {
+  const key = localStorage.getItem('ds_api_key');
+  if (!key) return null;
+
+  const ctxA = [`Concept: ${a.why || 'Unlabeled'}`];
+  if (a.storyText) ctxA.push(`Story text: ${a.storyText}`);
+  if (a.question) ctxA.push(`Stem: ${(a.question||'').replace(/\s+/g,' ').trim().slice(0,200)}`);
+  if (a.explanation) ctxA.push(`Answer: ${(a.explanation||'').replace(/\s+/g,' ').trim().slice(0,200)}`);
+
+  const ctxB = [`Concept: ${b.why || 'Unlabeled'}`];
+  if (b.storyText) ctxB.push(`Story text: ${b.storyText}`);
+  if (b.question) ctxB.push(`Stem: ${(b.question||'').replace(/\s+/g,' ').trim().slice(0,200)}`);
+  if (b.explanation) ctxB.push(`Answer: ${(b.explanation||'').replace(/\s+/g,' ').trim().slice(0,200)}`);
+
+  const prompt = `These are two adjacent spine beats in a clinical reasoning story narrated by a teaching attending. Write a SINGLE SENTENCE (max 40 words) that explains the SPECIFIC clinical, mechanistic, or narrative connection between these two beats — what makes beat A lead into beat B. Reference concrete content from each beat. Never use filler like "the story walks from one beat into the next." Be mechanistic and specific.
+
+Beat A: ${ctxA.join(' | ')}
+Beat B: ${ctxB.join(' | ')}
+
+Respond with ONLY the connection sentence. No preamble. No em dashes.`;
+
+  try {
+    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.4, max_tokens: 80,
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const line = (data.choices?.[0]?.message?.content?.trim() || '').slice(0, 240);
+    if (line) logDS(a.id + '-' + b.id, 'bridge', prompt, '', line);
+    return line || null;
+  } catch (_) { return null; }
 }
 
 function applyReveal(v) {
@@ -5556,6 +5726,14 @@ function showLoading() {
 async function loadSet(setNum) {
   if (currentSet === setNum && GRAPH) return;
 
+  // Destroy any floating dict panel when switching to a different set
+  // so chat starts fresh rather than carrying over old conversation
+  if (currentSet != null && currentSet !== setNum && window._floatDict) {
+    destroyFloatingDict();
+  }
+  // Also clear the floating persistence flag so the new set starts docked
+  try { localStorage.removeItem('dict-is-floating'); } catch (_) {}
+
   // ── Background pre-fetch: distill concept lines for the entire set ──
   async function preFetchConcepts() {
     const key = localStorage.getItem('ds_api_key');
@@ -5708,21 +5886,6 @@ async function eagerLoadTitles() {
   if (window._dockSyncPicker) window._dockSyncPicker();
 }
 
-// ── Onboarding hint (Fix #6): dismissible first-use guide ──────────────────
-(function initOnboarding() {
-  const ob = document.getElementById('onboarding');
-  const closeBtn = document.getElementById('obClose');
-  if (localStorage.getItem('onboarding_done')) { ob.style.display = 'none'; return; }
-  closeBtn.onclick = () => {
-    ob.style.display = 'none';
-    localStorage.setItem('onboarding_done', '1');
-  };
-  // Auto-dismiss after 30s
-  setTimeout(() => {
-    if (ob.style.display !== 'none') { ob.style.display = 'none'; localStorage.setItem('onboarding_done', '1'); }
-  }, 30000);
-})();
-
 // ── Make all floating overlays draggable ──────────────────────────────────
 (function initFloaterDrag() {
   makeFloaterDraggable(document.querySelector('.float-ctl-top'), 'flt-header');
@@ -5735,7 +5898,6 @@ async function eagerLoadTitles() {
   makeFloaterDraggable(document.getElementById('spineRail'), 'flt-spine-rail');
   makeFloaterDraggable(document.getElementById('isolationBanner'), 'flt-isolation');
   makeFloaterDraggable(document.getElementById('settingsPopup'), 'flt-settings-popup');
-  makeFloaterDraggable(document.getElementById('onboarding'), 'flt-onboarding');
   makeFloaterDraggable(document.getElementById('marqueeBadge'), 'flt-marquee');
 })();
 
@@ -5918,10 +6080,6 @@ async function eagerLoadTitles() {
     dock.style.setProperty('--dock-w', w + 'px');
     dock.classList.toggle('open', open);
     document.body.classList.toggle('dock-open', open);
-    // Auto-refit graph after CSS transition completes
-    if (typeof fitToView === 'function') {
-      setTimeout(() => { if (typeof fitToView === 'function') fitToView(); }, 250);
-    }
   }
 
   // ── Build dock body HTML with control replicas ─────────────────────
