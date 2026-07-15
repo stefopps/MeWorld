@@ -1484,7 +1484,7 @@
   .se-panel .se-body { flex: 1; overflow-y: auto; padding: 10px 0; }
   .se-item {
     display: flex; align-items: center; gap: 10px;
-    padding: 10px 16px; cursor: grab; user-select: none;
+    padding: 10px 16px; user-select: none;
     border-bottom: 1px solid var(--border);
     transition: background .12s;
   }
@@ -1499,10 +1499,10 @@
     background: var(--coral); color: #fff;
     font-size: 0.65rem; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
+    flex-shrink: 0; cursor: pointer;
   }
   .se-item .se-concept {
-    flex: 1; font-size: 0.8rem; color: var(--ink); line-height: 1.45;
+    flex: 1; font-size: 0.8rem; color: var(--ink); line-height: 1.45; cursor: pointer;
   }
   .se-item .se-grip {
     color: var(--muted); font-size: 0.65rem; cursor: grab; flex-shrink: 0;
@@ -5668,15 +5668,15 @@ async function eagerLoadTitles() {
   function renderList() {
     let html = '';
     draftOrder.forEach(([id, text], i) => {
-      html += `<div class="se-item" draggable="true" data-idx="${i}" data-qid="${esc(id)}">
+      html += `<div class="se-item" data-idx="${i}" data-qid="${esc(id)}">
         <span class="se-num">${i + 1}</span>
         <span class="se-concept">${esc(text)}</span>
-        <span class="se-grip"><i class="ti ti-grip-vertical"></i></span>
+        <span class="se-grip" draggable="true"><i class="ti ti-grip-vertical"></i></span>
       </div>`;
     });
     body.innerHTML = html || '<div style="padding:20px;color:var(--muted);text-align:center;">No spine nodes found.</div>';
 
-    // Wire drag events
+    // Wire drag events (initiated only from the grip handle, which has draggable="true")
     const items = body.querySelectorAll('.se-item');
     items.forEach(el => {
       el.addEventListener('dragstart', e => {
@@ -5711,7 +5711,21 @@ async function eagerLoadTitles() {
         applyBtn.disabled = false;
         renderList();
       });
+      // Click-to-select on the label area (not the grip) — selects node in graph
+      el.querySelector('.se-num').onclick = (e) => { e.stopPropagation(); selectSpineRowNode(el); };
+      el.querySelector('.se-concept').onclick = (e) => { e.stopPropagation(); selectSpineRowNode(el); };
     });
+  }
+
+  // Click handler: select the corresponding graph node and open its panel
+  function selectSpineRowNode(el) {
+    const qid = el.dataset.qid;
+    if (!qid || !byId[qid]) return;
+    const nodeData = byId[qid];
+    const board = document.getElementById('board');
+    const br = board ? board.getBoundingClientRect() : { left: 0, top: 0, width: 800, height: 600 };
+    const fakeEvent = { clientX: br.left + br.width / 2, clientY: br.top + br.height / 3, stopPropagation: () => {} };
+    openHud(nodeData, fakeEvent);
   }
 
   function open() {
