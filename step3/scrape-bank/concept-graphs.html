@@ -1853,6 +1853,7 @@ let currentLiveNodeId = null; // which node's panel is currently open (for "live
 let resizeObserver = null;
 let graphW = 0, graphH = 0; // reactive viewport dimensions (updated by ResizeObserver)
 let spineSet = new Set(); // QIDs of nodes in GRAPH.mainPath (module-level for isolation + drag)
+var SEARCH_INDEX = {}; // setNum → { label, text } — populated by eagerLoadTitles() for full-content search
 
 function esc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -5504,6 +5505,17 @@ async function loadSet(setNum) {
     const storyByQid = parseStoryByQid(storyHtml, items);
     GRAPH = joinGraph(meta, items, storyByQid);
 
+    // Enrich search index with story-level text (stems, answers, explanations)
+    if (SEARCH_INDEX[setNum] && GRAPH.nodes) {
+      const storyText = GRAPH.nodes.map(n => [
+        (n.question || ''),
+        (n.explanation || ''),
+        (n.likely || ''),
+        (n.stem || '')
+      ].join(' ')).join(' ');
+      SEARCH_INDEX[setNum].text = (SEARCH_INDEX[setNum].text + ' ' + storyText).toLowerCase();
+    }
+
     // Update dropdown label from loading... to real diagnosis
     const sel = document.getElementById('setPicker');
     const opt = sel.querySelector('option[value="' + setNum + '"]');
@@ -5567,6 +5579,13 @@ async function eagerLoadTitles() {
         if (!res.ok) continue;
         const json = await res.json();
         const label = cleanDiagnosisLabel(json.coreDiagnosis || '-').slice(0, 45);
+        // Build full-content search text from all available JSON fields
+        const searchText = [
+          json.coreDiagnosis || '',
+          json.recurringThread || '',
+          (json.nodes || []).map(n => (n.why || '') + ' ' + (n.id || '')).join(' ')
+        ].join(' ').toLowerCase();
+        SEARCH_INDEX[s] = { label, text: searchText };
         const opt = sel.querySelector('option[value="' + s + '"]');
         if (opt && opt.textContent.includes('loading...')) {
           opt.textContent = 'Set ' + s + ' · ' + label;
@@ -6243,6 +6262,13 @@ async function eagerLoadTitles() {
   let matches = [];
 
   function getLabels() {
+    // Prefer the pre-built SEARCH_INDEX; fall back to DOM if not yet populated
+    const keys = Object.keys(SEARCH_INDEX);
+    if (keys.length) {
+      const out = {};
+      keys.forEach(k => { out[+k] = SEARCH_INDEX[k].label; });
+      return out;
+    }
     const out = {};
     const sel = document.getElementById('setPicker');
     if (sel) {
@@ -6282,12 +6308,22 @@ async function eagerLoadTitles() {
       }
     }
 
-    // Keyword match against labels
+    // Keyword match: search full-content index (coreDiagnosis + node why + recurringThread + qids)
+    // Falls back to label-only search if SEARCH_INDEX hasn't loaded yet
     const kwResults = [];
     for (const n of allNums) {
-      const label = (labels[n] || '').toLowerCase();
-      if (label.includes(q)) {
-        kwResults.push({ num: n, label: labels[n] || 'Set ' + n });
+      const entry = SEARCH_INDEX[n];
+      if (entry) {
+        // Full-content search
+        if (entry.text.includes(q)) {
+          kwResults.push({ num: n, label: entry.label || labels[n] || 'Set ' + n });
+        }
+      } else {
+        // Fallback: label-only (before eagerLoadTitles completes)
+        const label = (labels[n] || '').toLowerCase();
+        if (label.includes(q)) {
+          kwResults.push({ num: n, label: labels[n] || 'Set ' + n });
+        }
       }
     }
     matches = kwResults.slice(0, 10);
