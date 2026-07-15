@@ -30,8 +30,9 @@ alwaysApply: false
 
 - **Magnific app:** https://www.magnific.com/app — Steve login, credits, home **Connect** for AI agents
 - Server: **`user-Magnific`** · OAuth — **no API key** in chat
-- Reauth: Cursor → Settings → MCP → Magnific → Disconnect / Connect → Reload Window → `library_list` verify
-- Read tool schema under `mcps/user-Magnific/tools/` before every call
+- **CONFIRMED WORKING: 2026-07-14** — Premium plan, ~147K credits available (`account_balance`)
+- Reauth: Cursor → Settings → MCP → Magnific → Disconnect / Connect → Reload Window
+- Read tool schema before every call: `GetMcpTools(server: "user-magnific")`
 
 ## Upload flow (mandatory for refs — Kojo parity)
 
@@ -50,10 +51,12 @@ Or `creations_upload_image` when you have a stable public URL.
 
 | Param | Value |
 |-------|--------|
-| `mode` | `imagen-nano-banana-2` (MCP slug) or `auto` |
-| `aspectRatio` | `16:9` |
-| `resolution` | **`2k`** (never omit) |
-| `count` | `2` for A/B pick |
+| `mode` | `imagen-nano-banana-2` (Nano Banana Pro — SOTA, NOT `model`) |
+| `aspectRatio` | `16:9` (or `1:1` for grids) |
+| `resolution` | **`2K`** (never omit) |
+| `count` | `2` for A/B pick on portraits; `1` for grids |
+
+For concept / metaphor / process-shot work — see also **`.cursor/RULES_IMAGE_GENERATION.md` §12** (multi-pass workflow, exaggeration dial, grid rules).
 
 **`references[]` order (never text-only):**
 

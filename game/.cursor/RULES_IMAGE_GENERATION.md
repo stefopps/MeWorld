@@ -13,6 +13,8 @@
 | **Global Cursor policy** | `C:\Users\steve\.cursor\rules\steve-generation-access.mdc` |
 | **Kojo parity handoff** | `M:\Works\Houdini Projects\TheMind_KOS\resources\talking-images\characters\kojo-oppong\AGENT_HANDOFF-2026-06-09-EAGLE-STYLE.md` |
 
+**Anatomy & biochem references:** `dev/references/REFERENCE_INDEX.md` → fast-lookup index for FirstAid-Step1-2025-35th.pdf (865pp) + Netter-Atlas-Human-Anatomy-7e.pdf. Use this before generating any anatomy/science-based imagery — research real structure first, never invent from imagination.
+
 **Video is separate:** ComfyUI MCP only — see `comfyui-video.mdc`. Do not use Magnific or Higgsfield for MeWorld video.
 
 ---
@@ -26,9 +28,11 @@ API: Steve's MAGNIFIC_API_KEY is already in ~/.cursor/master.env (and/or game/.e
 REST replay (same as prior agents): server/magnificImage.js via npm run gen:* scripts below — not MCP OAuth
 RESEARCH FIRST: dev/scene-elements/SCENE_ELEMENT_REGISTRY.json — manufacturer URL or approved asset before any prop/device gen
 Platform: Magnific REST for batch scripts · Magnific MCP (images_generate) for one-off portrait A/B in Cursor
-Upload locals (MCP only): creations_request_upload → node scripts/magnific-upload-put.mjs → creations_finalize_upload
+Magnific MCP is CONFIRMED WORKING (2026-07-14). Auth: user-magnific OAuth. Wait for serverStatus: "ready".
+Upload locals (MCP only): creations_request_upload → PUT bytes via Node → creations_finalize_upload → use returned identifier
 Refs: scene/crop lock PNG + identity map (never text-only); pediatric = NO anatomy overlay ref
-Generate: imagen-nano-banana-2 · 16:9 · resolution 2k · count 2 for A/B (MCP)
+Generate (MCP): images_generate { mode: "imagen-nano-banana-2", aspectRatio: "16:9", resolution: "2K", count: 2, references: [...] }
+Note: It's `mode`, NOT `model`. Slug is `imagen-nano-banana-2` (Nano Banana Pro — SOTA).
 Post: creations_wait → download → fitToBaseplate (1536×864) → .case-portraits/case_NNN.png
 Camera lock: crown→toes, monitor upper-right, IV upper-left — never face-only crop
 ```
@@ -507,6 +511,70 @@ Exception to §9 A/B: **single-shot portraits** → count 2 OK; **storyboard gri
 | `server/magnificImage.js` | REST path for Play regen |
 
 **BEIZA equivalent (different project):** `M:\Works\Houdini Projects\TheMind_KOS\adobe\Personal Brand\.cursor\RULES_IMAGE_GENERATION.md`
+
+---
+
+## 12. Process shot / multi-pass workflow (concept imagery, grids, metaphor plates)
+
+For concept-metaphor images (anticoagulation dioramas, balloon expressions, PE saddle-embolus grids, etc.) — not per-case patient portraits:
+
+### A. Concept-first pipeline (follow in order)
+
+1. **Lock the single concept first.** State it in one sentence that would be wrong for any other question. If the request stacks multiple mechanisms, push back — don't silently mesh or prune.
+2. **Research real-world visual reference** before generating any scientific/biological phenomenon. Don't invent a visual convention from imagination. Record findings.
+3. **Generate candidates as separate images** (not a grid) when comparing unresolved concepts or styles. A composited grid is for a **locked final plate** only.
+4. **Evaluate on two independent axes**: mechanism (does composition communicate the concept) and style (does rendering match house look). These can point to different candidates — merge explicitly, don't pick one wholesale.
+5. **Refine individual elements against research** — state exactly what's wrong and why.
+6. **Only once all three (mechanism, style, element detail) are confirmed**, produce the final plate — single hero or composited grid.
+7. **Log new rules back**, so the next session starts updated.
+
+### B. Exaggeration / caricature dial (4 passes — state pass number explicitly every time)
+
+| Pass | Name | Defining traits |
+|------|------|-----------------|
+| 1 | **Grounded** | Realistic, dramatic but believable proportions |
+| 2 | **In-engine cutscene extreme** | ~1.2–1.4x proportion push, top of what a rig could sell, sweat droplets, capillary detail |
+| 3 | **Concept art exaggeration** | Genuinely caricatured — silhouette-first, head enlarged vs shoulders, asymmetric features, comedic volume, sacrifice some realism for readability |
+| 4 | **Poster / key art maximum** | Full caricature — fisheye distortion, near-comic-book contrast, surreal proportions, instant graphic readability over any remaining realism |
+
+**Never leave the pass ambiguous.** Every prompt that uses this dial must state `Pass N — [name] — [key traits]`.
+
+### C. Prompts with the MeWorld house style
+
+Every concept-image prompt must include the **MeWorld style lock block verbatim** — never paraphrase:
+
+```
+Cinematic hospital film-still CGI — MeWorld Play game engine still. Tactile sculptural stylized clinical realism, muted cool palette (blues, greys, sterile whites). Naughty Dog / cinematic game-engine render quality — photographic-game-engine hybrid. Smooth 3D sculptural CGI surfaces, ambient occlusion, soft global illumination, subtle subsurface scattering on skin. Stylized PBR game assets, muted clinical color grading, no neon saturation. NO photoreal live-action headswap, NO flat 2D illustration, NO bright Pixar, NO identity contact-sheet paste, NO over-sharpened AI plastic skin, NO wax doll finish, NO line art, NO strokes, NO comic, NO sketch lines, NO cel-shading.
+```
+
+**Magnific MCP `mode`:** `imagen-nano-banana-2` (Nano Banana Pro — the SOTA model). Do NOT use `model` — it's `mode`.
+
+### D. Grid generation rules
+
+- A "2×2 grid" = ONE single composited image plate with thin dark dividers, not 4 separate generations.
+- **Side-by-side candidate evaluation** before locking = separate images. Final production plate = one image.
+- **Multi-panel grids default to one unified environment** unless the concept needs a deliberate internal/external split (e.g., anatomical cutaway + patient).
+- **Camera treatment must vary per panel** — no two adjacent panels share the same angle.
+- **Dynamic POV is default for immersive single shots** — foreground element slightly out of focus, low wide-angle lens, shallow depth of field.
+
+### E. Character identity on grids (learned 2026-07-14)
+
+When a 2×2 grid mixes internal anatomy (top row) and a specific character face (bottom row), the character identity often **dilutes** — the model blends toward generic "patient." Fixes:
+
+1. **Split into separate plates** — one 16:9 for internal/anatomy panels, one 16:9 for character panels. Composite later.
+2. If one-plate is required: use **character ref as the ONLY image reference**, no competing style images, and weld the character identity lock into every panel's prompt block.
+
+### F. Metaphor discipline
+
+- One question, one concept, one metaphor per panel/grid.
+- State the concept in one sentence that would be wrong for any other question.
+- Keep the concept claim checkable against real medical source material.
+
+### G. Structure/phenomenon rendering
+
+When depicting a real physical/biological structure (clots, particles, anatomy), render it the way **real reference imagery** shows it — not whatever reads most visually dramatic by default.
+
+*Example: an occlusive blood clot at a vessel bifurcation renders as a solid, dense, lobulated, rubbery, layered cast (matching gross-pathology/CT-angiography) — NOT a glowing mesh or web of strands.*
 
 ---
 
