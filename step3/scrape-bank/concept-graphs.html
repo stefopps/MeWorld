@@ -2014,14 +2014,18 @@ function closeHud() {
 
 function updateLiveNodeIndicator() {
   if (!nodeSel) return;
-  // Remove .live class from all nodes
-  nodeSel.classed('live', false);
-  // Hide all live rings
-  nodeSel.selectAll('.live-ring').attr('stroke-opacity', 0);
-  // Show the ring + apply .live class on the currently open node
+  // Reset all nodes: remove .live class, restore original circle fill, hide rings
+  nodeSel.classed('live', false)
+    .each(function (d) {
+      const orig = spineSet.has(String(d.id)) ? COLORS.primary : (COLORS[d.category] || COLORS.mimic);
+      d3.select(this).select('circle').attr('fill', orig);
+    })
+    .selectAll('.live-ring').attr('stroke-opacity', 0);
+  // Apply .live class + direct D3 fill (bypasses CSS/SVG attribute priority issues) on the open node
   if (currentLiveNodeId) {
     nodeSel.filter(d => String(d.id) === String(currentLiveNodeId))
       .classed('live', true)
+      .each(function () { d3.select(this).select('circle').attr('fill', '#9a9890'); })
       .selectAll('.live-ring')
       .attr('stroke-opacity', 1);
   }
