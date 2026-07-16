@@ -68,6 +68,42 @@
   [data-theme="dark"] .float-ctl-top .hdr-nav-btn.shuffle-btn:hover { background: #1a2a4a; }
   .float-ctl-top .hdr-nav-btn.shuffle-btn:disabled { opacity: 0.4; }
   .float-ctl-top .hdr-div { width:1px; height:20px; background:var(--border); margin:0 2px; flex-shrink:0; }
+
+  /* ── Bottom-left toolbar (stacked above slider) ── */
+  .float-toolbar {
+    position: fixed; z-index: 22; bottom: 60px; left: 18px;
+    display: flex; align-items: center; gap: 0;
+    background: rgba(255,255,255,0.88); backdrop-filter: blur(6px);
+    border: 1px solid var(--border); border-radius: 9px;
+    padding: 3px 6px;
+  }
+  [data-theme="dark"] .float-toolbar { background: rgba(22,24,32,0.92); }
+  .tb-group { display: flex; align-items: center; gap: 2px; }
+  .tb-btn {
+    width: 30px; height: 30px; border-radius: 6px; border: none;
+    background: transparent; color: var(--ink); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; transition: all .12s; flex-shrink: 0;
+  }
+  .tb-btn:hover { background: rgba(0,0,0,0.06); }
+  [data-theme="dark"] .tb-btn:hover { background: rgba(255,255,255,0.08); }
+  .tb-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+  .tb-btn.on { color: var(--accent); background: rgba(37,99,235,0.08); }
+  .tb-btn.off { color: var(--muted); }
+  .tb-div {
+    width: 1px; height: 20px; background: var(--border);
+    margin: 0 2px; flex-shrink: 0;
+  }
+  .tb-sep {
+    width: 1px; height: 24px; background: var(--border);
+    margin: 0 6px; flex-shrink: 0;
+  }
+  .tb-notes {
+    width: auto; padding: 0 10px; font-size: 0.72rem;
+    font-weight: 600; color: var(--accent); gap: 4px;
+    font-family: inherit;
+  }
+  .tb-notes:hover { background: rgba(37,99,235,0.1); }
   .float-ctl select {
     font-family: inherit; font-size: 0.82rem; padding: 4px 8px;
     border: 1px solid var(--border); border-radius: 7px;
@@ -1064,15 +1100,6 @@
   }
   .float-settings:hover { background: #eef3ff; border-color: var(--accent); }
 
-  /* ── Shift right-edge toolbar buttons left when dock is open ── */
-  body.dock-open .float-settings { z-index: 22; }
-  body.dock-open #settingsBtn { right: calc(var(--dock-w, 320px) + 16px); }
-  body.dock-open #spineExtBtn { right: calc(var(--dock-w, 320px) + 100px); }
-  body.dock-open .float-fit { right: calc(var(--dock-w, 320px) + 54px); }
-  body.dock-open .float-toggle { right: calc(var(--dock-w, 320px) + 136px); }
-  body.dock-open #darkModeBtn { right: calc(var(--dock-w, 320px) + 180px); }
-  body.dock-open #dockOpenBtn { display: none; }
-
   /* ── Settings popup ── */
   .settings-popup {
     position: fixed; z-index: 25; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -1585,8 +1612,6 @@
 </div>
 </div>
 
-<button class="float-settings" id="dockOpenBtn" title="Open command panel" style="top:12px;right:220px;"><i class="ti ti-layout-sidebar-right"></i></button>
-
 <!-- Floating controls OVER the canvas -->
 <div class="float-ctl float-ctl-top">
   <h1>Concept graphs</h1>
@@ -1600,9 +1625,6 @@
   <div class="hdr-cluster">
     <button class="hdr-nav-btn shuffle-btn" id="shuffleBtn" title="Shuffle to an unreviewed set"><i class="ti ti-arrows-shuffle"></i>&nbsp;Shuffle</button>
     <span class="hdr-div"></span>
-    <button class="hdr-nav-btn" id="prevSetBtn" title="Previous set">◀</button>
-    <button class="hdr-nav-btn" id="nextSetBtn" title="Next set">▶</button>
-    <span class="hdr-div"></span>
     <button class="hdr-nav-btn" id="activityBadge" title="Today's activity" style="font-size:0.65rem;gap:4px;">
       <i class="ti ti-activity"></i><span id="activityCount">0</span>
     </button>
@@ -1610,10 +1632,26 @@
   <span class="set-cover" id="setCover" title="Set cover image"></span>
 </div>
 
-<div class="float-fit" id="fitBtn" title="Fit all nodes in view"><i class="ti ti-maximize"></i>&nbsp;Fit to view</div>
-<button class="float-settings" id="settingsBtn" title="Settings"><i class="ti ti-settings"></i></button>
-<button class="float-toggle on" id="toggleLinesBtn" title="Toggle lines">-</button>
-<button class="float-settings" id="spineExtBtn" title="Spine concept extractor" style="top:12px;right:100px;"><i class="ti ti-list-details"></i></button>
+<div class="float-toolbar" id="toolbarRight">
+  <div class="tb-group">
+    <button class="tb-btn" id="backBtn" title="Back to graph"><i class="ti ti-arrow-left"></i></button>
+    <span class="tb-div"></span>
+    <button class="tb-btn" id="prevSetBtn" title="Previous set"><i class="ti ti-chevron-left"></i></button>
+    <button class="tb-btn" id="nextSetBtn" title="Next set"><i class="ti ti-chevron-right"></i></button>
+  </div>
+  <span class="tb-sep"></span>
+  <div class="tb-group">
+    <button class="tb-btn" id="fitBtn" title="Fit all nodes in view"><i class="ti ti-maximize"></i></button>
+    <button class="tb-btn on" id="toggleLinesBtn" title="Toggle lines"><i class="ti ti-line"></i></button>
+    <button class="tb-btn" id="darkModeBtn" title="Toggle dark mode"><i class="ti ti-moon"></i></button>
+    <button class="tb-btn" id="settingsBtn" title="Settings"><i class="ti ti-settings"></i></button>
+    <button class="tb-btn" id="spineExtBtn" title="Spine concept extractor"><i class="ti ti-list-details"></i></button>
+  </div>
+  <span class="tb-sep"></span>
+  <div class="tb-group">
+    <button class="tb-btn tb-notes" id="notesBtn" title="Notes &amp; Chat"><i class="ti ti-notebook"></i>&nbsp;Notes</button>
+  </div>
+</div>
 <div class="isolation-banner" id="isolationBanner" style="display:none">
   <span id="isoLabel">Isolated: -</span>
   <button id="exitIsoBtn"><i class="ti ti-x"></i>&nbsp;Exit isolation</button>
@@ -1705,8 +1743,6 @@
 </div>
 
 <!-- Dark mode toggle button -->
-<button class="float-settings" id="darkModeBtn" title="Toggle dark mode" style="top:12px;right:180px;"><i class="ti ti-moon"></i></button>
-
 <!-- Spine concept extractor overlay -->
 <div class="spine-extractor" id="spineExtractor">
   <div class="se-panel">
@@ -1882,7 +1918,7 @@ let linesVisible = true;
     if (v === '0') {
       linesVisible = false;
       const btn = document.getElementById('toggleLinesBtn');
-      if (btn) { btn.classList.add('off'); btn.classList.remove('on'); btn.textContent = '╱'; }
+      if (btn) { btn.classList.add('off'); btn.classList.remove('on'); const icon = btn.querySelector('i'); if (icon) icon.className = 'ti ti-line-dashed'; }
     }
   } catch (_) {}
 })();
@@ -2915,7 +2951,7 @@ function wireHudDictation(hud, nodeId) {
     if (!chatHistory.length) { chatLog.innerHTML = '<div style="color:var(--muted);font-size:0.62rem;text-align:center;padding:10px;">No messages yet. Ask Dr. Iwu about this case.</div>'; return; }
     chatLog.innerHTML = chatHistory.map((m,i) => {
       const isUser = m.role === 'user';
-      const copyBtn = isUser ? `<button class="msg-copy-btn" data-idx="${i}" title="Copy message"><i class="ti ti-clipboard"></i></button>` : '';
+      const copyBtn = `<button class="msg-copy-btn" data-idx="${i}" title="Copy message"><i class="ti ti-clipboard"></i></button>`;
       return `<div class="chat-msg ${isUser ? 'msg-you' : 'msg-iwu'}">
         <div class="msg-sender">${isUser ? 'You' : 'Dr. Iwu'}</div>
         <div class="msg-bubble">${mdToHtml(m.content)}${copyBtn}</div>
@@ -3356,7 +3392,8 @@ function toggleLines() {
   const btn = document.getElementById('toggleLinesBtn');
   btn.classList.toggle('on', linesVisible);
   btn.classList.toggle('off', !linesVisible);
-  btn.textContent = linesVisible ? '-' : '╱';
+  const icon = btn.querySelector('i');
+  if (icon) icon.className = 'ti ti-' + (linesVisible ? 'line' : 'line-dashed');
   if (linkSel) linkSel.style('display', linesVisible ? null : 'none');
   if (!linesVisible) {
     d3.selectAll('.primary-hit').style('display', 'none');
@@ -3627,58 +3664,40 @@ CORE PHILOSOPHY:
 - Connect findings - they are one underlying process expressing in different tissues, not unrelated facts.
 - Contrast with a look-alike when it sharpens the distinction by revealing a different mechanism.
 
-NARRATIVE CRAFT (this is about how the sentences MOVE, not what they say — apply these to the prose, not the content):
-- CAUSAL CHAINING (McKee): Each sentence must create a question or tension that the NEXT sentence resolves. The reader should feel pulled forward sentence by sentence, not informed in a flat sequence. Example: "The heart isn't pumping enough blood." That creates the question "so what happens?" — and the next sentence answers: "The kidneys sense the drop." Never let two adjacent sentences simply coexist without one creating pressure the other releases.
-- STAKES BEFORE MECHANISM: Lead with why the finding MATTERS — what's at stake for this patient, what could go wrong, what the physician must not miss — before unpacking the physiology behind it. The mechanism is the answer to a question the reader already cares about, not a fact dropped in their lap.
-- ECONOMY (Truby): Every sentence must earn its place. No filler transitions ("Additionally...", "It is also worth noting that..."), no restating what was just said in different words, no wind-up before the punch. Cut every word that doesn't advance understanding or narrative momentum. If you can remove a sentence and nothing is lost, remove it.
-- COMPRESSION ANCHOR: This is the model sentence for your prose style: "The combination of a big baby and polyhydramnios mechanically overdistends the uterus." Two causal forces named directly, compressed into one sentence, producing one clear mechanical effect. No throat-clearing. No setup. No restating. Every clinical finding you mention should get this treatment — name the finding and what it DOES in the same breath, not separate sentences for "here's the number" then "here's what the number means."
-- FINDINGS IN THE CAUSAL BREATH: When a lab value, vital sign, or exam finding appears, it must feed directly into the causal chain without a bridge sentence. Not "The glucose is 190 on a one-hour screen. This is abnormal. High glucose drives fetal hyperinsulinemia..." — instead: "A glucose of 190 on a one-hour screen means the fetus is bathing in insulin, and insulin is a growth factor." The number and its consequence share the same sentence. Never state a finding and then explain it; state it in the act of explaining.
+PROSE CRAFT — these govern how the sentences MOVE. Apply to the writing, not the content.
+- COMPRESSION: Maximum payload per sentence. If you can remove a word without losing meaning, remove it. If you can merge two sentences into one, merge them. The model sentence: "The combination of a big baby and polyhydramnios mechanically overdistends the uterus." Two causal forces named directly, compressed into one clause, producing one clear mechanical effect. Every finding gets this treatment — the number and what it does share the same breath. Never "The glucose is 190. This suggests diabetes." — instead: "A glucose of 190 means the fetus is bathing in insulin, and insulin is a growth factor."
+- CAUSAL CHAINING: Each sentence creates a question the next resolves. The test: if you can reorder your sentences and the paragraph still "makes sense," the prose is flat — rewrite it. After finishing, read each adjacent pair and ask: "Does the second sentence exist because the first created a need for it?" Never let two sentences simply coexist without one creating pressure the other releases.
+- STAKES BEFORE MECHANISM: Open with why the finding matters — the clinical danger, the diagnostic trap, the decision the physician can't afford to get wrong. The mechanism arrives as the answer to a question the reader already cares about. "If you miss this, the patient arrests." "This lab value looks reassuring. It's lying to you."
+- THE OPPONENT: Every mechanism explanation needs resistance — a named, specific force making things difficult. A receptor that's been downregulated. A pressure gradient that's been reversed. An enzyme that's been blocked. The opponent makes the explanation feel like understanding was hard won, not simply stated.
+- SPECIFICITY ANCHOR: At least once per paragraph, ground the abstraction in a number, a named structure, or a sensory detail. Not "impaired oxygen delivery" — "a PaO₂ of 52, roughly a third of what the mitochondria expect." One concrete detail does the work of three abstractions.
+- THE PULL PRINCIPLE: Questions pull harder than statements push. Open a paragraph with a question the material has earned. Close a paragraph with an implied question the next will answer. The reader should feel pulled forward by curiosity, not pushed through by enumeration.
 
-VOICE (mandatory):
-- Confident, never condescending. There is joy in mechanism. Direct. Short sentences. No hedging.
-- Visual/spatial language the learner can picture: "the rash is tracing that light map," "the synovium as a sieve."
-- Use concrete models - not abstract descriptions. Make them see it.
-- Punchy insight declarations: "It's not a tremor. It's a lapse."
-- Occasionally ask a short question back to activate the learner's thinking.
-- Every sentence should feel like the next inevitable step in a chain, not the next item on a list.
-- 80-180 words. Tight. Every sentence must teach.
+PARAGRAPH RHYTHM: 3-5 short paragraphs, each doing one job. The sequence: stakes (why care) → mechanism (how it works) → opponent (what resists it) → resolution (what the intervention does) → closing probe. Blank lines between paragraphs. No bolded headers or outline markers — just the paragraphs themselves.
 
-RESPONSE FLOW (natural thought sequence, NOT labeled sections):
-1. STAKES FIRST: Open with what's at stake — the clinical danger, the diagnostic trap, or the decision the physician can't afford to get wrong. Make the reader feel why this case demands attention before you explain how it works. "If you miss this, the patient arrests." "This lab value looks reassuring. It's lying to you."
-2. PULL, DON'T PUSH: From that opening, every sentence creates pressure the next one releases. The opening raises a question ("why would this lab be normal when the patient is clearly sick?") — the next sentence starts to answer it. That answer raises a deeper question, and so on. The reader should be pulled through by curiosity, not pushed through by enumeration.
-3. SPATIAL/TEMPORAL LOGIC: When distribution, timing, or location explains the finding, show it through geometry, pressure, gravity — the reader should picture it.
-4. ONE STORY, NOT A CATALOG: Link findings as one underlying process expressing in different tissues.
-5. BEDSIDE GROUNDING: What does this mean right now for this patient?
-6. CLOSING PROBE: End with a mechanism-testing question that changes one variable — "What would you do if the pupil were normal but the eye was still deviated?" Forces reasoning, not recall. Every generation must end with this probe.
+VOICE: Confident, never condescending. Direct. Short sentences. No hedging where the science is settled. Visual/spatial language the learner can picture. Simple words, complex ideas — never write down. Bold key mechanistic anchors, critical lab values, pivoting exam findings, and bedside decisions in **double asterisks** (renders blue). A reader scanning only the bolded text should get the skeleton of the explanation — the problem, the mechanism, the intervention.
 
-Break into paragraphs — 3-5 short paragraphs total, separated by a blank line. Start a new paragraph whenever the reasoning shifts (mechanism → spatial logic → clinical connection → closing probe). This is normal prose structure, not labeled sections.
-
-SALIENT POINTS IN BOLD: Most of the time, wrap the key mechanistic anchors, critical lab values, pivoting exam findings, and bedside decisions in **double asterisks**. The bolded text renders in blue — use it generously so the learner can scan and absorb. Bold a process, a finding, a number, a decision — bold what the learner must carry forward. Not the lead-in of a paragraph, not an announcement of what you're about to do — just the substance.
+CLOSING PROBE: Every generation must end with a mechanism-testing question that changes one variable — "What would you do if the pupil were normal but the eye was still deviated?" Forces reasoning, not recall. No generic closings ("Did that make sense?" "Any questions?").
 
 FORBIDDEN:
-- Bolded paragraph lead-ins or structural signposts ("The timing is the mechanism," "Connect this to rheumatoid arthritis," "Clinically this means," "But here is the spatial logic," "Clinical anchor:"). Never announce what the next sentence is going to do — just do it.
-- Opening with floating patient demographics or bare guideline recitation instead of mechanism
-- Bullet lists, numbered lists, outline headers, stage labels, labeled sections of any kind
-- Generic tutor voice disconnected from mechanism - if it sounds like a textbook, delete it
-- Passive voice ("it is thought that..."), hedging ("in some cases"), "as an AI", breaking character
-- Em dashes (-) - use commas or periods instead, never em dashes in any reply
-- Pretending to be the patient or writing from patient perspective
-- Closing with a generic question ("Did that make sense?", "What else would you like to know?", "Any questions?") — the closing probe must be mechanism-testing, change one variable and ask what it would imply
-- Skipping the closing probe or writing a response that trails off without it — every generation must end with the required mechanism probe question
-- Opening with "The surprising thing" or any variation of "The surprising thing isn't that... it's that..." or any fixed sentence template reused across cases — every opening must be fresh and specific to this case's mechanism
-- IMPORTANT: blank-line paragraph breaks are normal prose convention and are REQUIRED — the forbidden "labeled sections" means bolded headers or outline markers announcing each section's purpose, not dividing text into readable paragraphs
-- Filler transitions ("Additionally...", "Furthermore...", "It should also be noted that...", "Another important consideration is...") — these signal list-thinking, not chain-thinking. Cut them. Start the next sentence directly.
-- Flat sequencing: adjacent sentences that coexist without one creating pressure the next releases. Every sentence pair should feel like a question and its answer, not two facts in a row.
-- Stating the mechanism before establishing why anyone should care — always earn the mechanism by showing the stakes first
-- Stating a finding in one sentence and explaining it in the next ("The glucose is 190. This suggests diabetes.") — the finding must carry its meaning in the same sentence. If you find yourself writing two sentences where the second starts "This..." or "That..." and explains the first, you've split what should be one causal unit. Compress them.`;
+- Opening with a fixed template sentence ("The surprising thing isn't that..."). Every opening must be fresh and specific to this case's mechanism.
+- Filler transitions ("Additionally...", "Furthermore...", "It should also be noted that..."). These signal list-thinking. Start the next sentence directly — if the paragraphs are truly causal, the connection is self-evident.
+- Stating a finding in one sentence and explaining it in the next — the finding must carry its meaning in the same sentence. If you catch yourself writing "This..." or "That..." as a second sentence explaining the first, compress them.
+- Stating the mechanism before establishing why anyone should care.
+- Flat sequencing — adjacent sentences that coexist without one creating pressure the next releases.
+- Bullet lists, numbered lists, outline headers, bolded paragraph lead-ins, labeled sections of any kind.
+- Passive voice, hedging ("in some cases," "it is thought that"), "as an AI", breaking character.
+- Em dashes — use commas or periods instead.
+- Skipping the closing probe or trailing off without it.`;
 
-  const prompt = `This CCS board question tests a clinical concept. Teach it from first principles as the Immersa attending — lead with stakes, pull the reader forward sentence by sentence through causal chaining, no flat sequencing.
+  const prompt = `This CCS board question tests a clinical concept. Teach it from first principles as the Immersa attending.
+
+PROSE RULES: Compress every sentence to its maximum payload. Chain each sentence so it creates the question the next answers (test: reordering should break the paragraph). Lead with stakes. Give the mechanism an opponent — a named, specific resistance force. Anchor every paragraph with a concrete number or structure. Use questions only where the reader is already asking them. Bold mid-sentence anchors generously. No filler transitions, no em dashes, no fixed opening templates.
 
 Question: """${node.question}"""
 Correct answer: ${node.likely || 'N/A'}
 Answer choices: ${ans}
 
-Open with what's at stake for this patient. Every sentence after must create pressure the next releases. Integrate every lab value, vital sign, or exam finding directly into the causal chain — never state a finding in one sentence and explain it in the next. The number and its consequence share the same breath. Break into short paragraphs. Bold only key mechanistic anchors mid-sentence. No preamble, no sign-off, no filler transitions, no em dashes.`;
+Start with what's at stake. Build a causal chain where every finding carries its meaning in the same breath. 3-5 short paragraphs. Close with a mechanism-testing probe. No preamble, no sign-off.`;
 
   try {
     const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -4959,12 +4978,27 @@ async function fetchBridgeLine(a, b) {
   if (b.question) ctxB.push(`Stem: ${(b.question||'').replace(/\s+/g,' ').trim().slice(0,200)}`);
   if (b.explanation) ctxB.push(`Answer: ${(b.explanation||'').replace(/\s+/g,' ').trim().slice(0,200)}`);
 
-  const prompt = `These are two adjacent spine beats in a clinical reasoning story narrated by a teaching attending. Write a SINGLE SENTENCE (max 40 words) that explains the SPECIFIC clinical, mechanistic, or narrative connection between these two beats — what makes beat A lead into beat B. Reference concrete content from each beat. Never use filler like "the story walks from one beat into the next." Be mechanistic and specific.
+  const prompt = `These are two adjacent spine beats in a clinical reasoning story narrated by a teaching attending. Write a SINGLE SENTENCE (max 40 words) that names the SPECIFIC shared mechanism, reasoning thread, or causal logic that binds these two beats together — WHY juxtaposing them teaches something no single beat could.
+
+CRITICAL — WHAT A CONNECTION IS:
+A connection is a shared mechanistic logic or reasoning principle, NOT a contrast. If you are about to write a sentence using the word "contrast" or its structure ("whereas A does X, B does Y"), STOP and rewrite. The beats are adjacent because they share a deeper thread — a common pathway disrupted, a parallel failure of immune surveillance, a shared signaling axis gone wrong in different tissues, a diagnostic reasoning trap that both cases teach you to avoid. Name the thread.
+
+CRITICAL — WHAT A CONNECTION IS NOT:
+- "A has finding X, while B has finding Y" = juxtaposition, not a connection
+- "Beat A shows A; in contrast Beat B shows B" = summarization, not a link
+- "The X of Beat A differs from the Y of Beat B" = description of difference, not a shared thread
+- Any sentence whose structure is "A [verb], whereas/while B [verb]" is wrong
+
+CORRECT EXAMPLES (these name a real thread):
+- "Both beats teach that when local immune surveillance fails — HPV in the larynx, CLL in the marrow — unchecked proliferation follows the same arc."
+- "Each case forces the learner to trace backward from a surface finding to its underlying mechanism rather than anchoring on the most visible abnormality."
+- "Beat A and Beat B collide at the same decision point: treat the infection you see, or the immune deficit you must infer."
+- "The common thread is compromised clearance — HPV evading T-cell surveillance in the airway, CLL blunting antibody production in the blood — with the same clinical consequence: recurrent pathology."
 
 Beat A: ${ctxA.join(' | ')}
 Beat B: ${ctxB.join(' | ')}
 
-Respond with ONLY the connection sentence. No preamble. No em dashes.`;
+Respond with ONLY the connection sentence. No preamble. No em dashes. Never use the word "contrast" or the structure "whereas.../while..."`;
 
   try {
     const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -5891,9 +5925,7 @@ async function eagerLoadTitles() {
 // ── Make all floating overlays draggable ──────────────────────────────────
 (function initFloaterDrag() {
   makeFloaterDraggable(document.querySelector('.float-ctl-top'), 'flt-header');
-  makeFloaterDraggable(document.getElementById('fitBtn'), 'flt-fit');
-  makeFloaterDraggable(document.getElementById('settingsBtn'), 'flt-settings');
-  makeFloaterDraggable(document.getElementById('toggleLinesBtn'), 'flt-toggle');
+  makeFloaterDraggable(document.querySelector('.float-toolbar'), 'flt-toolbar');
   makeFloaterDraggable(document.querySelector('.float-legend'), 'flt-legend');
   makeFloaterDraggable(document.querySelector('.float-slider'), 'flt-slider');
   makeFloaterDraggable(document.querySelector('.float-zoom-hint'), 'flt-zoom-hint');
@@ -5901,6 +5933,55 @@ async function eagerLoadTitles() {
   makeFloaterDraggable(document.getElementById('isolationBanner'), 'flt-isolation');
   makeFloaterDraggable(document.getElementById('settingsPopup'), 'flt-settings-popup');
   makeFloaterDraggable(document.getElementById('marqueeBadge'), 'flt-marquee');
+})();
+
+// ── Back button – close HUD and isolation ────────────────────────────
+(function initBackBtn() {
+  const btn = document.getElementById('backBtn');
+  if (!btn) return;
+  btn.onclick = () => {
+    closeHud();
+    exitIsolation();
+  };
+})();
+
+// ── Notes button – open floating Notes & Chat panel ──────────────────
+(function initNotesBtn() {
+  const btn = document.getElementById('notesBtn');
+  if (!btn) return;
+
+  btn.onclick = () => {
+    // If floating dict already exists, bring it forward
+    if (window._floatDict) {
+      const w = window._floatDict.wrapper;
+      w.style.display = '';
+      w.style.zIndex = '100';
+      return;
+    }
+
+    // Determine which node to open notes for
+    let nodeId = currentLiveNodeId;
+    if (!nodeId && typeof GRAPH !== 'undefined' && GRAPH && GRAPH.mainPath && GRAPH.mainPath.length > 0) {
+      nodeId = GRAPH.mainPath[0];
+    }
+    if (!nodeId || typeof byId === 'undefined' || !byId || !byId[nodeId]) return;
+
+    // Open the HUD for this node (wireHudDictation runs synchronously, creating the undock button)
+    const node = byId[nodeId];
+    closeHud(); // ensure clean slate
+    openHud(node, { clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 });
+
+    // The undock button is created synchronously inside wireHudDictation
+    // Click it immediately to float the notes panel
+    setTimeout(() => {
+      const undockBtn = document.getElementById('dict-undock-' + nodeId);
+      if (undockBtn) {
+        undockBtn.click();
+        // Close the HUD now that notes are floating
+        setTimeout(() => closeHud(), 50);
+      }
+    }, 50);
+  };
 })();
 
 // ── Dark mode toggle (simple icon button) ───────────────────────────
@@ -6058,7 +6139,6 @@ async function eagerLoadTitles() {
 (function initCommandDock() {
   const dock = document.getElementById('cmdDock');
   const dockBody = document.getElementById('dockBody');
-  const openBtn = document.getElementById('dockOpenBtn');
   const handle = document.getElementById('dockResizeHandle');
   const DOCK_KEY = 'cmd-dock-layout';
 
@@ -6196,16 +6276,6 @@ async function eagerLoadTitles() {
     _origPopulatePicker();
     syncDockPicker();
   };
-
-  // ── Open button (floating, outside dock) ───────────────────────────
-  openBtn.addEventListener('click', () => {
-    state.open = true;
-    writeDock(state);
-    applyDock();
-    syncDockPicker();
-    buildDockBody();
-    dockRewire();
-  });
 
   // ── Close X inside dock ────────────────────────────────────────────
   function wireDockClose() {
