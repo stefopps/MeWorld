@@ -184,16 +184,6 @@
   .lightbox .lb-close:hover { background: rgba(255,255,255,0.25); }
   h1 { font-size: 0.95rem; margin: 0; font-weight: 650; white-space: nowrap; }
 
-  .float-legend {
-    position: fixed; z-index: 15; bottom: 14px; right: 14px;
-    background: rgba(255,255,255,0.88); backdrop-filter: blur(6px);
-    border: 1px solid var(--border); border-radius: 9px;
-    padding: 6px 10px; font-size: 0.7rem; color: var(--muted);
-    display: flex; gap: 14px; box-shadow: 0 2px 10px rgba(20,25,35,0.08);
-  }
-  .float-legend span { display:flex; align-items:center; gap:5px; }
-  .dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
-
   .float-slider {
     position: fixed; z-index: 15; bottom: 18px; left: 18px;
     padding: 0; font-size: 0.72rem; color: var(--muted);
@@ -429,6 +419,7 @@
   .hud .chat-area .chat-log .chat-msg .msg-bubble, .hud-content .chat-area .chat-log .chat-msg .msg-bubble {
     padding: 6px 10px; border-radius: 10px; line-height: 1.45;
     font-size: calc(0.68rem * var(--notes-font-scale, 1)); word-break: break-word;
+    user-select: text;
   }
   .hud .chat-area .chat-log .chat-msg.msg-you .msg-bubble, .hud-content .chat-area .chat-log .chat-msg.msg-you .msg-bubble {
     background: #e0ebff; color: #1a2a4a; border-bottom-right-radius: 3px;
@@ -624,6 +615,7 @@
   .float-dict .chat-log .chat-msg .msg-bubble {
     padding: 6px 10px; border-radius: 10px; line-height: 1.45;
     font-size: calc(0.68rem * var(--notes-font-scale, 1)); word-break: break-word;
+    user-select: text;
   }
   .float-dict .chat-log .chat-msg.msg-you .msg-bubble {
     background: #e0ebff; color: #1a2a4a; border-bottom-right-radius: 3px;
@@ -1428,7 +1420,6 @@
   [data-theme="dark"] body { background: var(--bg); }
   [data-theme="dark"] .stage-board { background: #13151d; }
   [data-theme="dark"] .float-ctl,
-  [data-theme="dark"] .float-legend,
   [data-theme="dark"] .float-fit,
   [data-theme="dark"] .float-toggle,
   [data-theme="dark"] .float-settings { background: rgba(22,24,32,0.92); border-color: var(--border); }
@@ -1719,12 +1710,6 @@
 </div>
 
 
-<div class="float-legend">
-  <span><span class="dot" style="background:var(--coral)"></span>Main spine</span>
-  <span><span class="dot" style="background:var(--gray)"></span>Differential doors</span>
-  <span><span class="dot" style="background:var(--teal)"></span>Thread (if present)</span>
-</div>
-
 <div class="spine-rail" id="spineRail" style="display:none;"></div>
 
 <div class="float-slider">
@@ -1762,7 +1747,27 @@
 </div>
 
 <script>
-const COLORS = { primary: '#d8552f', mimic: '#9a9890', thread: '#17916b' };
+const COLORS = { primary: '#d8552f', mimic: '#9a9890', thread: '#17916b', visited: '#17916b' };
+
+// ── Visited node tracking (persisted per set) ──
+function nodeVisitedKey(nodeId) { return 'nv-' + currentSet + ':' + nodeId; }
+function markNodeVisited(nodeId) {
+  try { localStorage.setItem(nodeVisitedKey(nodeId), '1'); } catch (_) {}
+}
+function isNodeVisited(nodeId) {
+  try { return localStorage.getItem(nodeVisitedKey(nodeId)) === '1'; } catch (_) { return false; }
+}
+function refreshNodeVisitedVisual(nodeId) {
+  // Update the D3 node circle fill to reflect visited state
+  if (!nodeSel) return;
+  nodeSel.filter(d => String(d.id) === String(nodeId)).each(function (d) {
+    const isSpine = spineSet.has(String(d.id));
+    const fill = isNodeVisited(String(d.id))
+      ? COLORS.visited
+      : (isSpine ? COLORS.primary : (COLORS[d.category] || COLORS.mimic));
+    d3.select(this).select('circle').attr('fill', fill);
+  });
+}
 
 // ── Set registry - maps set # → story file ────────────────────────────────────
 const SET_REGISTRY = {
@@ -2078,7 +2083,7 @@ function updateLiveNodeIndicator() {
   nodeSel.classed('live', false)
     .each(function (d) {
       const isSpine = spineSet.has(String(d.id));
-      const origFill = isSpine ? COLORS.primary : (COLORS[d.category] || COLORS.mimic);
+      const origFill = isNodeVisited(String(d.id)) ? COLORS.visited : (isSpine ? COLORS.primary : (COLORS[d.category] || COLORS.mimic));
       const origR = isSpine ? 10 : 6;
       const ringR = isSpine ? 13 : 9;
       d3.select(this).select('circle').attr('fill', origFill).attr('r', origR);
@@ -2273,7 +2278,7 @@ function makeFloaterDraggable(el, storageKey) {
 
   el.addEventListener('mousedown', (e) => {
     // Don't drag if user clicked a button, select, input, or interactive child
-    if (e.target.closest('button, select, input, textarea, .close, .rail-dot')) return;
+    if (e.target.closest('button, select, input, textarea, .close, .rail-dot, .msg-bubble, .chat-log, .chat-area, .ind-toggle, .ind-body')) return;
     e.preventDefault();
     el.style.transition = 'none';
     el.style.cursor = 'grabbing';
@@ -2891,8 +2896,8 @@ function wireHudDictation(hud, nodeId) {
   if (!textarea) return;
 
   // ── Restore last mode for this node ──
-  let currentMode = 'notes';
-  try { const m = localStorage.getItem('dict-mode-' + nodeId); if (m === 'chat') currentMode = 'chat'; } catch (_) {}
+  let currentMode = 'chat';
+  try { const m = localStorage.getItem('dict-mode-' + nodeId); if (m) currentMode = m; } catch (_) {}
   function applyMode(mode) {
     currentMode = mode;
     modeSeg.setAttribute('data-mode', mode);
@@ -3645,13 +3650,15 @@ async function fetchLogged(qid, type) {
 }
 
 // ── First-principles layer: attending-voice explanation ──────────────────
-async function fetchFirstPrinciples(node) {
+async function fetchFirstPrinciples(node, regen = false) {
   const key = localStorage.getItem('ds_api_key');
   if (!key) return null;
 
-  // Check log for existing response first
-  const logged = await fetchLogged(node.id, 'firstPrinciples');
-  if (logged) return logged;
+  // Check log for existing response first (skip if regen)
+  if (!regen) {
+    const logged = await fetchLogged(node.id, 'firstPrinciples');
+    if (logged) return logged;
+  }
 
   const ans = (node.answers || []).map(a => a.label + '. ' + cleanAnsText(a.text)).join(' | ');
 
@@ -3668,13 +3675,14 @@ PROSE CRAFT — these govern how the sentences MOVE. Apply to the writing, not t
 - COMPRESSION: Maximum payload per sentence. If you can remove a word without losing meaning, remove it. If you can merge two sentences into one, merge them. The model sentence: "The combination of a big baby and polyhydramnios mechanically overdistends the uterus." Two causal forces named directly, compressed into one clause, producing one clear mechanical effect. Every finding gets this treatment — the number and what it does share the same breath. Never "The glucose is 190. This suggests diabetes." — instead: "A glucose of 190 means the fetus is bathing in insulin, and insulin is a growth factor."
 - CAUSAL CHAINING: Each sentence creates a question the next resolves. The test: if you can reorder your sentences and the paragraph still "makes sense," the prose is flat — rewrite it. After finishing, read each adjacent pair and ask: "Does the second sentence exist because the first created a need for it?" Never let two sentences simply coexist without one creating pressure the other releases.
 - STAKES BEFORE MECHANISM: Open with why the finding matters — the clinical danger, the diagnostic trap, the decision the physician can't afford to get wrong. The mechanism arrives as the answer to a question the reader already cares about. "If you miss this, the patient arrests." "This lab value looks reassuring. It's lying to you."
-- THE OPPONENT: Every mechanism explanation needs resistance — a named, specific force making things difficult. A receptor that's been downregulated. A pressure gradient that's been reversed. An enzyme that's been blocked. The opponent makes the explanation feel like understanding was hard won, not simply stated.
+- THE OPPONENT: Every mechanism explanation needs a vivid antagonist — a named, specific force actively fighting against the patient or the physician. Not "the disease process" — the scar that won't stretch, the receptor that's been stripped from the membrane, the pressure gradient that's reversed and won't reverse back. The opponent is what gives the explanation stakes: someone is losing a fight, and you need to know who and why before you can intervene. Bad: "The glomerulus is damaged." Good: "The immune complexes are punching holes in the basement membrane faster than the podocytes can patch them." The opponent should feel active, ongoing, winnable but not won. If your explanation doesn't name what's resisting, it's a lecture; if it does, it's a story.
 - SPECIFICITY ANCHOR: At least once per paragraph, ground the abstraction in a number, a named structure, or a sensory detail. Not "impaired oxygen delivery" — "a PaO₂ of 52, roughly a third of what the mitochondria expect." One concrete detail does the work of three abstractions.
-- THE PULL PRINCIPLE: Questions pull harder than statements push. Open a paragraph with a question the material has earned. Close a paragraph with an implied question the next will answer. The reader should feel pulled forward by curiosity, not pushed through by enumeration.
+- THE PULL PRINCIPLE: Questions pull harder than statements push — and you should be ruthless about this. Open a paragraph with a question the reader is already asking. End a paragraph with a question they haven't asked yet but now can't stop thinking about. The prose should feel like it's one step ahead of the reader, always answering the question they just formed while planting the next one. Weak: closing with a recitation of the treatment. Strong: "So you give steroids. They suppress the immune attack. But what are you NOT fixing — and what happens if you stop too soon?" Every closing probe must change one variable and ask what the clinical consequence would be — not "did that make sense?" but "if you changed X, would Y still happen, and why not?" The probe should feel like the paragraph earned it, not like you remembered to add one.
+- BOLD — LOAD-BEARING PHRASES (mandatory, not optional): Every paragraph must contain 2-4 bolded phrases wrapped in **double asterisks** (renders blue). Bold ONLY the phrases that carry the paragraph's structural weight — the named mechanism, the critical lab value with its unit, the pivotal exam finding, the decision the physician can't afford to miss. A reader scanning ONLY the bolded text should reconstruct the skeleton of the entire explanation: problem → mechanism → opponent → consequence. Do NOT bold lead-in sentences, transitional phrases, or every important-sounding word. Overuse dilutes; absence blinds. This is not a suggestion — it is a structural requirement. Before submitting, count your bolded phrases per paragraph: if any paragraph has zero, fix it. If any has more than five, cut the weakest.
 
 PARAGRAPH RHYTHM: 3-5 short paragraphs, each doing one job. The sequence: stakes (why care) → mechanism (how it works) → opponent (what resists it) → resolution (what the intervention does) → closing probe. Blank lines between paragraphs. No bolded headers or outline markers — just the paragraphs themselves.
 
-VOICE: Confident, never condescending. Direct. Short sentences. No hedging where the science is settled. Visual/spatial language the learner can picture. Simple words, complex ideas — never write down. Bold key mechanistic anchors, critical lab values, pivoting exam findings, and bedside decisions in **double asterisks** (renders blue). A reader scanning only the bolded text should get the skeleton of the explanation — the problem, the mechanism, the intervention.
+VOICE: Confident, never condescending. Direct. Short sentences. No hedging where the science is settled. Visual/spatial language the learner can picture. Simple words, complex ideas — never write down.
 
 CLOSING PROBE: Every generation must end with a mechanism-testing question that changes one variable — "What would you do if the pupil were normal but the eye was still deviated?" Forces reasoning, not recall. No generic closings ("Did that make sense?" "Any questions?").
 
@@ -3687,17 +3695,24 @@ FORBIDDEN:
 - Bullet lists, numbered lists, outline headers, bolded paragraph lead-ins, labeled sections of any kind.
 - Passive voice, hedging ("in some cases," "it is thought that"), "as an AI", breaking character.
 - Em dashes — use commas or periods instead.
-- Skipping the closing probe or trailing off without it.`;
+- Skipping the closing probe or trailing off without it.
+- Writing any paragraph with zero bolded phrases. Every paragraph must have 2-4 **bolded** load-bearing anchors. Zero = structural failure. Fix before submitting.`;
 
   const prompt = `This CCS board question tests a clinical concept. Teach it from first principles as the Immersa attending.
 
-PROSE RULES: Compress every sentence to its maximum payload. Chain each sentence so it creates the question the next answers (test: reordering should break the paragraph). Lead with stakes. Give the mechanism an opponent — a named, specific resistance force. Anchor every paragraph with a concrete number or structure. Use questions only where the reader is already asking them. Bold mid-sentence anchors generously. No filler transitions, no em dashes, no fixed opening templates.
+CRITICAL PROSE RULES:
+1. COMPRESS: Every sentence works at maximum density. Number + consequence in the same breath.
+2. OPPONENT: Name the specific force fighting the patient. Not "the disease" — the scar, the stripped receptor, the reversed gradient. Make it active. Someone is losing a fight.
+3. PULL: Ruthless questioning. Open with an earned question. End every paragraph with a question the reader now can't stop asking. The closing probe must feel like the whole explanation was building toward it — change one variable, ask what breaks.
+4. CHAIN: Each sentence creates the question the next answers. If reordering works, it's flat — rewrite.
+5. STAKES FIRST: Why does this finding matter at the bedside? Then mechanism.
+6. BOLD (mandatory): Every paragraph must have 2-4 bolded phrases. Bold only the load-bearing anchors — the named mechanism, the critical lab value with its unit, the pivotal exam finding, the treatment decision. A scan of only the bolded text should give the full skeleton. Zero bold in any paragraph = structural failure.
 
 Question: """${node.question}"""
 Correct answer: ${node.likely || 'N/A'}
 Answer choices: ${ans}
 
-Start with what's at stake. Build a causal chain where every finding carries its meaning in the same breath. 3-5 short paragraphs. Close with a mechanism-testing probe. No preamble, no sign-off.`;
+Start with stakes. Name the opponent early — what's actively resisting? Pull the reader forward with questions. Every finding carries its meaning in the same breath. Bold the load-bearing phrases in every paragraph — the mechanism, the lab value, the decision. 3-5 paragraphs. Closing probe must interrogate, not summarize. No preamble, no sign-off, no filler transitions, no em dashes.`;
 
   try {
     const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -4159,19 +4174,19 @@ function buildRevealHTML(d) {
         <span class="dict-label">Notes &amp; Chat</span>
         <button class="dict-undock" id="dict-undock-${d.id}" title="Undock Notes & Chat"><i class="ti ti-arrow-forward-up"></i></button>
       </div>
-      <div class="mode-seg" data-mode="notes" id="mode-seg-${d.id}">
+      <div class="mode-seg" data-mode="chat" id="mode-seg-${d.id}">
         <span class="mode-seg-thumb"></span>
-        <button class="mode-seg-btn is-active" data-m="notes"><i class="ti ti-pencil"></i>&nbsp;Notes</button>
-        <button class="mode-seg-btn" data-m="chat"><i class="ti ti-messages"></i>&nbsp;Dr. Iwu</button>
+        <button class="mode-seg-btn" data-m="notes"><i class="ti ti-pencil"></i>&nbsp;Notes</button>
+        <button class="mode-seg-btn is-active" data-m="chat"><i class="ti ti-messages"></i>&nbsp;Dr. Iwu</button>
       </div>
-      <!-- Notes mode -->
-      <div class="dict-input-wrap" id="notes-area-${d.id}">
+      <!-- Notes mode (hidden by default) -->
+      <div class="dict-input-wrap" id="notes-area-${d.id}" style="display:none;">
         <textarea id="dict-text-${d.id}" placeholder="Speak or type notes on this concept…"></textarea>
         <button class="btn-mic" data-qid="${d.id}" title="Toggle microphone"><i class="ti ti-microphone"></i></button>
       </div>
       <span class="dict-interim" id="dict-interim-${d.id}"></span>
-      <!-- Chat mode (hidden by default) -->
-      <div class="chat-area" id="chat-area-${d.id}" style="display:none;">
+      <!-- Chat mode (shown by default) -->
+      <div class="chat-area" id="chat-area-${d.id}">
         <div class="chat-log" id="chat-log-${d.id}"></div>
         <div class="chat-input-row">
           <input type="text" id="chat-input-${d.id}" placeholder="Ask Dr. Iwu about this case…" />
@@ -4620,7 +4635,7 @@ function wireReveal(container, d) {
       fpRefBtn.onclick = async (e) => {
         e.stopPropagation(); // don't toggle the section
         fpRefBtn.classList.add('spinning');
-        const fp = await fetchFirstPrinciples(d);
+        const fp = await fetchFirstPrinciples(d, true);
         fpRefBtn.classList.remove('spinning');
         if (fp) {
           fpContent.innerHTML = fpBodyHtml(fp);
@@ -4764,6 +4779,11 @@ function openHud(d, event) {
   currentLiveNodeId = String(d.id);
   updateLiveNodeIndicator();
   markProgress(d);
+  // Persist visited state and flip node color to green
+  if (!isNodeVisited(String(d.id))) {
+    markNodeVisited(String(d.id));
+    refreshNodeVisitedVisual(String(d.id));
+  }
   const isMain = d.category === 'primary';
   const board = document.getElementById('board');
   const boardRect = board.getBoundingClientRect();
@@ -5158,7 +5178,7 @@ function renderGraph() {
       const g = d3.select(this);
       g.append('circle')
         .attr('r', spineSet.has(String(d.id)) ? 10 : 6)
-        .attr('fill', spineSet.has(String(d.id)) ? COLORS.primary : (COLORS[d.category] || COLORS.mimic))
+        .attr('fill', isNodeVisited(String(d.id)) ? COLORS.visited : (spineSet.has(String(d.id)) ? COLORS.primary : (COLORS[d.category] || COLORS.mimic)))
         .attr('stroke', () => {
           const ms = millState(d.id);
           if (ms === 2) return '#16a34a';
@@ -5926,7 +5946,6 @@ async function eagerLoadTitles() {
 (function initFloaterDrag() {
   makeFloaterDraggable(document.querySelector('.float-ctl-top'), 'flt-header');
   makeFloaterDraggable(document.querySelector('.float-toolbar'), 'flt-toolbar');
-  makeFloaterDraggable(document.querySelector('.float-legend'), 'flt-legend');
   makeFloaterDraggable(document.querySelector('.float-slider'), 'flt-slider');
   makeFloaterDraggable(document.querySelector('.float-zoom-hint'), 'flt-zoom-hint');
   makeFloaterDraggable(document.getElementById('spineRail'), 'flt-spine-rail');
@@ -5959,28 +5978,29 @@ async function eagerLoadTitles() {
       return;
     }
 
-    // Determine which node to open notes for
-    let nodeId = currentLiveNodeId;
-    if (!nodeId && typeof GRAPH !== 'undefined' && GRAPH && GRAPH.mainPath && GRAPH.mainPath.length > 0) {
-      nodeId = GRAPH.mainPath[0];
-    }
-    if (!nodeId || typeof byId === 'undefined' || !byId || !byId[nodeId]) return;
-
-    // Open the HUD for this node (wireHudDictation runs synchronously, creating the undock button)
-    const node = byId[nodeId];
-    closeHud(); // ensure clean slate
-    openHud(node, { clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 });
-
-    // The undock button is created synchronously inside wireHudDictation
-    // Click it immediately to float the notes panel
-    setTimeout(() => {
-      const undockBtn = document.getElementById('dict-undock-' + nodeId);
+    // If the dock is showing a node reveal, undock its dict-sect directly
+    // (no need to rebuild the dock via openHud — just float what's already there)
+    const dockReveal = document.querySelector('.dock-reveal-content');
+    if (dockReveal && typeof window._isDockOpen === 'function' && window._isDockOpen()) {
+      const undockBtn = dockReveal.querySelector('.dict-undock');
       if (undockBtn) {
         undockBtn.click();
-        // Close the HUD now that notes are floating
-        setTimeout(() => closeHud(), 50);
+        return;
       }
-    }, 50);
+    }
+
+    // If a HUD exists with a dict-sect, undock it directly
+    const hud = document.querySelector('.hud:not([style*="display: none"])');
+    if (hud) {
+      const undockBtn = hud.querySelector('.dict-undock');
+      if (undockBtn) {
+        undockBtn.click();
+        return;
+      }
+    }
+
+    // Fallback: no node content visible anywhere, don't guess
+    return;
   };
 })();
 
@@ -6440,6 +6460,11 @@ async function eagerLoadTitles() {
     // Update graph indicator
     currentLiveNodeId = String(node.id);
     updateLiveNodeIndicator();
+    // Persist visited state
+    if (!isNodeVisited(String(node.id))) {
+      markNodeVisited(String(node.id));
+      refreshNodeVisitedVisual(String(node.id));
+    }
   };
 
   window._renderInDock = function (d) {
