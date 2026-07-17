@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Backfill Visited Nodes</title>
+<style>
+  body { font-family: Inter, system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background: #f5f5f7; color: #1e2130; }
+  h2 { margin-bottom: 8px; }
+  .status { padding: 12px; border-radius: 8px; background: #fff; border: 1px solid #ddd; min-height: 40px; font-family: monospace; font-size: 0.85rem; white-space: pre-wrap; }
+  .done { background: #ecfdf5; border-color: #16a34a; }
+  button { padding: 8px 20px; background: #2563eb; color: #fff; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; margin-top: 12px; }
+  button:hover { background: #1d4ed8; }
+</style></head>
+<body>
+<h2>Backfill Visited Nodes</h2>
+<p>This reads your existing MeWorld activity (triage, notes, chats) and marks those nodes as visited across all sets so they show green on the graph.</p>
+<div class="status" id="status">Ready. Click Run.</div>
+<button onclick="run()">Run</button>
+
+<script>
+async function run() {
+  const s = document.getElementById("status");
+  s.textContent = "Loading node index...";
+  try {
+    const nodeToSets = await fetch("_node-to-sets.json").then(r => r.json());
+    s.textContent = "Scanning localStorage for activity...";
+    let found = 0, written = 0;
+
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      const m = key.match(/^(triage-v1|chat|notes)-(\d+)$/);
+      if (!m) continue;
+      const nid = m[2];
+      if (m[1] === "chat") {
+        try { const v = JSON.parse(localStorage.getItem(key)); if (!Array.isArray(v) || !v.length) continue; } catch (_) { continue; }
+      }
+      const sets = nodeToSets[nid];
+      if (!sets) continue;
+      found++;
+      for (const setNum of sets) {
+        localStorage.setItem("nv-" + setNum + ":" + nid, "1");
+        written++;
+      }
+    }
+
+    s.className = "status done";
+    s.textContent = "Backfilled " + written + " visited flags for " + found + " interacted nodes.\n\nYou can close this tab now. Your visited nodes will show green when you reload the graph.";
+  } catch (e) {
+    s.textContent = "Error: " + e.message;
+  }
+}
+</script>
+</body>
+</html>

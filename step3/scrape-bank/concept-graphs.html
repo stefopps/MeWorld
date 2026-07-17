@@ -774,7 +774,7 @@
   }
   .ind-fp-refresh:hover { color: var(--accent); background: #eef3ff; }
   [data-theme="dark"] .ind-fp-refresh:hover { background: #1a1f30; }
-  .ind-fp-refresh.spinning i { animation: spin 0.6s linear infinite; }
+  .ind-fp-refresh.spinning i { display: inline-block; animation: spin 0.6s linear infinite; color: #d8552f; }
   .hud .pinned-concept .pc-oneliner, .hud-content .pinned-concept .pc-oneliner {
     font-size: 0.85rem; font-weight: 650; color: var(--ink);
     line-height: 1.45; margin-bottom: 8px; min-height: 20px;
@@ -862,6 +862,50 @@
   .hud .pc-needs-work, .hud-content .pc-needs-work { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
   .hud .pc-needs-work:hover, .hud-content .pc-needs-work:hover { background: #fde68a; }
   .hud .pc-needs-work.flagged, .hud-content .pc-needs-work.flagged { background: #f59e0b; color: #fff; border-color: #f59e0b; }
+
+  /* Free 137 overlay — blue cards + action buttons */
+  .free137-card {
+    margin: 10px 0; padding: 12px; border-radius: 8px;
+    background: #eff6ff; border: 1px solid #bfdbfe;
+  }
+  [data-theme="dark"] .free137-card { background: #1e293b; border-color: #334155; }
+  .free137-answer {
+    font-size: 0.82rem; color: #1d4ed8; margin-bottom: 8px; font-weight: 600;
+  }
+  [data-theme="dark"] .free137-answer { color: #60a5fa; }
+  .free137-explain {
+    font-size: 0.78rem; color: var(--ink); line-height: 1.55;
+    margin-bottom: 10px; white-space: pre-wrap;
+  }
+  .free137-actions {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  }
+  .free137-btn {
+    font-family: inherit; font-size: 0.72rem; font-weight: 600;
+    padding: 5px 10px; border-radius: 6px; cursor: pointer; border: 1px solid;
+    display: inline-flex; align-items: center; gap: 4px;
+    transition: all .12s;
+  }
+  .free137-btn.copy-btn {
+    background: #dbeafe; color: #1d4ed8; border-color: #93c5fd;
+  }
+  .free137-btn.copy-btn:hover { background: #bfdbfe; }
+  .free137-btn.send-btn {
+    background: #d1fae5; color: #065f46; border-color: #6ee7b7;
+  }
+  .free137-btn.send-btn:hover { background: #a7f3d0; }
+  [data-theme="dark"] .free137-btn.copy-btn { background: #1e3a5f; color: #93c5fd; border-color: #1e40af; }
+  [data-theme="dark"] .free137-btn.copy-btn:hover { background: #1e40af; }
+  [data-theme="dark"] .free137-btn.send-btn { background: #064e3b; color: #6ee7b7; border-color: #065f46; }
+  [data-theme="dark"] .free137-btn.send-btn:hover { background: #065f46; }
+  .free137-toast {
+    font-size: 0.7rem; color: #16a34a; font-weight: 600; opacity: 0;
+    transition: opacity .2s;
+  }
+  .free137-toast.show { opacity: 1; }
+  .node-num-badge.free137-badge {
+    background: #3b82f6 !important; color: #fff !important;
+  }
 
   /* Independent toggles */
   .hud .ind-toggle, .dock-reveal-content .ind-toggle {
@@ -1747,7 +1791,7 @@
 </div>
 
 <script>
-const COLORS = { primary: '#d8552f', mimic: '#9a9890', thread: '#17916b', visited: '#17916b' };
+const COLORS = { primary: '#d8552f', mimic: '#9a9890', thread: '#17916b', visited: '#17916b', free137: '#3b82f6', free137Visited: '#2563eb' };
 
 // ── Visited node tracking (persisted per set) ──
 function nodeVisitedKey(nodeId) { return 'nv-' + currentSet + ':' + nodeId; }
@@ -1903,6 +1947,259 @@ const SET_REGISTRY = {
   130: 'set-130-story-va.html'
 }
 
+// ── Free 137 overlay — USMLE Step 3 sample questions mapped to concept clusters ──
+const FREE137_DATA = [
+  // Block 1 (Q1-18): FIP
+  {q:1, set:2, topic:"Aortic regurgitation — wide pulse pressure, diastolic murmur", answer:"E", answerText:"Transthoracic echocardiography", explanation:"The patient has classic signs of aortic regurgitation: wide pulse pressure (165/55), bounding carotid pulses, displaced PMI, blowing diastolic murmur at LLSB. The most appropriate next diagnostic study is echocardiography to confirm the diagnosis and assess severity."},
+  {q:2, set:52, topic:"Adolescent cannabis use / confidentiality", answer:"E", answerText:"Discuss cannabis effects and offer to help tell mother", explanation:"The physician should explore how cannabis affects functioning and offer to help the patient communicate with his mother. This maintains trust while addressing the substance use."},
+  {q:3, set:6, topic:"COPD exacerbation / advance directive / capacity", answer:"C", answerText:"Explain that the advance directive is confusing and discuss options", explanation:"The patient's DNR order does not specifically address intubation. She declined reintubation but her advance directive is ambiguous. The best approach is to explain this and discuss her options."},
+  {q:4, set:16, topic:"Esophageal varices — NNT calculation from abstract", answer:"C", answerText:"5", explanation:"NNT = 1/(ARR). ARR = 35% - 15% = 20%. NNT = 1/0.20 = 5."},
+  {q:5, set:16, topic:"Esophageal varices study — generalizability", answer:"B", answerText:"EPCS only available at specialty centers", explanation:"The study was done at a single specialty center. The portacaval shunt procedure requires surgical expertise not widely available, limiting generalizability."},
+  {q:6, set:16, topic:"Esophageal varices study — interpreting results table", answer:"B", answerText:"EPCS decreases hospital readmissions for variceal bleeding", explanation:"Mean readmissions: 6.8 (EST) vs 0.4 (EPCS), P<.001. This is a statistically and clinically significant difference."},
+  {q:7, set:19, topic:"Adrenal insufficiency from chronic steroid use", answer:"B", answerText:"Decreased ACTH production", explanation:"The 4yo boy on frequent oral prednisone for asthma develops fatigue, hyponatremia, and hypoglycemia. Chronic exogenous steroid use suppresses the HPA axis via decreased ACTH production (secondary adrenal insufficiency)."},
+  {q:8, set:6, topic:"Pulmonary embolism — post-op dyspnea", answer:"E", answerText:"Pulmonary embolism", explanation:"Post-operative patient (inguinal hernia repair 1 week ago) with sudden dyspnea, clear lungs, elevated D-dimer, normal BNP and chest x-ray. Most consistent with PE."},
+  {q:9, set:20, topic:"ROC curves — comparing diagnostic tests", answer:"C", answerText:"In low false positive rate range, Test A is more accurate", explanation:"ROC curves show Test A has higher sensitivity in the low false positive range (closer to top-left corner)."},
+  {q:10, set:20, topic:"Rocky Mountain spotted fever (RMSF)", answer:"E", answerText:"Tick bite", explanation:"Patient in North Carolina with fever, rash on palms/soles with petechiae, thrombocytopenia, CSF pleocytosis. Classic RMSF transmitted by tick bite."},
+  {q:11, set:35, topic:"SIDS risk factors — maternal smoking", answer:"D", answerText:"Maternal smoking", explanation:"Maternal smoking is the strongest modifiable risk factor for SIDS among the options listed. Greater than cocaine, formula feeding, or employment status."},
+  {q:12, set:6, topic:"Pneumonia with positional improvement", answer:"B", answerText:"Positionally decreased alveolar-arterial gradient", explanation:"The patient has left lower lobe pneumonia. Lying on the left side (good lung up) improves V/Q matching, decreasing the A-a gradient and improving oxygenation."},
+  {q:13, set:9, topic:"Seizure — consent for minor away from parents", answer:"C", answerText:"Attempt to contact mother for permission", explanation:"A 12-year-old away from home for the summer needs anticonvulsant medication. The physician should attempt to contact the mother for consent before treating."},
+  {q:14, set:10, topic:"Osteoarthritis — x-ray findings", answer:"D", answerText:"Subchondral sclerosis and asymmetric joint space narrowing", explanation:"OA classic x-ray: subchondral sclerosis, osteophytes, asymmetric joint space narrowing. No erosions (RA), no soft tissue swelling only (early). Bony enlargements of DIP/PIP = Heberden/Bouchard nodes."},
+  {q:15, set:61, topic:"Somatic symptom disorder / illness anxiety", answer:"B", answerText:"Ask about goals and expectations for treatment", explanation:"The patient has somatic symptom disorder (multiple visits, convinced of Barrett esophagus despite negative workup, preoccupied). Best next step is to ask about her goals and expectations."},
+  {q:16, set:15, topic:"Pruritus from renal failure / ureteral obstruction", answer:"C", answerText:"Oxycodone therapy", explanation:"The patient has known renal calculi and developed pruritus after starting oxycodone-ibuprofen. Oxycodone can cause histamine release leading to pruritus. Bilirubin is only trace positive on UA — not obstruction."},
+  {q:17, set:8, topic:"Pancreatic cancer — epigastric mass + jaundice", answer:"A", answerText:"CT scan of the abdomen", explanation:"A 50yo African American woman with heartburn, scleral icterus, and epigastric mass. Most likely pancreatic cancer. CT scan is the best initial imaging study."},
+  {q:18, set:7, topic:"Ischemic colitis — histopathology", answer:"B", answerText:"Coagulative necrosis of mucosa and submucosa", explanation:"Patient with diffuse atherosclerosis (carotid bruit, CAD, weak pedal pulses) presenting with acute abdominal pain, metabolic acidosis. Ischemic colitis shows coagulative necrosis on pathology."},
+
+  // Block 2 (Q19-37): FIP
+  {q:19, set:18, topic:"Quality improvement — oxygen delivery standardization", answer:"B", answerText:"Create standard oxygen order set with titration parameters", explanation:"The best QI intervention is creating a standardized order set that includes initial dose, titration parameters, and goal — reducing variability while allowing nurse-driven titration."},
+  {q:20, set:20, topic:"HIV perinatal transmission", answer:"C", answerText:"Maternal viral load is best predictor", explanation:"Maternal viral load at delivery is the strongest predictor of perinatal HIV transmission. Undetectable = very low risk."},
+  {q:21, set:84, topic:"Premenstrual dysphoric disorder (PMDD)", answer:"F", answerText:"Timing of symptoms", explanation:"Irritability and insomnia occurring cyclically in a 24yo newly married woman — need to establish if symptoms relate to menstrual cycle for PMDD diagnosis."},
+  {q:22, set:52, topic:"ADHD drug ad — prescribing rationale", answer:"C", answerText:"Essepro XL is not indicated for this patient", explanation:"The patient does not have ADHD. Prescribing stimulants for cognitive enhancement/weight loss in someone without the diagnosis is inappropriate and not FDA-indicated."},
+  {q:23, set:52, topic:"ADHD drug ad — advantage over methylphenidate", answer:"F", answerText:"Increased duration of action", explanation:"Based on the advertisement, the extended-release formulation (XL) provides longer duration of action compared to methylphenidate XL."},
+  {q:24, set:14, topic:"Amaurosis fugax — workup", answer:"D", answerText:"Ultrasonography of the neck", explanation:"Amaurosis fugax (transient monocular blindness) in a patient with vascular risk factors. Most commonly due to carotid artery disease. Carotid ultrasound is the appropriate initial study."},
+  {q:25, set:15, topic:"Contrast-induced ATN / AKI", answer:"B", answerText:"Chronic kidney disease", explanation:"Patient with CKD stage 3, HTN emergency, CT angiography with contrast — developed AKI with muddy brown casts. CKD is the strongest risk factor for contrast-induced nephropathy."},
+  {q:26, set:20, topic:"Urethritis — NAAT testing", answer:"B", answerText:"PCR for N. gonorrhoeae and C. trachomatis", explanation:"Watery urethral discharge with dysuria in a sexually active man. NAAT (PCR) is the most sensitive and specific test for gonorrhea and chlamydia."},
+  {q:27, set:35, topic:"Menorrhagia / fibroids — endometrial biopsy", answer:"D", answerText:"Endometrial biopsy", explanation:"44yo with heavy menstrual bleeding and enlarged uterus. Must rule out endometrial hyperplasia/cancer before attributing to fibroids alone."},
+  {q:28, set:8, topic:"Biliary atresia — neonatal jaundice", answer:"A", answerText:"Bile ductular proliferation", explanation:"2mo with direct hyperbilirubinemia, pale stools, hypoplastic gallbladder. Classic biliary atresia — histology shows bile ductular proliferation and portal fibrosis."},
+  {q:29, set:14, topic:"Vertebrobasilar stroke — brainstem localization", answer:"E", answerText:"Vertebrobasilar artery", explanation:"Patient with nausea/vomiting followed by LOC, facial droop, ataxia, dysphagia after collapse. Crossed findings and ataxia localize to posterior circulation (vertebrobasilar)."},
+  {q:30, set:30, topic:"Trisomy 18 — hospice referral", answer:"E", answerText:"Referral to home hospice care", explanation:"Newborn with trisomy 18 (Edwards syndrome), apnea, dysmorphic features, heart murmur. Median survival is days to weeks. Most appropriate is hospice referral for comfort care."},
+  {q:31, set:2, topic:"Right ventricular infarction", answer:"D", answerText:"Right ventricular infarction", explanation:"Post-op TKA patient with chest pressure, ST elevations in II/III/aVF/V1 (inferior + RV leads), hypotension, elevated JVP, clear lungs. Giving nitroglycerin dropped BP further — classic RV infarction."},
+  {q:32, set:22, topic:"Clinical vs statistical significance", answer:"D", answerText:"Both clinically and statistically significant", explanation:"P=0.02 (statistically significant). Mean of 7 vs 2 joints no longer inflamed out of 12 — that's a clinically meaningful difference."},
+  {q:33, set:33, topic:"Parkinson disease — medication reconciliation", answer:"B", answerText:"Contact pharmacy for current medications", explanation:"Patient with Parkinson disease and dementia, unable to remember meds, caregiver is away. Contacting the pharmacy is the most efficient way to obtain accurate medication history."},
+  {q:34, set:34, topic:"IRB / research recruitment disparities", answer:"B", answerText:"Convene focus group to ask about reluctance", explanation:"When recruitment disparities are identified, the best approach is community engagement — convene a representative focus group to understand barriers to enrollment."},
+  {q:35, set:20, topic:"Vibrio vulnificus — hemorrhagic bullae in cirrhosis", answer:"D", answerText:"Vibrio vulnificus", explanation:"Cirrhosis patient with hemorrhagic bullae on legs after vacation in southeastern state. Vibrio vulnificus causes severe soft tissue infection in patients with iron overload/cirrhosis."},
+  {q:36, set:11, topic:"Diabetes screening — HbA1c", answer:"B", answerText:"Hemoglobin A1c", explanation:"Patient with obesity, fasting glucose 126, strong family history — needs HbA1c to confirm diabetes diagnosis. Fasting glucose ≥126 on two occasions or HbA1c ≥6.5%."},
+  {q:37, set:20, topic:"RSV bronchiolitis — infant", answer:"D", answerText:"Respiratory syncytial virus", explanation:"3mo infant in winter with URI prodrome, respiratory distress, wheezing, chest x-ray findings. RSV is the most common cause of bronchiolitis in infants."},
+
+  // Block 3 (Q38-57): FIP
+  {q:38, set:11, topic:"Diabetic foot ulcer — prevention", answer:"A", answerText:"Blackened eschar on right heel", explanation:"Patient with diabetes, PVD, amputation. A blackened eschar on the contralateral heel indicates critical limb ischemia — this is the finding that most threatens ambulation with a prosthesis."},
+  {q:39, set:19, topic:"Functional hypothalamic amenorrhea", answer:"B", answerText:"Hypothalamic hypogonadism", explanation:"Ballet dancer with low BMI, amenorrhea, bradycardia, hypotension. Energy deficiency suppresses GnRH pulsatility — functional hypothalamic amenorrhea."},
+  {q:40, set:20, topic:"Cryptosporidium — immunodeficiency", answer:"A", answerText:"Cryptosporidium parvum", explanation:"6-8 daily watery stools, recurrent sinopulmonary infections. Acid-fast ovoid oocysts in stool = Cryptosporidium. Recurrent infections suggest immunodeficiency (likely hyper-IgM or CVID)."},
+  {q:41, set:20, topic:"Immunodeficiency workup", answer:"E", answerText:"Serum quantitative immunoglobulins", explanation:"Recurrent infections + crypto in immunocompetent-seeming patient. Quantitative immunoglobulins is the first step to evaluate for humoral immunodeficiency."},
+  {q:42, set:35, topic:"Gestational diabetes screening — test selection", answer:"B", answerText:"B (highest sensitivity)", explanation:"Patient wants to avoid false negatives. Test with the highest sensitivity (lowest false negative rate) is most appropriate."},
+  {q:43, set:22, topic:"Phase 3 trial design — high-risk population", answer:"C", answerText:"Age 45+ with hyperlipidemia and central obesity", explanation:"To design an efficient prevention trial, enroll high-risk patients (older age, metabolic syndrome). More events = smaller sample size needed."},
+  {q:44, set:10, topic:"Celecoxib / COX-2 — cardiovascular risk", answer:"D", answerText:"COX-2 decreasing prostacyclin (PGI2)", explanation:"COX-2 selective inhibitors like celecoxib decrease endothelial prostacyclin (PGI2) production without affecting platelet thromboxane A2. This shifts balance toward thrombosis — the concern in a post-MI patient."},
+  {q:45, set:6, topic:"Pancoast tumor — Horner syndrome", answer:"E", answerText:"Pancoast tumor", explanation:"Smoker with ptosis, miosis (Horner syndrome), and arm weakness (brachial plexus involvement). Classic for superior sulcus (Pancoast) tumor at the lung apex."},
+  {q:46, set:20, topic:"TB lymphadenitis — route of spread", answer:"D", answerText:"Lymphatic drainage from pharyngeal tissues", explanation:"HIV+ patient with cervical lymphadenitis, AFB+, NAAT+. Scrofula (TB lymphadenitis) most commonly reaches cervical nodes via lymphatic drainage from pharyngeal tissues."},
+  {q:47, set:2, topic:"Resistant hypertension — medication adherence", answer:"D", answerText:"Refill patterns on medications", explanation:"Patient on 4 antihypertensives with BP 176/102. Before escalating, the most important history is medication adherence — refill patterns are an objective measure."},
+  {q:48, set:35, topic:"Hyperemesis gravidarum — lab abnormalities", answer:"E", answerText:"Serum urea nitrogen concentration", explanation:"8 weeks pregnant with persistent vomiting leading to volume depletion. Elevated BUN (prerenal azotemia) is the most likely laboratory abnormality from dehydration."},
+  {q:49, set:40, topic:"Opioid withdrawal", answer:"D", answerText:"Opioids", explanation:"Patient incarcerated 12 hours ago with abdominal pain, diarrhea, diaphoresis, yawning, dilated pupils, tachycardia. Classic opioid withdrawal. Urine toxicology will be positive for opioids."},
+  {q:50, set:7, topic:"Pancreatitis — pleural effusion complication", answer:"A", answerText:"Chest x-ray", explanation:"Day 3 of acute pancreatitis, new dyspnea, decreased breath sounds at left base. Pancreatitis can cause pleural effusion. Chest x-ray is the appropriate next step."},
+  {q:51, set:35, topic:"HPV vaccine counseling — parental concerns", answer:"C", answerText:"Explain that future partner could expose him to HPV", explanation:"Parents concerned about HPV vaccine for 11yo. Best response: even with abstinence until marriage, he could still be exposed by his future partner."},
+  {q:52, set:2, topic:"Patient autonomy / amputation refusal", answer:"A", answerText:"Abide by the patient's wishes", explanation:"Alert, oriented patient with capacity declines amputation despite informed consent about risks. Patient autonomy must be respected. He has capacity and a living will."},
+  {q:53, set:6, topic:"Cor pulmonale from COPD", answer:"D", answerText:"Pulmonary vasculature compromise and cor pulmonale", explanation:"COPD patient with JVD, hepatomegaly, edema, parasternal lift. Right heart failure from chronic hypoxic pulmonary vasoconstriction → cor pulmonale."},
+  {q:54, set:5, topic:"Hyperthyroidism — additional symptom", answer:"C", answerText:"Heat intolerance", explanation:"39yo with fatigue, weight loss, tachycardia, tremor, HTN. Classic hyperthyroidism. Heat intolerance is the most consistent additional symptom."},
+  {q:55, set:22, topic:"Epilepsy surgery — Kaplan-Meier interpretation", answer:"A", answerText:"Absence of seizures at 2 years is best predictor", explanation:"Kaplan-Meier plot shows patients seizure-free at 2 years post-op have the best long-term seizure control. The P-value confirms statistical significance."},
+  {q:56, set:56, topic:"Duchenne muscular dystrophy", answer:"B", answerText:"Large deletion in dystrophin gene", explanation:"5yo boy with proximal muscle weakness, Gower sign, calf pseudohypertrophy, CK 25,000. Classic Duchenne MD — caused by dystrophin gene deletion (X-linked recessive)."},
+  {q:57, set:57, topic:"Beta-blocker overdose", answer:"D", answerText:"Inhibition of β1-adrenergic receptors", explanation:"Patient on codeine + fluoxetine presenting with bradycardia (pulse 32), hypotension, confusion. This is not purely opioid (no pinpoint pupils). Likely took mother's beta-blocker."},
+
+  // Block 4 (Q58-77): FIP
+  {q:58, set:2, topic:"Peripheral artery disease — cilostazol", answer:"D", answerText:"Phosphodiesterase", explanation:"Patient with claudication (calf pain walking, ABI 0.6). Cilostazol targets phosphodiesterase-3, increasing cAMP and causing vasodilation + antiplatelet effects."},
+  {q:59, set:6, topic:"Pulmonary hypertension — ASD", answer:"B", answerText:"Echocardiography", explanation:"Patient with progressive dyspnea, AFib, RV heave, widely split S2, prominent pulmonary arteries. Suspect pulmonary hypertension — echo is the next step."},
+  {q:60, set:22, topic:"Surrogate endpoints — osteoporosis trial", answer:"A", answerText:"Bone density may not correlate with fracture risk", explanation:"The study measured bone density (surrogate endpoint) but concluded about fracture risk. The impact on bone density may not correlate with actual fracture prevention."},
+  {q:61, set:14, topic:"Subdural hematoma — elderly confusion", answer:"B", answerText:"Head trauma", explanation:"Elderly patient with progressive confusion, drowsiness, scalp ecchymosis. Chronic subdural hematoma from head trauma (even minor) is the most likely explanation."},
+  {q:62, set:61, topic:"Panic disorder", answer:"A", answerText:"Adjustment disorder with anxiety", explanation:"Young woman 6 weeks after divorce with sudden unexpected panic attacks. The timeline immediately following a major life stressor is most consistent with adjustment disorder with anxiety."},
+  {q:63, set:49, topic:"Spinal cord contusion — football injury", answer:"B", answerText:"Contusion of the thoracic spinal cord", explanation:"Direct helmet strike to upper back, lower extremity weakness, sensory level, absent DTRs. Acute spinal cord contusion at the thoracic level."},
+  {q:64, set:15, topic:"Dialysis refusal / advance directive vs surrogate", answer:"A", answerText:"Continue current management; do not initiate dialysis", explanation:"Patient with capacity made an informed decision to decline dialysis and requested DNR. This was documented. The daughter as surrogate cannot override a capacitated patient's contemporaneous decision."},
+  {q:65, set:3, topic:"Aortic stenosis — syncope evaluation", answer:"D", answerText:"Telemetry observation", explanation:"75yo with syncope, systolic ejection murmur at LUSB. Aortic stenosis is the primary suspect — syncope is a cardinal symptom. Telemetry observation is appropriate for inpatient evaluation."},
+  {q:66, set:22, topic:"IRB / study liability concerns", answer:"A", answerText:"Approve the study as submitted", explanation:"IRB concerns about institutional liability are not a valid reason to disapprove a scientifically sound study. The study should be approved as submitted."},
+  {q:67, set:67, topic:"Chest wall mass — sarcoma", answer:"E", answerText:"Poorly differentiated anaplastic spindle cells", explanation:"15yo with large chest wall mass (14x12cm). Ewing sarcoma/PNET shows small round blue cells. Anaplastic spindle cells suggest a high-grade soft tissue sarcoma."},
+  {q:68, set:2, topic:"Pill esophagitis — alendronate", answer:"B", answerText:"Esophagus", explanation:"Patient on alendronate (bisphosphonate) with odynophagia. Alendronate is a known cause of pill esophagitis/esophageal ulceration when not taken properly."},
+  {q:69, set:6, topic:"COPD — emphysema pathophysiology", answer:"C", answerText:"Destruction of alveolar walls with air space enlargement", explanation:"Smoker with obstructive pattern (FEV1/FVC 0.55), prolonged expiratory phase. The underlying pathology is emphysema — destruction of alveolar walls leading to enlarged air spaces."},
+  {q:70, set:22, topic:"Study design — cross-sectional survey", answer:"D", answerText:"Cross-sectional study", explanation:"Survey of 5000 physicians at one point in time about prescribing patterns. This is a cross-sectional study design."},
+  {q:71, set:71, topic:"BPPV — positional vertigo", answer:"C", answerText:"Labyrinthitis", explanation:"Patient with dizziness triggered by position change, horizontal nystagmus. Benign paroxysmal positional vertigo (BPPV) is most consistent — a peripheral vestibular disorder."},
+  {q:72, set:72, topic:"Pressure ulcer — prolonged immobility", answer:"B", answerText:"Prolonged immobility", explanation:"Bed-bound patient with advanced dementia. The foot wound (likely pressure ulcer) is caused by prolonged immobility and pressure."},
+  {q:73, set:2, topic:"Anomalous left coronary artery — pediatric MI", answer:"A", answerText:"Cardiac conduction abnormality", explanation:"8yo with dysmorphic facies, seizure, bradycardia, asystole. Echocardiogram showed global hypokinesis. Autopsy: acute MI. Anomalous origin of left coronary artery from pulmonary artery causes infantile MI."},
+  {q:74, set:15, topic:"Renal colic / kidney stone — helical CT", answer:"C", answerText:"Helical CT scan of the abdomen", explanation:"Young woman with right flank pain radiating to pelvis, CVA tenderness, microscopic hematuria. High suspicion for renal stone. Non-contrast helical CT is the imaging of choice."},
+  {q:75, set:35, topic:"Postmenopausal bleeding — endometrial biopsy", answer:"C", answerText:"Endometrial biopsy", explanation:"Postmenopausal woman with vaginal spotting, obesity, diabetes, HTN. Must rule out endometrial cancer. Endometrial biopsy is the diagnostic study of choice."},
+  {q:76, set:76, topic:"Parental concern / communication", answer:"C", answerText:"Tell me what your greatest concerns are", explanation:"Father questions diagnosis of lymphadenitis given family cancer history. Open-ended inquiry into his concerns is the best approach."},
+  {q:77, set:77, topic:"Dementia patient / agitation management", answer:"B", answerText:"Contact health care proxy", explanation:"Patient with advanced dementia, combative, unable to consent. Contact the health care proxy to discuss how to proceed with examination and management."},
+
+  // Block 5 (Q78-97): ACM
+  {q:78, set:78, topic:"Chronic constipation — management", answer:"B", answerText:"Anorectal manometry", explanation:"Constipation with decreased sphincter tone, soft stool in vault suggests pelvic floor dysfunction/outlet obstruction. Anorectal manometry evaluates for dyssynergic defecation."},
+  {q:79, set:17, topic:"Complete heart block — transcutaneous pacing", answer:"F", answerText:"Transcutaneous pacing", explanation:"Patient with ischemic cardiomyopathy, bradycardia (pulse 30), hypotension (75/35), altered mental status. This is symptomatic bradycardia — transcutaneous pacing is the immediate treatment."},
+  {q:80, set:40, topic:"Opioid intoxication", answer:"B", answerText:"Diazepam", explanation:"Adolescent with lethargy, pinpoint pupils (2mm), respiratory depression (RR 10), decreased bowel sounds. Classic opioid toxidrome. But wait — pupils are minimally reactive, not pinpoint..."},
+  {q:81, set:11, topic:"Diabetes — discharge planning / home services", answer:"A", answerText:"Administer daily insulin", explanation:"Post-hip replacement patient with DM needing insulin at home, sister has severe OA. The most critical home service is ensuring insulin administration."},
+  {q:82, set:82, topic:"Parietal lobe lesion — hemi-inattention", answer:"C", answerText:"Effect of hemi-inattention on visual spatial skills", explanation:"Right parietal astrocytoma resection with left extinction to double simultaneous stimulation. As a graphic designer, visual-spatial skills are critical — focused evaluation on hemi-inattention is most important."},
+  {q:83, set:5, topic:"Methimazole — agranulocytosis", answer:"E", answerText:"Methimazole", explanation:"Patient on methimazole with fever, sore throat, WBC 1200, ANC near zero. Methimazole causes agranulocytosis — must discontinue immediately."},
+  {q:84, set:84, topic:"ALS — bulbar onset / prognosis", answer:"B", answerText:"Bulbar weakness", explanation:"Patient with progressive dysarthria, tongue fasciculations, dysphagia. ALS with bulbar involvement carries the worst prognosis due to aspiration risk and respiratory failure."},
+  {q:85, set:5, topic:"Methimazole — agranulocytosis management", answer:"C", answerText:"Cefepime therapy", explanation:"Patient on methimazole with agranulocytosis (ANC ~100), fever. This is febrile neutropenia — requires broad-spectrum antibiotics (cefepime) after discontinuing methimazole."},
+  {q:86, set:86, topic:"Tension pneumothorax — neonate", answer:"E", answerText:"Placement of a left chest tube", explanation:"Preterm infant on high PEEP ventilation with sudden desaturation, hypotension. Suspect tension pneumothorax — immediate needle decompression followed by chest tube placement."},
+  {q:87, set:35, topic:"Pap smear screening interval", answer:"C", answerText:"In 5 years", explanation:"38yo with normal cytology and negative HPV testing — co-testing every 5 years is the guideline."},
+  {q:88, set:88, topic:"Local anesthetic allergy — evaluation", answer:"E", answerText:"Refer to allergist for evaluation", explanation:"Patient reports reaction to local anesthetic but doesn't know which agent. She needs formal allergy evaluation to identify the culprit before repeat injection."},
+  {q:89, set:89, topic:"Colon cancer recurrence — solitary lung nodule", answer:"E", answerText:"Resection of the nodule", explanation:"Stage III colon cancer survivor with CEA rising and solitary lung nodule — this is potentially curable oligometastatic disease. Surgical resection of the solitary metastasis is indicated."},
+  {q:90, set:90, topic:"Hemochromatosis — Vibrio risk from raw seafood", answer:"C", answerText:"Raw oysters", explanation:"Patient with hemochromatosis (iron overload) is at high risk for Vibrio vulnificus infection. Raw oysters are the primary source. Iron overload increases susceptibility to Vibrio sepsis."},
+  {q:91, set:91, topic:"Testicular torsion — fertility counseling", answer:"B", answerText:"Fertility will most likely be unaffected with immediate reversal", explanation:"Testicular torsion (testicle in transverse plane, acute pain after trauma). With immediate surgical detorsion (<6 hours), fertility is typically preserved."},
+  {q:92, set:92, topic:"Post-op respiratory depression — OSA management", answer:"B", answerText:"Bupivacaine femoral nerve block", explanation:"Obese patient with OSA, post-op opioid sensitivity causing apnea. Regional anesthesia (femoral nerve block) provides pain control without respiratory depression."},
+  {q:93, set:93, topic:"Acetaminophen overdose — poor prognosis factor", answer:"B", answerText:"Concurrent alcohol consumption", explanation:"Patient with acetaminophen overdose (level 250) and concurrent alcohol ingestion. Alcohol induces CYP2E1, increasing NAPQI production — this is the strongest poor prognostic factor."},
+  {q:94, set:5, topic:"Thyroid nodule — radiation exposure risk", answer:"E", answerText:"Radiation exposure", explanation:"Patient with history of mantle radiation for Hodgkin lymphoma now has thyroid nodules. Prior neck radiation is the strongest risk factor for thyroid malignancy."},
+  {q:95, set:95, topic:"Herpetic whitlow", answer:"A", answerText:"Oral acyclovir", explanation:"Infant with finger blisters, URI prodrome, oral lesions. Herpetic whitlow (HSV infection of finger) — treat with oral acyclovir."},
+  {q:96, set:2, topic:"Post-MI hypertension — lisinopril", answer:"D", answerText:"Lisinopril", explanation:"Post-MI patient with hypertension (150/95). ACE inhibitor (lisinopril) provides mortality benefit post-MI and treats hypertension. Already on aspirin, beta-blocker, statin."},
+  {q:97, set:2, topic:"NSTEMI — nitroglycerin", answer:"E", answerText:"Sublingual nitroglycerin", explanation:"Patient with ST elevation anterior + Q waves inferior, PVCs, crackles. This is an acute coronary syndrome. Sublingual nitroglycerin is the appropriate pharmacotherapy."},
+
+  // Block 6 (Q98-117): ACM
+  {q:98, set:98, topic:"Herpangina — coxsackievirus", answer:"D", answerText:"Ibuprofen", explanation:"Patient with SLE, fever, sore throat, vesicles on tonsils, negative rapid strep. Herpangina (coxsackie) is viral — supportive care with ibuprofen."},
+  {q:99, set:99, topic:"Fanconi syndrome — proximal RTA", answer:"C", answerText:"Osteomalacia", explanation:"Infant with failure to thrive, hypokalemia, metabolic acidosis (HCO3 11), hypophosphatemia, glucosuria. Fanconi syndrome (proximal tubular dysfunction) → osteomalacia from phosphate wasting."},
+  {q:100, set:11, topic:"DKA — insulin management", answer:"B", answerText:"Continuous infusion of IV short-acting insulin", explanation:"11yo with DKA (glucose 693, pH 7.16, ketones). After volume expansion, continuous IV insulin infusion is the standard of care."},
+  {q:101, set:11, topic:"DKA — cerebral edema", answer:"E", answerText:"Mannitol therapy", explanation:"DKA patient develops headache then LOC, extensor posturing. Cerebral edema is a life-threatening complication of DKA treatment. Mannitol is the emergency treatment."},
+  {q:102, set:19, topic:"PCOS — diabetes risk", answer:"A", answerText:"Diabetes mellitus", explanation:"Patient with PCOS on OCPs. The greatest long-term risk is insulin resistance and type 2 diabetes mellitus."},
+  {q:103, set:103, topic:"Mitral regurgitation — valve replacement", answer:"B", answerText:"Evaluate for valve replacement", explanation:"Patient with known MR now with orthopnea, PND, S3, edema, grade 4/6 murmur. Symptomatic severe mitral regurgitation — evaluate for surgical intervention."},
+  {q:104, set:35, topic:"Methadone and breast-feeding", answer:"C", answerText:"Encourage breast-feeding given methadone program participation", explanation:"Patient in stable methadone maintenance program, minimal methadone enters breast milk. Breast-feeding is encouraged and may help reduce neonatal abstinence syndrome severity."},
+  {q:105, set:105, topic:"Pleural effusion — OSA-related / echo", answer:"C", answerText:"Echocardiography", explanation:"Exudative pleural effusion (Light criteria), negative cultures/cytology, OSA, obesity. Right-sided effusion with OSA and edema suggests pulmonary hypertension or HFpEF — echocardiography next."},
+  {q:106, set:9, topic:"Seizure — sleep deprivation trigger", answer:"C", answerText:"Maintenance of adequate sleep", explanation:"Medical student with new-onset seizure after sleep deprivation, tongue biting. Sleep deprivation is the most likely trigger among the options."},
+  {q:107, set:107, topic:"Scaphoid fracture — casting", answer:"B", answerText:"Apply plaster cast incorporating the thumb", explanation:"Fall on outstretched hand, wrist pain. Scaphoid fracture requires thumb spica cast immobilization to prevent avascular necrosis."},
+  {q:108, set:108, topic:"Aortic dissection — management", answer:"E", answerText:"Replacement of the aortic root", explanation:"Hypertensive patient with crushing chest/back pain, syncope, widened pulse pressure differential (thready femoral pulses, radial 1+), diastolic murmur. Type A aortic dissection requires emergent surgical repair."},
+  {q:109, set:20, topic:"Urethritis — HIV follow-up", answer:"C", answerText:"Schedule HIV serology testing in 3 months", explanation:"Patient treated for STI after unprotected sex. HIV serology should be repeated in 3 months due to the window period."},
+  {q:110, set:2, topic:"Heart failure — beta-blocker contraindication", answer:"D", answerText:"Metoprolol", explanation:"Patient with decompensated heart failure (JVD, crackles, edema, S3). Beta-blockers are contraindicated in acute decompensated HF."},
+  {q:111, set:40, topic:"Alcohol withdrawal — hypophosphatemia risk", answer:"D", answerText:"Hypophosphatemia", explanation:"Malnourished alcoholic receiving thiamine and glucose. Refeeding syndrome causes hypophosphatemia as phosphate shifts intracellularly."},
+  {q:112, set:112, topic:"Salicylate overdose", answer:"C", answerText:"Sodium bicarbonate", explanation:"Patient with tinnitus, respiratory alkalosis + metabolic acidosis (mixed disorder). Salicylate overdose — treatment is sodium bicarbonate to alkalinize urine and enhance elimination."},
+  {q:113, set:6, topic:"Asthma — step-up therapy (ICS)", answer:"A", answerText:"Add inhaled fluticasone", explanation:"Asthma patient using albuterol twice daily (not well-controlled), FEV1 70%. Next step is adding inhaled corticosteroid (fluticasone)."},
+  {q:114, set:114, topic:"Tourette syndrome — OCD comorbidity", answer:"D", answerText:"Obsessive-compulsive disorder", explanation:"9yo with motor tics (eye blinking, shoulder jerks) + vocal tics (throat clearing) >6 months. Tourette syndrome — OCD is the most common comorbidity."},
+  {q:115, set:115, topic:"Crohn disease — complication", answer:"A", answerText:"Anal fistula", explanation:"Adolescent with abdominal pain, diarrhea, weight loss, mouth ulcers, RLQ fullness. Crohn disease — anal fistula is a classic complication."},
+  {q:116, set:116, topic:"Paget disease of bone", answer:"A", answerText:"Alendronate, orally", explanation:"Elderly Swedish man with progressive leg bowing (valgus deformity), cortical thickening, intramedullary sclerosis. Paget disease of bone — bisphosphonates (alendronate) are first-line treatment."},
+  {q:117, set:117, topic:"MALT lymphoma — H. pylori treatment", answer:"A", answerText:"Clarithromycin and amoxicillin therapy", explanation:"Gastric ulcer biopsy shows CD19/CD20+ B-cell infiltrate (MALT lymphoma). Gastric MALT lymphoma is associated with H. pylori — eradication with antibiotics is first-line therapy."},
+
+  // Block 7 (Q118-137): ACM
+  {q:118, set:118, topic:"Myocarditis — prognosis", answer:"A", answerText:"Complete recovery", explanation:"Young healthy patient with acute heart failure (dilated LV, EF 40%, BNP 2000) after viral prodrome. Viral myocarditis — most patients have complete recovery."},
+  {q:119, set:20, topic:"HPV vaccine — MSM indication", answer:"A", answerText:"Administer the HPV vaccine", explanation:"25yo MSM requesting HPV vaccine. HPV vaccine is recommended for men who have sex with men up to age 26."},
+  {q:120, set:7, topic:"Pancreatitis — hypertriglyceridemia", answer:"A", answerText:"CT scan of abdomen with contrast", explanation:"Patient with acute pancreatitis (lipase 846). CT with contrast helps assess severity, complications, and etiology. Hypertriglyceridemia (275) may be the cause."},
+  {q:121, set:121, topic:"Genetic pedigree analysis", answer:"E", answerText:"X-linked recessive", explanation:"Pedigree showing only males affected, transmitted through carrier females. Classic X-linked recessive inheritance pattern."},
+  {q:122, set:15, topic:"Polycystic kidney disease — prognosis", answer:"B", answerText:"Kidney function", explanation:"Patient with ADPKD and CKD (creatinine 2.1). Kidney function (declining GFR) is the strongest predictor of progression to ESRD."},
+  {q:123, set:123, topic:"Allergic rhinitis — asthma predictor", answer:"A", answerText:"Associated shortness of breath and wheezing", explanation:"Patient with perennial allergic rhinitis. The presence of wheezing and shortness of breath is the strongest predictor of progression to asthma."},
+  {q:124, set:123, topic:"Allergic rhinitis + asthma — ICS treatment", answer:"A", answerText:"Inhaled fluticasone", explanation:"Patient with allergic rhinitis who has developed wheezing and dyspnea despite allergen avoidance. Inhaled corticosteroid is the appropriate controller therapy for asthma."},
+  {q:125, set:125, topic:"Myasthenia gravis — pneumonia treatment", answer:"D", answerText:"Ceftriaxone and doxycycline", explanation:"Patient with MG, community-acquired pneumonia (left upper lobe infiltrate). Ceftriaxone + doxycycline covers typical CAP pathogens. Avoid fluoroquinolones and aminoglycosides which can worsen MG."},
+  {q:126, set:126, topic:"Opioid diversion — urine drug testing", answer:"C", answerText:"Order random urine test for oxycodone", explanation:"Patient suspected of selling oxycodone. Random urine drug testing is appropriate clinical monitoring — not punitive police reporting on suspicion alone."},
+  {q:127, set:2, topic:"CAD prevention — smoking cessation", answer:"C", answerText:"Smoking cessation program", explanation:"Patient with family history of early CAD, smoking, hypercholesterolemia. Smoking cessation is the single most impactful intervention for CAD prevention."},
+  {q:128, set:11, topic:"Diabetes — statin + metformin", answer:"C", answerText:"Lisinopril", explanation:"New diabetes diagnosis (HbA1c 8.3%, fasting glucose 146). Guidelines recommend ACE inhibitor or ARB in diabetic patients for renal protection."},
+  {q:129, set:5, topic:"Thyroid storm — management", answer:"D", answerText:"Intravenous propranolol", explanation:"Patient with hyperthyroidism, fever, AFib with RVR, goiter with bruit, tremor. Thyroid storm — propranolol blocks peripheral T4→T3 conversion and controls heart rate."},
+  {q:130, set:130, topic:"Temporomandibular joint disorder", answer:"A", answerText:"Avoid chewing gum and hard/chewy foods", explanation:"Patient with jaw pain, limited opening, snapping sensation. TMJ disorder — conservative management with soft diet and avoiding aggravating behaviors."},
+  {q:131, set:35, topic:"Breast-feeding / return to work", answer:"A", answerText:"Discuss breast-feeding plan with employer", explanation:"New mother wants to breast-feed but must return to work in 4 weeks. Best recommendation is to discuss a pumping schedule with her employer."},
+  {q:132, set:14, topic:"Wallenberg syndrome (lateral medullary)", answer:"D", answerText:"Sleep-related hypoventilation", explanation:"Patient with crossed sensory findings (right face, left body), Horner syndrome, ataxia, dysphagia, nystagmus. Lateral medullary (Wallenberg) syndrome — at risk for central sleep apnea/hypoventilation."},
+  {q:133, set:72, topic:"Pressure ulcer — nutrition for healing", answer:"A", answerText:"Hypercaloric diet", explanation:"Frail nursing home patient with low BMI (19), low cholesterol (105), stage II pressure ulcer. Nutritional supplementation (hypercaloric, high protein) is the most critical intervention for wound healing."},
+  {q:134, set:35, topic:"Postpartum mastitis / breast abscess", answer:"D", answerText:"Intravenous vancomycin", explanation:"Postpartum woman with breast abscess not improving on cephalexin, MRSA risk. Vancomycin covers MRSA which is increasingly common in community-acquired skin infections."},
+  {q:135, set:135, topic:"Atypical femur fracture — surgical fixation", answer:"F", answerText:"Surgical fixation", explanation:"Patient with lateral cortical thickening and cortical discontinuity, bone marrow edema — atypical femur fracture (bisphosphonate-related). Requires surgical fixation."},
+  {q:136, set:5, topic:"Graves disease — complications", answer:"B", answerText:"Congestive heart failure", explanation:"Patient with classic Graves (exophthalmos, goiter, tremor, weight loss, tachycardia). Untreated hyperthyroidism can lead to high-output heart failure."},
+  {q:137, set:137, topic:"Neuroleptic malignant syndrome", answer:"C", answerText:"Haloperidol", explanation:"Patient on haloperidol + lithium with fever, lead pipe rigidity, elevated CK, autonomic instability. Classic neuroleptic malignant syndrome — discontinue haloperidol immediately."}
+];
+
+// Free 137 overlay — attach overlay nodes to the current graph if matching set items exist
+function attachFree137Overlay() {
+  if (!GRAPH || !GRAPH.nodes || !GRAPH.nodes.length) return;
+  const setNum = GRAPH.meta ? GRAPH.meta.set : null;
+  if (setNum == null) return;
+  // Find Free 137 questions mapped to this set
+  const matches = FREE137_DATA.filter(f => f.set === setNum);
+  if (!matches.length) return;
+
+  // Build overlay nodes — attach to the first spine node in this set
+  const spineNodes = GRAPH.nodes.filter(n => n.category === 'primary');
+  if (!spineNodes.length) return;
+
+  // Offset each overlay node radially around the set's main node cluster
+  const clusterCenter = spineNodes.reduce((acc, n) => ({ x: acc.x + (n.x||0), y: acc.y + (n.y||0)}), {x:0,y:0});
+  clusterCenter.x /= spineNodes.length;
+  clusterCenter.y /= spineNodes.length;
+
+  const overlayNodes = [];
+  const overlayLinks = [];
+  matches.forEach((f, i) => {
+    const angle = (i / matches.length) * Math.PI * 2;
+    const radius = 120 + (Math.floor(i / 8) * 40);
+    const nx = clusterCenter.x + Math.cos(angle) * radius;
+    const ny = clusterCenter.y + Math.sin(angle) * radius;
+    const targetSpine = spineNodes[0]; // attach to first spine node
+
+    const nodeId = 'free137-' + f.q;
+    overlayNodes.push({
+      id: nodeId,
+      category: 'free137',
+      _qNum: f.q,
+      why: f.topic,
+      sceneId: 'FREE137',
+      indexInScene: f.q,
+      sceneTitle: 'Free 137 Q' + f.q,
+      sceneHook: '',
+      stem: f.topic,
+      storyStage: null,
+      storyText: f.topic,
+      question: '',
+      answers: [],
+      explanation: f.explanation,
+      likely: 'Answer: ' + f.answer + ' (' + f.answerText + ')',
+      hasReveal: false,
+      // position near the cluster
+      x: nx,
+      y: ny,
+      fx: nx,
+      fy: ny,
+      _qNum: f.q,
+      _answer: f.answer,
+      _answerText: f.answerText
+    });
+
+    // Link this overlay node to the target spine node
+    overlayLinks.push({
+      source: nodeId,
+      target: targetSpine.id,
+      strength: 0.05,
+      distance: 80 + i * 2
+    });
+  });
+
+  // Add overlay nodes and links to GRAPH
+  GRAPH._free137Nodes = overlayNodes;
+  GRAPH._free137Links = overlayLinks;
+
+  // Insert overlay nodes into the D3 simulation
+  const allNodes = [...GRAPH.nodes, ...overlayNodes];
+  const allLinks = [...(GRAPH.edges || []), ...overlayLinks.map(l => ({
+    source: l.source,
+    target: l.target,
+    strength: l.strength || 0.05,
+    distance: l.distance || 80
+  }))];
+
+  // Rebuild byId
+  allNodes.forEach(n => { byId[n.id] = n; });
+
+  // Update the graph's node set for rendering
+  GRAPH._allNodes = allNodes;
+  GRAPH._allLinks = allLinks;
+}
+
+// Get the effective node list including Free 137 overlays
+function getEffectiveNodes() {
+  return GRAPH && GRAPH._allNodes ? GRAPH._allNodes : (GRAPH ? GRAPH.nodes : []);
+}
+
+function getEffectiveLinks() {
+  return GRAPH && GRAPH._allLinks ? GRAPH._allLinks : (GRAPH ? (GRAPH.edges || []) : []);
+}
+
+function isFree137Node(d) {
+  return d && d.category === 'free137';
+}
+
+
 let GRAPH = null;
 let byId = {};
 let nodeSel = null;
@@ -1992,7 +2289,29 @@ function joinGraph(meta, items, storyByQid) {
   const itemById = Object.fromEntries(items.map(q => [String(q.id), q]));
   const nodes = meta.nodes.map(n => {
     const q = itemById[String(n.id)];
-    if (!q) throw new Error('QID ' + n.id + ' missing from story ITEMS');
+    // Nodes in graph data that don't appear in the story ITEMS (e.g. NBME/Free 137
+    // questions added after story generation) get minimal fallback entries so the
+    // graph can still load — the node renders with its .why label and the HUD
+    // shows whatever fields are available.
+    if (!q) {
+      return {
+        id: String(n.id),
+        category: n.category,
+        why: n.why || '',
+        sceneId: 0,
+        indexInScene: 0,
+        sceneTitle: '',
+        sceneHook: '',
+        stem: (n.why || '') + ' (external question — not in story ITEMS)',
+        storyStage: 'External',
+        storyText: n.why || '',
+        question: '',
+        answers: [],
+        explanation: '',
+        likely: '',
+        hasReveal: false,
+      };
+    }
     const story = storyByQid[String(n.id)] || { stage: null, text: '(No story beat mapped.)' };
     return {
       id: String(n.id),
@@ -2669,6 +2988,39 @@ const DEPTH_CONFIG = {
   2: { label: 'Deep',      words: 150, maxTokens: 560 },
   3: { label: 'Full arc',  words: 230, maxTokens: 900 },
 };
+
+// ── Structural variation forms (round-robin rotation for First Principles) ──
+const STRUCTURAL_FORMS = [
+  { name: 'The Wrong Turn', prompt: `⚠ DO NOT ECHO THIS TEXT — FOLLOW THE STRUCTURE ONLY. Start your explanation by naming the single most tempting WRONG answer concretely, then pivot: "The reflex here is [wrong answer]. It's not — and here's why that reflex fails." Then dismantle that reflex through mechanism. End when the correct answer becomes inevitable.` },
+  { name: 'The Ticking Clock', prompt: `⚠ DO NOT ECHO THIS TEXT — FOLLOW THE STRUCTURE ONLY. Start with a time-pressure clinical consequence, not the diagnosis. Explain the mechanism as a function of time — minute 0, hour 2, hour 6. The diagnosis is the reason the clock is ticking.` },
+  { name: 'The Lab Value as Plot Twist', prompt: `⚠ DO NOT ECHO THIS TEXT — FOLLOW THE STRUCTURE ONLY. Start with a single lab value cold — no context. Use that number to eliminate 2-3 wrong answers through mechanism. Withhold the correct answer until the field is cleared.` },
+  { name: 'The Autopsy', prompt: `⚠ DO NOT ECHO THIS TEXT — FOLLOW THE STRUCTURE ONLY. Start at the worst consequence if this is missed. Work backward: consequence → decompensation → initial insult. Each step answers what had to fail, not what happens next.` },
+  { name: 'The Overheard Conversation', prompt: `⚠ DO NOT ECHO THIS TEXT — FOLLOW THE STRUCTURE ONLY. Frame as two clinicians mid-argument. Voice the wrong position — let it make its best case. Then voice the counter with mechanism. End when the correct position wins on mechanism, not summary.` },
+  { name: 'The Red Herring Tour', prompt: `⚠ DO NOT ECHO THIS TEXT — FOLLOW THE STRUCTURE ONLY. Walk through wrong answers first, in decreasing plausibility. Each gets a mechanistic reason for elimination. The correct answer is the LAST thing stated — no conclusion paragraph after.` },
+  { name: 'The Single Sentence Anchor', prompt: `⚠ DO NOT ECHO THIS TEXT — FOLLOW THE STRUCTURE ONLY. Start with ONE dense sentence containing the entire mechanism compressed. Every paragraph after expands a clause from that sentence. No new concepts after the opening.` },
+  // ── Forms 8–11: McKee/Truby derived ──
+  { name: 'The Spiral', prompt: `⚠ DO NOT ECHO THIS TEXT — FOLLOW THE STRUCTURE ONLY. Take ONE finding and visit it three times at increasing depth: clinical surface → organ system failure → cellular/molecular mechanism. Each return reveals what the previous layer concealed.` },
+  { name: 'The Gap Engine', prompt: `⚠ DO NOT ECHO THIS TEXT — FOLLOW THE STRUCTURE ONLY. Every paragraph: state what a reasonable clinician would conclude, then overturn it with mechanism — why that conclusion is wrong. No paragraph is a flat fact. End when the last expectation is overturned.` },
+  { name: 'The Revelation Ladder', prompt: `⚠ DO NOT ECHO THIS TEXT — FOLLOW THE STRUCTURE ONLY. Present 3-4 key findings one at a time, stripped of all interpretation — no connective tissue. After ALL findings are visible, reveal the mechanism that explains all of them simultaneously.` },
+  { name: 'The Ironic Turn', prompt: `⚠ DO NOT ECHO THIS TEXT — FOLLOW THE STRUCTURE ONLY. Start with the therapeutic instinct — the treatment any reasonable physician would reach for. Explain mechanistically why it fails. The failure mechanism IS the diagnosis. Stating why treatment won't work IS stating the diagnosis.` },
+];
+
+const FP_FORM_KEY = 'fp_form_index';
+
+function getNextForm() {
+  let idx = 0;
+  try { idx = parseInt(localStorage.getItem(FP_FORM_KEY)) || 0; } catch (_) {}
+  const form = STRUCTURAL_FORMS[idx % STRUCTURAL_FORMS.length];
+  // Advance for next generation
+  try { localStorage.setItem(FP_FORM_KEY, String(idx + 1)); } catch (_) {}
+  return form;
+}
+
+function getCurrentForm() {
+  let idx = 0;
+  try { idx = parseInt(localStorage.getItem(FP_FORM_KEY)) || 0; } catch (_) {}
+  return STRUCTURAL_FORMS[idx % STRUCTURAL_FORMS.length];
+}
 
 function readAttendingPrefs() {
   try {
@@ -3660,6 +4012,33 @@ async function fetchFirstPrinciples(node, regen = false) {
     if (logged) return logged;
   }
 
+  // ── Depth-aware generation rules ──
+  const prefs = readAttendingPrefs();
+  const dc = DEPTH_CONFIG[prefs.depth];
+  const depthParaRules = {
+    0: { paras: '1-2', probe: 'No closing probe.', answerWalk: 'Only state the correct answer. Do not discuss wrong answers.', forbidClose: true },
+    1: { paras: '2-3', probe: 'Probe optional. Skip if forced.', answerWalk: 'One distractor at most. Otherwise skip.', forbidClose: false },
+    2: { paras: '3-4', probe: 'Required. End with a question that changes one variable.', answerWalk: 'Walk through distrators that best illuminate.', forbidClose: false },
+    3: { paras: '4-5', probe: 'Required. End with a question that extends the arc.', answerWalk: 'Walk through all distractors.', forbidClose: false },
+  };
+  const dr = depthParaRules[prefs.depth];
+  const depthHeader = prefs.depth === 0
+    ? `⏱ Tight mode: ~50 words. One opening statement + mechanism. Stop. No closing sentence. No answer menu.`
+    : prefs.depth === 1
+    ? `⏱ Standard: ~150 words. 2-3 grafs. Probe optional. One distractor at most.`
+    : prefs.depth === 2
+    ? `⏱ Deep: ~300 words. 3-4 grafs. Probe required. Walk through key distractors.`
+    : `⏱ Full arc: ~500 words. 4-5 grafs. Probe required. Walk through all distractors.`;
+  const form = getNextForm(); // round-robin structural variation
+  const depthForbidden = prefs.depth === 0 ? '- Closing probe or trailing question.\n- Walking through answer choices. Only state the correct one.\n' : '';
+  const depthUserRules = prefs.depth === 0
+    ? '⏱ Tight: 1-2 grafs. Core mechanism only. End after the insight. No closing line.'
+    : prefs.depth === 1
+    ? '⏱ Standard: 2-3 grafs. Mechanism + significance. Probe optional.'
+    : prefs.depth === 2
+    ? '⏱ Deep: 3-4 grafs. Full chain + probe required. Distractor walk-through.'
+    : '⏱ Full: 4-5 grafs. All choices + probe required.';
+
   const ans = (node.answers || []).map(a => a.label + '. ' + cleanAnsText(a.text)).join(' | ');
 
   const systemPrompt = `You are a brilliant senior attending physician on the Immersa platform - a fellow who genuinely loves teaching. You reveal WHY through physiology and physics, not through memorization. Your goal is mechanistic inevitability: the learner should feel "Of course. How could it be any other way?"
@@ -3671,20 +4050,26 @@ CORE PHILOSOPHY:
 - Connect findings - they are one underlying process expressing in different tissues, not unrelated facts.
 - Contrast with a look-alike when it sharpens the distinction by revealing a different mechanism.
 
+${depthHeader}
+
+${form.prompt}
+
 PROSE CRAFT — these govern how the sentences MOVE. Apply to the writing, not the content.
 - COMPRESSION: Maximum payload per sentence. If you can remove a word without losing meaning, remove it. If you can merge two sentences into one, merge them. The model sentence: "The combination of a big baby and polyhydramnios mechanically overdistends the uterus." Two causal forces named directly, compressed into one clause, producing one clear mechanical effect. Every finding gets this treatment — the number and what it does share the same breath. Never "The glucose is 190. This suggests diabetes." — instead: "A glucose of 190 means the fetus is bathing in insulin, and insulin is a growth factor."
 - CAUSAL CHAINING: Each sentence creates a question the next resolves. The test: if you can reorder your sentences and the paragraph still "makes sense," the prose is flat — rewrite it. After finishing, read each adjacent pair and ask: "Does the second sentence exist because the first created a need for it?" Never let two sentences simply coexist without one creating pressure the other releases.
 - STAKES BEFORE MECHANISM: Open with why the finding matters — the clinical danger, the diagnostic trap, the decision the physician can't afford to get wrong. The mechanism arrives as the answer to a question the reader already cares about. "If you miss this, the patient arrests." "This lab value looks reassuring. It's lying to you."
 - THE OPPONENT: Every mechanism explanation needs a vivid antagonist — a named, specific force actively fighting against the patient or the physician. Not "the disease process" — the scar that won't stretch, the receptor that's been stripped from the membrane, the pressure gradient that's reversed and won't reverse back. The opponent is what gives the explanation stakes: someone is losing a fight, and you need to know who and why before you can intervene. Bad: "The glomerulus is damaged." Good: "The immune complexes are punching holes in the basement membrane faster than the podocytes can patch them." The opponent should feel active, ongoing, winnable but not won. If your explanation doesn't name what's resisting, it's a lecture; if it does, it's a story.
 - SPECIFICITY ANCHOR: At least once per paragraph, ground the abstraction in a number, a named structure, or a sensory detail. Not "impaired oxygen delivery" — "a PaO₂ of 52, roughly a third of what the mitochondria expect." One concrete detail does the work of three abstractions.
-- THE PULL PRINCIPLE: Questions pull harder than statements push — and you should be ruthless about this. Open a paragraph with a question the reader is already asking. End a paragraph with a question they haven't asked yet but now can't stop thinking about. The prose should feel like it's one step ahead of the reader, always answering the question they just formed while planting the next one. Weak: closing with a recitation of the treatment. Strong: "So you give steroids. They suppress the immune attack. But what are you NOT fixing — and what happens if you stop too soon?" Every closing probe must change one variable and ask what the clinical consequence would be — not "did that make sense?" but "if you changed X, would Y still happen, and why not?" The probe should feel like the paragraph earned it, not like you remembered to add one.
-- BOLD — LOAD-BEARING PHRASES (mandatory, not optional): Every paragraph must contain 2-4 bolded phrases wrapped in **double asterisks** (renders blue). Bold ONLY the phrases that carry the paragraph's structural weight — the named mechanism, the critical lab value with its unit, the pivotal exam finding, the decision the physician can't afford to miss. A reader scanning ONLY the bolded text should reconstruct the skeleton of the entire explanation: problem → mechanism → opponent → consequence. Do NOT bold lead-in sentences, transitional phrases, or every important-sounding word. Overuse dilutes; absence blinds. This is not a suggestion — it is a structural requirement. Before submitting, count your bolded phrases per paragraph: if any paragraph has zero, fix it. If any has more than five, cut the weakest.
+- THE PULL PRINCIPLE: Questions pull harder than statements push — and you should be ruthless about this. Open a paragraph with a question the reader is already asking. End a paragraph with a question they haven't asked yet but now can't stop thinking about. The prose should feel like it's one step ahead of the reader, always answering the question they just formed while planting the next one.${dr.forbidClose ? '' : ' Weak: closing with a recitation of the treatment. Strong: "So you give steroids. They suppress the immune attack. But what are you NOT fixing — and what happens if you stop too soon?" Every closing probe must change one variable and ask what the clinical consequence would be — not "did that make sense?" but "if you changed X, would Y still happen, and why not?" The probe should feel like the paragraph earned it, not like you remembered to add one.'}
+- **BOLDING**: Wrap 2-4 load-bearing phrases per paragraph in **. Bold only the mechanism name, the lab value with its unit, the pivotal exam finding, or the treatment decision. Never bold transition words or "glue" sentences. A paragraph with zero bolded phrases is not complete.
 
-PARAGRAPH RHYTHM: 3-5 short paragraphs, each doing one job. The sequence: stakes (why care) → mechanism (how it works) → opponent (what resists it) → resolution (what the intervention does) → closing probe. Blank lines between paragraphs. No bolded headers or outline markers — just the paragraphs themselves.
+PARAGRAPH RHYTHM: ${dr.paras} short paragraphs, each doing one job. The sequence: stakes (why care) → mechanism (how it works) → opponent (what resists it) → resolution (what the intervention does)${dr.forbidClose ? '' : ' → closing probe'}. Blank lines between paragraphs. No bolded headers or outline markers — just the paragraphs themselves.
+
+ANSWER CHOICE BEHAVIOR: ${dr.answerWalk}
 
 VOICE: Confident, never condescending. Direct. Short sentences. No hedging where the science is settled. Visual/spatial language the learner can picture. Simple words, complex ideas — never write down.
 
-CLOSING PROBE: Every generation must end with a mechanism-testing question that changes one variable — "What would you do if the pupil were normal but the eye was still deviated?" Forces reasoning, not recall. No generic closings ("Did that make sense?" "Any questions?").
+CLOSING PROBE: ${dr.probe}
 
 FORBIDDEN:
 - Opening with a fixed template sentence ("The surprising thing isn't that..."). Every opening must be fresh and specific to this case's mechanism.
@@ -3695,24 +4080,26 @@ FORBIDDEN:
 - Bullet lists, numbered lists, outline headers, bolded paragraph lead-ins, labeled sections of any kind.
 - Passive voice, hedging ("in some cases," "it is thought that"), "as an AI", breaking character.
 - Em dashes — use commas or periods instead.
-- Skipping the closing probe or trailing off without it.
-- Writing any paragraph with zero bolded phrases. Every paragraph must have 2-4 **bolded** load-bearing anchors. Zero = structural failure. Fix before submitting.`;
+${dr.forbidClose ? '- Closing probe or trailing question.\n- Walking through answer choices. Only state the correct one.\n' : '- Skipping the closing probe or trailing off without it.\n'}- Zero bolded phrases in any paragraph. Each paragraph needs 2-4 **bold** anchors.
+   ━━━ OUTPUT PROTOCOL (internal — do not restate): Start immediately with the explanation. No "Here's the explanation." No "Let me explain." No sign-off. The first sentence must be about medicine, not about this task. ━━━`;
 
-  const prompt = `This CCS board question tests a clinical concept. Teach it from first principles as the Immersa attending.
+  const prompt = `Question context for the explanation above. Produce the explanation as instructed.
+
+${depthUserRules}
 
 CRITICAL PROSE RULES:
 1. COMPRESS: Every sentence works at maximum density. Number + consequence in the same breath.
 2. OPPONENT: Name the specific force fighting the patient. Not "the disease" — the scar, the stripped receptor, the reversed gradient. Make it active. Someone is losing a fight.
-3. PULL: Ruthless questioning. Open with an earned question. End every paragraph with a question the reader now can't stop asking. The closing probe must feel like the whole explanation was building toward it — change one variable, ask what breaks.
-4. CHAIN: Each sentence creates the question the next answers. If reordering works, it's flat — rewrite.
+${prefs.depth === 0 ? '' : '3. PULL: Ruthless questioning. Open with an earned question. End every paragraph with a question the reader now can\'t stop asking. The closing probe must feel like the whole explanation was building toward it — change one variable, ask what breaks.\n'}
+${prefs.depth === 0 ? '3. STOP: No closing probe. No answer-choice walkthrough. State the mechanism, the clinical anchor, and END.\n' : ''}4. CHAIN: Each sentence creates the question the next answers. If reordering works, it's flat — rewrite.
 5. STAKES FIRST: Why does this finding matter at the bedside? Then mechanism.
-6. BOLD (mandatory): Every paragraph must have 2-4 bolded phrases. Bold only the load-bearing anchors — the named mechanism, the critical lab value with its unit, the pivotal exam finding, the treatment decision. A scan of only the bolded text should give the full skeleton. Zero bold in any paragraph = structural failure.
+6. BOLD: Wrap 2-4 load-bearing phrases per paragraph in **. Mechanism, lab value with unit, pivotal finding, or treatment decision — never transition words.
 
 Question: """${node.question}"""
 Correct answer: ${node.likely || 'N/A'}
 Answer choices: ${ans}
 
-Start with stakes. Name the opponent early — what's actively resisting? Pull the reader forward with questions. Every finding carries its meaning in the same breath. Bold the load-bearing phrases in every paragraph — the mechanism, the lab value, the decision. 3-5 paragraphs. Closing probe must interrogate, not summarize. No preamble, no sign-off, no filler transitions, no em dashes.`;
+No preamble, no sign-off, no filler transitions, no em dashes.`;
 
   try {
     const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -3724,7 +4111,7 @@ Start with stakes. Name the opponent early — what's actively resisting? Pull t
           { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt },
         ],
-        temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(), max_tokens: 500,
+        temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(), max_tokens: dc.maxTokens,
       }),
     });
     if (!res.ok) return null;
@@ -3734,7 +4121,7 @@ Start with stakes. Name the opponent early — what's actively resisting? Pull t
     const finishReason = data.choices?.[0]?.finish_reason;
     const endChars = reply.slice(-5);
     if (finishReason === 'length' || !/[.?!]$/.test(reply.slice(-1))) {
-      console.warn('firstPrinciples: truncated or incomplete ending, retrying with 600 tokens');
+      console.warn('firstPrinciples: truncated or incomplete ending, retrying with ' + (dc.maxTokens + 100) + ' tokens');
       try {
         const retry = await fetch('https://api.deepseek.com/v1/chat/completions', {
           method: 'POST',
@@ -3745,7 +4132,7 @@ Start with stakes. Name the opponent early — what's actively resisting? Pull t
               { role: 'system', content: systemPrompt },
               { role: 'user', content: prompt },
             ],
-            temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(), max_tokens: 600,
+            temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(), max_tokens: dc.maxTokens + 100,
           }),
         });
         if (retry.ok) {
@@ -4137,6 +4524,7 @@ function buildRevealHTML(d) {
   const stageLabel = d.storyStage || 'Story beat';
   const spineNum = GRAPH.mainPath.indexOf(d.id);
   const isMain = d.category === 'primary';
+  const isFree = d.category === 'free137';
   // Check for persisted node image
   const nodeImg = (() => { try { return localStorage.getItem('node-img-' + d.id); } catch(_) { return null; } })();
   return `
@@ -4146,8 +4534,8 @@ function buildRevealHTML(d) {
         : `<button class="img-cam-btn" id="imgcam-${d.id}" title="Add image"><i class="ti ti-camera-plus"></i></button><input type="file" accept="image/*" id="imgfile-${d.id}" style="display:none;" />`}
     </div>
     <div class="node-id-row">
-      <span class="node-num-badge">${isMain && spineNum >= 0 ? '#' + (spineNum + 1) : (d.category === 'mimic' ? 'M' : 'T')}</span>
-      <span class="node-id-label">${isMain ? 'Spine node' + (spineNum >= 0 ? ' ' + (spineNum + 1) : '') : (d.category === 'mimic' ? 'Mimic' : 'Thread')} / QID ${d.id} / Scene ${d.sceneId}</span>
+      <span class="node-num-badge${isFree ? ' free137-badge' : ''}">${isFree ? 'Q' + (d._qNum||'?') : (isMain && spineNum >= 0 ? '#' + (spineNum + 1) : (d.category === 'mimic' ? 'M' : 'T'))}</span>
+      <span class="node-id-label">${isFree ? 'Free 137 · Q' + (d._qNum||'') : (isMain ? 'Spine node' + (spineNum >= 0 ? ' ' + (spineNum + 1) : '') : (d.category === 'mimic' ? 'Mimic' : 'Thread'))} / ${isFree ? 'FREE137' : ('QID ' + d.id)} / ${isFree ? 'Overlay' : (d.sceneId === 0 || d.sceneId == null ? 'External' : ('Scene ' + d.sceneId))}</span>
     </div>
     <div class="pinned-concept" data-qid="${esc(String(d.id))}">
       <div class="pc-top">
@@ -4162,6 +4550,22 @@ function buildRevealHTML(d) {
         <button class="pc-needs-work${needsWork ? ' flagged' : ''}" id="pcnw-${d.id}"><i class="ti ti-alert-triangle"></i>&nbsp;Needs work</button>
       </div>
     </div>
+
+    ${isFree ? `
+    <div class="free137-card" id="f137card-${d.id}">
+      <div class="free137-answer" id="f137ans-${d.id}">
+        <strong>Answer:</strong> ${esc(d.likely || '')}
+      </div>
+      <div class="free137-explain" id="f137exp-${d.id}">
+        ${esc(d.explanation || '')}
+      </div>
+      <div class="free137-actions" id="f137act-${d.id}">
+        <button class="free137-btn copy-btn" id="f137copy-${d.id}" title="Copy explanation to clipboard"><i class="ti ti-copy"></i>&nbsp;Copy explanation</button>
+        <button class="free137-btn send-btn" id="f137send-${d.id}" title="Send explanation to Dr. Iwu for further discussion"><i class="ti ti-send"></i>&nbsp;Send to attending</button>
+        <span class="free137-toast" id="f137toast-${d.id}"></span>
+      </div>
+    </div>
+    ` : ''}
 
     <div class="ind-toggle" id="it-notes-${d.id}">
       <span class="toggle-dot"></span>
@@ -4519,6 +4923,51 @@ function wireReveal(container, d) {
     approveBtn.classList.remove('flagged');
   };
 
+  // ── Free 137: Copy explanation + Send to attending ──
+  const copyBtn = container.querySelector('#f137copy-' + qid);
+  const sendBtn = container.querySelector('#f137send-' + qid);
+  const toastEl = container.querySelector('#f137toast-' + qid);
+  if (copyBtn && d && d.explanation) {
+    copyBtn.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(d.explanation);
+        if (toastEl) { toastEl.textContent = 'Copied!'; toastEl.classList.add('show'); setTimeout(() => toastEl.classList.remove('show'), 2000); }
+        copyBtn.innerHTML = '<i class="ti ti-check"></i>&nbsp;Copied';
+        setTimeout(() => { copyBtn.innerHTML = '<i class="ti ti-copy"></i>&nbsp;Copy explanation'; }, 1500);
+      } catch (_) {
+        if (toastEl) { toastEl.textContent = 'Copy failed'; toastEl.classList.add('show'); setTimeout(() => toastEl.classList.remove('show'), 1500); }
+      }
+    };
+    sendBtn.onclick = () => {
+      const chatInput = container.querySelector('#chat-input-' + qid);
+      const chatSend = container.querySelector('#chat-send-' + qid);
+      if (!chatInput || !chatSend) return;
+
+      // Find and open the chat toggle
+      const chatToggle = container.querySelector('#it-notes-' + qid);
+      const chatBody = container.querySelector('#ib-notes-' + qid);
+      if (chatToggle && chatBody && !chatBody.classList.contains('open')) {
+        chatToggle.click();
+      }
+
+      const msg = `Explain this Free 137 concept: "${d.why || d.stem || ''}"\n\nAnswer: ${d.likely || ''}\n\nExplanation: ${d.explanation || ''}\n\nCan you walk me through this in more detail?`;
+      chatInput.value = msg;
+
+      // Also push to Dr. Iwu chat context
+      if (typeof window._sendToAttending === 'function') {
+        window._sendToAttending(qid, msg);
+      }
+
+      // Trigger the chat send
+      setTimeout(() => {
+        const segBtns = container.querySelectorAll('.mode-seg-btn');
+        segBtns.forEach(b => { if (b.getAttribute('data-m') === 'chat' && !b.classList.contains('is-active')) b.click(); });
+        chatSend.click();
+        if (toastEl) { toastEl.textContent = 'Sent to attending!'; toastEl.classList.add('show'); setTimeout(() => toastEl.classList.remove('show'), 2000); }
+      }, 200);
+    };
+  }
+
   // Inline edit: concept line
   const pcEditBtn = container.querySelector('#pcedit-' + qid);
   if (pcEditBtn) makeEditable(oneLinerEl, pcEditBtn, qid, 'concept', false);
@@ -4635,8 +5084,14 @@ function wireReveal(container, d) {
       fpRefBtn.onclick = async (e) => {
         e.stopPropagation(); // don't toggle the section
         fpRefBtn.classList.add('spinning');
-        const fp = await fetchFirstPrinciples(d, true);
-        fpRefBtn.classList.remove('spinning');
+        // Force paint so the spinner is visible before the await blocks
+        await new Promise(r => requestAnimationFrame(r));
+        let fp = null;
+        try {
+          fp = await fetchFirstPrinciples(d, true);
+        } finally {
+          fpRefBtn.classList.remove('spinning');
+        }
         if (fp) {
           fpContent.innerHTML = fpBodyHtml(fp);
           fieldSave(qid, 'firstPrinciples', fp);
@@ -4794,9 +5249,15 @@ function openHud(d, event) {
   hx = Math.max(8, hx);
 
   const spineNum = GRAPH.mainPath.indexOf(d.id);
-  const kicker = isMain
+  const isFree = d.category === 'free137';
+  const isExternal = !d.sceneId && d.sceneId !== undefined || d.sceneId === 0;
+  const kicker = isFree
+    ? ('Free 137 · Q' + (d._qNum||'') + ' · ' + (d.why||''))
+    : isExternal
+    ? ('External · ' + (d.why||''))
+    : (isMain
     ? ('Main story' + (spineNum >= 0 ? ' · #' + (spineNum + 1) : '') + ' · Scene ' + d.sceneId)
-    : ((d.category === 'thread' ? 'Deeper dive · thread' : 'Deeper dive · mimic') + ' · Scene ' + d.sceneId);
+    : ((d.category === 'thread' ? 'Deeper dive · thread' : 'Deeper dive · mimic') + ' · Scene ' + d.sceneId));
 
   // If dock is open, render inside the dock instead of floating HUD
   if (window._isDockOpen && window._isDockOpen()) {
@@ -5069,7 +5530,9 @@ function renderGraph() {
   }
   closeHud();
   exitIsolation();
-  byId = Object.fromEntries(GRAPH.nodes.map(n => [n.id, n]));
+  const effectiveNodes = getEffectiveNodes();
+  const effectiveLinks = getEffectiveLinks();
+  byId = Object.fromEntries(effectiveNodes.map(n => [n.id, n]));
   buildSpineRail();
 
   const el = document.getElementById('chart');
@@ -5107,8 +5570,8 @@ function renderGraph() {
 
   zoomG = svg.append('g');
 
-  const nodes = GRAPH.nodes.map(d => ({ ...d }));
-  const links = GRAPH.edges.map(d => ({ ...d }));
+  const nodes = effectiveNodes.map(d => ({ ...d }));
+  const links = effectiveLinks.map(d => ({ ...d }));
 
   simulation = d3.forceSimulation(nodes)
     .force('link', d3.forceLink(links).id(d => d.id)
@@ -5177,8 +5640,11 @@ function renderGraph() {
     .each(function (d) {
       const g = d3.select(this);
       g.append('circle')
-        .attr('r', spineSet.has(String(d.id)) ? 10 : 6)
-        .attr('fill', isNodeVisited(String(d.id)) ? COLORS.visited : (spineSet.has(String(d.id)) ? COLORS.primary : (COLORS[d.category] || COLORS.mimic)))
+        .attr('r', d => isFree137Node(d) ? 7 : (spineSet.has(String(d.id)) ? 10 : 6))
+        .attr('fill', (d) => {
+          if (isFree137Node(d)) return isNodeVisited(String(d.id)) ? COLORS.free137Visited : COLORS.free137;
+          return isNodeVisited(String(d.id)) ? COLORS.visited : (spineSet.has(String(d.id)) ? COLORS.primary : (COLORS[d.category] || COLORS.mimic));
+        })
         .attr('stroke', () => {
           const ms = millState(d.id);
           if (ms === 2) return '#16a34a';
@@ -5843,6 +6309,9 @@ async function loadSet(setNum) {
     const storyByQid = parseStoryByQid(storyHtml, items);
     GRAPH = joinGraph(meta, items, storyByQid);
 
+    // ── Free 137 overlay: attach matching Free 137 questions to this set's clusters ──
+    attachFree137Overlay();
+
     // Enrich search index with story-level text (stems, answers, explanations)
     if (SEARCH_INDEX[setNum] && GRAPH.nodes) {
       const storyText = GRAPH.nodes.map(n => [
@@ -5970,11 +6439,10 @@ async function eagerLoadTitles() {
   if (!btn) return;
 
   btn.onclick = () => {
-    // If floating dict already exists, bring it forward
+    // Toggle: if floating dict is already open, dock it back to the HUD.
+    // Otherwise, undock the dict-sect from wherever it currently lives.
     if (window._floatDict) {
-      const w = window._floatDict.wrapper;
-      w.style.display = '';
-      w.style.zIndex = '100';
+      destroyFloatingDict();
       return;
     }
 
