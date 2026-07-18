@@ -21,20 +21,33 @@ function readMasterEnv() {
   }
   const raw = fs.readFileSync(masterPath, 'utf8');
   const env = {};
+  let lastKey = null;
   for (const line of raw.split('\n')) {
     const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
+    if (!trimmed || trimmed.startsWith('#')) { lastKey = null; continue; }
     const eq = trimmed.indexOf('=');
-    if (eq < 0) continue;
-    const key = trimmed.slice(0, eq).trim();
-    const val = trimmed.slice(eq + 1).trim();
-    if (key && val) env[key] = val;
+    if (eq > 0) {
+      const key = trimmed.slice(0, eq).trim();
+      const val = trimmed.slice(eq + 1).trim();
+      if (key && val) env[key] = val;
+      lastKey = key || null;
+    } else if (lastKey) {
+      // Continuation line — append to previous key's value
+      env[lastKey] += '\n' + trimmed;
+    } else {
+      lastKey = null;
+    }
+  }
+  // Clean any keys that have embedded newlines (join continuation lines)
+  for (const k of Object.keys(env)) {
+    if (env[k].includes('\n')) env[k] = env[k].replace(/\n/g, '');
   }
   return env;
 }
 
 const MASTER_ENV = readMasterEnv();
 console.log('[server] DeepSeek key loaded:', MASTER_ENV.DEEPSEEK_API_KEY ? 'yes (' + MASTER_ENV.DEEPSEEK_API_KEY.slice(0, 12) + '...)' : 'MISSING');
+console.log('[server] OpenAI  key loaded:', MASTER_ENV.OPENAI_API_KEY ? 'yes (' + MASTER_ENV.OPENAI_API_KEY.slice(0, 12) + '...)' : 'MISSING');
 
 // ── MIME map ──────────────────────────────────────────────────────────────
 const MIME = {
@@ -59,6 +72,7 @@ const server = http.createServer((req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
       res.end(JSON.stringify({
         DEEPSEEK_API_KEY: MASTER_ENV.DEEPSEEK_API_KEY || '',
+        OPENAI_API_KEY: MASTER_ENV.OPENAI_API_KEY || '',
       }));
       return;
     }
@@ -265,6 +279,200 @@ const server = http.createServer((req, res) => {
           send(200, { ok: true, set: setNum, image: 'images/' + destName, source: sourcePath });
         } catch (e) {
           send(500, { ok: false, error: e.message });
+        }
+      });
+      return;
+    }
+
+    // ── API: generate-concept (POST) — 2-stage: DeepSeek visual plan → OpenAI DALL-E ──
+    if (url.pathname === '/api/generate-concept' && req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', async () => {
+        const send = (code, obj) => {
+          res.writeHead(code, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify(obj));
+        };
+        try {
+          const { conceptName, firstPrinciples, question } = JSON.parse(body);
+          if (!conceptName) return send(400, { error: 'conceptName required' });
+
+          const dsKey = MASTER_ENV.DEEPSEEK_API_KEY;
+          const oaiKey = MASTER_ENV.OPENAI_API_KEY;
+          if (!dsKey || !oaiKey) return send(400, { error: 'API keys not available' });
+
+          // ── STAGE 1: DeepSeek reasons → cinematic storyboard ──
+          const reasoningSystem = `You are a world-class medical illustrator, pathophysiologist, cinematic concept artist, and scientific storyteller.
+
+Your mission is to convert invisible biological mechanisms into believable physical events.
+
+Every image should feel like a frozen frame from a medical documentary rather than an infographic.
+
+The artwork should teach the disease even if every line of text is removed.
+
+The image is the teacher. The text is only the narration.
+
+## CORE PHILOSOPHY
+
+Never illustrate a diagnosis. Illustrate a mechanism.
+Never draw labels first. Draw cause and effect.
+Everything visible should answer "What is physically happening?" instead of "What is this called?"
+
+## THE GOLDEN RULE
+
+Every disease is a battle. Every battle has:
+• an opponent
+• the tissue under attack
+• the body's response
+• compensation
+• failure
+• treatment
+• restoration
+
+Turn each into a physical object. The viewer should literally watch the battle unfold.
+
+## STORYBOARD STRUCTURE — 9 frames
+
+Instead of a medical poster, create a cinematic storyboard. Each panel is one frame in the story:
+
+Frame 1 — NORMAL STATE: Healthy tissue, everything functioning, peaceful.
+Frame 2 — OPPONENT APPEARS: The disease agent arrives — virus landing, cancer forming, clot building, immune attack beginning.
+Frame 3 — DAMAGE BEGINS: The opponent physically damages tissue — cells breaking, membranes rupturing, architecture crumbling.
+Frame 4 — BODY RESPONDS: The immune system or repair mechanisms activate — cells rushing in, signals firing.
+Frame 5 — COMPENSATION: The body adapts — hypertrophy, shunting, buffer systems, alternative pathways.
+Frame 6 — FAILURE: Compensation collapses — the mechanism visibly breaks down. Tissue fails.
+Frame 7 — TREATMENT ARRIVES: The drug or intervention physically enters the scene — molecules coating targets, surgical tools, antibodies binding.
+Frame 8 — OPPONENT DEFEATED: The treatment visibly destroys or neutralizes the disease — osteoclast cracking, clot dissolving, bacteria rupturing.
+Frame 9 — RESTORATION: Normal physiology returns. Tissue heals. Architecture rebuilds. Peace restored.
+
+Every frame must visually change. Never repeat the same picture.
+
+## VISUAL LANGUAGE — make mechanisms physical
+
+Instead of "Osteoclast resorption" → show a giant purple osteoclast physically chewing through bone.
+Instead of "Drug inhibits osteoclast" → show blue drug molecules coating the osteoclast, it begins cracking, spikes collapse, bone surface becomes quiet.
+Instead of "Fibrosis" → show collagen fibers physically weaving a scar like workers repairing a bridge.
+Instead of "Immune attack" → show white blood cells climbing into tissue, wrapping around target cells, tissue breaking apart.
+Instead of "Inflammation" → show a living wildfire spreading through tissue.
+
+Every biological entity must obey believable physics. Cells should push, pull, climb, bind, fracture, dissolve, weave, compress, stretch, flow, or rebuild in ways that make molecular events feel tangible. Avoid floating symbols or decorative icons. The scene should look like it was photographed inside the body with a macro cinema camera.
+
+## COMPOSITION
+
+16:9 landscape. Large cinematic panels. Minimal text. Black museum-quality background. High contrast. Movie-poster lighting. One mechanism per panel. Large hero renders. Lots of negative space. Each panel reads in under two seconds.
+
+## TEXT RULES — maximum 20-30 words per panel
+
+Text should never dominate. Use only: title, one-line explanation, one takeaway. No paragraphs. No walls of text. The illustration carries the explanation.
+
+## OBJECT DESIGN — give every disease its own visual language
+
+Cancer = growing fractured crystal. Virus = living crystalline drone. Bacteria = armored insect. Autoimmune = friendly-fire soldiers. Amyloid = concrete filling spaces. Plaque = rust spreading through pipes. Fibrosis = construction scaffolding. Clot = concrete plug. Inflammation = living wildfire. Students should recognize the disease from the visual metaphor alone.
+
+## THE INSCRIPTION
+
+Every storyboard should include a cinematic inscription at the top — not a diagnosis, a principle. Example:
+
+PAGET DISEASE OF BONE
+Hyperactive osteoclasts drive chaotic remodeling.
+Bisphosphonates poison osteoclasts.
+Normal bone architecture returns.
+
+The inscription should feel carved into the poster, like the opening line of a documentary.
+
+## OUTPUT FORMAT
+
+Produce exactly this structured storyboard — no introductory text, no closing remarks:
+
+INSCRIPTION: [three-line cinematic principle — disease name on line 1, mechanism on line 2, treatment/resolution on line 3]
+
+FRAME 1 — Normal: [describe what the healthy tissue looks like — peaceful, intact, functioning]
+FRAME 2 — Opponent: [describe the disease agent arriving — what does it look like, how does it physically interact with tissue]
+FRAME 3 — Damage: [describe the physical destruction — what breaks, what bleeds, what collapses]
+FRAME 4 — Response: [describe the body's reaction — what cells arrive, what signals fire, what changes]
+FRAME 5 — Compensation: [describe how the body adapts — what grows, what shunts, what buffers]
+FRAME 6 — Failure: [describe the moment compensation breaks — tissue visibly failing]
+FRAME 7 — Treatment: [describe the intervention arriving — drug molecules, antibodies, surgical repair]
+FRAME 8 — Defeat: [describe the opponent being destroyed or neutralized — cracking, dissolving, clearing]
+FRAME 9 — Restoration: [describe healing — tissue rebuilding, peace returning, normal function]
+PEARL: [one-sentence high-yield clinical takeaway]
+COLORS: [cinematic palette — e.g. dark museum background, gold tissue glow, cyan healing, red damage, purple opponent]`;
+
+          const reasoningUser = `Concept: ${conceptName}
+${firstPrinciples ? 'First Principles:\n' + firstPrinciples + '\n' : ''}
+${question ? 'Question stem:\n' + question.substring(0, 300) : ''}
+
+Produce the cinematic storyboard.`;
+
+          console.log('[generate-concept] Stage 1: DeepSeek reasoning for', conceptName);
+          const dsRes = await fetch('https://api.deepseek.com/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + dsKey },
+            body: JSON.stringify({
+              model: 'deepseek-chat',
+              messages: [
+                { role: 'system', content: reasoningSystem },
+                { role: 'user', content: reasoningUser },
+              ],
+              temperature: 0.7, max_tokens: 1000,
+            }),
+          });
+          if (!dsRes.ok) return send(502, { error: 'DeepSeek stage failed: ' + dsRes.status });
+          const dsData = await dsRes.json();
+          const visualPlan = dsData.choices?.[0]?.message?.content?.trim() || '';
+          if (!visualPlan) return send(502, { error: 'DeepSeek returned empty plan' });
+          console.log('[generate-concept] Visual plan:', visualPlan.substring(0, 200) + '...');
+
+          // ── STAGE 2: OpenAI DALL-E 3 renders the cinematic storyboard ──
+          const stylePrompt = `AAA game concept art. Scientific realism. Pixar-quality storytelling. Unreal Engine 5. Octane Render. Ray tracing. Volumetric lighting. Macro photography. Medical illustration. Photorealistic materials. Cinematic depth of field. 8K. Cross-sectional anatomy. Museum-quality rendering. 16:9 landscape composition. Black museum-quality background. High contrast. Movie-poster lighting. Large cinematic panels with minimal text. Every biological entity must obey believable physics — cells should push, pull, climb, bind, fracture, dissolve, weave, compress, stretch, flow, or rebuild. The scene should look like it was photographed inside the body with a macro cinema camera. No floating symbols. No decorative icons. No clipart. No cartoons. The image is the teacher. The text is only the narration.`;
+
+          const dallePrompt = (stylePrompt + '\n\nVISUAL PLAN TO RENDER:\n' + visualPlan).substring(0, 3900);
+
+          console.log('[generate-concept] Stage 2: DALL-E generation...');
+          console.log('[generate-concept] DALL-E prompt length:', dallePrompt.length);
+          const oaiRes = await fetch('https://api.openai.com/v1/images/generations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + oaiKey },
+            body: JSON.stringify({
+              model: 'gpt-image-2',
+              prompt: dallePrompt,
+              n: 1,
+              size: '1024x1024',
+              moderation: 'low',
+            }),
+          });
+          if (!oaiRes.ok) {
+            const errText = await oaiRes.text();
+            console.error('[generate-concept] OpenAI error:', oaiRes.status, errText.substring(0, 300));
+            // Fallback: return the visual plan so the user sees something useful
+            return send(502, { error: 'DALL-E failed: ' + oaiRes.status, visualPlan });
+          }
+          const oaiData = await oaiRes.json();
+          const imageUrl = oaiData.data?.[0]?.url;
+          if (!imageUrl) return send(502, { error: 'DALL-E returned no image URL', visualPlan });
+
+          // ── Download the generated image and cache locally ──
+          const imgDir = path.join(ROOT, 'concept-images');
+          fs.mkdirSync(imgDir, { recursive: true });
+          const slug = conceptName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+          const ts = Date.now();
+          const localName = slug + '-' + ts + '.png';
+          const localPath = path.join(imgDir, localName);
+
+          const imgRes = await fetch(imageUrl);
+          if (!imgRes.ok) {
+            // If we can't cache, return remote URL
+            return send(200, { imageUrl, visualPlan, cached: false });
+          }
+          const imgBuf = Buffer.from(await imgRes.arrayBuffer());
+          fs.writeFileSync(localPath, imgBuf);
+
+          const localUrl = '/concept-images/' + localName;
+          console.log('[generate-concept] Cached to', localPath, '(' + imgBuf.length + ' bytes)');
+          send(200, { ok: true, imageUrl: localUrl, visualPlan, cached: true });
+        } catch (e) {
+          console.error('[generate-concept] Error:', e);
+          send(500, { error: e.message });
         }
       });
       return;

@@ -141,7 +141,33 @@ export default function OrderResultSceneCard({
         role="group"
         aria-expanded={bodyExpanded}
       >
-        {renderAttendingMarkdown(result?.text || 'No result documented for this order.')}
+        {result?.labs && result.labs.length > 0 ? (
+          <table className="lab-result-table">
+            <thead>
+              <tr>
+                <th>Test</th>
+                <th>Value</th>
+                <th>Unit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {result.labs.map((row, i) => (
+                <tr key={i} className={row.flag ? 'lab-row--flag' : ''}>
+                  <td>{row.testName}</td>
+                  <td>{row.value}</td>
+                  <td>{row.unit}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          renderAttendingMarkdown(result?.text || 'No result documented for this order.')
+        )}
+        {result?.labs && result.labs.length > 0 && result?.text ? (
+          <div className="order-result-table-footer">
+            {renderAttendingMarkdown(result.text)}
+          </div>
+        ) : null}
         {teachMeMode && whyOpen && intervention.why ? (
           <div className="order-result-why-body">
             {renderAttendingMarkdown(formatResultWhyExpand(intervention.why))}
