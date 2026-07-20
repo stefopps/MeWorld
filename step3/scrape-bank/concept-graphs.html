@@ -1822,7 +1822,9 @@
     <button class="tb-btn" id="spineExtBtn" title="Spine concept extractor"><i class="ti ti-list-details"></i></button>
   </div>
   <span class="tb-sep"></span>
+  <span class="tb-sep"></span>
   <div class="tb-group">
+    <button class="tb-btn" id="dockToggleBtn" title="Dock panel"><i class="ti ti-layout-sidebar-right"></i></button>
     <button class="tb-btn tb-notes" id="notesBtn" title="Notes &amp; Chat"><i class="ti ti-notebook"></i>&nbsp;Notes</button>
   </div>
 </div>
@@ -4713,6 +4715,142 @@ function refreshAllNodeActivity() {
     d3.select(this).classed('untouched', !nodeActivity(String(d.id)));
   });
 }
+
+// ── Session hydrate (MeWorld dual-write): disk → localStorage on set load / reload ──
+function showSessionRestoreToast(chatCount, noteCount) {
+  try {
+    let el = document.getElementById('cg-session-restore-toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'cg-session-restore-toast';
+      el.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:99999;'
+        + 'background:#1a1a22;color:#e8e4dc;border:1px solid #3d3a48;border-radius:8px;padding:8px 14px;'
+        + 'font:600 0.72rem/1.3 system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;'
+        + 'transition:opacity .25s ease;pointer-events:none;';
+      document.body.appendChild(el);
+    }
+    const bits = [];
+    if (chatCount) bits.push(chatCount + ' chat' + (chatCount === 1 ? '' : 's'));
+    if (noteCount) bits.push(noteCount + ' note' + (noteCount === 1 ? '' : 's'));
+    el.textContent = 'Restored ' + bits.join(' + ') + ' from disk';
+    requestAnimationFrame(() => { el.style.opacity = '1'; });
+    clearTimeout(el._hideTimer);
+    el._hideTimer = setTimeout(() => { el.style.opacity = '0'; }, 3200);
+  } catch (_) {}
+}
+
+async function hydratePersistedSessionFromDisk(setNum) {
+  let restoredChats = 0;
+  let notesFromDisk = 0;
+
+  // Global notes
+  try {
+    const res = await fetch('/api/notes');
+    if (res.ok) {
+      const data = await res.json();
+      const serverNotes = Array.isArray(data.notes) ? data.notes : [];
+      let localNotes = [];
+      try { localNotes = JSON.parse(localStorage.getItem('cg_global_notes')) || []; } catch (_) {}
+      const map = new Map();
+      [...localNotes, ...serverNotes].forEach(n => {
+        if (!n || !String(n.text || '').trim()) return;
+        const fp = String(n.ts || '') + '|' + String(n.qid || '') + '|' + String(n.text || '').trim();
+        if (!map.has(fp)) map.set(fp, n);
+      });
+      const merged = [...map.values()].sort((a, b) => String(a.ts || '').localeCompare(String(b.ts || '')));
+      try { localStorage.setItem('cg_global_notes', JSON.stringify(merged)); } catch (_) {}
+      if (serverNotes.length && merged.length > localNotes.length) {
+        notesFromDisk = merged.length - localNotes.length;
+      }
+      if (!serverNotes.length && localNotes.length) {
+        try {
+          await fetch('/api/notes', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ notes: merged }),
+          });
+        } catch (_) {}
+      }
+    }
+  } catch (_) { /* server down — LS only */ }
+
+  // Per-node chats: list disk backups → merge into localStorage
+  try {
+    const listRes = await fetch('/api/list-chats');
+    if (!listRes.ok) return;
+    const list = await listRes.json();
+    if (!Array.isArray(list) || !list.length) return;
+
+    const graphIds = new Set();
+    try {
+      if (GRAPH && Array.isArray(GRAPH.nodes)) {
+        GRAPH.nodes.forEach(n => graphIds.add(String(n.id)));
+      }
+    } catch (_) {}
+
+    // Prefer chats for the open set; still hydrate all disk chats so switching sets stays restored
+    const toFetch = list.filter(c => c && c.nodeId && (c.messageCount || 0) > 0);
+    toFetch.sort((a, b) => {
+      const aIn = graphIds.has(String(a.nodeId)) ? 0 : 1;
+      const bIn = graphIds.has(String(b.nodeId)) ? 0 : 1;
+      return aIn - bIn;
+    });
+
+    const CONC = 6;
+    let idx = 0;
+    async function worker() {
+      while (idx < toFetch.length) {
+        const item = toFetch[idx++];
+        const nid = String(item.nodeId);
+        try {
+          let local = [];
+          try {
+            const raw = localStorage.getItem('chat-' + nid);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed)) local = parsed;
+            }
+          } catch (_) {}
+          // Fast path: LS already has at least as many messages as disk index
+          if (local.length >= (item.messageCount || 0) && local.length > 0) continue;
+
+          const r = await fetch('/api/load-chat?nodeId=' + encodeURIComponent(nid));
+          if (!r.ok) continue;
+          const data = await r.json();
+          const msgs = Array.isArray(data.messages) ? data.messages : [];
+          if (!msgs.length) continue;
+
+          const map = new Map();
+          [...local, ...msgs].forEach(m => {
+            if (!m || !m.content) return;
+            const fp = String(m.role || '') + '|' + String(m.content || '').trim().slice(0, 200);
+            if (!map.has(fp)) map.set(fp, m);
+          });
+          const merged = [...map.values()];
+          if (!merged.length) continue;
+          try { localStorage.setItem('chat-' + nid, JSON.stringify(merged)); } catch (_) {}
+          if (merged.length > local.length) restoredChats++;
+          try { refreshNodeActivity(nid); } catch (_) {}
+          if (local.length > msgs.length) {
+            fetch('/api/save-chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ nodeId: nid, chatHistory: merged }),
+            }).catch(() => {});
+          }
+        } catch (_) {}
+      }
+    }
+    await Promise.all(Array.from({ length: CONC }, () => worker()));
+    try { refreshAllNodeActivity(); } catch (_) {}
+  } catch (_) { /* server down */ }
+
+  if (restoredChats || notesFromDisk) {
+    console.info('[session] Restored from disk — chats:', restoredChats, 'notes:', notesFromDisk, 'set:', setNum);
+    showSessionRestoreToast(restoredChats, notesFromDisk);
+  }
+}
+
 function updateMillHint(el, state) {
   const hint = el.querySelector('.mill-hint');
   if (!hint) return;
@@ -5780,28 +5918,52 @@ function wireHudDictation(hud, nodeId) {
   });
   applyMode(currentMode);
 
-  // ── Load persisted chat history ──
+  // ── Load persisted chat history (MeWorld merge: localStorage + disk) ──
   let chatHistory = [];
+  function chatMsgFingerprint(m) {
+    return String(m.role || '') + '|' + String(m.content || '').trim().slice(0, 200);
+  }
+  function mergeChatHistories(a, b) {
+    const map = new Map();
+    [...(a || []), ...(b || [])].forEach(m => {
+      if (!m || !m.content) return;
+      const fp = chatMsgFingerprint(m);
+      if (!map.has(fp)) map.set(fp, m);
+    });
+    return [...map.values()];
+  }
   function loadChatHistory() {
     try {
       const raw = localStorage.getItem('chat-'+nodeId);
       if (raw) { const parsed = JSON.parse(raw); if (Array.isArray(parsed)) chatHistory = parsed; }
     } catch (e) { console.warn('[chat] Failed to load history:', e.message); }
-    // If localStorage is empty, try server backup
-    if (!chatHistory.length) {
-      try {
-        fetch('/api/load-chat?nodeId=' + encodeURIComponent(nodeId))
-          .then(r => r.json())
-          .then(data => {
-            if (data && Array.isArray(data.messages) && data.messages.length) {
-              chatHistory = data.messages;
-              localStorage.setItem('chat-'+nodeId, JSON.stringify(chatHistory));
-              renderChatLog();
-              console.debug('[chat] Restored', chatHistory.length, 'messages from server backup');
+    // Always try server backup and merge (MeWorld pattern — not only when LS empty)
+    try {
+      fetch('/api/load-chat?nodeId=' + encodeURIComponent(nodeId))
+        .then(r => r.json())
+        .then(data => {
+          if (data && Array.isArray(data.messages) && data.messages.length) {
+            const before = chatHistory.length;
+            chatHistory = mergeChatHistories(chatHistory, data.messages);
+            try { localStorage.setItem('chat-'+nodeId, JSON.stringify(chatHistory)); } catch (_) {}
+            // Always re-render so a hard reload with empty LS still shows the disk thread
+            renderChatLog();
+            if (chatHistory.length !== before) {
+              console.debug('[chat] Merged server backup →', chatHistory.length, 'messages for node', nodeId);
             }
-          }).catch(() => {});
-      } catch (_) {}
-    }
+            try { refreshNodeActivity(nodeId); } catch (_) {}
+          } else if (chatHistory.length) {
+            // Disk empty but LS has history — push LS up
+            try {
+              fetch('/api/save-chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nodeId, chatHistory }),
+              }).catch(() => {});
+            } catch (_) {}
+          }
+        }).catch(() => {});
+    } catch (_) {}
     console.debug('[chat] Loaded', chatHistory.length, 'messages for node', nodeId);
   }
   function saveChatHistory() {
@@ -5945,25 +6107,85 @@ function wireHudDictation(hud, nodeId) {
   micBtn.onclick = () => recording ? stop() : start(textarea, micBtn);
   if (chatMicBtn) chatMicBtn.onclick = () => recording ? stop() : start(chatInput, chatMicBtn);
 
-  // ── Global notes list (accumulating across all nodes / sets) ──
+  // ── Global notes list (MeWorld dual-write: localStorage + disk via /api/notes) ──
   const NOTES_KEY = 'cg_global_notes';
   const setId = (() => {
-    try { return GRAPH && GRAPH.setId ? GRAPH.setId : null; } catch (_) { return null; }
+    try { return GRAPH && GRAPH.setId ? GRAPH.setId : (typeof currentSet !== 'undefined' ? currentSet : null); } catch (_) { return null; }
   })();
 
-  function loadGlobalNotes() {
+  function noteFingerprint(n) {
+    return String(n.ts || '') + '|' + String(n.qid || '') + '|' + String(n.text || '').trim();
+  }
+
+  function mergeNotesArrays(a, b) {
+    const map = new Map();
+    [...(a || []), ...(b || [])].forEach(n => {
+      if (!n || !String(n.text || '').trim()) return;
+      const fp = noteFingerprint(n);
+      if (!map.has(fp)) map.set(fp, n);
+    });
+    return [...map.values()].sort((x, y) => String(x.ts || '').localeCompare(String(y.ts || '')));
+  }
+
+  function loadLocalNotes() {
     try { return JSON.parse(localStorage.getItem(NOTES_KEY)) || []; } catch (_) { return []; }
   }
-  function saveGlobalNotes(notes) {
+  function saveLocalNotes(notes) {
     try { localStorage.setItem(NOTES_KEY, JSON.stringify(notes)); } catch (_) {}
   }
+
+  // Sync-compatible aliases used by the rest of this HUD block
+  function loadGlobalNotes() { return loadLocalNotes(); }
+  function saveGlobalNotes(notes) {
+    saveLocalNotes(notes);
+    // Best-effort disk backup (MeWorld pattern)
+    try {
+      fetch('/api/notes', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes }),
+      }).catch(() => {});
+    } catch (_) {}
+  }
+
+  async function hydrateNotesFromServer() {
+    try {
+      const res = await fetch('/api/notes');
+      if (!res.ok) return;
+      const data = await res.json();
+      const serverNotes = Array.isArray(data.notes) ? data.notes : [];
+      const localNotes = loadLocalNotes();
+      const merged = mergeNotesArrays(localNotes, serverNotes);
+      saveLocalNotes(merged);
+      // If server was empty but local had notes, push local up
+      if (serverNotes.length === 0 && localNotes.length > 0) {
+        try {
+          await fetch('/api/notes', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ notes: merged }),
+          });
+        } catch (_) {}
+      } else if (merged.length !== serverNotes.length || merged.length !== localNotes.length) {
+        try {
+          await fetch('/api/notes', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ notes: merged }),
+          });
+        } catch (_) {}
+      }
+      renderNotesList();
+    } catch (_) { /* server down — LS only */ }
+  }
+  // Kick off hydrate (don't block HUD paint)
+  hydrateNotesFromServer();
 
   function renderNotesList() {
     const logEl = hud.querySelector('#notes-log-' + nodeId);
     const emptyEl = hud.querySelector('#notes-empty-' + nodeId);
     if (!logEl) return;
     const notes = loadGlobalNotes();
-    // Filter entries that belong to the general container (HUD or dock)
     // Show ALL notes — they're global
     if (notes.length === 0) {
       logEl.innerHTML = '';
@@ -6002,14 +6224,32 @@ function wireHudDictation(hud, nodeId) {
   function appendGlobalNote(text, label) {
     if (!text || !text.trim()) return;
     const all = loadGlobalNotes();
-    all.push({
+    const entry = {
       text: text.trim(),
       ts: new Date().toISOString(),
       qid: nodeId,
       nodeLabel: label || ('Q' + nodeId),
       setId: setId,
-    });
-    saveGlobalNotes(all);
+    };
+    all.push(entry);
+    saveLocalNotes(all);
+    // Disk: append endpoint (faster) + keep LS in sync
+    try {
+      fetch('/api/notes/append', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(entry),
+      }).catch(() => {
+        // Fallback full PUT if append fails
+        try {
+          fetch('/api/notes', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ notes: all }),
+          }).catch(() => {});
+        } catch (_) {}
+      });
+    } catch (_) {}
   }
 
   // Save button
@@ -8969,6 +9209,10 @@ async function loadSet(setNum) {
     // Persist last-opened set so we pick up where we left off
     try { localStorage.setItem('last_set', setNum); } catch (_) {}
 
+    // MeWorld-style: hydrate chats + notes from disk into localStorage so reload
+    // restores threads even when browser LS was cleared / different origin.
+    hydratePersistedSessionFromDisk(setNum).catch(() => {});
+
     // Background: pre-fetch concept lines for all nodes so Layer 1 is populated
     window._conceptCacheReady = preFetchConcepts();
   } catch (e) {
@@ -9507,6 +9751,12 @@ async function eagerLoadTitles() {
     dock.style.setProperty('--dock-w', w + 'px');
     dock.classList.toggle('open', open);
     document.body.classList.toggle('dock-open', open);
+    // Sync toolbar toggle icon
+    const dtb = document.getElementById('dockToggleBtn');
+    if (dtb) {
+      const icon = dtb.querySelector('i');
+      if (icon) icon.className = 'ti ti-' + (open ? 'layout-sidebar' : 'layout-sidebar-right');
+    }
   }
 
   // ── Build dock body HTML with control replicas ─────────────────────
@@ -9634,6 +9884,18 @@ async function eagerLoadTitles() {
     }
   }
   wireDockClose();
+
+  // ── Toolbar dock toggle ────────────────────────────────────────────
+  const dockToggleBtn = document.getElementById('dockToggleBtn');
+  if (dockToggleBtn) {
+    dockToggleBtn.onclick = () => {
+      state.open = !state.open;
+      const icon = dockToggleBtn.querySelector('i');
+      if (icon) icon.className = 'ti ti-' + (state.open ? 'layout-sidebar' : 'layout-sidebar-right');
+      writeDock(state);
+      applyDock();
+    };
+  }
 
   // ── Rebuild helper (call after dock body is rebuilt) ───────────────
   function dockRewire() {

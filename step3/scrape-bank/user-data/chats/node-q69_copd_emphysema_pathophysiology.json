@@ -1,0 +1,26 @@
+{
+  "nodeId": "q69_copd_emphysema_pathophysiology",
+  "updated": "2026-07-20T00:20:53.638Z",
+  "messages": [
+    {
+      "role": "user",
+      "content": "So if you put numbers to it right. Umm, if you say it raises and uh, I have the threshold that -55 what does it raise it to? Does it raise it to -45 or -95?"
+    },
+    {
+      "role": "assistant",
+      "content": "It raises the threshold to **-45 mV**. Here's why.\n\nThe drug is **shifting the voltage dependence of inactivation** to more negative potentials. Normally, sodium channels inactivate around -55 mV. If you shift that curve leftward, they now inactivate at **-65 mV** instead. That means at a resting potential of -70 mV, more channels are already inactivated before the cell even fires. The cell needs a **stronger depolarizing stimulus** to reach threshold because fewer excitable channels remain.\n\nSo the threshold itself doesn't move. What moves is the **availability of channels to open**. The cell becomes harder to excite — that is the **mechanism of use-dependent blockade** in ischemic tissue."
+    },
+    {
+      "role": "user",
+      "content": "So if you put numbers to it right. Umm, if you say it raises and uh, I have the threshold that -55 what does it raise it to? Does it raise it to -45 or -95? Bunch of foot traffic. Can you break it down more so I can understand I'm not getting it? Try to use an analogy for me. You see the smell? You can't even make a new account. Why can't you? My old e-mail doesn't my I have an account with them but it's I can't even sign in. Can't even get the reset password. Gotta call them, they are pretty responsive. That's why really responsive. I love, I love working with them."
+    },
+    {
+      "role": "assistant",
+      "content": "Alright. Let's use a door analogy.\n\nPicture a sodium channel as a door with two locks: an **activation lock** (opens when voltage hits -55 mV) and an **inactivation lock** (slams shut and stays shut at a certain voltage). Normally, the inactivation lock clicks shut around -55 mV. This drug **tightens that inactivation lock** so it clicks shut earlier — at **-65 mV** instead.\n\nNow your resting membrane potential is -70 mV. Before the drug, the door was ready to spring open when you reached -55 mV. After the drug, at -70 mV, the inactivation lock is **already clicked shut**. The door is **deadbolted** before you even knock.\n\nThreshold doesn't move. You still need -55 mV to turn the activation handle. But the door won't budge because the inactivation lock is already engaged. The cell is **refractory** — harder to excite because the channels are **pre-inactivated** at rest. That is the **use-dependent block** in ischemic tissue: more channels start in the deadbolted state, so fewer are available to fire."
+    },
+    {
+      "role": "assistant",
+      "content": "Let me reset this for you. Forget the threshold number.\n\nThe drug does **not** change the threshold. Threshold stays at **-55 mV**. What changes is the **voltage at which the inactivation gate slams shut**.\n\nThink of a mousetrap. The trap arm (activation gate) snaps when you touch the cheese at -55 mV. But there is also a **safety latch** (inactivation gate) that can lock the arm down before you even reach for the cheese. Normally the safety latch only engages at -55 mV too. This drug makes the safety latch engage earlier — at **-65 mV**.\n\nSo at resting potential of -70 mV, the safety latch is **already engaged**. The trap is **locked** before you even start moving toward the cheese. You still need to reach -55 mV to spring the trap, but the trap **cannot spring** because the safety latch is holding it down.\n\nThat is **inactivation**: the channel is present but unavailable. More channels start unavailable at rest. That is the **use-dependent block** in ischemic tissue."
+    }
+  ]
+}

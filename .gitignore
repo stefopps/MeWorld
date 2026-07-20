@@ -7,6 +7,9 @@ graphify-out/
 # DeepSeek response logs and per-node chat backups (personal data)
 deepseek-log.jsonl
 user-data/
+# Concept-graphs chats/notes sync across PCs via main
+!step3/scrape-bank/user-data/
+!step3/scrape-bank/user-data/**/
 
 # Large reference PDFs (>95MB GitHub limit)
 game/dev/references/FirstAid-Step1-2025-35th.pdf

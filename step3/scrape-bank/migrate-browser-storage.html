@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Migrate browser storage → disk</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; color: #111; }
+    h1 { font-size: 1.25rem; }
+    .muted { color: #666; font-size: 0.9rem; }
+    button { margin: 8px 8px 8px 0; padding: 10px 14px; font-size: 0.95rem; cursor: pointer; }
+    #log { white-space: pre-wrap; background: #f4f4f5; border-radius: 8px; padding: 12px; font-size: 0.85rem; min-height: 120px; }
+    .ok { color: #166534; }
+    .err { color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <h1>Preserve concept-graphs browser data</h1>
+  <p class="muted">
+    Open this page on the <strong>same origin</strong> where you used the app
+    (<code>http://127.0.0.1:8765</code>). It reads your localStorage notes + chats,
+    writes them to disk via the API, and downloads a JSON backup.
+  </p>
+  <button id="btnScan">1. Scan browser</button>
+  <button id="btnMigrate" disabled>2. Save to disk + download backup</button>
+  <pre id="log">Click “Scan browser”…</pre>
+  <script>
+    const logEl = document.getElementById('log');
+    const btnScan = document.getElementById('btnScan');
+    const btnMigrate = document.getElementById('btnMigrate');
+    let payload = null;
+
+    function log(msg, cls) {
+      const line = document.createElement('div');
+      if (cls) line.className = cls;
+      line.textContent = msg;
+      logEl.appendChild(line);
+    }
+    function clearLog() { logEl.textContent = ''; }
+
+    function scan() {
+      clearLog();
+      const notesRaw = localStorage.getItem('cg_global_notes');
+      let notes = [];
+      try { notes = notesRaw ? JSON.parse(notesRaw) : []; } catch (e) {
+        log('Failed to parse cg_global_notes: ' + e.message, 'err');
+      }
+      if (!Array.isArray(notes)) notes = [];
+
+      const chats = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (!k || !k.startsWith('chat-')) continue;
+        const nodeId = k.slice('chat-'.length);
+        try {
+          const msgs = JSON.parse(localStorage.getItem(k) || '[]');
+          if (Array.isArray(msgs) && msgs.length) chats[nodeId] = msgs;
+        } catch (_) {}
+      }
+
+      payload = {
+        exportedAt: new Date().toISOString(),
+        origin: location.origin,
+        notesCount: notes.length,
+        chatNodeCount: Object.keys(chats).length,
+        notes,
+        chats,
+      };
+
+      log('Origin: ' + location.origin);
+      log('Notes (cg_global_notes): ' + notes.length + ' entries');
+      log('Chat nodes (chat-*): ' + Object.keys(chats).length);
+      Object.keys(chats).sort().forEach(id => {
+        log('  chat-' + id + ': ' + chats[id].length + ' messages');
+      });
+      if (!notes.length && !Object.keys(chats).length) {
+        log('Nothing found in this browser origin. Are you on :8765 where you studied?', 'err');
+        btnMigrate.disabled = true;
+      } else {
+        log('Ready to migrate.', 'ok');
+        btnMigrate.disabled = false;
+      }
+    }
+
+    async function migrate() {
+      if (!payload) { scan(); }
+      if (!payload) return;
+      clearLog();
+      log('Migrating…');
+
+      // 1) Notes → disk
+      try {
+        // Merge with whatever is already on disk
+        let serverNotes = [];
+        try {
+          const r = await fetch('/api/notes');
+          const d = await r.json();
+          serverNotes = Array.isArray(d.notes) ? d.notes : [];
+        } catch (_) {}
+        const fp = (n) => String(n.ts || '') + '|' + String(n.qid || '') + '|' + String(n.text || '').trim();
+        const map = new Map();
+        [...serverNotes, ...payload.notes].forEach(n => {
+          if (n && String(n.text || '').trim()) map.set(fp(n), n);
+        });
+        const merged = [...map.values()].sort((a, b) => String(a.ts || '').localeCompare(String(b.ts || '')));
+        const put = await fetch('/api/notes', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes: merged }),
+        });
+        const putBody = await put.json();
+        if (!put.ok) throw new Error(putBody.error || put.status);
+        localStorage.setItem('cg_global_notes', JSON.stringify(merged));
+        log('Notes → disk: ' + merged.length + ' (merged with server)', 'ok');
+      } catch (e) {
+        log('Notes migrate FAILED: ' + e.message, 'err');
+      }
+
+      // 2) Chats → disk
+      let chatOk = 0, chatFail = 0;
+      for (const [nodeId, chatHistory] of Object.entries(payload.chats)) {
+        try {
+          // Merge with existing server chat if any
+          let serverMsgs = [];
+          try {
+            const r = await fetch('/api/load-chat?nodeId=' + encodeURIComponent(nodeId));
+            const d = await r.json();
+            if (d && Array.isArray(d.messages)) serverMsgs = d.messages;
+          } catch (_) {}
+          const fp = (m) => String(m.role || '') + '|' + String(m.content || '').trim().slice(0, 200);
+          const map = new Map();
+          [...serverMsgs, ...chatHistory].forEach(m => {
+            if (m && m.content) map.set(fp(m), m);
+          });
+          const merged = [...map.values()];
+          const res = await fetch('/api/save-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nodeId, chatHistory: merged }),
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          localStorage.setItem('chat-' + nodeId, JSON.stringify(merged));
+          chatOk++;
+          log('  chat-' + nodeId + ' → ' + merged.length + ' msgs', 'ok');
+        } catch (e) {
+          chatFail++;
+          log('  chat-' + nodeId + ' FAILED: ' + e.message, 'err');
+        }
+      }
+      log('Chats: ' + chatOk + ' ok, ' + chatFail + ' failed', chatFail ? 'err' : 'ok');
+
+      // 3) Download backup JSON
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'concept-graphs-browser-backup-' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-') + '.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      log('Downloaded JSON backup to your Downloads folder.', 'ok');
+      log('Done. Disk files: user-data/notes/global-notes.json + user-data/chats/', 'ok');
+    }
+
+    btnScan.onclick = scan;
+    btnMigrate.onclick = migrate;
+    scan();
+  </script>
+</body>
+</html>

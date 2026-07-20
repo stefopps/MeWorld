@@ -181,11 +181,87 @@ const server = http.createServer((req, res) => {
       return;
     }
 
+    // ── Notes store (MeWorld-style dual-write: disk is canonical) ─────
+    const NOTES_FILE = path.join(ROOT, 'user-data', 'notes', 'global-notes.json');
+    function readNotesFile() {
+      try {
+        if (!fs.existsSync(NOTES_FILE)) return { updated: null, notes: [] };
+        const data = JSON.parse(fs.readFileSync(NOTES_FILE, 'utf8'));
+        return { updated: data.updated || null, notes: Array.isArray(data.notes) ? data.notes : [] };
+      } catch (_) {
+        return { updated: null, notes: [] };
+      }
+    }
+    function writeNotesFile(notes) {
+      const dir = path.dirname(NOTES_FILE);
+      fs.mkdirSync(dir, { recursive: true });
+      const entry = { updated: new Date().toISOString(), notes: Array.isArray(notes) ? notes : [] };
+      fs.writeFileSync(NOTES_FILE, JSON.stringify(entry, null, 2), 'utf8');
+      return entry;
+    }
+
+    // GET /api/notes — full notes list from disk
+    if (url.pathname === '/api/notes' && req.method === 'GET') {
+      const data = readNotesFile();
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify(data));
+      return;
+    }
+
+    // PUT /api/notes — replace full notes list (hydration merge / save)
+    if (url.pathname === '/api/notes' && req.method === 'PUT') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        try {
+          const parsed = JSON.parse(body || '{}');
+          const notes = Array.isArray(parsed.notes) ? parsed.notes : [];
+          const saved = writeNotesFile(notes);
+          console.log('[notes] Saved', notes.length, 'notes to disk');
+          res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify({ ok: true, ...saved }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify({ ok: false, error: e.message }));
+        }
+      });
+      return;
+    }
+
+    // POST /api/notes/append — append one note entry
+    if (url.pathname === '/api/notes/append' && req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        try {
+          const note = JSON.parse(body || '{}');
+          if (!note || !String(note.text || '').trim()) throw new Error('note.text required');
+          const data = readNotesFile();
+          const entry = {
+            text: String(note.text).trim(),
+            ts: note.ts || new Date().toISOString(),
+            qid: note.qid != null ? String(note.qid) : '',
+            nodeLabel: note.nodeLabel || '',
+            setId: note.setId != null ? note.setId : null,
+          };
+          data.notes.push(entry);
+          const saved = writeNotesFile(data.notes);
+          console.log('[notes] Appended note for qid', entry.qid);
+          res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify({ ok: true, ...saved }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify({ ok: false, error: e.message }));
+        }
+      });
+      return;
+    }
+
     // ── CORS preflight for POST ─────────────────────────────────────
     if (req.method === 'OPTIONS') {
       res.writeHead(204, {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
       });
       res.end();
