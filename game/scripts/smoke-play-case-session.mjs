@@ -101,24 +101,24 @@ async function smokeOrderDockRole(page, prefix) {
 }
 
 async function smokePlaySettingsToggles(page, prefix) {
-  await page.locator('.scene-timeline-dock, .play-notes-session-foot').first().scrollIntoViewIfNeeded().catch(() => {});
+  await page.locator('.scene-timeline-dock, .play-notes-session-foot, .panel-rail').first().scrollIntoViewIfNeeded().catch(() => {});
   await page.waitForTimeout(200);
-  const sceneToolsBtn = page.getByRole('button', { name: /scene tools/i });
-  if (await sceneToolsBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-    await sceneToolsBtn.click();
-    await page.waitForTimeout(350);
-  } else {
-    const toolbarToggle = page.locator('.dock-toolbar-toggle');
-    if (await toolbarToggle.isVisible({ timeout: 2000 }).catch(() => false)) {
-      const expanded = await toolbarToggle.getAttribute('aria-expanded');
-      if (expanded === 'false') await toolbarToggle.click();
-      await page.waitForTimeout(250);
-    }
-  }
-  const settingsBtn = page.locator('.toolbar-settings-wrap button').first();
+  // Current Play chrome: Scene tools gear on the right panel rail (not PlaySceneToolbar).
+  const settingsBtn = page.locator('button.panel-settings-btn[aria-label="Scene tools"]').first();
   ok(await settingsBtn.isVisible({ timeout: 8000 }), 'play settings button visible');
-  await settingsBtn.click();
-  await page.waitForSelector('.toolbar-settings-popover', { timeout: 5000 });
+  await settingsBtn.scrollIntoViewIfNeeded().catch(() => {});
+  // Use DOM click to avoid Playwright pointerdown racing the outside-close listener.
+  await settingsBtn.evaluate((el) => {
+    if (el.getAttribute('aria-expanded') !== 'true') el.click();
+  });
+  await page.waitForFunction(
+    () => {
+      const btn = document.querySelector('button.panel-settings-btn[aria-label="Scene tools"]');
+      const pop = document.querySelector('.toolbar-settings-popover, .settings-popover[aria-label="Scene tools"]');
+      return btn?.getAttribute('aria-expanded') === 'true' && !!pop;
+    },
+    { timeout: 10000 },
+  );
 
   async function readToggleState(locator) {
     return locator.first().evaluate((el) => ({

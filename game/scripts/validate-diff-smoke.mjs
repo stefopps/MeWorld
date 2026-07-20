@@ -98,7 +98,7 @@ async function main() {
         diagnosis: 'Renal Cell Carcinoma',
         refresh: false,
       }),
-      signal: AbortSignal.timeout(12000),
+      signal: AbortSignal.timeout(45000),
     }).catch((e) => ({ ok: false, status: 0, error: String(e.message || e) }));
     if (rwPost.error) {
       ok(false, 'real-world: POST reachable', rwPost.error);

@@ -1849,14 +1849,14 @@
     <label class="settings-label">Display</label>
     <div class="settings-fs-row">
       <span class="settings-hint" style="flex:1;">Text size</span>
-      <button class="settings-fs-btn" id="settingsFsDown" title="Smaller text">A\u2212</button>
+      <button class="settings-fs-btn" id="settingsFsDown" title="Smaller text">A−</button>
       <span class="settings-fs-pill" id="settingsFsPill">100%</span>
       <button class="settings-fs-btn" id="settingsFsUp" title="Larger text">A+</button>
       <button class="settings-fs-btn" id="settingsFsReset" title="Reset text size"><i class="ti ti-refresh"></i></button>
     </div>
     <div class="settings-fs-row" style="margin-top:4px;">
       <span class="settings-hint" style="flex:1;">Notes &amp; Chat size</span>
-      <button class="settings-fs-btn" id="settingsNsDown" title="Smaller text">A\u2212</button>
+      <button class="settings-fs-btn" id="settingsNsDown" title="Smaller text">A−</button>
       <span class="settings-fs-pill" id="settingsNsPill">100%</span>
       <button class="settings-fs-btn" id="settingsNsUp" title="Larger text">A+</button>
       <button class="settings-fs-btn" id="settingsNsReset" title="Reset text size"><i class="ti ti-refresh"></i></button>
@@ -4739,6 +4739,49 @@ function showSessionRestoreToast(chatCount, noteCount) {
   } catch (_) {}
 }
 
+// ── Triage hydrate: disk → localStorage (MeWorld dual-write recovery) ───
+async function hydrateTriageFromServer() {
+  let restored = 0;
+  try {
+    const listRes = await fetch('/api/list-triage');
+    if (!listRes.ok) return 0;
+    const list = await listRes.json();
+    if (!Array.isArray(list) || !list.length) return 0;
+
+    // Sort: prefer entries in the current graph set
+    const graphIds = new Set();
+    try {
+      if (GRAPH && Array.isArray(GRAPH.nodes)) {
+        GRAPH.nodes.forEach(n => graphIds.add(String(n.id)));
+      }
+    } catch (_) {}
+
+    const toFetch = list.filter(c => c && c.qid && c.hasData);
+    toFetch.sort((a, b) => {
+      const aIn = graphIds.has(String(a.qid)) ? 0 : 1;
+      const bIn = graphIds.has(String(b.qid)) ? 0 : 1;
+      return aIn - bIn;
+    });
+
+    for (const info of toFetch) {
+      try {
+        // Skip if localStorage already has triage data
+        const local = readTriage(info.qid);
+        if (local && (local.approved || local.needsWork || (local.firstPrinciples && local.firstPrinciples.trim()))) continue;
+
+        const res = await fetch('/api/load-triage?qid=' + encodeURIComponent(info.qid));
+        if (!res.ok) continue;
+        const disk = await res.json();
+        if (!disk) continue;
+
+        writeTriage(info.qid, disk);
+        restored++;
+      } catch (_) {}
+    }
+  } catch (_) { /* server down */ }
+  return restored;
+}
+
 async function hydratePersistedSessionFromDisk(setNum) {
   let restoredChats = 0;
   let notesFromDisk = 0;
@@ -4848,6 +4891,14 @@ async function hydratePersistedSessionFromDisk(setNum) {
   if (restoredChats || notesFromDisk) {
     console.info('[session] Restored from disk — chats:', restoredChats, 'notes:', notesFromDisk, 'set:', setNum);
     showSessionRestoreToast(restoredChats, notesFromDisk);
+  }
+  // Now hydrate triage (first principles / concept) from disk
+  let triageFromDisk = 0;
+  try {
+    triageFromDisk = await hydrateTriageFromServer();
+  } catch (_) { /* server down */ }
+  if (triageFromDisk) {
+    console.info('[session] Restored triage from disk —', triageFromDisk, 'nodes');
   }
 }
 
@@ -7011,6 +7062,14 @@ function readTriage(qid) {
 }
 function writeTriage(qid, data) {
   try { localStorage.setItem(TRIAGE_PREFIX + qid, JSON.stringify(data)); } catch (_) {}
+  // Dual-write to disk (MeWorld pattern — fire-and-forget)
+  try {
+    fetch('/api/save-triage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ qid: String(qid), data }),
+    }).catch(() => {});
+  } catch (_) {}
   // Invalidate shuffle cache - a node was just flagged
   if (window._invalidateShuffleCache) window._invalidateShuffleCache();
   // Update graph node visual state (touched/untouched)

@@ -257,6 +257,66 @@ const server = http.createServer((req, res) => {
       return;
     }
 
+    // ── Triage store (MeWorld-style dual-write: concept, firstPrinciples, fullBeat) ──
+    const TRIAGE_DIR = path.join(ROOT, 'user-data', 'triage');
+    function ensureTriageDir() { fs.mkdirSync(TRIAGE_DIR, { recursive: true }); }
+    function triageFilePath(qid) { return path.join(TRIAGE_DIR, `${qid}.json`); }
+
+    // POST /api/save-triage — persist triage fields to disk (fire-and-forget from client)
+    if (url.pathname === '/api/save-triage' && req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        try {
+          const { qid, data } = JSON.parse(body);
+          if (!qid || !data || typeof data !== 'object') throw new Error('qid and data object required');
+          ensureTriageDir();
+          const entry = { qid, updated: new Date().toISOString(), ...data };
+          fs.writeFileSync(triageFilePath(qid), JSON.stringify(entry, null, 2), 'utf8');
+          console.log('[triage] Saved qid', qid, Object.keys(data).filter(k => k !== 'updated' && data[k]).join(', ') || '(empty)');
+          res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify({ ok: true }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify({ ok: false, error: e.message }));
+        }
+      });
+      return;
+    }
+
+    // GET /api/load-triage — load triage for one node
+    if (url.pathname === '/api/load-triage' && req.method === 'GET') {
+      const qid = url.searchParams.get('qid') || '';
+      const file = triageFilePath(qid);
+      let data = null;
+      if (fs.existsSync(file)) {
+        try { data = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (_) {}
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify(data));
+      return;
+    }
+
+    // GET /api/list-triage — overview of all triage entries
+    if (url.pathname === '/api/list-triage' && req.method === 'GET') {
+      ensureTriageDir();
+      const list = [];
+      const files = fs.readdirSync(TRIAGE_DIR).filter(f => f.endsWith('.json'));
+      for (const f of files) {
+        try {
+          const data = JSON.parse(fs.readFileSync(path.join(TRIAGE_DIR, f), 'utf8'));
+          const fpSize = typeof data.firstPrinciples === 'string' ? data.firstPrinciples.length : 0;
+          const concept = typeof data.concept === 'string' ? data.concept.length : 0;
+          const hasAny = !!(data.approved || data.needsWork || fpSize > 0 || concept > 0);
+          list.push({ qid: data.qid, updated: data.updated, hasData: hasAny, fpSize, conceptSize: concept });
+        } catch (_) {}
+      }
+      list.sort((a, b) => String(b.updated).localeCompare(String(a.updated)));
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify(list));
+      return;
+    }
+
     // ── CORS preflight for POST ─────────────────────────────────────
     if (req.method === 'OPTIONS') {
       res.writeHead(204, {
