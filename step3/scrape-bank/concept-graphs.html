@@ -14,6 +14,16 @@
     --bg: #ffffff; --ink: #17202b; --muted: #6b7686;
     --accent: #2563eb; --border: #e3e7ee;
     --coral: #d8552f; --gray: #9a9890; --teal: #17916b;
+    /* Shared Notes + Attending thread UI */
+    --thread-bg: #fafbfc;
+    --thread-panel: #ffffff;
+    --thread-you: #e0ebff;
+    --thread-you-ink: #1a2a4a;
+    --thread-other: #f0f1f4;
+    --thread-other-ink: #1e2130;
+    --thread-field-bg: #ffffff;
+    --thread-strong: #2563eb;
+    --thread-height: min(300px, 42vh);
   }
   * { box-sizing: border-box; }
   body {
@@ -162,6 +172,19 @@
   .hdr-search .sr-empty {
     padding: 8px 12px; font-size: 0.65rem; color: var(--muted); text-align: center;
   }
+  .hdr-search .sr-meta {
+    flex-shrink: 0; font-size: 0.55rem; color: var(--muted); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .hdr-search .sr-score {
+    flex-shrink: 0; font-size: 0.55rem; color: #7c8db5; font-variant-numeric: tabular-nums;
+  }
+  .g-node.search-hit > circle:first-of-type {
+    stroke: #f59e0b !important;
+    stroke-width: 3.5px !important;
+    filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.85));
+  }
+  .g-node.search-dim { opacity: 0.22; }
 
   /* ── Lightbox (full-screen image viewer) ── */
   .lightbox {
@@ -270,7 +293,7 @@
   }
 
 
-  /* ── Dictation section INSIDE the HUD ── */
+  /* ── Shared Notes + Attending thread (one style system) ── */
   .hud .dict-sect, .hud-content .dict-sect {
     margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
   }
@@ -281,80 +304,145 @@
     font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em;
     color: var(--muted); font-weight: 600;
   }
-  .hud .dict-sect textarea, .hud-content .dict-sect textarea {
-    font-family: Inter, sans-serif; font-size: calc(0.72rem * var(--notes-font-scale, 1)); line-height: 1.5;
-    border: 1px solid var(--border); border-radius: 7px; padding: 6px 32px 6px 8px;
-    resize: vertical; min-height: 60px; max-height: 150px; outline: none;
-    width: 100%; color: var(--ink);
-  }
-  .hud .dict-sect textarea:focus, .hud-content .dict-sect textarea:focus { border-color: var(--accent); }
-  .hud .dict-input-wrap, .hud-content .dict-input-wrap { position: relative; }
-  .hud .btn-mic, .hud-content .btn-mic {
-    position: absolute; right: 6px; bottom: 6px;
-    width: 24px; height: 24px; border-radius: 50%; border: none;
-    cursor: pointer; font-size: 0.8rem; display: flex; align-items: center;
-    justify-content: center; transition: all .15s; flex-shrink: 0;
-    background: #fff; color: var(--ink);
+
+  /* Flex column: scroll region + sticky input sibling */
+  .thread-pane {
+    display: flex;
+    flex-direction: column;
+    height: var(--thread-height);
+    min-height: 160px;
+    gap: 0;
     border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--thread-panel);
+    overflow: hidden;
   }
-  .hud .btn-mic:hover, .hud-content .btn-mic:hover { background: #f0f2f5; }
-  .hud .btn-mic.recording, .hud-content .btn-mic.recording {
-    background: #ef4444; color: #fff;
+  .thread-scroll {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 8px;
+    background: var(--thread-bg);
+  }
+  .thread-scroll.chat-log {
+    display: flex;
+    flex-direction: column;
+  }
+  .thread-input-bar {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 10px 10px;
+    border-top: 1px solid var(--border);
+    background: var(--thread-panel);
+  }
+  .thread-input-bar.thread-input-row {
+    flex-direction: row;
+    align-items: center;
+  }
+  .thread-field {
+    font-family: Inter, sans-serif;
+    font-size: calc(0.7rem * var(--notes-font-scale, 1));
+    line-height: 1.45;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    outline: none;
+    width: 100%;
+    color: var(--ink);
+    background: var(--thread-field-bg);
+  }
+  .thread-input-row .thread-field { flex: 1; min-width: 0; }
+  .thread-field:focus { border-color: var(--accent); }
+  textarea.thread-field {
+    resize: none;
+    min-height: 44px;
+    max-height: 88px;
+  }
+  .thread-input-actions {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .thread-mic {
+    position: static !important;
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--thread-field-bg); color: var(--ink);
+    border: 1px solid var(--border);
+    cursor: pointer; font-size: 0.9rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s; flex-shrink: 0;
+  }
+  .thread-mic:hover { background: var(--thread-bg); }
+  .thread-mic.recording {
+    background: #ef4444; color: #fff; border-color: #ef4444;
     animation: pulse-mic .8s ease infinite alternate;
   }
   @keyframes pulse-mic {
     from { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
     to   { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
   }
-  /* Chat mic - inline variant (not absolute in textarea) */
-  .hud .chat-input-row .btn-mic-chat, .hud-content .chat-input-row .btn-mic-chat {
-    position: static;
-    width: 28px; height: 28px; border-radius: 6px;
-    background: #f8f9fb; color: var(--ink);
-    border: 1px solid var(--border);
-    cursor: pointer; font-size: 0.85rem; display: flex; align-items: center;
-    justify-content: center; transition: all .15s; flex-shrink: 0;
+  .thread-send, .thread-input-bar button.primary, .btn-save-note {
+    font-family: inherit; font-size: 0.68rem; font-weight: 600;
+    padding: 7px 12px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    white-space: nowrap; display: inline-flex; align-items: center;
+    justify-content: center; gap: 4px; transition: filter .15s;
   }
-  .hud .chat-input-row .btn-mic-chat:hover, .hud-content .chat-input-row .btn-mic-chat:hover {
-    background: #f0f2f5;
-  }
-  .hud .chat-input-row .btn-mic-chat.recording, .hud-content .chat-input-row .btn-mic-chat.recording {
-    background: #ef4444; color: #fff;
-    animation: pulse-mic .8s ease infinite alternate;
-  }
-  [data-theme="dark"] .hud .chat-input-row .btn-mic-chat,
-  [data-theme="dark"] .hud-content .chat-input-row .btn-mic-chat {
-    background: #1f2230; color: #fff; border-color: #2d3148;
-  }
-  [data-theme="dark"] .hud .chat-input-row .btn-mic-chat:hover,
-  [data-theme="dark"] .hud-content .chat-input-row .btn-mic-chat:hover {
-    background: #2d3148;
-  }
+  .thread-send:hover, .thread-input-bar button.primary:hover, .btn-save-note:hover { filter: brightness(1.08); }
+  .thread-send:disabled, .thread-input-bar button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-save-note { flex: 1; }
 
-  /* ── Global notes list (accumulating, per-node scoped) ── */
-  .hud .notes-log, .hud-content .notes-log, .float-dict .notes-log {
-    max-height: 220px; overflow-y: auto; margin-bottom: 8px;
-    padding-right: 4px;
+  /* Chat messages */
+  .thread-scroll .chat-msg {
+    display: flex; flex-direction: column; margin-bottom: 8px;
+    animation: chatFadeIn .25s ease; max-width: 92%;
   }
-  .notes-list-empty {
-    font-size: 0.68rem; color: var(--muted); font-style: italic;
-    padding: 8px 4px; text-align: center;
+  .thread-scroll .chat-msg.msg-you { align-self: flex-end; margin-left: auto; }
+  .thread-scroll .chat-msg.msg-iwu { align-self: flex-start; margin-right: auto; }
+  .thread-scroll .chat-msg .msg-bubble {
+    padding: 7px 11px; border-radius: 12px; line-height: 1.45;
+    font-size: calc(0.68rem * var(--notes-font-scale, 1));
+    word-break: break-word; user-select: text; position: relative;
   }
-  .notes-entry {
-    padding: 6px 6px 6px 8px; margin-bottom: 5px;
-    border-left: 2px solid var(--accent); border-radius: 3px;
-    background: rgba(0,0,0,0.02); font-size: 0.7rem; line-height: 1.45;
-    position: relative;
+  .thread-scroll .chat-msg.msg-you .msg-bubble {
+    background: var(--thread-you); color: var(--thread-you-ink);
+    border-bottom-right-radius: 3px;
   }
-  [data-theme="dark"] .notes-entry { background: rgba(255,255,255,0.03); }
+  .thread-scroll .chat-msg.msg-iwu .msg-bubble {
+    background: var(--thread-other); color: var(--thread-other-ink);
+    border-bottom-left-radius: 3px;
+  }
+  .thread-scroll .chat-msg .msg-sender {
+    font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.05em;
+    font-weight: 600; margin-bottom: 2px; padding: 0 2px;
+  }
+  .thread-scroll .chat-msg.msg-you .msg-sender { color: var(--accent); text-align: right; }
+  .thread-scroll .chat-msg.msg-iwu .msg-sender { color: var(--coral); }
+  .thread-scroll .chat-msg:last-child { margin-bottom: 0; }
+
+  /* Notes cards — same bubble language as attending */
+  .notes-entry, .thread-card {
+    padding: 7px 11px; margin-bottom: 8px;
+    border-radius: 12px; border-bottom-left-radius: 3px;
+    background: var(--thread-other); color: var(--thread-other-ink);
+    font-size: calc(0.68rem * var(--notes-font-scale, 1)); line-height: 1.45;
+    position: relative; border-left: none;
+  }
+  .notes-entry--mine, .thread-card.thread-card--mine {
+    background: var(--thread-you); color: var(--thread-you-ink);
+    border-bottom-left-radius: 12px; border-bottom-right-radius: 3px;
+  }
   .notes-entry-header {
-    display: flex; align-items: center; gap: 6px; margin-bottom: 3px;
-    font-size: 0.6rem; color: var(--muted);
+    display: flex; align-items: center; gap: 6px; margin-bottom: 4px;
+    font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--muted); font-weight: 600;
   }
-  .notes-entry-header .notes-ts { flex-shrink: 0; }
+  .notes-entry-header .notes-ts { flex-shrink: 0; text-transform: none; letter-spacing: 0; font-weight: 500; }
   .notes-entry-header .notes-context {
-    font-weight: 500; color: var(--accent); white-space: nowrap;
+    font-weight: 600; color: var(--accent); white-space: nowrap;
     overflow: hidden; text-overflow: ellipsis; max-width: 220px;
+    text-transform: none; letter-spacing: 0;
   }
   .notes-entry-header .notes-del {
     margin-left: auto; background: none; border: none; color: var(--muted);
@@ -363,74 +451,78 @@
   }
   .notes-entry:hover .notes-entry-header .notes-del { opacity: 1; }
   .notes-entry-header .notes-del:hover { color: #ef4444; background: rgba(239,68,68,0.08); }
-  .notes-entry-body {
-    color: var(--ink); white-space: pre-wrap; word-break: break-word;
+  .notes-entry-body { color: inherit; white-space: pre-wrap; word-break: break-word; }
+  .notes-list-empty, .thread-empty {
+    font-size: 0.68rem; color: var(--muted); font-style: italic;
+    padding: 16px 8px; text-align: center;
   }
-  .notes-input-row {
-    display: flex; flex-direction: column; gap: 4px;
+  .notes-count-badge {
+    display: inline-block; min-width: 1.1em; padding: 0 5px; margin-left: 2px;
+    border-radius: 999px; background: var(--accent); color: #fff;
+    font-size: 0.58rem; font-weight: 700; line-height: 1.4;
   }
-  .notes-input-row textarea {
-    font-family: Inter, sans-serif; font-size: calc(0.7rem * var(--notes-font-scale, 1)); line-height: 1.5;
-    border: 1px solid var(--border); border-radius: 7px; padding: 6px 8px;
-    resize: vertical; min-height: 48px; max-height: 120px; outline: none;
-    width: 100%; color: var(--ink);
+
+  .chat-table {
+    width: 100%; border-collapse: collapse; margin: 6px 0;
+    font-size: 0.66rem; line-height: 1.4;
   }
-  .notes-input-row textarea:focus { border-color: var(--accent); }
-  .notes-row-btns {
-    display: flex; align-items: center; gap: 6px;
+  .chat-table th {
+    background: #eef2f7; text-align: left; padding: 4px 8px; font-weight: 650;
+    border-bottom: 2px solid var(--border); color: var(--ink);
   }
-  .btn-save-note {
-    flex: 1; font-size: 0.68rem; padding: 5px 10px; border-radius: 6px;
-    border: 1px solid var(--accent); background: var(--accent); color: #fff;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    gap: 4px; font-weight: 500; transition: all .15s;
+  .chat-table td {
+    padding: 3px 8px; border-bottom: 1px solid #e3e7ee; color: var(--ink);
   }
-  .btn-save-note:hover { filter: brightness(1.1); }
-  .notes-row-btns .btn-mic {
-    position: static; flex-shrink: 0;
-    width: 28px; height: 28px; border-radius: 6px;
-    background: #f8f9fb; color: var(--ink);
-    border: 1px solid var(--border);
-    cursor: pointer; font-size: 0.85rem; display: flex; align-items: center;
-    justify-content: center; transition: all .15s;
+  .chat-table tr:last-child td { border-bottom: none; }
+  [data-theme="dark"] .chat-table th { background: #1f2230; border-bottom-color: #2d3148; }
+  [data-theme="dark"] .chat-table td { border-bottom-color: #2d3148; }
+  .msg-bubble h3 { font-size: 0.78rem; color: var(--coral); }
+  .msg-bubble h4 { font-size: 0.73rem; color: var(--accent); }
+  .msg-bubble ul { padding-left: 18px; margin: 4px 0; }
+  .msg-bubble li { margin-bottom: 2px; }
+  .msg-bubble strong, .notes-entry-body strong { color: var(--thread-strong); }
+  .layer2-body strong { color: var(--thread-strong); }
+  .msg-bubble code { background: #eef2f7; padding: 1px 4px; border-radius: 3px; font-size: 0.65em; }
+  [data-theme="dark"] .msg-bubble code { background: #1f2230; }
+  .msg-copy-btn {
+    position: absolute; top: 6px; right: 8px;
+    width: 22px; height: 22px; border-radius: 5px; border: 1px solid transparent;
+    background: transparent; color: var(--muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; transition: all .12s; opacity: 0;
   }
-  .notes-row-btns .btn-mic:hover { background: #f0f2f5; }
-  .notes-row-btns .btn-mic.recording {
-    background: #ef4444; color: #fff;
-    animation: pulse-mic .8s ease infinite alternate;
-  }
-  [data-theme="dark"] .notes-row-btns .btn-mic { background: #1f2230; color: #fff; border-color: #2d3148; }
-  [data-theme="dark"] .notes-row-btns .btn-mic:hover { background: #2d3148; }
-  /* Float-dict chat mic */
-  .float-dict .chat-input-row .btn-mic-chat {
-    position: static;
-    width: 28px; height: 28px; border-radius: 6px;
-    background: #f8f9fb; color: var(--ink);
-    border: 1px solid var(--border);
-    cursor: pointer; font-size: 0.85rem; display: flex; align-items: center;
-    justify-content: center; transition: all .15s; flex-shrink: 0;
-  }
-  .float-dict .chat-input-row .btn-mic-chat:hover { background: #f0f2f5; }
-  .float-dict .chat-input-row .btn-mic-chat.recording { background: #ef4444; color: #fff; animation: pulse-mic .8s ease infinite alternate; }
-  [data-theme="dark"] .float-dict .chat-input-row .btn-mic-chat { background: #1f2230; color: #fff; border-color: #2d3148; }
-  [data-theme="dark"] .float-dict .chat-input-row .btn-mic-chat:hover { background: #2d3148; }
-  .hud .dict-interim, .hud-content .dict-interim {
+  .msg-bubble { position: relative; }
+  .chat-msg.msg-you .msg-bubble:hover .msg-copy-btn,
+  .chat-msg.msg-iwu .msg-bubble:hover .msg-copy-btn { opacity: 1; }
+  .chat-msg.msg-you .msg-bubble .msg-copy-btn { opacity: 0; transition: opacity .12s; }
+  .msg-copy-btn:hover { background: #eef3ff; color: var(--accent); border-color: var(--accent); }
+  .msg-copy-btn.copied { opacity: 1; color: #16a34a; border-color: #16a34a; background: #f0fdf4; }
+  [data-theme="dark"] .msg-copy-btn:hover { background: #1a2a4a; color: #6ea8fe; border-color: #6ea8fe; }
+  [data-theme="dark"] .msg-copy-btn.copied { color: #4ade80; border-color: #4ade80; background: #052e16; }
+  @keyframes chatFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .hud .dict-interim, .hud-content .dict-interim, .float-dict .dict-interim {
     font-size: 0.65rem; color: var(--muted); font-style: italic;
-    min-height: 16px; padding: 2px 2px 0; overflow: hidden; text-overflow: ellipsis;
+    min-height: 14px; padding: 2px 2px 0; overflow: hidden; text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .hud .dict-sect .btn-row, .hud-content .dict-sect .btn-row { display: flex; gap: 6px; margin-top: 6px; }
-  .hud .dict-sect .btn-row button, .hud-content .dict-sect .btn-row button {
-    font-family: inherit; font-size: 0.68rem; font-weight: 600;
-    padding: 4px 8px; border-radius: 6px; cursor: pointer;
-    border: 1px solid var(--border); background: #fff; color: var(--ink);
+  .hud .dict-sect .dict-status, .hud-content .dict-sect .dict-status,
+  .float-dict .dict-status { font-size: 0.62rem; color: var(--muted); margin-top: 4px; min-height: 12px; }
+
+  .hud .dict-sect .dict-header .dict-undock, .hud-content .dict-sect .dict-header .dict-undock,
+  .float-dict .fd-header .fd-redock {
+    cursor: pointer; color: var(--muted); font-size: 0.75rem;
+    padding: 2px 6px; border-radius: 5px; border: 1px solid var(--border);
+    background: #f8f9fb; line-height: 1; margin-left: auto;
   }
-  .hud .dict-sect .btn-row button:hover, .hud-content .dict-sect .btn-row button:hover { background: #f0f3f7; }
-  .hud .dict-sect .btn-row button.primary, .hud-content .dict-sect .btn-row button.primary {
-    background: var(--accent); color: #fff; border-color: var(--accent);
-  }
-  .hud .dict-sect .btn-row button.primary:hover, .hud-content .dict-sect .btn-row button.primary:hover { background: #1d4ed8; }
-  .hud .dict-sect .btn-row button:disabled, .hud-content .dict-sect .btn-row button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .hud .dict-sect .dict-header .dict-undock:hover, .hud-content .dict-sect .dict-header .dict-undock:hover,
+  .float-dict .fd-header .fd-redock:hover { color: var(--accent); background: #eef3ff; }
+  [data-theme="dark"] .hud .dict-sect .dict-header .dict-undock,
+  [data-theme="dark"] .hud-content .dict-sect .dict-header .dict-undock,
+  [data-theme="dark"] .float-dict .fd-header .fd-redock { background: #1f2230; }
+  [data-theme="dark"] .hud .dict-sect .dict-header .dict-undock:hover,
+  [data-theme="dark"] .hud-content .dict-sect .dict-header .dict-undock:hover,
+  [data-theme="dark"] .float-dict .fd-header .fd-redock:hover { background: #1a2a4a; }
 
   /* ── Two-way dict mode segmented control (Notes · Attending) ── */
   .hud .mode-seg, .hud-content .mode-seg, .float-dict .mode-seg {
@@ -466,153 +558,6 @@
   [data-theme="dark"] .hud .mode-seg-btn.is-active, [data-theme="dark"] .hud-content .mode-seg-btn.is-active, [data-theme="dark"] .float-dict .mode-seg-btn.is-active {
     color: #fff;
   }
-
-  /* ── Chat area (inside dict-sect) ── */
-  .hud .chat-area, .hud-content .chat-area {
-    display: flex; flex-direction: column; gap: 6px;
-  }
-  .hud .chat-area .chat-log, .hud-content .chat-area .chat-log {
-    max-height: 220px; overflow-y: auto; border: 1px solid var(--border);
-    border-radius: 7px; padding: 8px; font-size: calc(0.68rem * var(--notes-font-scale, 1)); line-height: 1.45;
-    background: #fafbfc; color: var(--ink);
-  }
-  .hud .chat-area .chat-log .chat-msg, .hud-content .chat-area .chat-log .chat-msg {
-    display: flex; flex-direction: column; margin-bottom: 6px;
-    animation: chatFadeIn .25s ease;
-    max-width: 90%;
-  }
-  .hud .chat-area .chat-log .chat-msg.msg-you, .hud-content .chat-area .chat-log .chat-msg.msg-you {
-    align-self: flex-end; margin-left: auto;
-  }
-  .hud .chat-area .chat-log .chat-msg.msg-iwu, .hud-content .chat-area .chat-log .chat-msg.msg-iwu {
-    align-self: flex-start; margin-right: auto;
-  }
-  .hud .chat-area .chat-log .chat-msg .msg-bubble, .hud-content .chat-area .chat-log .chat-msg .msg-bubble {
-    padding: 6px 10px; border-radius: 10px; line-height: 1.45;
-    font-size: calc(0.68rem * var(--notes-font-scale, 1)); word-break: break-word;
-    user-select: text;
-  }
-  .hud .chat-area .chat-log .chat-msg.msg-you .msg-bubble, .hud-content .chat-area .chat-log .chat-msg.msg-you .msg-bubble {
-    background: #e0ebff; color: #1a2a4a; border-bottom-right-radius: 3px;
-  }
-  [data-theme="dark"] .hud .chat-area .chat-log .chat-msg.msg-you .msg-bubble,
-  [data-theme="dark"] .hud-content .chat-area .chat-log .chat-msg.msg-you .msg-bubble {
-    background: #1a2a4a; color: #d0dbf0;
-  }
-  .hud .chat-area .chat-log .chat-msg.msg-iwu .msg-bubble, .hud-content .chat-area .chat-log .chat-msg.msg-iwu .msg-bubble {
-    background: #f0f1f4; color: #1e2130; border-bottom-left-radius: 3px;
-  }
-  [data-theme="dark"] .hud .chat-area .chat-log .chat-msg.msg-iwu .msg-bubble,
-  [data-theme="dark"] .hud-content .chat-area .chat-log .chat-msg.msg-iwu .msg-bubble {
-    background: #252832; color: #c8ccd8;
-  }
-  .hud .chat-area .chat-log .chat-msg .msg-sender, .hud-content .chat-area .chat-log .chat-msg .msg-sender {
-    font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.05em;
-    font-weight: 600; margin-bottom: 2px; padding: 0 2px;
-  }
-  .hud .chat-area .chat-log .chat-msg.msg-you .msg-sender, .hud-content .chat-area .chat-log .chat-msg.msg-you .msg-sender {
-    color: var(--accent); text-align: right;
-  }
-  .hud .chat-area .chat-log .chat-msg.msg-iwu .msg-sender, .hud-content .chat-area .chat-log .chat-msg.msg-iwu .msg-sender {
-    color: var(--coral);
-  }
-  .hud .chat-area .chat-log .chat-msg:last-child, .hud-content .chat-area .chat-log .chat-msg:last-child {
-    margin-bottom: 0;
-  }
-  /* GFM pipe tables inside chat bubbles */
-  .chat-table {
-    width: 100%; border-collapse: collapse; margin: 6px 0;
-    font-size: 0.66rem; line-height: 1.4;
-  }
-  .chat-table th {
-    background: #eef2f7; text-align: left; padding: 4px 8px; font-weight: 650;
-    border-bottom: 2px solid var(--border); color: var(--ink);
-  }
-  .chat-table td {
-    padding: 3px 8px; border-bottom: 1px solid #e3e7ee; color: var(--ink);
-  }
-  .chat-table tr:last-child td { border-bottom: none; }
-  [data-theme="dark"] .chat-table th { background: #1f2230; border-bottom-color: #2d3148; }
-  [data-theme="dark"] .chat-table td { border-bottom-color: #2d3148; }
-  /* Headings and lists inside chat bubbles */
-  .msg-bubble h3 { font-size: 0.78rem; color: var(--coral); }
-  .msg-bubble h4 { font-size: 0.73rem; color: var(--accent); }
-  .msg-bubble ul { padding-left: 18px; margin: 4px 0; }
-  .msg-bubble li { margin-bottom: 2px; }
-  .msg-bubble strong { color: #2563eb; }
-  [data-theme="dark"] .msg-bubble strong { color: #6ea8fe; }
-  .layer2-body strong { color: #2563eb; }
-  [data-theme="dark"] .layer2-body strong { color: #6ea8fe; }
-  .msg-bubble code { background: #eef2f7; padding: 1px 4px; border-radius: 3px; font-size: 0.65em; }
-  [data-theme="dark"] .msg-bubble code { background: #1f2230; }
-  /* Copy button on Dr. Iwu messages */
-  .msg-copy-btn {
-    position: absolute; top: 6px; right: 8px;
-    width: 22px; height: 22px; border-radius: 5px; border: 1px solid transparent;
-    background: transparent; color: var(--muted); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.7rem; transition: all .12s; opacity: 0;
-  }
-  .msg-bubble { position: relative; }
-  .chat-msg.msg-you .msg-bubble:hover .msg-copy-btn,
-  .chat-msg.msg-iwu .msg-bubble:hover .msg-copy-btn { opacity: 1; }
-  .chat-msg.msg-you .msg-bubble .msg-copy-btn { opacity: 0; transition: opacity .12s; }
-  .msg-copy-btn:hover { background: #eef3ff; color: var(--accent); border-color: var(--accent); }
-  .msg-copy-btn.copied { opacity: 1; color: #16a34a; border-color: #16a34a; background: #f0fdf4; }
-  [data-theme="dark"] .msg-copy-btn:hover { background: #1a2a4a; color: #6ea8fe; border-color: #6ea8fe; }
-  [data-theme="dark"] .msg-copy-btn.copied { color: #4ade80; border-color: #4ade80; background: #052e16; }
-  .hud .chat-area .chat-input-row, .hud-content .chat-area .chat-input-row {
-    display: flex; gap: 6px;
-  }
-  .hud .chat-area .chat-input-row input, .hud-content .chat-area .chat-input-row input {
-    flex: 1; font-family: inherit; font-size: calc(0.68rem * var(--notes-font-scale, 1)); border: 1px solid var(--border);
-    border-radius: 7px; padding: 5px 8px; outline: none; color: var(--ink);
-  }
-  .hud .chat-area .chat-input-row input:focus, .hud-content .chat-area .chat-input-row input:focus {
-    border-color: var(--accent);
-  }
-  .hud .chat-area .chat-input-row button, .hud-content .chat-area .chat-input-row button {
-    font-family: inherit; font-size: 0.68rem; font-weight: 600;
-    padding: 5px 10px; border-radius: 7px; cursor: pointer;
-    border: 1px solid var(--border); background: #fff; color: var(--ink);
-    white-space: nowrap;
-  }
-  .hud .chat-area .chat-input-row button.primary, .hud-content .chat-area .chat-input-row button.primary {
-    background: var(--accent); color: #fff; border-color: var(--accent);
-  }
-  .hud .chat-area .chat-input-row button.primary:disabled, .hud-content .chat-area .chat-input-row button.primary:disabled {
-    opacity: 0.4; cursor: not-allowed;
-  }
-  [data-theme="dark"] .hud .chat-area .chat-log, [data-theme="dark"] .hud-content .chat-area .chat-log {
-    background: #1a1d28; border-color: var(--border);
-  }
-  [data-theme="dark"] .hud .chat-area .chat-input-row input, [data-theme="dark"] .hud-content .chat-area .chat-input-row input {
-    background: #1a1d28; color: var(--ink); border-color: var(--border);
-  }
-  [data-theme="dark"] .hud .chat-area .chat-input-row button, [data-theme="dark"] .hud-content .chat-area .chat-input-row button {
-    background: #1f2230; color: var(--ink);
-  }
-  @keyframes chatFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-  .hud .dict-sect .dict-status, .hud-content .dict-sect .dict-status { font-size: 0.62rem; color: var(--muted); margin-top: 4px; min-height: 12px; }
-
-  /* ── Chat undock / redock (header-level, moves entire block) ── */
-  .hud .dict-sect .dict-header .dict-undock, .hud-content .dict-sect .dict-header .dict-undock,
-  .float-dict .fd-header .fd-redock {
-    width: 22px; height: 22px; border-radius: 5px; border: 1px solid var(--border);
-    background: #fff; color: var(--ink); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.75rem; transition: all .12s; flex-shrink: 0;
-  }
-  .hud .dict-sect .dict-header .dict-undock:hover, .hud-content .dict-sect .dict-header .dict-undock:hover,
-  .float-dict .fd-header .fd-redock:hover {
-    color: var(--accent); border-color: var(--accent); background: #eef3ff;
-  }
-  [data-theme="dark"] .hud .dict-sect .dict-header .dict-undock,
-  [data-theme="dark"] .hud-content .dict-sect .dict-header .dict-undock,
-  [data-theme="dark"] .float-dict .fd-header .fd-redock { background: #1f2230; }
-  [data-theme="dark"] .hud .dict-sect .dict-header .dict-undock:hover,
-  [data-theme="dark"] .hud-content .dict-sect .dict-header .dict-undock:hover,
-  [data-theme="dark"] .float-dict .fd-header .fd-redock:hover { background: #1a2a4a; }
 
   /* ── 8-way resize handles for floating chat ── */
   .fd-resize-handle {
@@ -653,75 +598,19 @@
   }
   .float-dict .fd-header:active { cursor: grabbing; }
   .float-dict .fd-body {
-    flex: 1; display: flex; flex-direction: column; overflow-y: auto;
-    padding: 8px 10px 10px;
+    flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    padding: 8px 10px 10px; min-height: 0;
   }
-  /* Inherit dict-sect child styles inside floater — flex chain fix for resize dead space */
+  /* Inherit dict-sect child styles inside floater — flex chain for sticky input */
   .float-dict .dict-sect {
     display: flex; flex-direction: column; flex: 1; min-height: 0;
     border-top: none; margin-top: 0; padding-top: 0;
   }
-  .float-dict .chat-area {
-    display: flex; flex-direction: column; flex: 1; min-height: 0;
+  .float-dict .thread-pane {
+    flex: 1 1 0; height: auto; min-height: 120px;
   }
-  .float-dict textarea {
-    font-family: Inter, sans-serif; font-size: 0.72rem; line-height: 1.5;
-    border: 1px solid var(--border); border-radius: 7px; padding: 6px 32px 6px 8px;
-    resize: vertical; min-height: 60px; max-height: 150px; outline: none;
-    width: 100%; color: var(--ink);
-  }
-  .float-dict .chat-log {
-    flex: 1; min-height: 0; max-height: none;
-    overflow-y: auto; border: 1px solid var(--border);
-    border-radius: 7px; padding: 8px; font-size: calc(0.68rem * var(--notes-font-scale, 1)); line-height: 1.45;
-    background: #fafbfc; color: var(--ink);
-  }
-  [data-theme="dark"] .float-dict .chat-log { background: #1a1d28; }
-  .float-dict .chat-log .chat-msg {
-    display: flex; flex-direction: column; margin-bottom: 6px;
-    animation: chatFadeIn .25s ease; max-width: 90%;
-  }
-  .float-dict .chat-log .chat-msg.msg-you { align-self: flex-end; margin-left: auto; }
-  .float-dict .chat-log .chat-msg.msg-iwu { align-self: flex-start; margin-right: auto; }
-  .float-dict .chat-log .chat-msg .msg-bubble {
-    padding: 6px 10px; border-radius: 10px; line-height: 1.45;
-    font-size: calc(0.68rem * var(--notes-font-scale, 1)); word-break: break-word;
-    user-select: text;
-  }
-  .float-dict .chat-log .chat-msg.msg-you .msg-bubble {
-    background: #e0ebff; color: #1a2a4a; border-bottom-right-radius: 3px;
-  }
-  [data-theme="dark"] .float-dict .chat-log .chat-msg.msg-you .msg-bubble { background: #1a2a4a; color: #d0dbf0; }
-  .float-dict .chat-log .chat-msg.msg-iwu .msg-bubble {
-    background: #f0f1f4; color: #1e2130; border-bottom-left-radius: 3px;
-  }
-  [data-theme="dark"] .float-dict .chat-log .chat-msg.msg-iwu .msg-bubble { background: #252832; color: #c8ccd8; }
-  .float-dict .chat-log .chat-msg .msg-sender {
-    font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.05em;
-    font-weight: 600; margin-bottom: 2px; padding: 0 2px;
-  }
-  .float-dict .chat-log .chat-msg.msg-you .msg-sender { color: var(--accent); text-align: right; }
-  .float-dict .chat-log .chat-msg.msg-iwu .msg-sender { color: var(--coral); }
-  .float-dict .chat-input-row { display: flex; gap: 4px; }
-  .float-dict .chat-input-row input {
-    flex: 1; font-family: inherit; font-size: calc(0.68rem * var(--notes-font-scale, 1)); padding: 5px 7px;
-    border: 1px solid var(--border); border-radius: 6px; outline: none;
-    color: var(--ink); background: #fff;
-  }
-  [data-theme="dark"] .float-dict .chat-input-row input { background: #1a1d28; }
-  .float-dict .chat-input-row button {
-    font-family: inherit; font-size: 0.62rem; font-weight: 600;
-    padding: 4px 8px; border-radius: 6px; cursor: pointer;
-    border: 1px solid var(--accent); background: var(--accent);
-    color: #fff; white-space: nowrap;
-  }
-  .float-dict .chat-input-row button:disabled { opacity: 0.4; cursor: not-allowed; }
-  .float-dict .dict-input-wrap { position: relative; }
-  .float-dict .dict-interim {
-    font-size: 0.65rem; color: var(--muted); font-style: italic;
-    min-height: 14px; padding: 2px 2px 0;
-  }
-  .float-dict .dict-status { font-size: 0.62rem; color: var(--muted); margin-top: 4px; min-height: 12px; }
+  .float-dict .mode-seg { flex-shrink: 0; }
+  .float-dict .dict-status, .float-dict .dict-interim { flex-shrink: 0; }
 
   /* ── Distill concept ── */
   .hud .distill-result, .hud-content .distill-result {
@@ -837,11 +726,17 @@
     letter-spacing: 0.03em; font-weight: 600;
   }
 
-  /* FP refresh on toggle row */
+  /* FP / question action icons on toggle row — grouped, right-aligned */
+  .row-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
   .ind-fp-refresh {
     cursor: pointer; color: var(--muted); font-size: 0.72rem;
     padding: 2px 5px; border-radius: 4px; border: none; background: none;
-    line-height: 1; margin-left: auto; transition: all .12s;
+    line-height: 1; transition: all .12s;
   }
   .ind-fp-refresh:hover { color: var(--accent); background: #eef3ff; }
   [data-theme="dark"] .ind-fp-refresh:hover { background: #1a1f30; }
@@ -849,7 +744,7 @@
   .ind-fp-copy {
     cursor: pointer; color: var(--muted); font-size: 0.72rem;
     padding: 2px 5px; border-radius: 4px; border: none; background: none;
-    line-height: 1; margin-left: 4px; transition: all .12s;
+    line-height: 1; transition: all .12s;
   }
   .ind-fp-copy:hover { color: var(--accent); background: #eef3ff; }
   [data-theme="dark"] .ind-fp-copy:hover { background: #1a1f30; }
@@ -1043,6 +938,31 @@
   [data-theme="dark"] .lab-result-table tbody td:nth-child(2) { color: #f0f0f0; }
   [data-theme="dark"] .lab-result-table .lab-row--flag td:nth-child(2) { color: #e8935a; }
 
+
+  /* Summary-first long text (FP + bank explanation) */
+  .sf-panel { font-size: calc(0.78rem * var(--hud-font-scale, 1)); line-height: 1.5; }
+  .sf-bullets {
+    margin: 0 0 8px; padding-left: 1.15em; color: var(--ink);
+  }
+  .sf-bullets li { margin: 0 0 5px; }
+  .sf-bullets strong { font-weight: 700; color: var(--ink); }
+  .sf-toggle {
+    display: inline-flex; align-items: center; gap: 4px;
+    border: none; background: none; padding: 2px 0; cursor: pointer;
+    font-size: 0.68rem; font-weight: 600; color: var(--accent);
+  }
+  .sf-toggle:hover { text-decoration: underline; }
+  .sf-full {
+    display: none; margin-top: 10px; padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .sf-panel.is-expanded .sf-full { display: block; }
+  .sf-panel .sf-label-less { display: none; }
+  .sf-panel.is-expanded .sf-label-more { display: none; }
+  .sf-panel.is-expanded .sf-label-less { display: inline; }
+  .sf-panel.sf-full-only .sf-toggle { display: none; }
+  .sf-panel.sf-full-only .sf-full { display: block; border-top: none; margin-top: 0; padding-top: 0; }
+
   /* Independent toggles */
   .hud .ind-toggle, .dock-reveal-content .ind-toggle {
     display: flex; align-items: center; gap: 8px;
@@ -1051,7 +971,13 @@
     transition: background .12s; font-size: 0.72rem; color: var(--ink);
   }
   .hud .ind-toggle:hover, .dock-reveal-content .ind-toggle:hover { background: #f5f7fa; }
-  .hud .ind-toggle i.toggle-chevron, .dock-reveal-content .ind-toggle i.toggle-chevron { font-size: 0.62rem; color: var(--muted); margin-left: auto; }
+  .hud .ind-toggle i.toggle-chevron, .dock-reveal-content .ind-toggle i.toggle-chevron {
+    font-size: 0.62rem; color: var(--muted); margin-left: auto;
+  }
+  .hud .ind-toggle .row-actions + i.toggle-chevron,
+  .dock-reveal-content .ind-toggle .row-actions + i.toggle-chevron {
+    margin-left: 0;
+  }
   .hud .ind-toggle .toggle-dot, .dock-reveal-content .ind-toggle .toggle-dot {
     width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
     background: var(--muted); opacity: 0.5;
@@ -1450,6 +1376,18 @@
     background: none; border: none; line-height: 1; padding: 0 2px;
   }
   .hud .close:hover { color: var(--coral); }
+  .hud-copy-packet {
+    cursor: pointer; color: var(--muted); font-size: 0.72rem;
+    background: none; border: none; line-height: 1; padding: 2px 6px;
+    border-radius: 4px; display: inline-flex; align-items: center; gap: 3px;
+    margin-right: 2px; flex-shrink: 0;
+  }
+  .hud-copy-packet:hover { color: var(--accent); background: #eef3ff; }
+  .hud-copy-packet.copied { color: #2e8b57; background: #e6f4ea; }
+  .hud-copy-packet.copy-failed { color: #c0392b; background: #fdecea; }
+  [data-theme="dark"] .hud-copy-packet:hover { background: #1a1f30; }
+  [data-theme="dark"] .hud-copy-packet.copied { background: #1a2e20; color: #4ade80; }
+  .dock-reveal-nav .hud-copy-packet { margin-left: auto; margin-right: 6px; }
   .hud .drag-bar .hud-nav {
     display: flex; gap: 2px; margin-right: 4px;
   }
@@ -1586,6 +1524,14 @@
     --bg: #0f1117; --ink: #e0e4eb; --muted: #8b92a0;
     --accent: #5b9cf5; --border: #2a2d36;
     --coral: #e8734d; --gray: #a8a59e; --teal: #3cb38a;
+    --thread-bg: #1a1d28;
+    --thread-panel: #14161e;
+    --thread-you: #1a2a4a;
+    --thread-you-ink: #d0dbf0;
+    --thread-other: #252832;
+    --thread-other-ink: #c8ccd8;
+    --thread-field-bg: #1a1d28;
+    --thread-strong: #6ea8fe;
   }
   /* Dock/header icon color: explicit light on dark */
   [data-theme="dark"] .float-settings,
@@ -1793,7 +1739,7 @@
     <option value="" disabled>Pick a set…</option>
   </select>
   <div class="hdr-search">
-    <input type="text" id="setSearch" placeholder="Search sets (23, headache)…" autocomplete="off" />
+    <input type="text" id="setSearch" placeholder="Search (conversion, set 23, headache)…" autocomplete="off" />
     <div class="search-results" id="searchResults"></div>
   </div>
   <div class="hdr-cluster">
@@ -4802,6 +4748,7 @@ async function hydratePersistedSessionFromDisk(setNum) {
       });
       const merged = [...map.values()].sort((a, b) => String(a.ts || '').localeCompare(String(b.ts || '')));
       try { localStorage.setItem('cg_global_notes', JSON.stringify(merged)); } catch (_) {}
+      window._cgNotesCache = merged;
       if (serverNotes.length && merged.length > localNotes.length) {
         notesFromDisk = merged.length - localNotes.length;
       }
@@ -4814,6 +4761,18 @@ async function hydratePersistedSessionFromDisk(setNum) {
           });
         } catch (_) {}
       }
+      // Refresh any open Notes panel so disk notes appear immediately
+      try {
+        if (window._chatCtl) {
+          Object.keys(window._chatCtl).forEach(id => {
+            const ctl = window._chatCtl[id];
+            if (ctl && typeof ctl.renderNotesList === 'function') ctl.renderNotesList();
+            if (ctl && typeof ctl.applyMode === 'function' && merged.some(n => String(n.qid) === String(id))) {
+              ctl.applyMode('notes');
+            }
+          });
+        }
+      } catch (_) {}
     }
   } catch (_) { /* server down — LS only */ }
 
@@ -5189,6 +5148,128 @@ function parseValueUnit(raw) {
   return { value: raw, unit: '', consumed: raw };
 }
 
+function formatQuestionStemAndChoices(q) {
+  if (!q) return '';
+  const stem = String(q.question || '').replace(/\s+/g, ' ').trim();
+  const choices = (q.answers || []).map(a => {
+    const label = String(a.label || '').trim();
+    const text = cleanAnsText(a.text || '').replace(/\s+/g, ' ').trim();
+    return (label ? label + '. ' : '') + text;
+  }).filter(Boolean);
+  const parts = [];
+  if (stem) parts.push(stem);
+  if (choices.length) parts.push(choices.join('\n'));
+  return parts.join('\n\n');
+}
+
+/** Build a Claude/cloud-ready markdown packet for one node. */
+function buildNodePacketMarkdown(node) {
+  if (!node) return '';
+  const qid = String(node.id);
+  const triage = readTriage(qid) || {};
+  const concept = (triage.concept || node.why || '').trim();
+  const setNum = (GRAPH && GRAPH.meta && GRAPH.meta.set != null)
+    ? GRAPH.meta.set
+    : (GRAPH && GRAPH.setId != null
+      ? GRAPH.setId
+      : (typeof currentSet !== 'undefined' ? currentSet : '?'));
+  const diag = (GRAPH && GRAPH.meta && GRAPH.meta.coreDiagnosis)
+    ? cleanDiagnosisLabel(GRAPH.meta.coreDiagnosis)
+    : '';
+
+  const lines = [];
+  lines.push('# Set ' + setNum + ' · QID ' + qid + (concept ? ' · ' + concept : ''));
+  if (diag) lines.push('Case: ' + diag);
+  lines.push('');
+
+  lines.push('## Question');
+  const qBlock = formatQuestionStemAndChoices(node);
+  lines.push(qBlock || '(no question text)');
+  lines.push('');
+
+  lines.push('## First Principles');
+  const bullets = Array.isArray(triage.firstPrinciplesSummary) ? triage.firstPrinciplesSummary.filter(Boolean) : [];
+  const fpFull = String(triage.firstPrinciples || '').trim();
+  if (bullets.length) {
+    lines.push('### Summary');
+    bullets.forEach(b => lines.push('- ' + String(b).trim())); // keep **bold** for Claude
+    lines.push('');
+  }
+  if (fpFull) {
+    lines.push('### Full');
+    lines.push(fpFull); // keep **bold** markers
+  } else {
+    lines.push('(No First Principles generated yet.)');
+  }
+  lines.push('');
+
+  lines.push('## Chat (Dr. Iwu)');
+  let chat = [];
+  try {
+    const ctl = window._chatCtl && window._chatCtl[qid];
+    if (ctl && Array.isArray(ctl.chatHistory) && ctl.chatHistory.length) {
+      chat = ctl.chatHistory;
+    } else {
+      const raw = localStorage.getItem('chat-' + qid);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) chat = parsed;
+      }
+    }
+  } catch (_) {}
+  if (!chat.length) {
+    lines.push('(No chat history yet.)');
+  } else {
+    chat.forEach(m => {
+      if (!m || !m.content) return;
+      const who = m.role === 'user' ? 'You' : 'Dr. Iwu';
+      const body = String(m.content).replace(/\*\*/g, '').trim();
+      lines.push(who + ': ' + body);
+      lines.push('');
+    });
+  }
+
+  return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+}
+
+function copyPacketButtonHTML() {
+  return '<button class="hud-copy-packet" type="button" title="Copy question + First Principles + chat for Claude"><i class="ti ti-clipboard-copy"></i></button>';
+}
+
+async function copyNodePacket(node, btn) {
+  if (!node) return;
+  const text = buildNodePacketMarkdown(node);
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    if (btn) {
+      btn.classList.add('copied');
+      btn.title = 'Copied packet';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.title = 'Copy question + First Principles + chat for Claude';
+      }, 1600);
+    }
+  } catch (_) {
+    if (btn) {
+      btn.classList.add('copy-failed');
+      setTimeout(() => btn.classList.remove('copy-failed'), 1600);
+    }
+  }
+}
+
+function wireCopyPacketButton(root, node) {
+  if (!root || !node) return;
+  root.querySelectorAll('.hud-copy-packet').forEach(btn => {
+    if (btn.dataset.wired === '1') return;
+    btn.dataset.wired = '1';
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      copyNodePacket(node, btn);
+    };
+  });
+}
+
 function questionHTML(q) {
   const isStep3 = !!q._step3QNum;
   const ans = (q.answers || []).map(a =>
@@ -5236,7 +5317,7 @@ function questionHTML(q) {
         <i class="ti ti-chevron-down toggle-chevron"></i>
       </div>
       <div class="ind-body" id="ib-explain-${q.id}">
-        <div class="explain-body">${esc(q.explanation || '(none)')}</div>
+        <div class="explain-body" id="explain-body-${q.id}"></div>
       </div>
 
       <div class="ind-toggle" id="it-distill-${q.id}">
@@ -5270,6 +5351,7 @@ function makeHudDraggable(hud) {
   bar.addEventListener('mousedown', (e) => {
     if (e.target.classList.contains('close') || e.target.closest('.close')) return;
     if (e.target.classList.contains('hfc-btn') || e.target.closest('.hfc-btn')) return;
+    if (e.target.classList.contains('hud-copy-packet') || e.target.closest('.hud-copy-packet')) return;
     e.preventDefault();
     const startX = e.clientX, startY = e.clientY;
     const startLeft = parseInt(hud.style.left, 10) || 0;
@@ -5784,8 +5866,21 @@ function wireAnswerToggle(hud) {
     };
   }
 
-  // Explanation — plain toggle, no async
-  toggleIndInContainer(hud, 'it-explain-', 'ib-explain-');
+  // Explanation — summary-first when batch bullets exist; full behind Read more
+  const explToggle = hud.querySelector('[id^="it-explain-"]');
+  const explBody = hud.querySelector('[id^="ib-explain-"]');
+  if (explToggle && explBody) {
+    const qid = explToggle.id.replace('it-explain-', '');
+    const node = byId[qid];
+    explToggle.onclick = () => {
+      const isOpen = explBody.classList.toggle('open');
+      explToggle.querySelector('.toggle-chevron').className = 'ti ti-chevron-' + (isOpen ? 'up' : 'down') + ' toggle-chevron';
+      if (isOpen && node) {
+        const el = explBody.querySelector('#explain-body-' + qid) || explBody.querySelector('.explain-body');
+        paintBankExplanation(el, node);
+      }
+    };
+  }
 
   // Distill concept — async, trigger DeepSeek on first expand
   const distillReady = wireDistillToggle(hud);
@@ -5953,20 +6048,165 @@ function wireHudDictation(hud, nodeId) {
   const chatMicBtn = hud.querySelector('.btn-mic-chat[data-qid="' + nodeId + '"]');
   if (!textarea) return;
 
-  // ── Restore last mode for this node ──
+  // ── Global notes (helpers FIRST — avoid TDZ when applyMode refreshes list) ──
+  const NOTES_KEY = 'cg_global_notes';
+  const setId = (() => {
+    try { return GRAPH && GRAPH.setId ? GRAPH.setId : (typeof currentSet !== 'undefined' ? currentSet : null); } catch (_) { return null; }
+  })();
+  // In-memory cache so the list still paints if localStorage is flaky
+  if (!window._cgNotesCache) window._cgNotesCache = null;
+
+  function noteFingerprint(n) {
+    return String(n.ts || '') + '|' + String(n.qid || '') + '|' + String(n.text || '').trim();
+  }
+  function mergeNotesArrays(a, b) {
+    const map = new Map();
+    [...(a || []), ...(b || [])].forEach(n => {
+      if (!n || !String(n.text || '').trim()) return;
+      const fp = noteFingerprint(n);
+      if (!map.has(fp)) map.set(fp, n);
+    });
+    return [...map.values()].sort((x, y) => String(x.ts || '').localeCompare(String(y.ts || '')));
+  }
+  function loadLocalNotes() {
+    if (Array.isArray(window._cgNotesCache)) return window._cgNotesCache.slice();
+    try {
+      const parsed = JSON.parse(localStorage.getItem(NOTES_KEY) || '[]');
+      if (Array.isArray(parsed)) {
+        window._cgNotesCache = parsed;
+        return parsed.slice();
+      }
+    } catch (_) {}
+    return [];
+  }
+  function saveLocalNotes(notes) {
+    const list = Array.isArray(notes) ? notes : [];
+    window._cgNotesCache = list;
+    try { localStorage.setItem(NOTES_KEY, JSON.stringify(list)); } catch (_) {}
+  }
+  function loadGlobalNotes() { return loadLocalNotes(); }
+  function saveGlobalNotes(notes) {
+    saveLocalNotes(notes);
+    try {
+      fetch('/api/notes', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes }),
+      }).catch(() => {});
+    } catch (_) {}
+  }
+
+  function renderNotesList() {
+    const logEl = hud.querySelector('#notes-log-' + nodeId);
+    const emptyEl = hud.querySelector('#notes-empty-' + nodeId);
+    if (!logEl) return;
+    const notes = loadGlobalNotes();
+    const notesBtn = modeSeg ? modeSeg.querySelector('.mode-seg-btn[data-m="notes"]') : null;
+    if (notesBtn) {
+      const base = '<i class="ti ti-pencil"></i>&nbsp;Notes';
+      notesBtn.innerHTML = notes.length
+        ? (base + ' <span class="notes-count-badge">' + notes.length + '</span>')
+        : base;
+    }
+    if (notes.length === 0) {
+      logEl.innerHTML = '';
+      if (emptyEl) {
+        emptyEl.style.display = '';
+        emptyEl.textContent = 'No notes yet. Jot one below — it joins a running list that persists across every node and set.';
+      }
+      return;
+    }
+    if (emptyEl) emptyEl.style.display = 'none';
+    // Current-node notes first, then the rest (newest last within each group)
+    const mine = [];
+    const rest = [];
+    notes.forEach((n, i) => {
+      const row = { n, i };
+      if (String(n.qid) === String(nodeId)) mine.push(row);
+      else rest.push(row);
+    });
+    const ordered = [...mine, ...rest];
+    const html = ordered.map(({ n, i }) => {
+      const isMine = String(n.qid) === String(nodeId);
+      return `
+      <div class="notes-entry thread-card${isMine ? ' notes-entry--mine thread-card--mine' : ''}" data-note-idx="${i}">
+        <div class="notes-entry-header">
+          <span class="notes-context" title="${escAttr(n.nodeLabel || '')}">${esc(n.nodeLabel || 'Note')}${n.setId != null ? ' · S' + n.setId : ''}</span>
+          <span class="notes-ts">${n.ts ? new Date(n.ts).toLocaleString() : ''}</span>
+          <button class="notes-del" data-note-idx="${i}" title="Delete note"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="notes-entry-body">${esc(n.text || '')}</div>
+      </div>`;
+    }).join('');
+    logEl.innerHTML = html;
+    logEl.querySelectorAll('.notes-del').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.noteIdx, 10);
+        const all = loadGlobalNotes();
+        if (idx >= 0 && idx < all.length) {
+          all.splice(idx, 1);
+          saveGlobalNotes(all);
+          renderNotesList();
+          refreshNodeActivity(nodeId);
+        }
+      };
+    });
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function appendGlobalNote(text, label) {
+    if (!text || !text.trim()) return;
+    const all = loadGlobalNotes();
+    all.push({
+      text: text.trim(),
+      ts: new Date().toISOString(),
+      qid: nodeId,
+      nodeLabel: label || ('Q' + nodeId),
+      setId: setId,
+    });
+    saveGlobalNotes(all);
+  }
+
+  function openNotesSection() {
+    const notesBody = hud.querySelector('#ib-notes-' + nodeId);
+    const notesTgl = hud.querySelector('#it-notes-' + nodeId);
+    if (notesBody && !notesBody.classList.contains('open')) {
+      notesBody.classList.add('open');
+      if (notesTgl) {
+        const chev = notesTgl.querySelector('.toggle-chevron');
+        if (chev) chev.className = 'ti ti-chevron-up toggle-chevron';
+      }
+      try { localStorage.setItem('notes-collapse-' + nodeId, 'open'); } catch (_) {}
+    }
+  }
+
+  // ── Restore last mode (prefer Notes when this node already has notes) ──
   let currentMode = 'chat';
   try { const m = localStorage.getItem('dict-mode-' + nodeId); if (m) currentMode = m; } catch (_) {}
+  try {
+    const existing = loadGlobalNotes();
+    if (existing.some(n => String(n.qid) === String(nodeId))) currentMode = 'notes';
+  } catch (_) {}
   function applyMode(mode) {
     currentMode = mode;
-    modeSeg.setAttribute('data-mode', mode);
-    modeSeg.querySelectorAll('.mode-seg-btn').forEach(b => b.classList.toggle('is-active', b.dataset.m === mode));
-    notesArea.style.display = mode === 'chat' ? 'none' : '';
-    chatArea.style.display = mode === 'chat' ? '' : 'none';
+    if (modeSeg) {
+      modeSeg.setAttribute('data-mode', mode);
+      modeSeg.querySelectorAll('.mode-seg-btn').forEach(b => b.classList.toggle('is-active', b.dataset.m === mode));
+    }
+    if (notesArea) notesArea.style.display = mode === 'chat' ? 'none' : 'flex';
+    if (chatArea) chatArea.style.display = mode === 'chat' ? 'flex' : 'none';
     try { localStorage.setItem('dict-mode-' + nodeId, mode); } catch (_) {}
+    if (mode === 'notes') {
+      openNotesSection();
+      renderNotesList();
+    }
   }
-  modeSeg.querySelectorAll('.mode-seg-btn').forEach(b => {
-    b.onclick = () => applyMode(b.dataset.m);
-  });
+  if (modeSeg) {
+    modeSeg.querySelectorAll('.mode-seg-btn').forEach(b => {
+      b.onclick = () => applyMode(b.dataset.m);
+    });
+  }
   applyMode(currentMode);
 
   // ── Load persisted chat history (MeWorld merge: localStorage + disk) ──
@@ -6145,8 +6385,9 @@ function wireHudDictation(hud, nodeId) {
       appendGlobalNote(finalText.trim(), label);
       textarea.value = '';
       finalText = '';
+      applyMode('notes');
       renderNotesList();
-      status.textContent = 'Saved \u2713';
+      status.textContent = 'Saved';
       refreshNodeActivity(nodeId);
     }
     if (targetInput === chatInput && finalText && finalText.trim()) {
@@ -6158,47 +6399,6 @@ function wireHudDictation(hud, nodeId) {
   micBtn.onclick = () => recording ? stop() : start(textarea, micBtn);
   if (chatMicBtn) chatMicBtn.onclick = () => recording ? stop() : start(chatInput, chatMicBtn);
 
-  // ── Global notes list (MeWorld dual-write: localStorage + disk via /api/notes) ──
-  const NOTES_KEY = 'cg_global_notes';
-  const setId = (() => {
-    try { return GRAPH && GRAPH.setId ? GRAPH.setId : (typeof currentSet !== 'undefined' ? currentSet : null); } catch (_) { return null; }
-  })();
-
-  function noteFingerprint(n) {
-    return String(n.ts || '') + '|' + String(n.qid || '') + '|' + String(n.text || '').trim();
-  }
-
-  function mergeNotesArrays(a, b) {
-    const map = new Map();
-    [...(a || []), ...(b || [])].forEach(n => {
-      if (!n || !String(n.text || '').trim()) return;
-      const fp = noteFingerprint(n);
-      if (!map.has(fp)) map.set(fp, n);
-    });
-    return [...map.values()].sort((x, y) => String(x.ts || '').localeCompare(String(y.ts || '')));
-  }
-
-  function loadLocalNotes() {
-    try { return JSON.parse(localStorage.getItem(NOTES_KEY)) || []; } catch (_) { return []; }
-  }
-  function saveLocalNotes(notes) {
-    try { localStorage.setItem(NOTES_KEY, JSON.stringify(notes)); } catch (_) {}
-  }
-
-  // Sync-compatible aliases used by the rest of this HUD block
-  function loadGlobalNotes() { return loadLocalNotes(); }
-  function saveGlobalNotes(notes) {
-    saveLocalNotes(notes);
-    // Best-effort disk backup (MeWorld pattern)
-    try {
-      fetch('/api/notes', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes }),
-      }).catch(() => {});
-    } catch (_) {}
-  }
-
   async function hydrateNotesFromServer() {
     try {
       const res = await fetch('/api/notes');
@@ -6208,7 +6408,6 @@ function wireHudDictation(hud, nodeId) {
       const localNotes = loadLocalNotes();
       const merged = mergeNotesArrays(localNotes, serverNotes);
       saveLocalNotes(merged);
-      // If server was empty but local had notes, push local up
       if (serverNotes.length === 0 && localNotes.length > 0) {
         try {
           await fetch('/api/notes', {
@@ -6226,82 +6425,15 @@ function wireHudDictation(hud, nodeId) {
           });
         } catch (_) {}
       }
-      renderNotesList();
+      // Disk had notes for this node → show Notes tab + list
+      if (merged.some(n => String(n.qid) === String(nodeId))) {
+        applyMode('notes');
+      } else {
+        renderNotesList();
+      }
     } catch (_) { /* server down — LS only */ }
   }
-  // Kick off hydrate (don't block HUD paint)
   hydrateNotesFromServer();
-
-  function renderNotesList() {
-    const logEl = hud.querySelector('#notes-log-' + nodeId);
-    const emptyEl = hud.querySelector('#notes-empty-' + nodeId);
-    if (!logEl) return;
-    const notes = loadGlobalNotes();
-    // Show ALL notes — they're global
-    if (notes.length === 0) {
-      logEl.innerHTML = '';
-      if (emptyEl) emptyEl.style.display = '';
-      return;
-    }
-    if (emptyEl) emptyEl.style.display = 'none';
-    const html = notes.map((n, i) => `
-      <div class="notes-entry" data-note-idx="${i}">
-        <div class="notes-entry-header">
-          <span class="notes-ts">${new Date(n.ts).toLocaleString()}</span>
-          <span class="notes-context">${esc(n.nodeLabel || 'Note')}</span>
-          <button class="notes-del" data-note-idx="${i}" title="Delete note"><i class="ti ti-x"></i></button>
-        </div>
-        <div class="notes-entry-body">${esc(n.text || '')}</div>
-      </div>
-    `).join('');
-    logEl.innerHTML = html;
-    // Wire delete buttons
-    logEl.querySelectorAll('.notes-del').forEach(btn => {
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        const idx = parseInt(btn.dataset.noteIdx, 10);
-        const all = loadGlobalNotes();
-        if (idx >= 0 && idx < all.length) {
-          all.splice(idx, 1);
-          saveGlobalNotes(all);
-          renderNotesList();
-          refreshNodeActivity(nodeId);
-        }
-      };
-    });
-    logEl.scrollTop = logEl.scrollHeight;
-  }
-
-  function appendGlobalNote(text, label) {
-    if (!text || !text.trim()) return;
-    const all = loadGlobalNotes();
-    const entry = {
-      text: text.trim(),
-      ts: new Date().toISOString(),
-      qid: nodeId,
-      nodeLabel: label || ('Q' + nodeId),
-      setId: setId,
-    };
-    all.push(entry);
-    saveLocalNotes(all);
-    // Disk: append endpoint (faster) + keep LS in sync
-    try {
-      fetch('/api/notes/append', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry),
-      }).catch(() => {
-        // Fallback full PUT if append fails
-        try {
-          fetch('/api/notes', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ notes: all }),
-          }).catch(() => {});
-        } catch (_) {}
-      });
-    } catch (_) {}
-  }
 
   // Save button
   const saveNoteBtn = hud.querySelector('#save-note-' + nodeId);
@@ -6309,13 +6441,17 @@ function wireHudDictation(hud, nodeId) {
     saveNoteBtn.onclick = () => {
       const text = textarea.value.trim();
       if (!text) return;
-      // Build label from current node context
       const node = GRAPH && GRAPH.nodes ? GRAPH.nodes.find(n => String(n.id) === String(nodeId)) : null;
       const label = node ? (node.why || stemOf(node, 50) || 'Q' + nodeId) : ('Q' + nodeId);
       appendGlobalNote(text, label);
       textarea.value = '';
       finalText = '';
+      applyMode('notes');
       renderNotesList();
+      if (status) {
+        status.textContent = 'Saved - see list above';
+        setTimeout(() => { if (status.textContent.indexOf('Saved') === 0) status.textContent = ''; }, 2500);
+      }
       refreshNodeActivity(nodeId);
     };
   }
@@ -6388,16 +6524,27 @@ function wireHudDictation(hud, nodeId) {
     chatSend.disabled = true;
     status.textContent = 'Dr. Iwu is thinking…';
 
-    // Build node context
+    // Build node context — use flat node fields (question/answers/likely), NOT legacy node.q
     const node = (typeof byId !== 'undefined' && byId) ? byId[nodeId] : null;
     let contextBlock = '';
     if (node) {
-      contextBlock = `Current case node: "${node.why || ''}". `;
-      if (node.q) {
-        const q = node.q;
-        contextBlock += `Question stem: "${q.stem || ''}". Answer options: ${(q.options||[]).join('; ')}. Correct answer: ${q.answer || 'unknown'}. Explanation: ${q.explain || ''}. `;
-      }
-      if (node.triggermd) contextBlock += `Clinical trigger: ${node.triggermd}. `;
+      const fullStem = String(node.question || '').replace(/\s+/g, ' ').trim();
+      const choices = (node.answers || []).map(a => {
+        const label = String(a.label || '').trim();
+        const text = String(a.text || '').replace(/\s+/g, ' ').trim();
+        return (label ? label + '. ' : '') + text;
+      }).filter(Boolean);
+      contextBlock =
+        `Concept label: "${node.why || ''}"\n` +
+        (fullStem
+          ? `FULL QUESTION STEM (you already have this — never ask the learner to paste it):\n${fullStem}\n`
+          : 'FULL QUESTION STEM: (missing from bank — ask learner to paste if needed)\n') +
+        (choices.length ? `ANSWER CHOICES:\n${choices.join('\n')}\n` : '') +
+        `Correct answer key: ${node.likely || 'unknown'}\n` +
+        (node.explanation ? `Explanation (answer key): ${String(node.explanation).replace(/\s+/g, ' ').trim()}\n` : '');
+      if (node.triggermd) contextBlock += `Clinical trigger: ${node.triggermd}\n`;
+    } else {
+      contextBlock = '(No node loaded — ask learner which question they mean.)\n';
     }
 
     try {
@@ -6411,6 +6558,12 @@ function wireHudDictation(hud, nodeId) {
             content: `You are Dr. Iwu, a brilliant senior attending physician who teaches by mechanism — not by memorization.
 
 The learner is chatting with you at the bedside about a USMLE question. Reveal WHY through physiology, pathophysiology, spatial patterns, and what finding rules in or out for THIS patient. They should feel: "Of course — how could it be any other way?"
+
+CRITICAL — CASE GROUNDING:
+- The FULL question stem and choices are in CASE CONTEXT below. You have already read them.
+- NEVER say you did not read the question. NEVER ask the learner to paste the stem unless CASE CONTEXT says the stem is missing.
+- Prefer the written stem over the learner's voice notes when they conflict (voice notes are messy dictation about the case).
+- Teach THIS vignette (age, findings, labs, Ig class, choices) — do not invent a different disease story.
 
 Teaching stack (weave into flowing prose — never as labeled sections):
 1. Lead with mechanism — what is physically happening in this patient's body?
@@ -6433,6 +6586,7 @@ FORBIDDEN (these break the attending voice):
 - Meta-instructions, skill names, prompt fragments
 - Single-sentence replies that don't teach mechanism
 - Use no em dashes anywhere.
+- Claiming you lack the question when CASE CONTEXT includes the stem
 - Refer to the specific case details provided below when answering.
 
 ${(() => { const prefs = readAttendingPrefs(); const dc = DEPTH_CONFIG[prefs.depth]; return `[ATTENDING DEPTH — ${dc.label}: answer in ~${dc.words} words max. ${prefs.depth === 0 ? 'One tight point, no preamble.' : prefs.depth === 1 ? 'Concise but complete.' : prefs.depth === 2 ? 'Mechanism + connection, still focused.' : 'Full connected teaching arc.'}]
@@ -6512,7 +6666,7 @@ The learner is asking you questions about this case node. Teach them the mechani
 
   // ── Register chat control for external access (e.g., "Answer this" button) ──
   window._chatCtl = window._chatCtl || {};
-  window._chatCtl[nodeId] = { applyMode, chatHistory, renderChatLog, saveChatHistory, chatInput, sendChat };
+  window._chatCtl[nodeId] = { applyMode, chatHistory, renderChatLog, saveChatHistory, chatInput, sendChat, renderNotesList };
 }
 
 // ── Floating Notes & Chat widget (undock entire block) ──
@@ -6767,6 +6921,126 @@ function fpBodyHtml(mdText) {
   }).join('');
 }
 
+
+// ── Parse dual FP output (full prose + 4-5 bullet summary) ───────────────
+function parseDualExplanation(raw) {
+  if (!raw || !String(raw).trim()) return { full: '', summary: [] };
+  let text = String(raw).trim();
+  // Strip banned em dashes leftover (preserve newlines for SUMMARY bullets)
+  text = text.replace(/\u2014\s*/g, '. ');
+  const fullMatch = text.match(/<<<FULL>>>\s*([\s\S]*?)(?:<<<SUMMARY>>>|<<<END>>>|$)/i);
+  const sumMatch = text.match(/<<<SUMMARY>>>\s*([\s\S]*?)(?:<<<END>>>|$)/i);
+  let full = fullMatch ? fullMatch[1].trim() : '';
+  let sumBlock = sumMatch ? sumMatch[1].trim() : '';
+  if (!full && !sumBlock) {
+    // Legacy plain reply — whole string is full prose
+    full = text;
+  }
+  const summary = [];
+  if (sumBlock) {
+    sumBlock.split(/\n+/).forEach(line => {
+      const m = line.match(/^\s*[-*•]\s+(.+)$/) || line.match(/^\s*\d+[.)]\s+(.+)$/);
+      const item = (m ? m[1] : line).trim();
+      if (item) summary.push(item);
+    });
+  }
+  return { full, summary: summary.slice(0, 6) };
+}
+
+function saveFirstPrinciplesPair(qid, full, summary) {
+  if (!full || !String(full).trim()) return;
+  fieldSave(qid, 'firstPrinciples', String(full).trim());
+  const t = readTriage(qid) || {};
+  t.firstPrinciplesSummary = Array.isArray(summary) ? summary.filter(Boolean).slice(0, 6) : [];
+  writeTriage(qid, t);
+}
+
+function saveExplanationSummary(qid, summary) {
+  const t = readTriage(qid) || {};
+  t.explanationSummary = Array.isArray(summary) ? summary.filter(Boolean).slice(0, 6) : [];
+  writeTriage(qid, t);
+}
+
+/** Escape HTML, then turn **salient** into <strong> for summary bullets. */
+function inlineBoldHtml(text) {
+  const raw = String(text || '');
+  // Protect **spans** before escaping, then restore as <strong>
+  const parts = [];
+  let i = 0;
+  const re = /\*\*([^*]+)\*\*/g;
+  let m;
+  let last = 0;
+  while ((m = re.exec(raw)) !== null) {
+    if (m.index > last) parts.push({ t: 'text', v: raw.slice(last, m.index) });
+    parts.push({ t: 'bold', v: m[1] });
+    last = m.index + m[0].length;
+  }
+  if (last < raw.length) parts.push({ t: 'text', v: raw.slice(last) });
+  if (!parts.length) return esc(raw);
+  return parts.map(p => p.t === 'bold' ? '<strong>' + esc(p.v) + '</strong>' : esc(p.v)).join('');
+}
+
+/** Summary-first panel: bullets default, full behind Read more. No live compression. */
+function summaryFirstHtml({ full, summary, emptyLabel }) {
+  const bullets = Array.isArray(summary) ? summary.filter(b => String(b || '').trim()) : [];
+  const fullText = String(full || '').trim();
+  if (!fullText && !bullets.length) {
+    return '<div class="sf-panel sf-full-only"><div class="sf-full">' + esc(emptyLabel || '(none)') + '</div></div>';
+  }
+  if (!bullets.length) {
+    return '<div class="sf-panel sf-full-only"><div class="sf-full fp-full">' + fpBodyHtml(fullText) + '</div></div>';
+  }
+  const lis = bullets.map(b => '<li>' + inlineBoldHtml(b) + '</li>').join('');
+  return '<div class="sf-panel">' +
+    '<ul class="sf-bullets">' + lis + '</ul>' +
+    '<button type="button" class="sf-toggle" title="Show full explanation">' +
+      '<i class="ti ti-chevron-down"></i>&nbsp;' +
+      '<span class="sf-label-more">Read full explanation</span>' +
+      '<span class="sf-label-less">Hide full explanation</span>' +
+    '</button>' +
+    '<div class="sf-full fp-full">' + fpBodyHtml(fullText) + '</div>' +
+  '</div>';
+}
+
+function wireSummaryFirstToggle(rootEl) {
+  if (!rootEl) return;
+  rootEl.querySelectorAll('.sf-panel:not(.sf-full-only) .sf-toggle').forEach(btn => {
+    if (btn.dataset.wired === '1') return;
+    btn.dataset.wired = '1';
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const panel = btn.closest('.sf-panel');
+      if (!panel) return;
+      panel.classList.toggle('is-expanded');
+      const open = panel.classList.contains('is-expanded');
+      const icon = btn.querySelector('i');
+      if (icon) icon.className = 'ti ti-chevron-' + (open ? 'up' : 'down');
+    };
+  });
+}
+
+function paintFirstPrinciples(el, qid) {
+  if (!el) return;
+  const triage = readTriage(qid) || {};
+  el.innerHTML = summaryFirstHtml({
+    full: triage.firstPrinciples || '',
+    summary: triage.firstPrinciplesSummary || [],
+  });
+  wireSummaryFirstToggle(el);
+}
+
+function paintBankExplanation(el, q) {
+  if (!el || !q) return;
+  const triage = readTriage(q.id) || {};
+  el.innerHTML = summaryFirstHtml({
+    full: q.explanation || '',
+    summary: triage.explanationSummary || [],
+    emptyLabel: '(none)',
+  });
+  wireSummaryFirstToggle(el);
+}
+
+
 // ── Clean diagnosis label for display (collapse slash-fragments, cap length) ─
 function cleanDiagnosisLabel(raw) {
   if (!raw) return raw;
@@ -6892,6 +7166,40 @@ async function fetchLogged(qid, type) {
   } catch (_) { return null; }
 }
 
+// ── Prose craft guide: load once per browser session, append to FP system prompt ──
+let _proseCraftGuide = null;       // string | null
+let _proseCraftPromise = null;     // in-flight fetch
+let _proseCraftLogged = false;
+
+async function loadProseCraftGuide() {
+  if (_proseCraftGuide != null) return _proseCraftGuide;
+  if (_proseCraftPromise) return _proseCraftPromise;
+  _proseCraftPromise = (async () => {
+    try {
+      const res = await fetch('/api/prose-craft');
+      if (!res.ok) {
+        console.warn('[prose-craft] HTTP', res.status, '— FP will use compact prompt only');
+        _proseCraftGuide = '';
+        return '';
+      }
+      const text = (await res.text() || '').trim();
+      _proseCraftGuide = text;
+      if (!_proseCraftLogged) {
+        _proseCraftLogged = true;
+        console.info('[prose-craft] Loaded primer-prose.md once for this session (' + text.length + ' chars)');
+      }
+      return text;
+    } catch (e) {
+      console.warn('[prose-craft] fetch failed:', e.message);
+      _proseCraftGuide = '';
+      return '';
+    } finally {
+      _proseCraftPromise = null;
+    }
+  })();
+  return _proseCraftPromise;
+}
+
 // ── First-principles layer: attending-voice explanation ──────────────────
 async function fetchFirstPrinciples(node, regen = false) {
   const key = localStorage.getItem('ds_api_key');
@@ -6900,7 +7208,7 @@ async function fetchFirstPrinciples(node, regen = false) {
   // Check log for existing response first (skip if regen)
   if (!regen) {
     const logged = await fetchLogged(node.id, 'firstPrinciples');
-    if (logged) return logged;
+    if (logged) return parseDualExplanation(logged);
   }
 
   // ── Depth-aware generation rules ──
@@ -6956,16 +7264,17 @@ PROSE CRAFT — these govern how the sentences MOVE. Apply to the writing, not t
 - COMPRESSION: Maximum payload per sentence. If you can remove a word without losing meaning, remove it. If you can merge two sentences into one, merge them. The model sentence: "The combination of a big baby and polyhydramnios mechanically overdistends the uterus." Two causal forces named directly, compressed into one clause, producing one clear mechanical effect. Every finding gets this treatment — the number and what it does share the same breath. Never "The glucose is 190. This suggests diabetes." — instead: "A glucose of 190 means the fetus is bathing in insulin, and insulin is a growth factor."
 - CAUSAL CHAINING: Each sentence creates a question the next resolves. The test: if you can reorder your sentences and the paragraph still "makes sense," the prose is flat — rewrite it. After finishing, read each adjacent pair and ask: "Does the second sentence exist because the first created a need for it?" Never let two sentences simply coexist without one creating pressure the other releases.
 - STAKES BEFORE MECHANISM: Open with why the finding matters — the clinical danger, the diagnostic trap, the decision the physician can't afford to get wrong. The mechanism arrives as the answer to a question the reader already cares about. "If you miss this, the patient arrests." "This lab value looks reassuring. It's lying to you."
-- THE OPPONENT: Every mechanism explanation needs a vivid antagonist — a named, specific force actively fighting against the patient or the physician. Not "the disease process" — the scar that won't stretch, the receptor that's been stripped from the membrane, the pressure gradient that's reversed and won't reverse back. The opponent is what gives the explanation stakes: someone is losing a fight, and you need to know who and why before you can intervene. Bad: "The glomerulus is damaged." Good: "The immune complexes are punching holes in the basement membrane faster than the podocytes can patch them." The opponent should feel active, ongoing, winnable but not won. If your explanation doesn't name what's resisting, it's a lecture; if it does, it's a story.
+- RESISTANCE (vary the lexicon): Name a concrete force that makes the mechanism hard — scar that will not stretch, stripped receptor, reversed gradient, failing collateral. Show it acting. Never stock-label roles ("X is the opponent here," "the antagonist is…"). Rotate exacting near-synonyms the physiology earns: foil, impediment, constraining force, countervailing pressure, limiting step. Risk factors in the vignette (pill, flight, family history) are causal setup, not a costume for a villain. Bad: "The glomerulus is damaged." / "The oral contraceptive is the opponent here." Good: "Immune complexes punch holes in the basement membrane faster than the podocytes can patch them."
+- VOCABULARY STRETCH: Exact words, complex ideas. Prefer a slightly harder precise word over the safest textbook synonym when context makes the meaning recoverable. About one look-up-worthy word per explanation is enough — including careful polysemy when the clinical sense is unambiguous in the sentence. Never fog the mechanism with thesaurus padding.
 - SPECIFICITY ANCHOR: At least once per paragraph, ground the abstraction in a number, a named structure, or a sensory detail. Not "impaired oxygen delivery" — "a PaO₂ of 52, roughly a third of what the mitochondria expect." One concrete detail does the work of three abstractions.
 - THE PULL PRINCIPLE: Questions pull harder than statements push — and you should be ruthless about this. Open a paragraph with a question the reader is already asking. End a paragraph with a question they haven't asked yet but now can't stop thinking about. The prose should feel like it's one step ahead of the reader, always answering the question they just formed while planting the next one.${dr.forbidClose ? '' : ' Weak: closing with a recitation of the treatment. Strong: "So you give steroids. They suppress the immune attack. But what are you NOT fixing — and what happens if you stop too soon?" Every closing probe must change one variable and ask what the clinical consequence would be — not "did that make sense?" but "if you changed X, would Y still happen, and why not?" The probe should feel like the paragraph earned it, not like you remembered to add one.'}
 - **BOLDING**: Wrap 2-4 load-bearing phrases per paragraph in **. Bold only the mechanism name, the lab value with its unit, the pivotal exam finding, or the treatment decision. Never bold transition words or "glue" sentences. A paragraph with zero bolded phrases is not complete.
 
-PARAGRAPH RHYTHM: ${dr.paras} short paragraphs, each doing one job. The sequence: stakes (why care) → mechanism (how it works) → opponent (what resists it) → resolution (what the intervention does)${dr.forbidClose ? '' : ' → closing probe'}. Blank lines between paragraphs. No bolded headers or outline markers — just the paragraphs themselves.
+PARAGRAPH RHYTHM: ${dr.paras} short paragraphs, each doing one job. The sequence: stakes (why care) → mechanism (how it works) → resistance (shown in action, never stock-labeled) → resolution (what the intervention does)${dr.forbidClose ? '' : ' → closing probe'}. Blank lines between paragraphs. No bolded headers or outline markers — just the paragraphs themselves.
 
 ANSWER CHOICE BEHAVIOR: ${dr.answerWalk}
 
-VOICE: Confident, never condescending. Direct. Short sentences. No hedging where the science is settled. Visual/spatial language the learner can picture. Simple words, complex ideas — never write down.
+VOICE: Confident, never condescending. Direct. Short sentences. No hedging where the science is settled. Visual/spatial language the learner can picture. Exacting diction, complex ideas — never write down, never write fog.
 
 CLOSING PROBE: ${dr.probe}
 
@@ -6984,25 +7293,44 @@ PROSE STRUCTURE:
 - Bullet lists, numbered lists, outline headers, bolded paragraph lead-ins, labeled sections of any kind.
 - Passive voice, hedging ("in some cases," "it is thought that"), "as an AI", breaking character.
 ${dr.forbidClose ? '- Closing probe or trailing question.\n- Walking through answer choices. Only state the correct one.\n' : '- Skipping the closing probe or trailing off without it.\n'}- Zero bolded phrases in any paragraph. Each paragraph needs 2-4 **bold** anchors.
-   ━━━ OUTPUT PROTOCOL (internal — do not restate): Start immediately with the explanation. No "Here's the explanation." No "Let me explain." No sign-off. The first sentence must be about medicine, not about this task. ━━━`;
+- Bullet lists inside the FULL prose section. Bullets belong only in the SUMMARY section below.
+   ━━━ OUTPUT PROTOCOL (internal — do not restate): Output EXACTLY this two-part format. No preamble. No sign-off.
+<<<FULL>>>
+(attending prose paragraphs here — medicine first sentence, no bullet lists)
+<<<SUMMARY>>>
+- key point with **salient anchor**
+- key point with **lab or mechanism**
+- key point 3
+- key point 4
+(optionally a 5th key point)
+<<<END>>>
+SUMMARY rules: 4-5 bullets. Each bullet is one dense clinical takeaway from the FULL prose (mechanism, stakes, resistance, decision). No new facts that are not in FULL. Bold 1-2 salient anchors per bullet with **…** (mechanism name, lab+unit, pivotal finding, or decision) — same bold discipline as FULL. ━━━`;
 
-  const prompt = `Question context for the explanation above. Produce the explanation as instructed.
+  const prompt = `Question context for the explanation above. Produce BOTH the full explanation and the 4-5 bullet summary in the exact <<<FULL>>> / <<<SUMMARY>>> / <<<END>>> format.
 
 ${depthUserRules}
 
 CRITICAL PROSE RULES:
 1. COMPRESS: Every sentence works at maximum density. Number + consequence in the same breath.
-2. OPPONENT: Name the specific force fighting the patient. Not "the disease" — the scar, the stripped receptor, the reversed gradient. Make it active. Someone is losing a fight.
-${prefs.depth === 0 ? '' : '3. PULL: Ruthless questioning. Open with an earned question. End every paragraph with a question the reader now can\'t stop asking. The closing probe must feel like the whole explanation was building toward it — change one variable, ask what breaks.\n'}
-${prefs.depth === 0 ? '3. STOP: No closing probe. No answer-choice walkthrough. State the mechanism, the clinical anchor, and END.\n' : ''}4. CHAIN: Each sentence creates the question the next answers. If reordering works, it's flat — rewrite.
-5. STAKES FIRST: Why does this finding matter at the bedside? Then mechanism.
-6. BOLD: Wrap 2-4 load-bearing phrases per paragraph in **. Mechanism, lab value with unit, pivotal finding, or treatment decision — never transition words.
+2. RESISTANCE: Show the specific force making the mechanism hard (scar, stripped receptor, reversed gradient, failing collateral). Never write "X is the opponent here." Rotate exacting near-synonyms. Do not cast a vignette risk factor as a stock villain.
+3. VOCABULARY: Prefer one precise, slightly harder word the context can teach — look-up-worthy, not foggy.
+${prefs.depth === 0 ? '' : '4. PULL: Ruthless questioning. Open with an earned question. End every paragraph with a question the reader now can\'t stop asking. The closing probe must feel like the whole explanation was building toward it — change one variable, ask what breaks.\n'}
+${prefs.depth === 0 ? '4. STOP: No closing probe. No answer-choice walkthrough. State the mechanism, the clinical anchor, and END.\n' : ''}5. CHAIN: Each sentence creates the question the next answers. If reordering works, it's flat — rewrite.
+6. STAKES FIRST: Why does this finding matter at the bedside? Then mechanism.
+7. BOLD: Wrap 2-4 load-bearing phrases per paragraph in **. Mechanism, lab value with unit, pivotal finding, or treatment decision — never transition words.
+8. DUAL OUTPUT: Always include <<<FULL>>>, <<<SUMMARY>>> (4-5 bullets), and <<<END>>>.
 
 Question: """${node.question}"""
 Correct answer: ${node.likely || 'N/A'}
 Answer choices: ${ans}
 
 No preamble, no sign-off, no filler transitions, no em dashes.`;
+
+  // Session-prime: load immersa-prose-craft.md once, append to every FP system prompt
+  const craftGuide = await loadProseCraftGuide();
+  const primedSystem = craftGuide
+    ? systemPrompt + `\n\n━━━ IMMERSA PRIMER PROSE (loaded once this session — binding craft law; do not echo) ━━━\n` + craftGuide + `\n━━━ END PRIMER PROSE ━━━`
+    : systemPrompt;
 
   try {
     const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -7011,10 +7339,10 @@ No preamble, no sign-off, no filler transitions, no em dashes.`;
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [
-          { role: 'system', content: systemPrompt },
+          { role: 'system', content: primedSystem },
           { role: 'user', content: prompt },
         ],
-        temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(), max_tokens: dc.maxTokens,
+        temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(), max_tokens: dc.maxTokens + 180,
       }),
     });
     if (!res.ok) return null;
@@ -7022,9 +7350,10 @@ No preamble, no sign-off, no filler transitions, no em dashes.`;
     let reply = (data.choices?.[0]?.message?.content?.trim() || '');
     // Truncation check: ends mid-sentence → retry once with more tokens
     const finishReason = data.choices?.[0]?.finish_reason;
-    const endChars = reply.slice(-5);
-    if (finishReason === 'length' || !/[.?!]$/.test(reply.slice(-1))) {
-      console.warn('firstPrinciples: truncated or incomplete ending, retrying with ' + (dc.maxTokens + 100) + ' tokens');
+    const hasDualEnd = /<<<END>>>/i.test(reply) || /<<<SUMMARY>>>/i.test(reply);
+    const endsClean = hasDualEnd || /[.?!]$/.test(reply.slice(-1));
+    if (finishReason === 'length' || !endsClean) {
+      console.warn('firstPrinciples: truncated or incomplete ending, retrying with ' + (dc.maxTokens + 280) + ' tokens');
       try {
         const retry = await fetch('https://api.deepseek.com/v1/chat/completions', {
           method: 'POST',
@@ -7032,10 +7361,10 @@ No preamble, no sign-off, no filler transitions, no em dashes.`;
           body: JSON.stringify({
             model: 'deepseek-chat',
             messages: [
-              { role: 'system', content: systemPrompt },
+              { role: 'system', content: primedSystem },
               { role: 'user', content: prompt },
             ],
-            temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(), max_tokens: dc.maxTokens + 100,
+            temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(), max_tokens: dc.maxTokens + 280,
           }),
         });
         if (retry.ok) {
@@ -7044,12 +7373,59 @@ No preamble, no sign-off, no filler transitions, no em dashes.`;
         }
       } catch (_) { /* keep original truncated if retry fails */ }
     }
-    // Log it
-    logDS(node.id, 'firstPrinciples', prompt, systemPrompt, reply);
+    // Log raw dual output; return parsed pair for storage + UI
+    logDS(node.id, 'firstPrinciples', prompt, primedSystem, reply);
     logActivity(node.id, 'firstPrinciples', 'Mechanism explanation generated');
-    // Post-processing: strip banned patterns that survive the prompt lock
-    reply = reply.replace(/—\s*/g, '. ').replace(/\s{2,}/g, ' ').replace(/\.\s+\./g, '.');
-    return reply;
+    return parseDualExplanation(reply);
+  } catch (_) { return null; }
+}
+
+// ── Bank explanation bullets (batch-time only — full text already exists) ──
+async function fetchExplanationSummary(node) {
+  const key = localStorage.getItem('ds_api_key');
+  if (!key) return null;
+  const full = String(node.explanation || '').trim();
+  if (!full || full.length < 40) return null;
+  const logged = await fetchLogged(node.id, 'explanationSummary');
+  if (logged) {
+    const parsed = parseDualExplanation('<<<FULL>>>\nx\n<<<SUMMARY>>>\n' + logged + '\n<<<END>>>');
+    if (parsed.summary.length) return parsed.summary;
+  }
+  const prompt = `You write study bullets for a board-question explanation that already exists.
+
+Output EXACTLY:
+<<<SUMMARY>>>
+- bullet 1
+- bullet 2
+- bullet 3
+- bullet 4
+(optional 5th)
+<<<END>>>
+
+Rules: 4-5 bullets. Each is one dense takeaway from the explanation. No new facts. Bold 1-2 salient anchors per bullet with **…**. No preamble.
+
+Explanation:
+"""${full.slice(0, 3500)}"""`;
+  try {
+    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: 'You compress existing medical board explanations into 4-5 study bullets. Output only the <<<SUMMARY>>> block.' },
+          { role: 'user', content: prompt },
+        ],
+        temperature: 0.3,
+        max_tokens: 400,
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const reply = (data.choices?.[0]?.message?.content?.trim() || '');
+    logDS(node.id, 'explanationSummary', prompt, '', reply);
+    const parsed = parseDualExplanation('<<<FULL>>>\n.\n' + reply);
+    return parsed.summary.length ? parsed.summary : null;
   } catch (_) { return null; }
 }
 
@@ -7108,239 +7484,6 @@ Respond with ONLY the concept line. No preamble.`;
     if (line) logDS(node.id, 'concept', prompt, '', line);
     return line;
   } catch (_) { return null; }
-}
-
-// ── Avatar Saga Story Rules (full doc, embedded for DeepSeek prompts) ──
-const AVATAR_STORY_RULES = `## The archetype: earned structure, not a template
-
-There is no single fixed story shape used everywhere. The shape a scene or spine gets depends on how much real spine content actually exists for it. Do not force a bigger structure than the content supports.
-
-**Two or fewer confirmed spine nodes → Freytag-lite.** Exposition (the flaw or trait gets planted), rising action (the flaw's cost starts to show), and a crisis point. No resolution beat. Plant a trait, let it fire later, don't manufacture a beat that doesn't exist.
-
-**Five to eight confirmed spine nodes within one scene → Dan Harmon's Story Circle is earned.** You/Need/Go/Search/Find/Take/Return/Change, one real question mapped to each stage by narrative function, not by scrape order.
-
-**Zero spine nodes → witnessed content, not story shape at all.** If the node isn't the avatar's own case, it's something she observes or is taught. Write it with an honest, stated reason she's present (shadowing, a teaching session, a mentor walking her through cases). Don't apply dramatic structure.
-
-## Character engine: Want / Need / Flaw / Ghost
-
-Every avatar gets these four things locked before any story gets written for them:
-- **Want:** what she consciously thinks she's after
-- **Need:** what she actually has to learn or accept, often in tension with the Want
-- **Flaw:** the specific behavior that causes her own complications, not a generic character trait, something concrete enough to show up as a plot point
-- **Ghost:** the past event explaining why the flaw exists
-
-The Flaw is the load-bearing piece. It's what turns a Freytag-lite two-node spine into an actual story instead of two clinical facts in sequence, the flaw from Node 1 should be visibly present in Node 2's crisis, not introduced fresh.
-
-## Hard rules (NON-NEGOTIABLE)
-
-1. **Environment first.** Establish where, when, and what's physically around the characters before any dialogue or reasoning. Never open on floating dialogue.
-2. **Only two named characters ever appear:** the avatar and her mentor. No third named patient narrated as a separate character. Comparison cases are things the avatar or mentor recall, reference, or pass through, never independently staged scenes.
-3. **One continuous narrative voice.** Write as continuous prose, not separately labeled paragraphs bolted together.
-4. **Zero em dashes**, anywhere, ever.
-5. **Every comparison case referenced must trace to a real question in that scene's actual data.** Never invent clinical content to fill a gap.
-6. **Continuity connects backward explicitly.** If a spine node is the same underlying disease surfacing in a new organ or context, say so directly in the prose.
-7. **State the spine count when done.** After writing, explicitly note how many spine nodes this scene has and which QIDs they are.
-
-## Appendix D - Prose discipline (NON-NEGOTIABLE generation constraints)
-
-### D1. No purple prose / adjective overload
-- No promotional or inflated language (vibrant, profound, stunning, breathtaking). Cut clinical equivalents like "his eyes fixed intently."
-- Cut adjectives that aren't load-bearing. A detail earns its place only if it does story work (the flaw, the stakes, the mechanism), not because it sounds atmospheric.
-- No rule-of-three padding. No forced groups of three details where one or two would do.
-- Vary sentence rhythm: short sentences next to longer ones, not uniform length throughout.
-- Say it plainly. If a sentence could lose a word without losing meaning, cut the word.
-
-### D2. No staccato negatives - HARD BAN
-No constructions like "not X, not Y" or "not just X, it's Y." Pick the actual thing and state it. This exact pattern produced nonsense in a prior generation; it is a hard ban, not a style preference. Never write "not this, not that" or any variant.
-
-### D3. Meta-instruction leakage is FORBIDDEN
-Never echo or reference the generation system's own instructions, skill names, or prompt language in the output. Specifically FORBIDDEN: "humanizer," "storytelling skills," "clairvoyants," or any self-referential content about how the prose was written. This is a pipeline defect, not a prose issue - do not produce it.
-
-### D4. Character pronoun consistency is LOCKED
-Use ONLY the pronouns explicitly stated for each character. Never infer or default. If the character's gender and pronouns are stated, use them exactly - one wrong pronoun invalidates the entire output.
-
-## Verification
-Check this node's correct answer against what the story claims her diagnosis is. A story reading well is not evidence it's factually consistent with the data underneath it.`;
-
-// ── On-the-fly full beat generation (story writing, governed by avatar-saga rules) ──
-async function fetchFullBeat(node) {
-  const key = localStorage.getItem('ds_api_key');
-  if (!key) return null;
-
-  // Check log first
-  const logged = await fetchLogged(node.id, 'fullBeat');
-  if (logged) return logged;
-
-  // Build spine context
-  const isSpine = node.category === 'primary';
-  const spineIdx = GRAPH.mainPath.indexOf(String(node.id));
-  const totalSpine = GRAPH.mainPath.length;
-
-  // Find previous spine node (same disease, earlier position) for continuity
-  let prevSpineNode = null;
-  if (spineIdx > 0) {
-    const prevId = GRAPH.mainPath[spineIdx - 1];
-    prevSpineNode = byId[prevId] || null;
-  }
-
-  const ans = (node.answers || []).map(a => a.label + '. ' + cleanAnsText(a.text)).join(' | ');
-  const ch = (GRAPH && GRAPH.character) || null;
-  const avatarName = ch ? ch.name : ((GRAPH.meta && GRAPH.meta.coreDiagnosis) ? cleanDiagnosisLabel(GRAPH.meta.coreDiagnosis).split(/[\/·]\s*/)[0].trim() : 'the avatar');
-  const mentorName = (ch && ch.mentor) || 'Dr. Iwu';
-  const avatarPronoun = (ch && ch.gender === 'M') ? 'he/him/his' : 'she/her/hers';
-  const mentorPronoun = 'he/him/his'; // Dr. Iwu is male, locked, non-negotiable
-  const charWNFG = ch
-    ? `- Want: ${ch.want}
-- Need: ${ch.need}
-- Flaw: ${ch.flaw}
-- Ghost: ${ch.ghost}`
-    : '';
-  const charIdentity = `LOCKED CHARACTER FACTS (use these pronouns exactly, never substitute):
-- ${avatarName}: ${ch ? ch.gender + ', ' + avatarPronoun + ', age ' + ch.age : 'pronouns as appropriate for name'}
-- ${mentorName}: M, ${mentorPronoun} (male, never use she/her for this character)`;
-  const scenePeerCount = GRAPH.nodes.filter(n => String(n.sceneId) === String(node.sceneId)).length;
-
-  // Determine structure hint
-  const spineInScene = GRAPH.mainPath.filter(id => {
-    const n = byId[id];
-    return n && String(n.sceneId) === String(node.sceneId);
-  }).length;
-  let structureHint = spineInScene <= 2
-    ? 'FREYTAG-LITE (exposition → rising action → crisis, no resolution)'
-    : spineInScene >= 5
-      ? 'FULL HARMON CIRCLE (You/Need/Go/Search/Find/Take/Return/Change)'
-      : 'Partial - use only the beats that the real data supports';
-
-  if (!isSpine) structureHint = 'WITNESSED CONTENT - avatar is observing or being taught, not her own case';
-
-  const systemPrompt = `You are a clinical fiction writer governed by the following story rules. Do NOT deviate from them.
-
-${AVATAR_STORY_RULES}
-
-${charIdentity}
-
-CONTEXT FOR THIS NODE:
-${charWNFG ? '\n' + charWNFG + '\n' : ''}
-- This node: ${isSpine ? 'CONFIRMED SPINE NODE (the avatar\'s own case, position ' + (spineIdx+1) + ' of ' + totalSpine + ')' : 'DOOR NODE (comparison case, NOT the avatar\'s own)'}
-- Structure: ${structureHint}
-- Scene ${node.sceneId} has ${scenePeerCount} total comparison cases ${isSpine ? 'and ' + spineInScene + ' spine nodes' : ''}
-${prevSpineNode ? '- Previous spine node (continuity required): QID ' + prevSpineNode.id + ' · ' + (stemOf(prevSpineNode, 120)) : ''}
-${isSpine && spineIdx === 0 ? '- This is the FIRST spine node. Plant the avatar\'s flaw or trait here.' : ''}
-
-PROSE RULES (apply as generation constraints, not as cleanup):
-- No purple prose. Cut adjectives that aren't load-bearing. No inflated language.
-- No staccato negatives: never use "not X, not Y" or "not just X, it's Y" constructions.
-- No rule-of-three padding.
-- Vary sentence rhythm: short sentences next to longer ones.
-- Say it plainly. If a word can be cut without losing meaning, cut it.
-
-REMEMBER: ${avatarName} uses ${avatarPronoun}. ${mentorName} uses he/him/his ONLY. Never refer to ${mentorName} as she or her.
-Never mention "humanizer," "storytelling skills," "clairvoyants," or any system instruction terms in the output.
-
-Write a single continuous narrative paragraph (80-200 words) for this node. Follow the rules exactly.`;
-
-  let prompt = `Write the narrative beat for this CCS board question node:
-
-Question: """${node.question}"""
-Correct answer: ${node.likely || 'N/A'}
-Answer choices: ${ans}
-
-Respond with ONLY the narrative paragraph. No preamble, no headers, no sign-off. Zero em dashes.`;
-
-  // ── Generation with retry loop (validate + regenerate on failure) ──
-  const MAX_RETRIES = 3;
-  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    try {
-      const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-        body: JSON.stringify({
-          model: 'deepseek-chat',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: prompt },
-          ],
-          temperature: 0.7, max_tokens: 500,
-        }),
-      });
-      if (!res.ok) return null;
-      const data = await res.json();
-      const beat = (data.choices?.[0]?.message?.content?.trim() || '');
-      if (!beat) continue;
-
-      // ── Validate before accepting ──
-      const validation = validateGeneratedBeat(beat, avatarName, avatarPronoun, mentorName, mentorPronoun, ch);
-      if (validation.ok) {
-        logDS(node.id, 'fullBeat', prompt, systemPrompt, beat);
-        return beat;
-      }
-      console.warn('Generation validation failed (attempt ' + (attempt + 1) + '): ' + validation.reason);
-      // Modify prompt with specific fix instruction for retry
-      if (attempt < MAX_RETRIES - 1) {
-        prompt = prompt + '\n\nPREVIOUS ATTEMPT WAS REJECTED: ' + validation.reason + '. Fix this and try again.';
-      }
-    } catch (_) { return null; }
-  }
-  return null; // all retries exhausted
-}
-
-// ── Post-generation validation: catch meta-leaks, pronoun errors, and prose violations ──
-function validateGeneratedBeat(beat, avatarName, avatarPronoun, mentorName, mentorPronoun, ch) {
-  const lower = beat.toLowerCase();
-
-  // 1. Meta-instruction leakage - known skill/prompt vocabulary bleeding into output
-  const META_LEAK_WORDS = [
-    'humanizer', 'storytelling skills', 'storytelling skill', 'clairvoyants',
-    'generation system', 'system prompt', 'system instruction', 'pipeline',
-    'prose discipline', 'prose rule', 'generation constraint', 'cleanup pass',
-    'all those storytelling', 'not this, not that',
-  ];
-  for (const word of META_LEAK_WORDS) {
-    if (lower.includes(word)) {
-      return { ok: false, reason: 'Meta-leak detected: "' + word + '" in output' };
-    }
-  }
-
-  // 2. Staccato negatives - "not X, not Y" pattern
-  if (/not\s+\w+[.,]\s*not\s+\w+/.test(lower) || /not\s+(just|only)\s+\w+[.,]\s*it['']s\s+\w+/.test(lower)) {
-    return { ok: false, reason: 'Staccato negative pattern detected' };
-  }
-
-  // 3. Pronoun consistency - Dr. Iwu must never be "she"/"her"
-  if (mentorName && mentorPronoun === 'he/him/his') {
-    // Check for "she" or "her" referring to the mentor
-    const mentorPattern = new RegExp('\\b' + mentorName.split(' ')[0] + '\\b.{0,30}\\b(she|her)\\b', 'i');
-    if (mentorPattern.test(beat)) {
-      return { ok: false, reason: 'Wrong pronoun: ' + mentorName + ' referred to as she/her' };
-    }
-  }
-
-  // 4. Avatar pronoun consistency
-  if (avatarPronoun === 'she/her/hers' && ch && ch.gender === 'F') {
-    // Avatar is female - check for "he/his" used in close proximity to her name
-    const avPattern = new RegExp('\\b' + avatarName + '\\b.{0,30}\\b(he|his)\\b', 'i');
-    if (avPattern.test(beat)) {
-      return { ok: false, reason: 'Wrong pronoun: ' + avatarName + ' referred to as he/his' };
-    }
-  }
-  if (avatarPronoun === 'he/him/his' && ch && ch.gender === 'M') {
-    const avPattern = new RegExp('\\b' + avatarName + '\\b.{0,30}\\b(she|her)\\b', 'i');
-    if (avPattern.test(beat)) {
-      return { ok: false, reason: 'Wrong pronoun: ' + avatarName + ' referred to as she/her' };
-    }
-  }
-
-  // 5. Em dashes still present (the prompt says zero, but verify)
-  if (beat.includes('\u2014')) {
-    return { ok: false, reason: 'Em dash detected in output' };
-  }
-
-  // 6. Self-referential meta-commentary about the writing
-  if (/i .{0,20}(generated|write|composed|created) (this|the) (story|beat|narrative|paragraph)/i.test(beat)) {
-    return { ok: false, reason: 'Self-referential writing meta-commentary detected' };
-  }
-
-  return { ok: true };
 }
 
 // ── Why these are connected: clustering rationale for this scene ──────────
@@ -7438,7 +7581,6 @@ function buildRevealHTML(d) {
   const line = triage?.concept || '';
   const approved = triage?.approved === true;
   const needsWork = triage?.needsWork === true;
-  const stageLabel = d.storyStage || 'Story beat';
   const spineNum = GRAPH.mainPath.indexOf(d.id);
   const isMain = d.category === 'primary';
   const isStep3 = !!d._step3QNum;
@@ -7484,56 +7626,40 @@ function buildRevealHTML(d) {
         <button class="mode-seg-btn is-active" data-m="chat"><i class="ti ti-messages"></i>&nbsp;Dr. Iwu</button>
       </div>
       <!-- Notes mode (hidden by default) — global running list -->
-      <div class="dict-input-wrap" id="notes-area-${d.id}" style="display:none;">
-        <div class="notes-log" id="notes-log-${d.id}">
-          <div class="notes-list-empty" id="notes-empty-${d.id}">No notes yet. Jot one below — it joins a running list that persists across every node and set.</div>
+      <div class="thread-pane notes-area" id="notes-area-${d.id}" style="display:none;">
+        <div class="thread-scroll">
+          <div class="notes-list-empty thread-empty" id="notes-empty-${d.id}">No notes yet. Jot one below — it joins a running list that persists across every node and set.</div>
+          <div class="notes-log" id="notes-log-${d.id}"></div>
         </div>
-        <div class="notes-input-row">
-          <textarea id="dict-text-${d.id}" placeholder="Jot a note on this concept…" rows="2"></textarea>
-          <div class="notes-row-btns">
-            <button class="btn-save-note" id="save-note-${d.id}" title="Append to your running notes list"><i class="ti ti-plus"></i>&nbsp;Save note</button>
-            <button class="btn-mic" data-qid="${d.id}" title="Toggle microphone"><i class="ti ti-microphone"></i></button>
+        <div class="thread-input-bar">
+          <textarea class="thread-field" id="dict-text-${d.id}" placeholder="Jot a note on this concept…" rows="2"></textarea>
+          <div class="thread-input-actions">
+            <button class="btn-save-note thread-send" id="save-note-${d.id}" title="Append to your running notes list"><i class="ti ti-plus"></i>&nbsp;Save note</button>
+            <button class="thread-mic btn-mic" data-qid="${d.id}" title="Toggle microphone"><i class="ti ti-microphone"></i></button>
           </div>
         </div>
       </div>
       <span class="dict-interim" id="dict-interim-${d.id}"></span>
       <!-- Chat mode (shown by default) -->
-      <div class="chat-area" id="chat-area-${d.id}">
-        <div class="chat-log" id="chat-log-${d.id}"></div>
-        <div class="chat-input-row">
-          <input type="text" id="chat-input-${d.id}" placeholder="Ask Dr. Iwu about this case…" />
-          <button class="btn-mic btn-mic-chat" data-qid="${d.id}" title="Toggle microphone"><i class="ti ti-microphone"></i></button>
-          <button class="primary" id="chat-send-${d.id}">Send</button>
+      <div class="thread-pane chat-area" id="chat-area-${d.id}">
+        <div class="thread-scroll chat-log" id="chat-log-${d.id}"></div>
+        <div class="thread-input-bar thread-input-row chat-input-row">
+          <input class="thread-field" type="text" id="chat-input-${d.id}" placeholder="Ask Dr. Iwu about this case…" />
+          <button class="thread-mic btn-mic btn-mic-chat" data-qid="${d.id}" title="Toggle microphone"><i class="ti ti-microphone"></i></button>
+          <button class="primary thread-send" id="chat-send-${d.id}">Send</button>
         </div>
       </div>
       <div class="dict-status" id="dict-status-${d.id}"></div>
     </div>
     </div>
 
-    <div class="ind-toggle" id="it-full-${d.id}">
-      <span class="toggle-dot"></span>
-      <span>Show full beat</span>
-      <i class="ti ti-chevron-down toggle-chevron"></i>
-    </div>
-    <div class="ind-body" id="ib-full-${d.id}">
-      <h3 style="margin:0 0 6px;font-size:calc(0.88rem * var(--hud-font-scale,1));font-weight:600;">${esc(stageLabel)}</h3>
-      <div class="fb-editable">
-        <p style="margin:0 0 10px;font-size:calc(0.8rem * var(--hud-font-scale,1));color:var(--ink);" id="fbtext-${d.id}">${esc(d.storyText)}</p>
-        <button class="fb-edit-btn" id="fbedit-${d.id}" title="Edit story beat"><i class="ti ti-pencil"></i></button>
-      </div>
-      <div class="version-nav" id="fbnav-${d.id}" style="display:none;">
-        <button class="vn-arrow vn-prev" id="fbnav-prev-${d.id}" title="Previous version"><i class="ti ti-chevron-left"></i></button>
-        <span class="vn-counter" id="fbnav-count-${d.id}"></span>
-        <button class="vn-arrow vn-next" id="fbnav-next-${d.id}" title="Next version"><i class="ti ti-chevron-right"></i></button>
-      </div>
-      <button class="fb-regen-btn" id="fbregen-${d.id}" title="Regenerate story beat"><i class="ti ti-refresh"></i>&nbsp;Regenerate</button>
-    </div>
-
     <div class="ind-toggle" id="it-firstpri-${d.id}">
       <span class="toggle-dot"></span>
       <span>first principles</span>
-      <button class="ind-fp-refresh" id="fpref-${d.id}" title="Regenerate explanation"><i class="ti ti-refresh"></i></button>
-      <button class="ind-fp-copy" id="fpcopy-${d.id}" title="Copy explanation to clipboard"><i class="ti ti-copy"></i></button>
+      <div class="row-actions">
+        <button class="ind-fp-refresh" id="fpref-${d.id}" title="Regenerate explanation"><i class="ti ti-refresh"></i></button>
+        <button class="ind-fp-copy" id="fpcopy-${d.id}" title="Copy explanation to clipboard"><i class="ti ti-copy"></i></button>
+      </div>
       <i class="ti ti-chevron-down toggle-chevron"></i>
     </div>
     <div class="ind-body" id="ib-firstpri-${d.id}">
@@ -7549,6 +7675,9 @@ function buildRevealHTML(d) {
     <div class="ind-toggle" id="it-q-${d.id}">
       <span class="toggle-dot"></span>
       <span>Reveal the question</span>
+      <div class="row-actions">
+        <button class="ind-fp-copy" id="qcopy-${d.id}" title="Copy question and answer options"><i class="ti ti-copy"></i></button>
+      </div>
       <i class="ti ti-chevron-down toggle-chevron"></i>
     </div>
     <div class="ind-body" id="ib-q-${d.id}">
@@ -7614,7 +7743,15 @@ function wireVersionNav(qid, field, contentEl, navContainerEl) {
   navContainerEl.style.display = 'flex';
 
   function refresh() {
-    if (contentEl) contentEl.innerHTML = mdToHtml(all[idx]);
+    if (contentEl) {
+      if (field === 'firstPrinciples' && idx === all.length - 1) {
+        paintFirstPrinciples(contentEl, qid);
+      } else {
+        // Older versions: show full prose only (no co-stored summary for history entries)
+        contentEl.innerHTML = summaryFirstHtml({ full: all[idx], summary: [] });
+        wireSummaryFirstToggle(contentEl);
+      }
+    }
     counterEl.textContent = (idx + 1) + ' of ' + all.length;
     prevBtn.disabled = idx === 0;
     nextBtn.disabled = idx === all.length - 1;
@@ -7627,8 +7764,11 @@ function wireVersionNav(qid, field, contentEl, navContainerEl) {
 
 // ── Extract the closing probe question from rendered First Principles content ──
 function extractClosingProbe(fpContentEl) {
+  // Prefer the full-prose pane when summary-first UI is active
+  const fullEl = fpContentEl.querySelector && fpContentEl.querySelector('.fp-full');
+  const source = fullEl || fpContentEl;
   // mdToHtml converts \n→<br>, \n\n→<br><br>. Split on double-break paragraph boundaries.
-  const html = fpContentEl.innerHTML;
+  const html = source.innerHTML;
   const blocks = html.split(/<br>\s*<br>/);
   // Walk backwards to find the last substantial block
   for (let i = blocks.length - 1; i >= 0; i--) {
@@ -7636,7 +7776,7 @@ function extractClosingProbe(fpContentEl) {
     if (text.length > 30) return text;
   }
   // Fallback: strip all tags, get raw textContent
-  const raw = fpContentEl.textContent.trim();
+  const raw = source.textContent.trim();
   const lastPeriod = raw.lastIndexOf('.');
   if (lastPeriod > 0) return raw.substring(raw.lastIndexOf('.', lastPeriod - 1) + 1).trim();
   return raw.length > 30 ? raw : null;
@@ -7836,11 +7976,6 @@ function wireReveal(container, d) {
   const pcEditBtn = container.querySelector('#pcedit-' + qid);
   if (pcEditBtn) makeEditable(oneLinerEl, pcEditBtn, qid, 'concept', false);
 
-  // Inline edit: full beat text
-  const fbEditBtn = container.querySelector('#fbedit-' + qid);
-  const fbTextEl = container.querySelector('#fbtext-' + qid);
-  if (fbEditBtn && fbTextEl) makeEditable(fbTextEl, fbEditBtn, qid, 'fullBeat', true);
-
   // Independent toggle helper
   function toggleInd(toggleId, bodyId, onOpen) {
     const tgl = container.querySelector('#' + toggleId);
@@ -7854,57 +7989,6 @@ function wireReveal(container, d) {
     };
   }
 
-  // Show full beat - generate on the fly via DeepSeek
-  const fbToggle = container.querySelector('#it-full-' + qid);
-  const fbBody = container.querySelector('#ib-full-' + qid);
-  const fbRegenBtn = container.querySelector('#fbregen-' + qid);
-  if (fbToggle && fbBody && fbTextEl) {
-    fbToggle.onclick = async () => {
-      const isOpen = fbBody.classList.toggle('open');
-      fbToggle.querySelector('.toggle-chevron').className = 'ti ti-chevron-' + (isOpen ? 'up' : 'down') + ' toggle-chevron';
-      if (isOpen) {
-        // Show the regenerate button
-        if (fbRegenBtn) fbRegenBtn.style.display = 'inline-block';
-        const triage = readTriage(qid);
-        if (triage?.fullBeat) {
-          fbTextEl.innerHTML = mdToHtml(triage.fullBeat);
-        } else {
-          fbTextEl.innerHTML = '<em>Generating narrative…</em>';
-          const beat = await fetchFullBeat(d);
-          if (beat) {
-            fbTextEl.innerHTML = mdToHtml(beat);
-            fieldSave(qid, 'fullBeat', beat);
-          } else {
-            fbTextEl.innerHTML = '<em>Could not generate - try Regenerate.</em>';
-          }
-        }
-        wireVersionNav(qid, 'fullBeat', fbTextEl, container.querySelector('#fbnav-' + qid));
-      } else {
-        if (fbRegenBtn) fbRegenBtn.style.display = 'none';
-      }
-      resize();
-    };
-
-    // Regenerate button
-    if (fbRegenBtn) {
-      fbRegenBtn.onclick = async (e) => {
-        e.stopPropagation();
-        fbRegenBtn.classList.add('spinning');
-        fbTextEl.innerHTML = '<em>Regenerating…</em>';
-        const beat = await fetchFullBeat(d);
-        fbRegenBtn.classList.remove('spinning');
-        if (beat) {
-          fbTextEl.innerHTML = mdToHtml(beat);
-          fieldSave(qid, 'fullBeat', beat);
-          logActivity(qid, 'storyBeat', 'Regenerated story');
-        } else {
-          fbTextEl.innerHTML = '<em>Regeneration failed - try again.</em>';
-        }
-        wireVersionNav(qid, 'fullBeat', fbTextEl, container.querySelector('#fbnav-' + qid));
-      };
-    }
-  }
-
   // First principles - attending voice teaching
   const fpToggle = container.querySelector('#it-firstpri-' + qid);
   const fpBody = container.querySelector('#ib-firstpri-' + qid);
@@ -7916,13 +8000,13 @@ function wireReveal(container, d) {
       if (isOpen) {
         const triage = readTriage(qid);
         if (triage?.firstPrinciples) {
-          fpContent.innerHTML = fpBodyHtml(triage.firstPrinciples);
+          paintFirstPrinciples(fpContent, qid);
         } else {
           fpContent.textContent = 'Teaching…';
           const fp = await fetchFirstPrinciples(d);
-          if (fp) {
-            fpContent.innerHTML = fpBodyHtml(fp);
-            fieldSave(qid, 'firstPrinciples', fp);
+          if (fp && fp.full) {
+            saveFirstPrinciplesPair(qid, fp.full, fp.summary);
+            paintFirstPrinciples(fpContent, qid);
           } else {
             fpContent.textContent = 'Could not generate - try refresh.';
           }
@@ -7956,9 +8040,9 @@ function wireReveal(container, d) {
         } finally {
           fpRefBtn.classList.remove('spinning');
         }
-        if (fp) {
-          fpContent.innerHTML = fpBodyHtml(fp);
-          fieldSave(qid, 'firstPrinciples', fp);
+        if (fp && fp.full) {
+          saveFirstPrinciplesPair(qid, fp.full, fp.summary);
+          paintFirstPrinciples(fpContent, qid);
           wireVersionNav(qid, 'firstPrinciples', fpContent, container.querySelector('#fpn-' + qid));
           const ansBtn = container.querySelector('#fp-answer-' + qid);
           if (ansBtn) {
@@ -7997,6 +8081,27 @@ function wireReveal(container, d) {
   toggleInd('it-q-' + qid, 'ib-q-' + qid, () => {
     wireAnswerToggle(container);
   });
+  // Copy stem + answer options (does not include correct answer / explanation)
+  const qCopyBtn = container.querySelector('#qcopy-' + qid);
+  if (qCopyBtn) {
+    qCopyBtn.onclick = async (e) => {
+      e.stopPropagation();
+      const text = formatQuestionStemAndChoices(d);
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        qCopyBtn.classList.add('copied');
+        qCopyBtn.title = 'Copied';
+        setTimeout(() => {
+          qCopyBtn.classList.remove('copied');
+          qCopyBtn.title = 'Copy question and answer options';
+        }, 1500);
+      } catch (_) {
+        qCopyBtn.classList.add('copy-failed');
+        setTimeout(() => qCopyBtn.classList.remove('copy-failed'), 1500);
+      }
+    };
+  }
 
   // Why these are connected - clustering rationale
   const whyToggle = container.querySelector('#it-why-' + qid);
@@ -8086,13 +8191,18 @@ function wireReveal(container, d) {
     };
   }
 
-  // Wire notes-collapse toggle (remembers state, defaults to collapsed)
+  // Wire notes-collapse toggle (remembers state; open if this node has notes)
   const notesTgl = container.querySelector('#it-notes-' + qid);
   const notesBody = container.querySelector('#ib-notes-' + qid);
   if (notesTgl && notesBody) {
     const notesStateKey = 'notes-collapse-' + qid;
     const savedState = (() => { try { return localStorage.getItem(notesStateKey); } catch(_) { return null; } })();
-    if (savedState === 'open') {
+    let hasNodeNotes = false;
+    try {
+      const gn = JSON.parse(localStorage.getItem('cg_global_notes') || '[]');
+      hasNodeNotes = Array.isArray(gn) && gn.some(n => String(n.qid) === String(qid));
+    } catch (_) {}
+    if (savedState === 'open' || hasNodeNotes) {
       notesBody.classList.add('open');
       notesTgl.querySelector('.toggle-chevron').className = 'ti ti-chevron-up toggle-chevron';
     }
@@ -8173,13 +8283,14 @@ function openHud(d, event) {
   hud.style.left = hx + 'px';
   hud.style.top = hy + 'px';
   hud.innerHTML = `
-    <div class="drag-bar"><span class="drag-label">${kicker}</span>${navHTML}${hudFontCtlHTML(readHudFontScale())}<button class="close" type="button" aria-label="Close"><i class="ti ti-x"></i></button></div>
+    <div class="drag-bar"><span class="drag-label">${kicker}</span>${navHTML}${hudFontCtlHTML(readHudFontScale())}${copyPacketButtonHTML()}<button class="close" type="button" aria-label="Close"><i class="ti ti-x"></i></button></div>
     <div class="hud-body-inner">
       ${buildRevealHTML(d)}
     </div>`;
   board.appendChild(hud);
   applyHudFontScale(hud);
   wireHudFontCtl(hud);
+  wireCopyPacketButton(hud, d);
   hud.querySelector('.close').onclick = () => { removeHudSave(hud); closeHud(); };
 
   wireReveal(hud, d);
@@ -9264,6 +9375,7 @@ async function loadSet(setNum) {
     if (window._updateSetNav) window._updateSetNav();
 
     renderGraph();
+    try { window._reapplySearchHighlights?.(); } catch (_) {}
 
     // Persist last-opened set so we pick up where we left off
     try { localStorage.setItem('last_set', setNum); } catch (_) {}
@@ -9538,17 +9650,25 @@ async function eagerLoadTitles() {
       if (key && GRAPH && GRAPH.mainPath) {
         const todo = GRAPH.mainPath
           .map(id => findNodeById(id))
-          .filter(n => n && !(readTriage(n.id)?.firstPrinciples));
+          .filter(n => n && (!(readTriage(n.id)?.firstPrinciples) || !(readTriage(n.id)?.firstPrinciplesSummary?.length) || (n.explanation && !(readTriage(n.id)?.explanationSummary?.length))));
         if (todo.length) {
-          status.textContent = 'Generating First Principles for ' + todo.length + ' spine concept' + (todo.length !== 1 ? 's' : '') + '…';
+          status.textContent = 'Generating First Principles / summaries for ' + todo.length + ' spine concept' + (todo.length !== 1 ? 's' : '') + '…';
           const CONC = 3;
           let idx = 0;
           async function worker() {
             while (idx < todo.length) {
               const n = todo[idx++];
               try {
-                const fp = await fetchFirstPrinciples(n);
-                if (fp) { fieldSave(n.id, 'firstPrinciples', fp); }
+                const triage = readTriage(n.id) || {};
+                if (!triage.firstPrinciples || !(triage.firstPrinciplesSummary && triage.firstPrinciplesSummary.length)) {
+                  const fp = await fetchFirstPrinciples(n, !!(triage.firstPrinciples && !(triage.firstPrinciplesSummary && triage.firstPrinciplesSummary.length)));
+                  if (fp && fp.full) saveFirstPrinciplesPair(n.id, fp.full, fp.summary);
+                }
+                const t2 = readTriage(n.id) || {};
+                if (n.explanation && !(t2.explanationSummary && t2.explanationSummary.length)) {
+                  const bullets = await fetchExplanationSummary(n);
+                  if (bullets && bullets.length) saveExplanationSummary(n.id, bullets);
+                }
               } catch (_) { /* skip */ }
             }
           }
@@ -9666,11 +9786,9 @@ async function eagerLoadTitles() {
         genConceptBtn.innerHTML = '<i class="ti ti-loader"></i>&nbsp;FP...';
         try {
           const fp = await fetchFirstPrinciples(node);
-          if (fp) {
-            const triage = readTriage(primary.id) || {};
-            triage.firstPrinciples = fp;
-            writeTriage(primary.id, triage);
-            primary.firstPrinciples = fp;
+          if (fp && fp.full) {
+            saveFirstPrinciplesPair(primary.id, fp.full, fp.summary);
+            primary.firstPrinciples = fp.full;
           }
         } catch (_) {}
         genConceptBtn.disabled = false;
@@ -10090,6 +10208,7 @@ async function eagerLoadTitles() {
       <div class="dock-reveal-nav">
         <button class="drn-back"><i class="ti ti-arrow-left"></i>&nbsp;Controls</button>
         <span class="drn-count">${dockNodeIdx+1} / ${dockNodeList.length}</span>
+        ${copyPacketButtonHTML()}
         <div class="drn-arrows">
           <button class="drn-prev" ${dockNodeIdx <= 0 ? 'disabled' : ''}><i class="ti ti-chevron-left"></i></button>
           <button class="drn-next" ${dockNodeIdx >= dockNodeList.length-1 ? 'disabled' : ''}><i class="ti ti-chevron-right"></i></button>
@@ -10100,6 +10219,7 @@ async function eagerLoadTitles() {
       </div>`;
     // Wire reveal on the body (not a .hud element)
     if (typeof wireReveal === 'function') wireReveal(dockBody, node);
+    wireCopyPacketButton(dockBody, node);
     dockBody.querySelector('.drn-back').onclick = window._closeDockReveal;
     dockBody.querySelector('.drn-prev')?.addEventListener('click', () => navigateDock(-1));
     dockBody.querySelector('.drn-next')?.addEventListener('click', () => navigateDock(1));
@@ -10129,6 +10249,7 @@ async function eagerLoadTitles() {
       <div class="dock-reveal-nav">
         <button class="drn-back"><i class="ti ti-arrow-left"></i>&nbsp;Controls</button>
         <span class="drn-count">${dockNodeIdx+1} / ${dockNodeList.length}</span>
+        ${copyPacketButtonHTML()}
         <div class="drn-arrows">
           <button class="drn-prev" ${dockNodeIdx <= 0 ? 'disabled' : ''}><i class="ti ti-chevron-left"></i></button>
           <button class="drn-next" ${dockNodeIdx >= dockNodeList.length-1 ? 'disabled' : ''}><i class="ti ti-chevron-right"></i></button>
@@ -10138,6 +10259,7 @@ async function eagerLoadTitles() {
         ${typeof buildRevealHTML === 'function' ? buildRevealHTML(d) : ''}
       </div>`;
     if (typeof wireReveal === 'function') wireReveal(dockBody, d);
+    wireCopyPacketButton(dockBody, d);
     dockBody.querySelector('.drn-back').onclick = window._closeDockReveal;
     dockBody.querySelector('.drn-prev')?.addEventListener('click', () => navigateDock(-1));
     dockBody.querySelector('.drn-next')?.addEventListener('click', () => navigateDock(1));
@@ -10257,17 +10379,40 @@ async function eagerLoadTitles() {
   window._invalidateShuffleCache = () => { unreviewedCache = null; };
 })();
 
-// ── Set search (by number or keyword) ──
+// ── Organic search (one box, one pass — questions + sets, ranked) ──
 (function initSearch() {
   const input = document.getElementById('setSearch');
   const results = document.getElementById('searchResults');
   if (!input || !results) return;
   let debounceTid = 0;
   let hlIdx = -1;
-  let matches = [];
+  let matches = []; // { kind:'question'|'set', id?, num, label, score?, matchIn?, snippet? }
+  let lastHitIds = new Set();
 
-  function getLabels() {
-    // Prefer the pre-built SEARCH_INDEX; fall back to DOM if not yet populated
+  function clearSearchHighlights() {
+    lastHitIds = new Set();
+    if (!nodeSel) return;
+    nodeSel.classed('search-hit', false).classed('search-dim', false);
+  }
+
+  function applySearchHighlights(ids) {
+    lastHitIds = new Set((ids || []).map(String));
+    if (!nodeSel) return;
+    if (!lastHitIds.size) {
+      nodeSel.classed('search-hit', false).classed('search-dim', false);
+      return;
+    }
+    nodeSel
+      .classed('search-hit', d => lastHitIds.has(String(d.id)))
+      .classed('search-dim', d => !lastHitIds.has(String(d.id)));
+  }
+
+  // Re-apply highlights after graph re-renders (set load)
+  window._reapplySearchHighlights = () => {
+    if (lastHitIds.size) applySearchHighlights([...lastHitIds]);
+  };
+
+  function getSetLabels() {
     const keys = Object.keys(SEARCH_INDEX);
     if (keys.length) {
       const out = {};
@@ -10285,81 +10430,181 @@ async function eagerLoadTitles() {
     return out;
   }
 
-  function filter(query) {
+  async function filter(query) {
     const q = query.trim().toLowerCase();
-    if (!q) { matches = []; renderResults(); return; }
+    if (!q) {
+      matches = [];
+      hlIdx = -1;
+      clearSearchHighlights();
+      results.classList.remove('show');
+      results.innerHTML = '';
+      return;
+    }
 
-    // Exact set number match?
-    const num = +q;
-    const labels = getLabels();
-    const allNums = Object.keys(SET_REGISTRY).map(Number).sort((a,b)=>a-b);
+    const labels = getSetLabels();
+    const allNums = Object.keys(SET_REGISTRY).map(Number).sort((a, b) => a - b);
+    const out = [];
 
-    if (num && num > 0) {
-      // Prefer exact number match
-      const exact = allNums.filter(n => n === num);
-      if (exact.length) {
-        matches = exact.map(n => ({ num: n, label: labels[n] || 'Set ' + n }));
-        hlIdx = 0;
-        renderResults();
-        return;
-      }
-      // Starts-with number
-      const starts = allNums.filter(n => String(n).startsWith(q));
-      if (starts.length) {
-        matches = starts.map(n => ({ num: n, label: labels[n] || 'Set ' + n }));
-        hlIdx = 0;
-        renderResults();
-        return;
+    // Exact / prefix set-number fast path
+    if (/^\d+$/.test(q)) {
+      const num = parseInt(q, 10);
+      if (num > 0) {
+        const exact = allNums.filter(n => n === num);
+        const starts = exact.length ? exact : allNums.filter(n => String(n).startsWith(String(num)));
+        starts.slice(0, 8).forEach(n => {
+          out.push({
+            kind: 'set',
+            num: n,
+            label: labels[n] || ('Set ' + n),
+            score: n === num ? 1000 : 500,
+            matchIn: 'set',
+          });
+        });
       }
     }
 
-    // Keyword match: search full-content index (coreDiagnosis + node why + recurringThread + qids)
-    // Falls back to label-only search if SEARCH_INDEX hasn't loaded yet
-    const kwResults = [];
+    // Set-level keyword matches (coreDiagnosis / why blob) — still one list
     for (const n of allNums) {
       const entry = SEARCH_INDEX[n];
-      if (entry) {
-        // Full-content search
-        if (entry.text.includes(q)) {
-          kwResults.push({ num: n, label: entry.label || labels[n] || 'Set ' + n });
-        }
-      } else {
-        // Fallback: label-only (before eagerLoadTitles completes)
-        const label = (labels[n] || '').toLowerCase();
-        if (label.includes(q)) {
-          kwResults.push({ num: n, label: labels[n] || 'Set ' + n });
+      const label = (labels[n] || '').toLowerCase();
+      const text = entry ? entry.text : label;
+      if (text && text.includes(q)) {
+        // Avoid dup if already added as set-number hit
+        if (!out.some(m => m.kind === 'set' && m.num === n)) {
+          out.push({
+            kind: 'set',
+            num: n,
+            label: labels[n] || ('Set ' + n),
+            score: 25,
+            matchIn: 'set',
+          });
         }
       }
     }
-    matches = kwResults.slice(0, 10);
-    hlIdx = matches.length > 0 ? 0 : -1;
+
+    // Question-level organic search (server index)
+    try {
+      const res = await fetch('/api/organic-search?q=' + encodeURIComponent(q) + '&limit=24');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ready === false) {
+          // Index still building — show a soft status row once
+          if (!out.length) {
+            matches = [{ kind: 'status', label: 'Indexing questions… try again in a moment', num: null }];
+            hlIdx = -1;
+            renderResults();
+            return;
+          }
+        } else if (Array.isArray(data.results)) {
+          for (const r of data.results) {
+            out.push({
+              kind: 'question',
+              id: String(r.id),
+              num: r.set,
+              label: r.label || ('Q ' + r.id),
+              snippet: r.snippet || '',
+              score: r.score || 0,
+              matchIn: r.matchIn || 'stem',
+            });
+          }
+        }
+      }
+    } catch (_) { /* offline — set matches still work */ }
+
+    out.sort((a, b) => (b.score || 0) - (a.score || 0));
+    matches = out.slice(0, 18);
+    hlIdx = matches.length ? 0 : -1;
     renderResults();
+
+    // Highlight matching nodes on the current graph
+    const hitIds = matches.filter(m => m.kind === 'question').map(m => m.id);
+    if (hitIds.length && GRAPH && GRAPH.nodes) {
+      const onGraph = hitIds.filter(id => GRAPH.nodes.some(n => String(n.id) === String(id)));
+      applySearchHighlights(onGraph);
+    } else {
+      clearSearchHighlights();
+    }
   }
 
   function renderResults() {
     results.innerHTML = '';
     if (!matches.length) {
-      results.innerHTML = '<div class="sr-empty">No matching sets</div>';
+      results.innerHTML = '<div class="sr-empty">No matches across questions or sets</div>';
       results.classList.add('show');
       return;
     }
     matches.forEach((m, i) => {
+      if (m.kind === 'status') {
+        results.innerHTML = '<div class="sr-empty">' + esc(m.label) + '</div>';
+        return;
+      }
       const div = document.createElement('div');
       div.className = 'sr-item' + (i === hlIdx ? ' hl' : '');
-      div.innerHTML = '<span class="sr-num">' + m.num + '</span><span class="sr-label">' + esc(m.label) + '</span>';
-      div.onmousedown = (e) => { e.preventDefault(); pick(m.num); };
+      const badge = m.kind === 'set'
+        ? ('S' + m.num)
+        : (m.num != null ? ('S' + m.num) : 'Q');
+      const meta = m.kind === 'set' ? 'set' : (m.matchIn || 'q');
+      const score = m.score != null ? ('<span class="sr-score">' + m.score + '</span>') : '';
+      div.innerHTML =
+        '<span class="sr-num">' + esc(badge) + '</span>' +
+        '<span class="sr-label" title="' + escAttr(m.snippet || m.label) + '">' + esc(m.label) + '</span>' +
+        '<span class="sr-meta">' + esc(meta) + '</span>' +
+        score;
+      div.onmousedown = (e) => { e.preventDefault(); pick(m); };
       results.appendChild(div);
     });
     results.classList.add('show');
   }
 
-  function pick(num) {
+  async function pick(m) {
     results.classList.remove('show');
     input.value = '';
     matches = [];
     hlIdx = -1;
-    document.getElementById('setPicker').value = num;
-    loadSet(num);
+
+    if (m.kind === 'set') {
+      clearSearchHighlights();
+      document.getElementById('setPicker').value = m.num;
+      await loadSet(m.num);
+      return;
+    }
+
+    // Question hit: load set (if known), highlight, open HUD
+    if (m.num != null) {
+      document.getElementById('setPicker').value = m.num;
+      await loadSet(m.num);
+    } else {
+      // Resolve set via find-node
+      try {
+        const res = await fetch('/api/find-node?qid=' + encodeURIComponent(m.id));
+        if (res.ok) {
+          const data = await res.json();
+          if (data.set) {
+            document.getElementById('setPicker').value = data.set;
+            await loadSet(data.set);
+          }
+        }
+      } catch (_) {}
+    }
+
+    applySearchHighlights([m.id]);
+    window._reapplySearchHighlights?.();
+
+    const node = findNodeById(m.id);
+    if (node) {
+      try { openHud(node, null); } catch (_) {}
+      // Nudge camera toward the node if positions exist
+      try {
+        if (typeof zoomInstance !== 'undefined' && zoomInstance && svg && node.x != null) {
+          const t = d3.zoomTransform(svg.node());
+          const scale = t.k || 1;
+          svg.transition().duration(450).call(
+            zoomInstance.transform,
+            d3.zoomIdentity.translate(graphW / 2 - node.x * scale, graphH / 2 - node.y * scale).scale(scale)
+          );
+        }
+      } catch (_) {}
+    }
   }
 
   function hide() {
@@ -10368,7 +10613,7 @@ async function eagerLoadTitles() {
 
   input.addEventListener('input', () => {
     clearTimeout(debounceTid);
-    debounceTid = setTimeout(() => filter(input.value), 150);
+    debounceTid = setTimeout(() => filter(input.value), 160);
   });
 
   input.addEventListener('keydown', (e) => {
@@ -10380,9 +10625,12 @@ async function eagerLoadTitles() {
       if (matches.length) { hlIdx = Math.max(hlIdx - 1, 0); renderResults(); }
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (matches.length && hlIdx >= 0) pick(matches[hlIdx].num);
+      if (matches.length && hlIdx >= 0 && matches[hlIdx].kind !== 'status') pick(matches[hlIdx]);
     } else if (e.key === 'Escape') {
       hide();
+      clearSearchHighlights();
+      input.value = '';
+      matches = [];
     }
   });
 

@@ -77,6 +77,181 @@ const server = http.createServer((req, res) => {
       return;
     }
 
+    // ── Organic search: one flattened index across all questions ──────
+    // Weights: concept/why/tags ≫ stem ≫ choices/explanation. No mode switch.
+    if (!global.__organicSearch) {
+      global.__organicSearch = { ready: false, building: false, index: [], error: null };
+    }
+    const organic = global.__organicSearch;
+
+    function buildOrganicSearchIndex() {
+      if (organic.ready || organic.building) return;
+      organic.building = true;
+      const t0 = Date.now();
+      try {
+        const nodeToSetsPath = path.join(ROOT, '_node-to-sets.json');
+        const textBankPath = path.join(ROOT, 'text-bank.jsonl');
+        const nbmeBankPath = path.join(ROOT, '_nbme-text-bank.jsonl');
+        const nodeToSets = fs.existsSync(nodeToSetsPath)
+          ? JSON.parse(fs.readFileSync(nodeToSetsPath, 'utf8'))
+          : {};
+
+        // why / concept from graph JSON (highest-value "tag" proxy — tags field is empty)
+        const whyById = Object.create(null);
+        for (let i = 1; i <= 130; i++) {
+          const p = path.join(ROOT, 'graph-data-set-' + String(i).padStart(2, '0') + '.json');
+          if (!fs.existsSync(p)) continue;
+          try {
+            const g = JSON.parse(fs.readFileSync(p, 'utf8'));
+            for (const n of (g.nodes || [])) {
+              const id = String(n.id);
+              if (n.why) whyById[id] = String(n.why);
+            }
+          } catch (_) {}
+        }
+
+        // Triage concept one-liners (disk dual-write) — also high weight
+        const conceptById = Object.create(null);
+        const triageDir = path.join(ROOT, 'user-data', 'triage');
+        if (fs.existsSync(triageDir)) {
+          for (const f of fs.readdirSync(triageDir).filter(x => x.endsWith('.json'))) {
+            try {
+              const t = JSON.parse(fs.readFileSync(path.join(triageDir, f), 'utf8'));
+              const id = String(t.qid || f.replace(/\.json$/, ''));
+              if (t.concept) conceptById[id] = String(t.concept);
+            } catch (_) {}
+          }
+        }
+
+        function ingestLine(line) {
+          let row;
+          try { row = JSON.parse(line); } catch (_) { return; }
+          if (!row || row.id == null) return;
+          const id = String(row.id);
+          const sets = nodeToSets[id];
+          const setNum = Array.isArray(sets) ? (+sets[0] || null) : (sets != null ? +sets : null);
+          const tags = Array.isArray(row.tags) ? row.tags.map(String) : [];
+          const why = whyById[id] || '';
+          const concept = conceptById[id] || '';
+          const stem = String(row.question || '');
+          const choices = (row.answers || []).map(a => (a.label || '') + ' ' + (a.text || '')).join(' ');
+          const expl = String(row.explanation || '');
+          const tagText = [why, concept, ...tags].join(' ').toLowerCase();
+          const stemText = stem.toLowerCase();
+          const bodyText = (choices + ' ' + expl + ' ' + (row.likely || '')).toLowerCase();
+          const label = (concept || why || stem).replace(/\s+/g, ' ').trim().slice(0, 90);
+          organic.index.push({
+            id,
+            set: Number.isFinite(setNum) ? setNum : null,
+            tagText,
+            stemText,
+            bodyText,
+            label: label || ('Q ' + id),
+            snippet: stem.replace(/\s+/g, ' ').trim().slice(0, 140),
+          });
+        }
+
+        if (fs.existsSync(textBankPath)) {
+          const raw = fs.readFileSync(textBankPath, 'utf8');
+          for (const line of raw.split('\n')) {
+            if (line.trim()) ingestLine(line);
+          }
+        }
+        if (fs.existsSync(nbmeBankPath)) {
+          const raw = fs.readFileSync(nbmeBankPath, 'utf8');
+          for (const line of raw.split('\n')) {
+            if (line.trim()) ingestLine(line);
+          }
+        }
+
+        // Dedupe by id (keep first)
+        const seen = new Set();
+        organic.index = organic.index.filter(e => {
+          if (seen.has(e.id)) return false;
+          seen.add(e.id);
+          return true;
+        });
+
+        organic.ready = true;
+        organic.building = false;
+        console.log('[organic-search] Indexed', organic.index.length, 'questions in', (Date.now() - t0) + 'ms');
+      } catch (e) {
+        organic.building = false;
+        organic.error = e.message;
+        console.error('[organic-search] build failed:', e.message);
+      }
+    }
+
+    // Kick off index build once at first request / cold start
+    if (!organic.ready && !organic.building && !organic.error) {
+      setImmediate(buildOrganicSearchIndex);
+    }
+
+    if (url.pathname === '/api/organic-search' && req.method === 'GET') {
+      const q = String(url.searchParams.get('q') || '').trim().toLowerCase();
+      const limit = Math.min(40, Math.max(1, parseInt(url.searchParams.get('limit') || '20', 10) || 20));
+      if (!organic.ready) {
+        if (!organic.building) setImmediate(buildOrganicSearchIndex);
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ ok: true, ready: false, building: organic.building, results: [], error: organic.error }));
+        return;
+      }
+      if (!q || q.length < 2) {
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ ok: true, ready: true, indexed: organic.index.length, results: [] }));
+        return;
+      }
+
+      const scored = [];
+      for (const e of organic.index) {
+        let score = 0;
+        let matchIn = null;
+        if (e.tagText && e.tagText.includes(q)) {
+          score += 100;
+          matchIn = 'concept';
+          // Prefer matches near the start of the concept/why string
+          if (e.tagText.indexOf(q) < 24) score += 15;
+        }
+        if (e.stemText && e.stemText.includes(q)) {
+          score += 40;
+          if (!matchIn) matchIn = 'stem';
+          if (e.stemText.indexOf(q) < 40) score += 8;
+        }
+        if (e.bodyText && e.bodyText.includes(q)) {
+          score += 10;
+          if (!matchIn) matchIn = 'body';
+        }
+        if (score <= 0) continue;
+        // Light term-frequency boost in stem
+        let from = 0, tf = 0;
+        while (tf < 5) {
+          const i = e.stemText.indexOf(q, from);
+          if (i < 0) break;
+          tf++;
+          from = i + q.length;
+        }
+        score += tf * 2;
+        scored.push({
+          id: e.id,
+          set: e.set,
+          score,
+          matchIn,
+          label: e.label,
+          snippet: e.snippet,
+        });
+      }
+      scored.sort((a, b) => b.score - a.score || String(a.id).localeCompare(String(b.id)));
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify({
+        ok: true,
+        ready: true,
+        indexed: organic.index.length,
+        q,
+        results: scored.slice(0, limit),
+      }));
+      return;
+    }
+
     // ── API: log-deepseek (POST) — append response to JSONL log ──────
     if (url.pathname === '/api/log-deepseek' && req.method === 'POST') {
       let body = '';
@@ -314,6 +489,32 @@ const server = http.createServer((req, res) => {
       list.sort((a, b) => String(b.updated).localeCompare(String(a.updated)));
       res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
       res.end(JSON.stringify(list));
+      return;
+    }
+
+    // GET /api/prose-craft — compact primer (session-prime for FP; full guide is immersa-prose-craft.md)
+    if (url.pathname === '/api/prose-craft' && req.method === 'GET') {
+      const primerPath = path.join(ROOT, '..', '..', 'game', 'dev', 'style-guide', 'primer-prose.md');
+      const fullPath = path.join(ROOT, '..', '..', 'game', 'dev', 'style-guide', 'immersa-prose-craft.md');
+      const guidePath = fs.existsSync(primerPath) ? primerPath : fullPath;
+      if (!fs.existsSync(guidePath)) {
+        res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ error: 'primer-prose.md not found', path: primerPath }));
+        return;
+      }
+      try {
+        const text = fs.readFileSync(guidePath, 'utf8');
+        res.writeHead(200, {
+          'Content-Type': 'text/markdown; charset=utf-8',
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'no-cache',
+          'X-Prose-Craft-Source': path.basename(guidePath),
+        });
+        res.end(text);
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
       return;
     }
 
@@ -641,4 +842,11 @@ Produce the cinematic storyboard.`;
 server.listen(PORT, () => {
   console.log('[server] Running at http://localhost:' + PORT + '/concept-graphs.html');
   console.log('[server] API key endpoint: http://localhost:' + PORT + '/api/env');
+  // Warm organic search index in background
+  setImmediate(() => {
+    try {
+      // Trigger build via the same lazy path used by /api/organic-search
+      http.get('http://127.0.0.1:' + PORT + '/api/organic-search?q=xx', () => {});
+    } catch (_) {}
+  });
 });

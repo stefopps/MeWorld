@@ -1,6 +1,8 @@
 # Immersa Attending — Prose Craft Style Guide
 
 > Internal document. Synthesized from McKee's *Story* and Truby's *The Anatomy of Story*, re-expressed as applied craft technique for the Immersa attending voice. Not a summary of either book — this is a standalone working manual for writing First Principles medical explanations.
+>
+> **Runtime session prime:** First Principles loads the compact sibling [`primer-prose.md`](./primer-prose.md) once per browser session — not this full file. Keep this document as the source of truth when editing craft law; then distill changes into the primer.
 
 ---
 
@@ -102,27 +104,33 @@ The mechanism now feels like the answer to a problem the reader has been shown. 
 
 ---
 
-## 5. The Opponent Principle
+## 5. Resistance (vary the lexicon)
 
 ### Explanation needs resistance
 
-An explanation without opposition is a lecture. An explanation with opposition is a story. For medical prose, the "opponent" is whatever the body is fighting against or whatever makes a clinical decision difficult: a pathogen, a physiological limit, a diagnostic ambiguity, a therapeutic trade-off.
+An explanation without opposition is a lecture. An explanation with opposition is a story. The resisting force is whatever the body is fighting against or whatever makes a clinical decision difficult: a pathogen, a physiological limit, a diagnostic ambiguity, a therapeutic trade-off.
 
-The opponent makes the mechanism feel like work — like something hard won rather than simply stated. It creates the sense that understanding this took effort and that the outcome is not guaranteed.
+That force makes the mechanism feel like work — hard won rather than simply stated. It creates the sense that understanding this took effort and that the outcome is not guaranteed.
 
-**Without opponent:**
+**Do not stock-label it.** Ban lines like "X is the opponent here." Show the force acting. Rotate exacting near-synonyms the physiology earns (foil, impediment, constraining force, countervailing pressure, limiting step). Risk factors in a vignette are causal setup, not a costume for a villain.
+
+**Without resistance named in action:**
 
 > *Insulin lowers blood glucose by promoting glucose uptake in muscle and adipose tissue and inhibiting hepatic gluconeogenesis.*
 
-**With opponent:**
+**With resistance shown:**
 
 > *After a meal, glucose floods the bloodstream faster than cells can absorb it. Insulin is the body's response — it signals muscle and fat to open their glucose channels and tells the liver to stop making more. But in type 2 diabetes, the signal is there and the receptors are there, yet the glucose stays in the blood. The cells have learned to ignore insulin. The hormone is speaking; no one is listening.*
 
-The opponent (insulin resistance) transforms the paragraph from a definition into a problem.
+Insulin resistance transforms the paragraph from a definition into a problem — without ever announcing "the opponent."
 
-### The necessary opponent
+### Specific resistance
 
-The opponent must be specific to the mechanism being explained. It cannot be a generic "the body struggles" or "nature is complex." It must be a named, concrete force: a receptor that's been downregulated, a pressure gradient that's been reversed, an enzyme that's been inhibited. The reader should be able to point to the opponent in the explanation and say, "That's what makes this hard."
+The force must be specific to the mechanism being explained. It cannot be a generic "the body struggles" or "nature is complex." Name a concrete force: a receptor that's been downregulated, a pressure gradient that's been reversed, an enzyme that's been inhibited. The reader should be able to point to it and say, "That's what makes this hard."
+
+### Vocabulary stretch
+
+Prefer exacting diction over the safest textbook word when context makes meaning recoverable. About one look-up-worthy word per explanation is enough — including careful polysemy when the clinical sense is unambiguous. Clarity first; stretch second. Never fog the mechanism with thesaurus padding.
 
 ---
 
@@ -150,7 +158,7 @@ A First Principles explanation should have the rhythm of a short essay, not a ph
 
 1. **The stakes paragraph:** Why this matters — what's at risk, what goes wrong, what the finding means at the bedside.
 2. **The mechanism paragraph:** How it works — the causal chain, the structures, the forces.
-3. **The tension paragraph:** What opposes it — the opponent, the trade-off, the diagnostic ambiguity.
+3. **The tension paragraph:** What opposes it — the resisting force, the trade-off, the diagnostic ambiguity.
 4. **The resolution paragraph:** What the intervention does — where it intervenes, what changes, what the outcome is.
 5. **The probe paragraph (optional):** A closing question or implication that extends the thinking.
 
@@ -224,7 +232,7 @@ Before finalizing any First Principles explanation, run this check:
 2. **Gap:** Does each paragraph create a question that the next answers? Or is the arrangement arbitrary?
 3. **Causal chain:** If you read only the first sentence of each paragraph, does it form a coherent argument?
 4. **Stakes:** Does the reader know why this matters before learning how it works?
-5. **Opponent:** Is there a named, specific resistance force driving the explanation forward?
+5. **Resistance:** Is a specific resisting force shown in action (not stock-labeled "the opponent")?
 6. **Specificity:** Is there at least one number, named structure, or sensory detail per paragraph?
 7. **Voice:** Is the prose confident? No hedging where the science is settled? Simple words, complex ideas?
 8. **Bold scan:** Do the bolded terms alone convey the skeleton of the explanation?
@@ -351,7 +359,7 @@ Eleven distinct structural templates. The goal is rotation — never use the sam
 
 ### Rotation rule
 
-**Never repeat the previous form.** The same form used twice in a row is a structural failure. Forms 1–7 rotate round-robin; each generation advances the index. The form is a constraint on *how the explanation moves*, not on what it contains — prose craft rules (compression, opponent, bold, stakes) still apply inside whatever form is active.
+**Never repeat the previous form.** The same form used twice in a row is a structural failure. Forms 1–7 rotate round-robin; each generation advances the index. The form is a constraint on *how the explanation moves*, not on what it contains — prose craft rules (compression, resistance, vocabulary stretch, bold, stakes) still apply inside whatever form is active.
 
 ---
 
