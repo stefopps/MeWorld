@@ -5462,7 +5462,7 @@ function makeFloaterDraggable(el, storageKey) {
       // Save position + dimensions (debounced 40s)
       if (storageKey) {
         const data = { left: el.style.left, top: el.style.top };
-        if (el.style.width && el.style.width !== '340px') data.width = el.style.width;
+        if (el.style.width && el.style.width !== '340px') { data.width = el.style.width; mergeNotesPanelDims({ width: el.style.width, docked: false }); }
         if (el.style.height && el.style.height !== 'auto') data.height = el.style.height;
         debouncedSave(storageKey, JSON.stringify(data));
       }
@@ -5539,6 +5539,8 @@ function wireFloaterResize(wrapper, storageKey) {
         if (w && w !== '340px') data.width = w;
         if (h && h !== 'auto' && h !== '') data.height = h;
         debouncedSave(storageKey, JSON.stringify(data));
+        // Also write to cross-mode shared key so docked HUD picks it up on redock
+        if (w) mergeNotesPanelDims({ width: w, docked: false });
       };
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
@@ -5708,10 +5710,13 @@ function debouncedSave(key, value) {
 
 function saveHudPosition(hud) {
   const key = hudStorageKey(hud);
-  debouncedSave(key, JSON.stringify({
+  const data = {
     left: hud.style.left, top: hud.style.top,
     width: hud.style.width, height: hud.style.height,
-  }));
+  };
+  debouncedSave(key, JSON.stringify(data));
+  // Also write width to cross-mode shared key so float panel picks it up
+  if (hud.style.width) mergeNotesPanelDims({ width: hud.style.width, docked: true });
 }
 
 // ── HUD font-size controller (MeWorld pattern: A− / pill / A+ / reset) ─────
@@ -5882,12 +5887,18 @@ function restoreHudPosition(hud) {
   try {
     const key = hudStorageKey(hud);
     const saved = localStorage.getItem(key);
-    if (!saved) return;
-    const p = JSON.parse(saved);
-    if (p.left) hud.style.left = p.left;
-    if (p.top) hud.style.top = p.top;
-    if (p.width) hud.style.width = p.width;
-    if (p.height) hud.style.height = p.height;
+    if (saved) {
+      const p = JSON.parse(saved);
+      if (p.left) hud.style.left = p.left;
+      if (p.top) hud.style.top = p.top;
+      if (p.width) hud.style.width = p.width;
+      if (p.height) hud.style.height = p.height;
+      return; // per-node saved position takes priority
+    }
+    // Fallback: restore from cross-mode shared key (preserves width across dock/undock)
+    const dims = readNotesPanelDims();
+    if (dims.width) hud.style.width = dims.width;
+    if (dims.height) hud.style.height = dims.height;
   } catch (_) {}
 }
 
@@ -6731,6 +6742,22 @@ The learner is asking you questions about this case node. Teach them the mechani
 window._floatDict = null;
 const FLOAT_DICT_POS_KEY = 'float-dict-pos-';
 
+// ── Shared Notes+Chat panel dimensions (persists across dock/undock/sessions) ─
+const NOTES_PANEL_KEY = 'cg-notes-panel-dims';
+function readNotesPanelDims() {
+  try {
+    const raw = localStorage.getItem(NOTES_PANEL_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (_) { return {}; }
+}
+function writeNotesPanelDims(dims) {
+  try { localStorage.setItem(NOTES_PANEL_KEY, JSON.stringify(dims)); } catch (_) {}
+}
+function mergeNotesPanelDims(partial) {
+  const dims = readNotesPanelDims();
+  writeNotesPanelDims({ ...dims, ...partial });
+}
+
 function createFloatingDict(dictSect, nodeId) {
   if (window._floatDict) destroyFloatingDict();
 
@@ -6753,8 +6780,13 @@ function createFloatingDict(dictSect, nodeId) {
 
   // Draggable + restore position + size
   makeFloaterDraggable(wrapper, FLOAT_DICT_POS_KEY + nodeId);
-  // Restore saved size
+  // Restore saved size (per-node first, then cross-mode shared key as fallback)
   restoreFloaterSize(wrapper, FLOAT_DICT_POS_KEY + nodeId);
+  // If no per-node dimensions saved yet, use cross-mode shared key
+  if (!wrapper.style.width || wrapper.style.width === '340px') {
+    const dims = readNotesPanelDims();
+    if (dims.width) wrapper.style.width = dims.width;
+  }
   // Wire 8-way resize handles
   wireFloaterResize(wrapper, FLOAT_DICT_POS_KEY + nodeId);
 
@@ -6764,8 +6796,19 @@ function createFloatingDict(dictSect, nodeId) {
 function destroyFloatingDict() {
   if (!window._floatDict) return;
   const { wrapper, dictSect, nodeId } = window._floatDict;
+
+  // Before destroying, save current float width to cross-mode shared key
+  // so the docked HUD picks it up on next open
+  const floatW = wrapper.style.width || wrapper.offsetWidth + 'px';
+  if (floatW) mergeNotesPanelDims({ width: floatW, docked: true });
+
   const parent = document.querySelector('.hud:not([style*="display: none"])') || document.querySelector('.hud') || document.querySelector('.hud-content');
   if (parent && dictSect) {
+    // Apply the saved width back to the HUD now (immediate visual transfer)
+    if (floatW) parent.style.width = floatW;
+    // Also persist to HUD position key so it survives HUD close/reopen
+    saveHudPosition(parent);
+
     const concept = parent.querySelector('.pinned-concept');
     if (concept) {
       concept.insertAdjacentElement('afterend', dictSect);
