@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Q111 · Test the answers (pedigree lab)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0f1218;
+    --panel: #171b24;
+    --panel-2: #1e2430;
+    --ink: #e8eaef;
+    --muted: #9aa3b2;
+    --line: #2a3140;
+    --accent: #3d8bfd;
+    --good: #3ecf8e;
+    --warn: #f0b429;
+    --bad: #f07178;
+    --paper: #f4efe6;
+    --paper-ink: #1a1a1a;
+    --sticky-h: 92px;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    background: radial-gradient(1200px 600px at 10% -10%, #1a2233 0%, var(--bg) 55%);
+    color: var(--ink);
+    overflow: hidden;
+  }
+  .app {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+  header {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+    padding: 14px 20px 10px; border-bottom: 1px solid var(--line);
+    background: rgba(15,18,24,0.92); backdrop-filter: blur(8px);
+  }
+  header h1 {
+    margin: 0; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.02em;
+  }
+  header h1 span { color: var(--muted); font-weight: 500; }
+  .badge {
+    font-size: 0.68rem; font-weight: 600; color: var(--warn);
+    border: 1px solid rgba(240,180,41,0.35); background: rgba(240,180,41,0.08);
+    padding: 4px 9px; border-radius: 999px; white-space: nowrap;
+  }
+  .main {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(320px, 1.05fr) minmax(300px, 0.95fr);
+    gap: 0;
+  }
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    .app { height: auto; min-height: 100%; }
+    .main { grid-template-columns: 1fr; }
+  }
+
+  /* Pedigree stage */
+  .stage {
+    min-height: 0; overflow: auto;
+    padding: 18px 18px 24px;
+    border-right: 1px solid var(--line);
+  }
+  .paper {
+    background: var(--paper);
+    color: var(--paper-ink);
+    border-radius: 14px;
+    padding: 16px 16px 12px;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+  }
+  .paper-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px; gap: 10px;
+  }
+  .paper-top h2 {
+    margin: 0; font-family: "IBM Plex Serif", Georgia, serif;
+    font-size: 1.05rem; font-weight: 600;
+  }
+  .view-toggle {
+    display: inline-flex; background: #e7e0d4; border-radius: 8px; padding: 2px;
+  }
+  .view-toggle button {
+    border: 0; background: transparent; color: #5a5348; font: inherit;
+    font-size: 0.68rem; font-weight: 600; padding: 5px 9px; border-radius: 6px; cursor: pointer;
+  }
+  .view-toggle button.on { background: #fff; color: #111; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+  .paper-controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+
+  .pedigree-wrap { position: relative; width: 100%; max-width: 520px; margin: 0 auto; }
+  .pedigree-wrap img.official {
+    width: 100%; display: none; border-radius: 8px; border: 1px solid #d9d0c2;
+  }
+  .pedigree-wrap.show-official img.official { display: block; }
+  .pedigree-wrap.show-official svg.interactive { display: none; }
+  svg.interactive { width: 100%; height: auto; display: block; }
+  svg.interactive .edges-base line { stroke: #222; stroke-width: 1.6; transition: opacity .2s, stroke .2s; }
+  svg.interactive.tracing .edges-base line { opacity: 0.14; }
+  svg.interactive.tracing .edges-base line.lit {
+    opacity: 1; stroke: #2563eb; stroke-width: 3.2;
+  }
+  svg.interactive .path-overlay {
+    fill: none; stroke: #2563eb; stroke-width: 3.8; stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 9 7; animation: dashflow 0.85s linear infinite;
+    filter: drop-shadow(0 0 4px rgba(37,99,235,0.4));
+    opacity: 0; transition: opacity .2s;
+    pointer-events: none;
+  }
+  svg.interactive.tracing.mode-short .path-overlay { opacity: 1; }
+  svg.interactive.tracing.mode-tree .path-overlay { opacity: 1; stroke-width: 3.2; }
+  @keyframes dashflow { to { stroke-dashoffset: -36; } }
+  svg.interactive .person { cursor: pointer; transition: opacity .2s; }
+  svg.interactive .person .hit { fill: transparent; }
+  svg.interactive .person .ring { stroke: transparent; stroke-width: 2.5; opacity: 0; transition: opacity .15s, stroke .15s; }
+  svg.interactive .person:hover .ring { stroke: #2563eb; opacity: 0.85; }
+  svg.interactive.hypothesizing:not(.tracing) .person { opacity: 0.32; }
+  svg.interactive.hypothesizing:not(.tracing) .person.glow { opacity: 1; }
+  svg.interactive.hypothesizing:not(.tracing) .person.glow .ring {
+    stroke: #f0b429; stroke-width: 3.4; opacity: 1;
+  }
+  svg.interactive.hypothesizing:not(.tracing) .person.glow.contra .ring {
+    stroke: #f07178; stroke-width: 3.4; opacity: 1;
+  }
+  svg.interactive.hypothesizing:not(.tracing) .person.glow.support .ring {
+    stroke: #3ecf8e; stroke-width: 3.4; opacity: 1;
+  }
+  svg.interactive.tracing .person { opacity: 0.28; }
+  svg.interactive.tracing .person.on-path { opacity: 1; }
+  svg.interactive.tracing .person.on-path .ring {
+    stroke: #2563eb; stroke-width: 3.2; opacity: 1;
+  }
+  svg.interactive.tracing .person.is-origin .ring {
+    stroke: #c45c26; stroke-width: 3.6; opacity: 1;
+  }
+  svg.interactive.tracing .person.is-focus .ring {
+    stroke: #0ea5e9; stroke-width: 3.8; opacity: 1;
+  }
+  svg.interactive .label {
+    font-family: "IBM Plex Sans", sans-serif; font-size: 11px; fill: #333; font-weight: 600;
+  }
+  svg.interactive .gen-label {
+    font-family: "IBM Plex Serif", Georgia, serif; font-size: 14px; fill: #666; font-weight: 600;
+  }
+  .path-chip {
+    margin-top: 10px; font-size: 0.78rem; line-height: 1.45;
+    background: #e8eefc; color: #1a2a4a; border-radius: 8px; padding: 8px 10px;
+    border: 1px solid #c5d4f5; display: none;
+  }
+  .path-chip.show { display: block; }
+  .path-chip b { color: #1d4ed8; }
+  .path-chip .origin-tag { color: #c45c26; font-weight: 700; }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 10px 16px; justify-content: center;
+    margin-top: 10px; font-size: 0.72rem; color: #4a453c;
+  }
+  .legend i {
+    display: inline-block; width: 12px; height: 12px; vertical-align: -1px; margin-right: 5px;
+    border: 1.5px solid #111;
+  }
+  .legend i.f-aff { background: #111; border-radius: 50%; }
+  .legend i.m-aff { background: #111; }
+  .legend i.f-un { background: #fff; border-radius: 50%; }
+  .legend i.m-un { background: #fff; }
+
+  .hint {
+    margin-top: 10px; font-size: 0.72rem; color: #6a6358; text-align: center;
+  }
+
+  /* Teach panel */
+  .teach {
+    min-height: 0; overflow: auto;
+    padding: 18px 18px 28px;
+    background: linear-gradient(180deg, #141821, #12161e);
+  }
+  .step-kicker {
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--accent); font-weight: 700; margin-bottom: 6px;
+  }
+  .step-title {
+    font-family: "IBM Plex Serif", Georgia, serif;
+    font-size: 1.35rem; font-weight: 600; margin: 0 0 10px; line-height: 1.25;
+  }
+  .step-body {
+    font-size: 0.92rem; line-height: 1.55; color: #d5dae4;
+  }
+  .step-body p { margin: 0 0 12px; }
+  .step-body strong { color: #fff; font-weight: 650; }
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: rgba(61,139,253,0.08);
+    padding: 10px 12px; border-radius: 0 8px 8px 0;
+    margin: 12px 0; font-size: 0.86rem; color: #cfe0ff;
+  }
+  .callout.warn { border-left-color: var(--warn); background: rgba(240,180,41,0.08); color: #ffe6a8; }
+  .callout.good { border-left-color: var(--good); background: rgba(62,207,142,0.08); color: #baf5d6; }
+  .choices {
+    display: grid; gap: 8px; margin-top: 14px;
+  }
+  .choice {
+    text-align: left; width: 100%;
+    border: 1px solid var(--line); background: var(--panel);
+    color: var(--ink); border-radius: 10px; padding: 10px 12px;
+    font: inherit; font-size: 0.84rem; cursor: pointer;
+    transition: border-color .12s, background .12s;
+  }
+  .choice:hover { border-color: #3b465c; background: var(--panel-2); }
+  .choice.on { border-color: var(--accent); background: rgba(61,139,253,0.12); }
+  .choice.correct { border-color: var(--good); background: rgba(62,207,142,0.1); }
+  .choice.wrong { border-color: var(--bad); background: rgba(240,113,120,0.1); }
+  .choice .letter {
+    display: inline-block; min-width: 1.4em; font-weight: 700; color: var(--muted);
+  }
+  .choice .why-hint {
+    display: block; margin-top: 4px; font-size: 0.72rem; color: var(--muted);
+  }
+  .feedback {
+    margin-top: 12px; font-size: 0.84rem; line-height: 1.5; color: #c9d0dc;
+    min-height: 1.2em;
+  }
+  .feedback .tag {
+    display: inline-block; font-size: 0.68rem; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 999px; margin-bottom: 6px;
+  }
+  .feedback .tag.wrong { background: rgba(240,113,120,0.18); color: #ffb4b8; }
+  .feedback .tag.right { background: rgba(62,207,142,0.18); color: #baf5d6; }
+  .person-card {
+    margin-top: 14px; padding: 12px; border-radius: 10px;
+    background: var(--panel); border: 1px solid var(--line);
+    display: none;
+  }
+  .person-card.show { display: block; }
+  .person-card h3 { margin: 0 0 6px; font-size: 0.9rem; }
+  .person-card .hyp-tag {
+    display: none; font-size: 0.68rem; font-weight: 700; color: var(--warn);
+    margin: 0 0 6px; letter-spacing: 0.03em; text-transform: uppercase;
+  }
+  .person-card.hyp-aware .hyp-tag { display: block; }
+  .person-card p { margin: 0; font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
+  .person-card #personBlurb { color: #d5dae4; }
+
+  .fp-panel {
+    margin-top: 14px; padding: 12px; border-radius: 10px;
+    background: #1a1410; border: 1px solid rgba(240,180,41,0.28);
+  }
+  .fp-panel .fp-kicker {
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: #f0b429; margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  }
+  .fp-panel .fp-kicker button {
+    font: inherit; font-size: 0.68rem; font-weight: 600; cursor: pointer;
+    border: 1px solid rgba(240,180,41,0.35); background: rgba(240,180,41,0.1);
+    color: #ffe6a8; border-radius: 6px; padding: 3px 8px;
+  }
+  .fp-panel .fp-main, .fp-panel .fp-focus {
+    font-size: 0.84rem; line-height: 1.55; color: #f3e6d8;
+  }
+  .fp-panel .fp-main p, .fp-panel .fp-focus p { margin: 0 0 10px; }
+  .fp-panel .fp-main strong, .fp-panel .fp-focus strong { color: #fff; font-weight: 650; }
+  .fp-panel .fp-focus {
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid rgba(240,180,41,0.18);
+  }
+  .fp-panel .fp-focus:empty { display: none; margin: 0; padding: 0; border: 0; }
+  .fp-panel .fp-status { font-size: 0.72rem; color: #9aa3b2; margin-top: 6px; }
+  .fp-panel .fp-empty { color: #9aa3b2; font-size: 0.8rem; }
+
+  /* Sticky bottom bar */
+  .sticky {
+    position: sticky; bottom: 0;
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 18px;
+    border-top: 1px solid var(--line);
+    background: rgba(18,21,29,0.96);
+    backdrop-filter: blur(10px);
+    z-index: 20;
+  }
+  .progress {
+    flex: 1; min-width: 0;
+  }
+  .progress-meta {
+    display: flex; justify-content: space-between; font-size: 0.68rem;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  .bar {
+    height: 6px; border-radius: 999px; background: #262c3a; overflow: hidden;
+  }
+  .bar > i {
+    display: block; height: 100%; width: 0%;
+    background: linear-gradient(90deg, #2f6fed, #5aa2ff);
+    border-radius: inherit; transition: width .25s ease;
+  }
+  .nav { display: flex; gap: 8px; flex-shrink: 0; }
+  .nav button {
+    font: inherit; font-size: 0.78rem; font-weight: 600;
+    border-radius: 9px; padding: 9px 14px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--ink);
+  }
+  .nav button.primary {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
+  .nav button:disabled { opacity: 0.35; cursor: not-allowed; }
+  .dots { display: flex; gap: 5px; margin-right: 4px; }
+  .dots button {
+    width: 8px; height: 8px; border-radius: 50%; border: 0; padding: 0;
+    background: #353c4d; cursor: pointer;
+  }
+  .dots button.on { background: var(--accent); transform: scale(1.2); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Free 137 · Q111 <span>— test the answers</span></h1>
+    <div class="badge">Hypothesis lab only · guided lesson pending approval</div>
+  </header>
+
+  <div class="main">
+    <section class="stage">
+      <div class="paper">
+        <div class="paper-top">
+          <h2>Family pedigree · patient = IV-2</h2>
+          <div class="paper-controls">
+            <div class="view-toggle" role="group" aria-label="Path mode">
+              <button type="button" id="btnTree" class="on" title="Follow mating bars and descent lines">Tree flow</button>
+              <button type="button" id="btnShort" title="Geometric shortest hop (Houdini-style)">Short hop</button>
+            </div>
+            <div class="view-toggle" role="group" aria-label="Pedigree view">
+              <button type="button" id="btnSvg" class="on">Interactive</button>
+              <button type="button" id="btnOfficial">Official scan</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pedigree-wrap" id="pedigreeWrap">
+          <img class="official" src="q111-embedded-1.png" alt="Official Free 137 pedigree for Q111"/>
+          <!-- Interactive SVG mirrors the official figure -->
+          <svg class="interactive" viewBox="0 0 440 480" role="img" aria-label="Interactive pedigree">
+            <!-- generation labels -->
+            <text class="gen-label" x="18" y="48">I</text>
+            <text class="gen-label" x="18" y="148">II</text>
+            <text class="gen-label" x="18" y="268">III</text>
+            <text class="gen-label" x="18" y="388">IV</text>
+
+            <!-- mating / descent lines (base layer — dimmed while tracing) -->
+            <g class="edges-base" fill="none">
+              <!-- I couple + descent -->
+              <line data-edge="mate:I-1|I-2" x1="150" y1="40" x2="210" y2="40"/>
+              <line data-edge="drop:I" x1="180" y1="40" x2="180" y2="80"/>
+              <line data-edge="bar:I" x1="150" y1="80" x2="270" y2="80"/>
+              <line data-edge="kid:II-2" x1="150" y1="80" x2="150" y2="120"/>
+              <line data-edge="kid:II-3" x1="270" y1="80" x2="270" y2="120"/>
+              <!-- II couple + descent -->
+              <line data-edge="mate:II-1|II-2" x1="90" y1="140" x2="150" y2="140"/>
+              <line data-edge="drop:II" x1="120" y1="140" x2="120" y2="180"/>
+              <line data-edge="bar:II" x1="60" y1="180" x2="210" y2="180"/>
+              <line data-edge="kid:III-2" x1="60" y1="180" x2="60" y2="240"/>
+              <line data-edge="kid:III-3" x1="135" y1="180" x2="135" y2="240"/>
+              <line data-edge="kid:III-4" x1="210" y1="180" x2="210" y2="240"/>
+              <!-- III couple + descent -->
+              <line data-edge="mate:III-1|III-2" x1="30" y1="260" x2="60" y2="260"/>
+              <line data-edge="drop:III" x1="45" y1="260" x2="45" y2="300"/>
+              <line data-edge="bar:III" x1="20" y1="300" x2="180" y2="300"/>
+              <line data-edge="kid:IV-2" x1="100" y1="300" x2="100" y2="360"/>
+              <line data-edge="kid:IV-3" x1="180" y1="300" x2="180" y2="360"/>
+              <line data-edge="kid:IV-1-stub" x1="20" y1="300" x2="20" y2="360"/>
+              <!-- IV mate -->
+              <line data-edge="mate:IV-1|IV-2" x1="20" y1="380" x2="100" y2="380"/>
+            </g>
+            <!-- animated path from clicked person → disease origin -->
+            <polyline class="path-overlay" id="pathOverlay" points=""></polyline>
+
+            <!-- people -->
+            <!-- I -->
+            <g class="person" data-id="I-1" transform="translate(134,24)">
+              <rect class="ring" x="-4" y="-4" width="32" height="32" rx="2"/>
+              <rect x="0" y="0" width="24" height="24" fill="#fff" stroke="#111" stroke-width="2"/>
+              <rect class="hit" x="-8" y="-8" width="40" height="40"/>
+              <text class="label" x="12" y="42" text-anchor="middle">I-1</text>
+            </g>
+            <g class="person" data-id="I-2" transform="translate(198,24)">
+              <circle class="ring" cx="12" cy="12" r="16"/>
+              <circle cx="12" cy="12" r="12" fill="#111" stroke="#111" stroke-width="2"/>
+              <rect class="hit" x="-8" y="-8" width="40" height="40"/>
+              <text class="label" x="12" y="42" text-anchor="middle">I-2</text>
+            </g>
+
+            <!-- II -->
+            <g class="person" data-id="II-1" transform="translate(74,124)">
+              <rect class="ring" x="-4" y="-4" width="32" height="32" rx="2"/>
+              <rect x="0" y="0" width="24" height="24" fill="#fff" stroke="#111" stroke-width="2"/>
+              <rect class="hit" x="-8" y="-8" width="40" height="40"/>
+              <text class="label" x="12" y="42" text-anchor="middle">II-1</text>
+            </g>
+            <g class="person" data-id="II-2" transform="translate(138,124)">
+              <circle class="ring" cx="12" cy="12" r="16"/>
+              <circle cx="12" cy="12" r="12" fill="#111" stroke="#111" stroke-width="2"/>
+              <rect class="hit" x="-8" y="-8" width="40" height="40"/>
+              <text class="label" x="12" y="42" text-anchor="middle">II-2</text>
+            </g>
+            <g class="person" data-id="II-3" transform="translate(258,124)">
+              <rect class="ring" x="-4" y="-4" width="32" height="32" rx="2"/>
+              <rect x="0" y="0" width="24" height="24" fill="#111" stroke="#111" stroke-width="2"/>
+              <rect class="hit" x="-8" y="-8" width="40" height="40"/>
+              <text class="label" x="12" y="42" text-anchor="middle">II-3</text>
+            </g>
+
+            <!-- III -->
+            <g class="person" data-id="III-1" transform="translate(18,244)">
+              <circle class="ring" cx="12" cy="12" r="16"/>
+              <circle cx="12" cy="12" r="12" fill="#fff" stroke="#111" stroke-width="2"/>
+              <rect class="hit" x="-8" y="-8" width="40" height="40"/>
+              <text class="label" x="12" y="42" text-anchor="middle">III-1</text>
+            </g>
+            <g class="person" data-id="III-2" transform="translate(48,244)">
+              <rect class="ring" x="-4" y="-4" width="32" height="32" rx="2"/>
+              <rect x="0" y="0" width="24" height="24" fill="#111" stroke="#111" stroke-width="2"/>
+              <rect class="hit" x="-8" y="-8" width="40" height="40"/>
+              <text class="label" x="12" y="42" text-anchor="middle">III-2</text>
+            </g>
+            <g class="person" data-id="III-3" transform="translate(123,244)">
+              <rect class="ring" x="-4" y="-4" width="32" height="32" rx="2"/>
+              <rect x="0" y="0" width="24" height="24" fill="#111" stroke="#111" stroke-width="2"/>
+              <rect class="hit" x="-8" y="-8" width="40" height="40"/>
+              <text class="label" x="12" y="42" text-anchor="middle">III-3</text>
+            </g>
+            <g class="person" data-id="III-4" transform="translate(198,244)">
+              <circle class="ring" cx="12" cy="12" r="16"/>
+              <circle cx="12" cy="12" r="12" fill="#111" stroke="#111" stroke-width="2"/>
+              <rect class="hit" x="-8" y="-8" width="40" height="40"/>
+              <text class="label" x="12" y="42" text-anchor="middle">III-4</text>
+            </g>
+
+            <!-- IV -->
+            <g class="person" data-id="IV-1" transform="translate(8,364)">
+              <rect class="ring" x="-4" y="-4" width="32" height="32" rx="2"/>
+              <rect x="0" y="0" width="24" height="24" fill="#fff" stroke="#111" stroke-width="2"/>
+              <rect class="hit" x="-8" y="-8" width="40" height="40"/>
+              <text class="label" x="12" y="42" text-anchor="middle">IV-1</text>
+            </g>
+            <g class="person" data-id="IV-2" transform="translate(88,364)">
+              <circle class="ring" cx="12" cy="12" r="16"/>
+              <circle cx="12" cy="12" r="12" fill="#fff" stroke="#111" stroke-width="2"/>
+              <!-- arrow to proband -->
+              <path d="M34,28 L20,18" stroke="#111" stroke-width="2" fill="none"/>
+              <polygon points="18,16 26,16 20,24" fill="#111"/>
+              <rect class="hit" x="-8" y="-8" width="40" height="40"/>
+              <text class="label" x="12" y="42" text-anchor="middle">IV-2</text>
+            </g>
+            <g class="person" data-id="IV-3" transform="translate(168,364)">
+              <rect class="ring" x="-4" y="-4" width="32" height="32" rx="2"/>
+              <rect x="0" y="0" width="24" height="24" fill="#fff" stroke="#111" stroke-width="2"/>
+              <rect class="hit" x="-8" y="-8" width="40" height="40"/>
+              <text class="label" x="12" y="42" text-anchor="middle">IV-3</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="legend">
+          <span><i class="f-aff"></i>Affected ♀</span>
+          <span><i class="m-aff"></i>Affected ♂</span>
+          <span><i class="f-un"></i>Unaffected ♀</span>
+          <span><i class="m-un"></i>Unaffected ♂</span>
+        </div>
+        <p class="hint">Click someone → path climbs the <b>family tree</b> to the disease source (<span style="color:#c45c26;font-weight:700">I-2</span>). Toggle <b>Short hop</b> for the geometric shortcut.</p>
+        <div class="path-chip" id="pathChip"></div>
+      </div>
+    </section>
+
+    <aside class="teach" id="teach">
+      <div class="step-kicker" id="kicker">Test the answers</div>
+      <h2 class="step-title" id="title"></h2>
+      <div class="step-body" id="body"></div>
+      <div class="choices" id="choices"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="person-card" id="personCard">
+        <div class="hyp-tag" id="personHypTag"></div>
+        <h3 id="personName"></h3>
+        <p id="personBlurb"></p>
+        <p id="personPath" style="margin-top:8px;font-size:0.78rem;color:#9ec1ff;display:none;"></p>
+      </div>
+      <div class="fp-panel" id="fpPanel">
+        <div class="fp-kicker">
+          <span>Attending · first principles</span>
+          <button type="button" id="fpRefresh" title="Reload from main / regenerate focus">Refresh</button>
+        </div>
+        <div class="fp-main" id="fpMain"><p class="fp-empty">Click a choice or a person — the same first-principles voice from concept-graphs appears here.</p></div>
+        <div class="fp-focus" id="fpFocus"></div>
+        <div class="fp-status" id="fpStatus"></div>
+      </div>
+    </aside>
+  </div>
+
+    <footer class="sticky" style="--sticky-h:auto;">
+    <div class="progress" style="flex:1;">
+      <div class="progress-meta" style="margin:0;">
+        <span>Step 4 only · click A–E, then click people. Full guided lesson ships after you approve.</span>
+        <span>Official key: <b style="color:var(--good)">C</b></span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+/** Disease origin = earliest affected on this tree (I-2). */
+const ORIGIN = "I-2";
+const DISEASE_LINE = new Set(["I-2", "II-2", "II-3", "III-2", "III-3", "III-4"]);
+
+/** Node centers in SVG space (match transform + glyph center). */
+const XY = {
+  "I-1": [146, 36], "I-2": [210, 36],
+  "II-1": [86, 136], "II-2": [150, 136], "II-3": [270, 136],
+  "III-1": [30, 256], "III-2": [60, 256], "III-3": [135, 256], "III-4": [210, 256],
+  "IV-1": [20, 376], "IV-2": [100, 376], "IV-3": [180, 376]
+};
+
+/** Family units — geometry matches drawn mating bars / descent lines. */
+const FAMILIES = [
+  {
+    id: "I",
+    parents: ["I-1", "I-2"],
+    kids: ["II-2", "II-3"],
+    mateY: 40, dropX: 180, barY: 80,
+    kidX: { "II-2": 150, "II-3": 270 }
+  },
+  {
+    id: "II",
+    parents: ["II-1", "II-2"],
+    kids: ["III-2", "III-3", "III-4"],
+    mateY: 140, dropX: 120, barY: 180,
+    kidX: { "III-2": 60, "III-3": 135, "III-4": 210 }
+  },
+  {
+    id: "III",
+    parents: ["III-1", "III-2"],
+    kids: ["IV-2", "IV-3"],
+    mateY: 260, dropX: 45, barY: 300,
+    kidX: { "IV-2": 100, "IV-3": 180 }
+  }
+];
+
+const MATES = [
+  { a: "I-1", b: "I-2", y: 40, edge: "mate:I-1|I-2" },
+  { a: "II-1", b: "II-2", y: 140, edge: "mate:II-1|II-2" },
+  { a: "III-1", b: "III-2", y: 260, edge: "mate:III-1|III-2" },
+  { a: "IV-1", b: "IV-2", y: 380, edge: "mate:IV-1|IV-2" }
+];
+
+const EDGES = [
+  ["I-1","I-2","mate"],
+  ["I-1","II-2","blood"], ["I-2","II-2","blood"],
+  ["I-1","II-3","blood"], ["I-2","II-3","blood"],
+  ["II-1","II-2","mate"],
+  ["II-1","III-2","blood"], ["II-2","III-2","blood"],
+  ["II-1","III-3","blood"], ["II-2","III-3","blood"],
+  ["II-1","III-4","blood"], ["II-2","III-4","blood"],
+  ["III-1","III-2","mate"],
+  ["III-1","IV-2","blood"], ["III-2","IV-2","blood"],
+  ["III-1","IV-3","blood"], ["III-2","IV-3","blood"],
+  ["IV-1","IV-2","mate"]
+];
+
+let routeMode = "tree"; // "tree" | "short"
+
+function edgeWeight(kind, to) {
+  if (kind === "mate") return 5;
+  // Prefer climbing the disease line (affected branch), not the in-law.
+  if (kind === "blood") return DISEASE_LINE.has(to) ? 1 : 2.5;
+  return 3;
+}
+
+function buildAdj() {
+  const adj = {};
+  const add = (a, b, kind) => {
+    if (!adj[a]) adj[a] = [];
+    adj[a].push({ to: b, kind, w: edgeWeight(kind, b) });
+  };
+  EDGES.forEach(([a, b, kind]) => {
+    add(a, b, kind);
+    add(b, a, kind);
+  });
+  return adj;
+}
+
+/** Node sequence from start → origin (prefer disease-line blood). */
+function pathToOrigin(start, goal) {
+  if (start === goal) return [start];
+  const adj = buildAdj();
+  const dist = {};
+  const prev = {};
+  Object.keys(XY).forEach(n => { dist[n] = Infinity; });
+  dist[start] = 0;
+  const pq = [[0, start]];
+  while (pq.length) {
+    pq.sort((a, b) => a[0] - b[0]);
+    const [d, u] = pq.shift();
+    if (d !== dist[u]) continue;
+    if (u === goal) break;
+    (adj[u] || []).forEach(({ to, w }) => {
+      const nd = d + w;
+      if (nd < dist[to]) {
+        dist[to] = nd;
+        prev[to] = u;
+        pq.push([nd, to]);
+      }
+    });
+  }
+  if (dist[goal] === Infinity) return null;
+  const path = [];
+  for (let cur = goal; cur; cur = prev[cur]) {
+    path.push(cur);
+    if (cur === start) break;
+  }
+  path.reverse();
+  return path;
+}
+
+function findFamilyForChild(child) {
+  return FAMILIES.find(f => f.kids.includes(child));
+}
+function findFamilyForParents(a, b) {
+  return FAMILIES.find(f =>
+    (f.parents.includes(a) && f.parents.includes(b)) ||
+    (f.parents.includes(a) && f.kids.includes(b)) ||
+    (f.parents.includes(b) && f.kids.includes(a))
+  );
+}
+function findMate(a, b) {
+  return MATES.find(m => (m.a === a && m.b === b) || (m.a === b && m.b === a));
+}
+
+function appendUnique(pts, x, y) {
+  const last = pts[pts.length - 1];
+  if (!last || last[0] !== x || last[1] !== y) pts.push([x, y]);
+}
+
+/** Walk child → parent along drawn tree lines. */
+function routeChildToParent(child, parent, lit) {
+  const fam = findFamilyForChild(child);
+  const pts = [];
+  if (!fam || !fam.parents.includes(parent)) {
+    // fallback straight
+    pts.push(XY[child], XY[parent]);
+    return pts;
+  }
+  const [cx, cy] = XY[child];
+  const [px, py] = XY[parent];
+  const kx = fam.kidX[child];
+  appendUnique(pts, cx, cy);
+  appendUnique(pts, kx, fam.barY);
+  lit.add("kid:" + child);
+  lit.add("bar:" + fam.id);
+  appendUnique(pts, fam.dropX, fam.barY);
+  lit.add("drop:" + fam.id);
+  appendUnique(pts, fam.dropX, fam.mateY);
+  const mateKey = "mate:" + fam.parents[0] + "|" + fam.parents[1];
+  lit.add(mateKey);
+  appendUnique(pts, px, fam.mateY);
+  appendUnique(pts, px, py);
+  return pts;
+}
+
+/** Walk parent → child (reverse geometry). */
+function routeParentToChild(parent, child, lit) {
+  return routeChildToParent(child, parent, lit).slice().reverse();
+}
+
+/** Marriage hop along mating bar. */
+function routeMate(a, b, lit) {
+  const m = findMate(a, b);
+  const pts = [];
+  const [ax, ay] = XY[a];
+  const [bx, by] = XY[b];
+  if (!m) {
+    pts.push([ax, ay], [bx, by]);
+    return pts;
+  }
+  lit.add(m.edge);
+  appendUnique(pts, ax, ay);
+  appendUnique(pts, ax, m.y);
+  appendUnique(pts, bx, m.y);
+  appendUnique(pts, bx, by);
+  return pts;
+}
+
+function relation(a, b) {
+  if (findMate(a, b)) return "mate";
+  const fam = findFamilyForChild(a);
+  if (fam && fam.parents.includes(b)) return "child-parent";
+  const fam2 = findFamilyForChild(b);
+  if (fam2 && fam2.parents.includes(a)) return "parent-child";
+  return "other";
+}
+
+/** Build polyline that flows through the pedigree scaffolding. */
+function treeFlowPoints(path) {
+  const pts = [];
+  const lit = new Set();
+  for (let i = 0; i < path.length - 1; i++) {
+    const a = path[i], b = path[i + 1];
+    const rel = relation(a, b);
+    let seg = [];
+    if (rel === "mate") seg = routeMate(a, b, lit);
+    else if (rel === "child-parent") seg = routeChildToParent(a, b, lit);
+    else if (rel === "parent-child") seg = routeParentToChild(a, b, lit);
+    else seg = [XY[a], XY[b]];
+    seg.forEach(([x, y]) => appendUnique(pts, x, y));
+  }
+  return { pts, lit };
+}
+
+function shortHopPoints(path) {
+  return { pts: path.map(id => XY[id]), lit: new Set() };
+}
+
+function pointsAttr(pts) {
+  return pts.map(([x, y]) => `${x},${y}`).join(" ");
+}
+
+const PEOPLE = {
+  "I-1": { title: "I-1 · unaffected male", blurb: "Spouse of the disease origin (I-2). Not affected — connection to origin is by marriage." },
+  "I-2": { title: "I-2 · affected female · DISEASE SOURCE", blurb: "Earliest affected person on this page — the source the tree-flow path climbs toward. Both children affected." },
+  "II-1": { title: "II-1 · unaffected male", blurb: "Spouse of affected II-2. Tree flow hops the mating bar, then climbs II-2 → I-2." },
+  "II-2": { title: "II-2 · affected female", blurb: "Affected daughter of I-2. All three children affected — high transmission on a tiny sample." },
+  "II-3": { title: "II-3 · affected male", blurb: "Affected son of I-2. No partner/kids drawn — short climb to the source." },
+  "III-1": { title: "III-1 · unaffected female", blurb: "Spouse of affected III-2. Reaches source through her husband on the disease line." },
+  "III-2": { title: "III-2 · affected male (patient's father)", blurb: "On the disease line. His two kids are unaffected — key fork for the indeterminant lesson." },
+  "III-3": { title: "III-3 · affected male", blurb: "Affected sibling on the line back to I-2. No offspring shown." },
+  "III-4": { title: "III-4 · affected female", blurb: "Affected sister on the line back to I-2. No children shown." },
+  "IV-1": { title: "IV-1 · unaffected male", blurb: "Patient's partner. Tree flow: mating bar → IV-2 → climb to I-2." },
+  "IV-2": { title: "IV-2 · unaffected female · THE PATIENT", blurb: "Proband. Tree flow climbs IV-2 → III-2 → II-2 → I-2 (source). She is unaffected — the question is still about inheritance mode." },
+  "IV-3": { title: "IV-3 · unaffected male", blurb: "Patient's brother. Same disease-line climb as IV-2, through father III-2." }
+};
+
+/** Per-choice evidence for Q111 only (hand-authored — not a general engine yet). */
+const CHOICES = {
+  A: {
+    key: "A",
+    text: "It is an autosomal dominant disorder",
+    correct: false,
+    feedback: "Tempting — vertical pattern through I→II→III. Rejected because a handful of affected people cannot prove AD over look-alikes. Free 137 wants honesty about sample size, not the prettiest label.",
+    highlight: [
+      { id: "I-2", role: "support" },
+      { id: "II-2", role: "support" },
+      { id: "III-2", role: "support" },
+      { id: "IV-2", role: "contra" },
+      { id: "IV-3", role: "contra" }
+    ],
+    blurbs: {
+      "I-2": "Affected founder with affected kids — AD looks plausible from this node alone.",
+      "II-2": "Affected mother → three affected kids. Classic AD silhouette — still not proof on this sample size.",
+      "III-2": "Affected man. Under AD his kids can be unaffected by chance. That does not crown AD; it just fails to kill it.",
+      "IV-2": "Unaffected daughter of an affected dad is allowed in AD. It does not settle the mode.",
+      "IV-3": "Unaffected son of III-2 — same story: compatible with AD, not diagnostic of AD.",
+      "III-4": "Affected sister on the disease line — more AD-looking dots, still a tiny tree.",
+      "II-3": "Affected brother — another vertical hit. Suggestive ≠ proven."
+    }
+  },
+  B: {
+    key: "B",
+    text: "It is a chromosomal aneuploidy",
+    correct: false,
+    feedback: "Wrong lane. Aneuploidies are usually sporadic or parental meiotic errors — not a tidy multi-generation shaded tree of an adult-onset eye disease.",
+    highlight: [
+      { id: "I-2", role: "contra" },
+      { id: "II-2", role: "contra" },
+      { id: "II-3", role: "contra" },
+      { id: "III-2", role: "contra" },
+      { id: "III-3", role: "contra" },
+      { id: "III-4", role: "contra" }
+    ],
+    blurbs: {
+      "I-2": "Three generations of similar adult-onset disease is not how whole-chromosome aneuploidy usually presents.",
+      "II-2": "Affected daughter of affected mom — Mendelian-looking transmission, not aneuploidy choreography.",
+      "III-2": "Same phenotype down the line. Aneuploidy does not paint this pedigree.",
+      "IV-2": "The patient is unaffected; the question is inheritance mode of a familial trait — aneuploidy was never the right frame.",
+      "III-4": "Another affected female in generation III — still a Mendelian-looking cluster, not aneuploidy."
+    }
+  },
+  C: {
+    key: "C",
+    text: "It is indeterminant",
+    correct: true,
+    feedback: "Yes. Intellectual humility is the scored skill. The tree is suggestive (often of AD), but too small to distinguish modes. Suggestive ≠ proven.",
+    highlight: [
+      { id: "I-2", role: "support" },
+      { id: "II-2", role: "support" },
+      { id: "III-2", role: "support" },
+      { id: "IV-2", role: "support" },
+      { id: "IV-3", role: "support" }
+    ],
+    blurbs: {
+      "I-2": "Disease source — but counting nodes from here, you still have too few independent transmissions to lock a mode.",
+      "II-2": "Looks dominant. One generation of heavy transmission is not a verdict.",
+      "III-2": "Key fork: affected dad → two unaffected kids. Compatible with several stories; proves none.",
+      "IV-2": "Proband. Concern for her twins is real; certainty from this drawing alone is not.",
+      "IV-3": "Second unaffected offspring of III-2 — still n=2 kids. That is the whole statistical problem.",
+      "III-4": "Another affected relative — adds color, not sample size enough to crown a mode."
+    }
+  },
+  D: {
+    key: "D",
+    text: "It is an X-linked dominant condition",
+    correct: false,
+    feedback: "Hard sell: III-2 (affected dad) → IV-2 (unaffected daughter). Textbook XLD predicts all daughters of an affected father are affected — and the tree is still too small to crown any mode.",
+    highlight: [
+      { id: "III-2", role: "contra" },
+      { id: "IV-2", role: "contra" },
+      { id: "I-2", role: "support" },
+      { id: "II-2", role: "support" },
+      { id: "III-4", role: "support" }
+    ],
+    blurbs: {
+      "III-2": "Affected father. Under XLD he must pass the mutant X to every daughter. Check IV-2.",
+      "IV-2": "Unaffected daughter of an affected father — discordant for textbook X-linked dominant.",
+      "IV-3": "Unaffected son of III-2. Sons get dad's Y, so XLD does not require them to be affected — the daughter is the problem case.",
+      "I-2": "Affected female — compatible with XLD, but does not rescue the father→daughter miss.",
+      "II-2": "Affected female — fits XLD silhouette upstream; the III-2→IV-2 pair still breaks the clean story.",
+      "III-4": "Affected female — more XLD-compatible dots that still cannot override the discordant father–daughter pair."
+    }
+  },
+  E: {
+    key: "E",
+    text: "It is an X-linked recessive condition",
+    correct: false,
+    feedback: "Multiple affected females (I-2, II-2, III-4) make classic XLR a poor fit — males are usually the shaded ones in textbook XLR pedigrees.",
+    highlight: [
+      { id: "I-2", role: "contra" },
+      { id: "II-2", role: "contra" },
+      { id: "III-4", role: "contra" },
+      { id: "III-2", role: "support" },
+      { id: "II-3", role: "support" }
+    ],
+    blurbs: {
+      "I-2": "Affected female — classic XLR rarely shades females like this across generations.",
+      "II-2": "Affected daughter of an affected mother — possible in rare XLR exceptions, but a poor default read of this tree.",
+      "III-4": "Third affected female on the page. That alone sinks ordinary X-linked recessive.",
+      "III-2": "Affected male — XLR would love this node. The affected females are the problem.",
+      "II-3": "Affected male — fits XLR, but cannot outvote I-2 / II-2 / III-4.",
+      "IV-2": "Unaffected female — not diagnostic either way for XLR; look at the shaded women instead."
+    }
+  }
+};
+
+/** Full guided lesson (stem / path tour / pattern / bedside) — NOT shown until Steve approves. */
+const LESSON_DRAFT_PENDING_APPROVAL = {
+  status: "pending-approval",
+  note: "When approved, restore multi-step STEPS UI. Attending already teaches from first principles via pedigreeTeach in concept-graphs.",
+  draftSteps: ["stem", "tour", "pattern", "hypotheses", "bedside"]
+};
+
+const NODE_IDS = [
+  "q111_pedigree_inheritance_indeterminant",
+  "q111_alcohol_withdrawal_hypophosphatemia",
+];
+
+const CASE_STEM = `A 24-year-old woman (IV-2) is newly pregnant with twin girls. Vision today is normal. Relatives lose vision in their 20s. Pedigree shown. Most appropriate conclusion about inheritance? A AD · B aneuploidy · C indeterminant · D XLD · E XLR. Official key: C.`;
+
+const PEDIGREE_LOCK = `Disease origin I-2. Proband IV-2. Affected: I-2, II-2, II-3, III-2, III-3, III-4. Key fork: III-2 affected father → IV-2 and IV-3 unaffected. Scored skill: sample too small to crown a mode (suggestive ≠ proven).`;
+
+let selectedPerson = null;
+let activeChoice = null; // "A"…"E"
+let mainFpText = "";
+let mainFpLoaded = false;
+let fpFocusToken = 0;
+
+const els = {
+  kicker: document.getElementById("kicker"),
+  title: document.getElementById("title"),
+  body: document.getElementById("body"),
+  choices: document.getElementById("choices"),
+  feedback: document.getElementById("feedback"),
+  personCard: document.getElementById("personCard"),
+  personHypTag: document.getElementById("personHypTag"),
+  personName: document.getElementById("personName"),
+  personBlurb: document.getElementById("personBlurb"),
+  personPath: document.getElementById("personPath"),
+  pathChip: document.getElementById("pathChip"),
+  pathOverlay: document.getElementById("pathOverlay"),
+  svg: document.querySelector("svg.interactive"),
+  wrap: document.getElementById("pedigreeWrap"),
+  btnSvg: document.getElementById("btnSvg"),
+  btnOfficial: document.getElementById("btnOfficial"),
+  btnTree: document.getElementById("btnTree"),
+  btnShort: document.getElementById("btnShort"),
+  fpMain: document.getElementById("fpMain"),
+  fpFocus: document.getElementById("fpFocus"),
+  fpStatus: document.getElementById("fpStatus"),
+  fpRefresh: document.getElementById("fpRefresh"),
+};
+
+function esc(s) {
+  return String(s || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function inlineBoldHtml(text) {
+  const raw = String(text || "");
+  const parts = [];
+  const re = /\*\*([^*]+)\*\*/g;
+  let m, last = 0;
+  while ((m = re.exec(raw)) !== null) {
+    if (m.index > last) parts.push({ t: "text", v: raw.slice(last, m.index) });
+    parts.push({ t: "bold", v: m[1] });
+    last = m.index + m[0].length;
+  }
+  if (last < raw.length) parts.push({ t: "text", v: raw.slice(last) });
+  if (!parts.length) parts.push({ t: "text", v: raw });
+  return parts.map(p => p.t === "bold" ? `<strong>${esc(p.v)}</strong>` : esc(p.v)).join("");
+}
+
+function proseToHtml(text) {
+  const clean = String(text || "").replace(/\u2014\s*/g, ". ").trim();
+  if (!clean) return "";
+  const fullMatch = clean.match(/<<<FULL>>>\s*([\s\S]*?)(?:<<<SUMMARY>>>|<<<END>>>|$)/i);
+  const body = (fullMatch ? fullMatch[1] : clean).trim();
+  return body.split(/\n\s*\n/).filter(Boolean).map(p => `<p>${inlineBoldHtml(p.trim())}</p>`).join("");
+}
+
+function setFpStatus(msg) {
+  if (els.fpStatus) els.fpStatus.textContent = msg || "";
+}
+
+function paintMainFp(text, source) {
+  mainFpText = String(text || "").trim();
+  if (!els.fpMain) return;
+  if (!mainFpText) {
+    els.fpMain.innerHTML = `<p class="fp-empty">No first-principles prose found yet for Q111. Open the node in concept-graphs, expand <b>first principles</b>, then click Refresh here (same browser, http://localhost:8765).</p>`;
+    setFpStatus(source || "");
+    return;
+  }
+  els.fpMain.innerHTML = proseToHtml(mainFpText);
+  setFpStatus(source ? `Loaded from ${source}` : "Loaded from main");
+}
+
+async function loadMainFirstPrinciples(force) {
+  if (mainFpLoaded && mainFpText && !force) return mainFpText;
+
+  for (const qid of NODE_IDS) {
+    try {
+      const raw = localStorage.getItem("triage-v1-" + qid);
+      if (!raw) continue;
+      const t = JSON.parse(raw);
+      if (t && t.firstPrinciples && String(t.firstPrinciples).trim()) {
+        mainFpLoaded = true;
+        paintMainFp(t.firstPrinciples, "main triage · " + qid);
+        return mainFpText;
+      }
+    } catch (_) {}
+  }
+
+  for (const qid of NODE_IDS) {
+    try {
+      const res = await fetch("/api/load-triage?qid=" + encodeURIComponent(qid));
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data && data.firstPrinciples && String(data.firstPrinciples).trim()) {
+        mainFpLoaded = true;
+        paintMainFp(data.firstPrinciples, "server triage · " + qid);
+        return mainFpText;
+      }
+    } catch (_) {}
+  }
+
+  for (const qid of NODE_IDS) {
+    try {
+      const res = await fetch("/api/deepseek-log?qid=" + encodeURIComponent(qid) + "&type=firstPrinciples");
+      if (!res.ok) continue;
+      const entry = await res.json();
+      const resp = entry && entry.response;
+      if (resp && String(resp).trim()) {
+        mainFpLoaded = true;
+        paintMainFp(resp, "deepseek log · " + qid);
+        return mainFpText;
+      }
+    } catch (_) {}
+  }
+
+  mainFpLoaded = true;
+  paintMainFp("", "not found yet");
+  return "";
+}
+
+async function askAttendingFocus(kind, payload) {
+  const key = localStorage.getItem("ds_api_key");
+  const token = ++fpFocusToken;
+  if (!els.fpFocus) return;
+
+  if (!key) {
+    els.fpFocus.innerHTML = `<p class="fp-empty">No DeepSeek key in this browser. Open concept-graphs Settings on http://localhost:8765 so <code>ds_api_key</code> is shared, then click again.</p>`;
+    return;
+  }
+
+  els.fpFocus.innerHTML = `<p class="fp-empty">Attending is thinking…</p>`;
+
+  let focusLine = "";
+  if (kind === "choice") {
+    const ch = CHOICES[payload];
+    focusLine = `Learner just tapped choice ${payload}: "${ch ? ch.text : payload}". Teach from first principles why this mode succeeds or fails on THIS pedigree. Keep the canned key in mind (C) but lead with mechanism, not the letter.`;
+  } else {
+    const p = PEOPLE[payload];
+    const choiceBit = activeChoice && CHOICES[activeChoice]
+      ? ` They currently have choice ${activeChoice} selected ("${CHOICES[activeChoice].text}").`
+      : "";
+    focusLine = `Learner just clicked person ${payload}${p ? ` (${p.title})` : ""} on the pedigree.${choiceBit} Explain what this node does to the inheritance argument from first principles.`;
+  }
+
+  const system = `You are Dr. Iwu, the same brilliant attending who writes the first-principles panel in concept-graphs. Mechanism first. Short sentences. Visual/spatial. Usually 2-4 sentences. Wrap 2-4 salient anchors in **double asterisks**. No bullet lists. No em dashes. No "as an AI". Never claim you lack the stem.
+
+PEDIGREE LOCK:
+${PEDIGREE_LOCK}
+
+CASE:
+${CASE_STEM}`;
+
+  try {
+    const res = await fetch("https://api.deepseek.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + key,
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: focusLine },
+        ],
+        temperature: 0.7,
+        max_tokens: 420,
+      }),
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || "").trim();
+    if (token !== fpFocusToken) return;
+    els.fpFocus.innerHTML = reply
+      ? proseToHtml(reply)
+      : `<p class="fp-empty">Empty attending reply.</p>`;
+  } catch (e) {
+    if (token !== fpFocusToken) return;
+    els.fpFocus.innerHTML = `<p class="fp-empty">Attending error: ${esc(e.message)}. Serve this lab from http://localhost:8765 (not file://).</p>`;
+  }
+}
+
+async function onLabClick(kind, payload) {
+  await loadMainFirstPrinciples(false);
+  askAttendingFocus(kind, payload);
+}
+
+function clearLitEdges() {
+  document.querySelectorAll("svg.interactive .edges-base line").forEach(ln => ln.classList.remove("lit"));
+}
+
+function clearTrace() {
+  els.svg.classList.remove("tracing", "mode-tree", "mode-short");
+  document.querySelectorAll("svg.interactive .person").forEach(g => {
+    g.classList.remove("on-path", "is-origin", "is-focus", "glow", "support", "contra");
+  });
+  clearLitEdges();
+  els.pathOverlay.setAttribute("points", "");
+  els.pathChip.classList.remove("show");
+  els.pathChip.innerHTML = "";
+  if (els.personPath) { els.personPath.style.display = "none"; els.personPath.textContent = ""; }
+}
+
+function currentHighlightSpec() {
+  if (activeChoice && CHOICES[activeChoice]) return CHOICES[activeChoice].highlight || [];
+  return [];
+}
+
+function setHighlight(spec) {
+  if (selectedPerson) return;
+  const list = spec || currentHighlightSpec();
+  const byId = new Map(list.map(h => [h.id, h.role || "glow"]));
+  const hypothesizing = !!activeChoice;
+  els.svg.classList.toggle("hypothesizing", hypothesizing && !selectedPerson);
+  document.querySelectorAll("svg.interactive .person").forEach(g => {
+    const role = byId.get(g.dataset.id);
+    g.classList.toggle("glow", !!role);
+    g.classList.toggle("support", role === "support");
+    g.classList.toggle("contra", role === "contra");
+  });
+}
+
+function applyRouteModeClass() {
+  els.svg.classList.toggle("mode-tree", routeMode === "tree");
+  els.svg.classList.toggle("mode-short", routeMode === "short");
+}
+
+function drawPath(path) {
+  clearLitEdges();
+  const built = routeMode === "tree" ? treeFlowPoints(path) : shortHopPoints(path);
+  els.pathOverlay.setAttribute("points", pointsAttr(built.pts));
+  built.lit.forEach(key => {
+    const ln = document.querySelector(`svg.interactive .edges-base line[data-edge="${key}"]`);
+    if (ln) ln.classList.add("lit");
+  });
+  els.pathOverlay.style.animation = "none";
+  void els.pathOverlay.offsetWidth;
+  els.pathOverlay.style.animation = "";
+}
+
+function formatPathHtml(path) {
+  return path.map((id, i) => {
+    if (id === ORIGIN) return `<span class="origin-tag">${id} (source)</span>`;
+    if (i === 0) return `<b>${id}</b>`;
+    return id;
+  }).join(" → ");
+}
+
+function blurbForPerson(id) {
+  const base = PEOPLE[id];
+  if (!base) return { title: id, blurb: "", hypTag: "" };
+  if (activeChoice && CHOICES[activeChoice]) {
+    const ch = CHOICES[activeChoice];
+    const hypBlurb = ch.blurbs[id];
+    const roleHit = (ch.highlight || []).find(h => h.id === id);
+    const roleNote = roleHit
+      ? (roleHit.role === "contra" ? "contradicts this choice" : roleHit.role === "support" ? "supports / tempts this choice" : "")
+      : "not a key node for this choice";
+    return {
+      title: base.title,
+      blurb: hypBlurb || `${base.blurb} (${roleNote} under ${ch.key}.)`,
+      hypTag: `Under choice ${ch.key}: ${ch.text}`
+    };
+  }
+  return { title: base.title, blurb: base.blurb, hypTag: "" };
+}
+
+function showPerson(id) {
+  selectedPerson = id;
+  const p = blurbForPerson(id);
+  if (!PEOPLE[id]) return;
+
+  els.svg.classList.remove("hypothesizing");
+  const path = pathToOrigin(id, ORIGIN);
+  els.svg.classList.add("tracing");
+  applyRouteModeClass();
+  document.querySelectorAll("svg.interactive .person").forEach(g => {
+    const pid = g.dataset.id;
+    const on = path && path.includes(pid);
+    g.classList.toggle("on-path", !!on);
+    g.classList.toggle("is-origin", pid === ORIGIN);
+    g.classList.toggle("is-focus", pid === id);
+    g.classList.remove("glow", "support", "contra");
+  });
+
+  if (path) {
+    drawPath(path);
+    const modeLabel = routeMode === "tree" ? "Tree flow" : "Short hop";
+    els.pathChip.innerHTML = `${modeLabel} to disease source: ${formatPathHtml(path)}`;
+    els.pathChip.classList.add("show");
+    els.personPath.style.display = "block";
+    els.personPath.innerHTML = `People on path: ${path.join(" → ")}`;
+  } else {
+    els.pathOverlay.setAttribute("points", "");
+    clearLitEdges();
+    els.pathChip.innerHTML = "No path to source on this graph.";
+    els.pathChip.classList.add("show");
+  }
+
+  els.personCard.classList.add("show");
+  els.personCard.classList.toggle("hyp-aware", !!p.hypTag);
+  els.personHypTag.textContent = p.hypTag || "";
+  els.personName.textContent = p.title;
+  els.personBlurb.textContent = p.blurb;
+  onLabClick("person", id);
+}
+
+function setRouteMode(mode) {
+  routeMode = mode;
+  els.btnTree.classList.toggle("on", mode === "tree");
+  els.btnShort.classList.toggle("on", mode === "short");
+  if (selectedPerson) {
+    const id = selectedPerson;
+    const p = blurbForPerson(id);
+    els.svg.classList.remove("hypothesizing");
+    const path = pathToOrigin(id, ORIGIN);
+    els.svg.classList.add("tracing");
+    applyRouteModeClass();
+    document.querySelectorAll("svg.interactive .person").forEach(g => {
+      const pid = g.dataset.id;
+      const on = path && path.includes(pid);
+      g.classList.toggle("on-path", !!on);
+      g.classList.toggle("is-origin", pid === ORIGIN);
+      g.classList.toggle("is-focus", pid === id);
+      g.classList.remove("glow", "support", "contra");
+    });
+    if (path) {
+      drawPath(path);
+      const modeLabel = routeMode === "tree" ? "Tree flow" : "Short hop";
+      els.pathChip.innerHTML = `${modeLabel} to disease source: ${formatPathHtml(path)}`;
+      els.pathChip.classList.add("show");
+    }
+    if (p) {
+      els.personName.textContent = p.title;
+      els.personBlurb.textContent = p.blurb;
+    }
+  } else applyRouteModeClass();
+}
+
+function selectChoice(key) {
+  activeChoice = key;
+  const ch = CHOICES[key];
+  if (!ch) return;
+  [...els.choices.children].forEach(x => {
+    x.classList.remove("on", "correct", "wrong");
+    if (x.dataset.key === key) {
+      x.classList.add("on", ch.correct ? "correct" : "wrong");
+    }
+  });
+  const tag = ch.correct
+    ? `<div class="tag right">Correct · Free 137 key</div>`
+    : `<div class="tag wrong">Not the key · why it fails</div>`;
+  els.feedback.innerHTML = `${tag}${ch.feedback}`;
+  if (selectedPerson) {
+    const p = blurbForPerson(selectedPerson);
+    els.personCard.classList.toggle("hyp-aware", !!p.hypTag);
+    els.personHypTag.textContent = p.hypTag || "";
+    els.personName.textContent = p.title;
+    els.personBlurb.textContent = p.blurb;
+  } else {
+    clearTrace();
+    setHighlight(ch.highlight);
+  }
+  onLabClick("choice", key);
+}
+
+function renderLab() {
+  els.kicker.textContent = "Test the answers";
+  els.title.textContent = "Click an answer — then stress-test it on the tree";
+  els.body.innerHTML = `
+      <p>All five choices are here. Pick the one you are suspicious of (or your best guess). The pedigree highlights who <strong>supports</strong> (green) or <strong>contradicts</strong> (red) that hypothesis. Then click a person for a blurb about <em>that choice</em>.</p>
+      <div class="callout warn">Click A–E or anyone on the tree — the <strong>first principles</strong> attending voice from concept-graphs loads below (same browser / :8765).</div>
+    `;
+  els.feedback.innerHTML = "";
+  els.choices.innerHTML = "";
+  ["A", "B", "C", "D", "E"].forEach(key => {
+    const c = CHOICES[key];
+    if (!c) return;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "choice";
+    b.dataset.key = c.key;
+    b.innerHTML = `<span class="letter">${c.key}.</span> ${c.text}`;
+    b.addEventListener("click", () => selectChoice(c.key));
+    els.choices.appendChild(b);
+  });
+  if (activeChoice) selectChoice(activeChoice);
+  else if (selectedPerson) showPerson(selectedPerson);
+  else {
+    clearTrace();
+    els.svg.classList.remove("hypothesizing");
+    setHighlight([]);
+  }
+}
+
+document.querySelectorAll("svg.interactive .person").forEach(g => {
+  g.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showPerson(g.dataset.id);
+  });
+});
+
+document.querySelector(".paper")?.addEventListener("click", (e) => {
+  if (e.target.closest(".person") || e.target.closest(".view-toggle")) return;
+  selectedPerson = null;
+  clearTrace();
+  setHighlight(currentHighlightSpec());
+  els.personCard.classList.remove("show", "hyp-aware");
+});
+
+els.btnSvg.addEventListener("click", () => {
+  els.wrap.classList.remove("show-official");
+  els.btnSvg.classList.add("on");
+  els.btnOfficial.classList.remove("on");
+});
+els.btnOfficial.addEventListener("click", () => {
+  els.wrap.classList.add("show-official");
+  els.btnOfficial.classList.add("on");
+  els.btnSvg.classList.remove("on");
+});
+els.btnTree.addEventListener("click", () => setRouteMode("tree"));
+els.btnShort.addEventListener("click", () => setRouteMode("short"));
+els.fpRefresh?.addEventListener("click", async () => {
+  mainFpLoaded = false;
+  await loadMainFirstPrinciples(true);
+  if (activeChoice) askAttendingFocus("choice", activeChoice);
+  else if (selectedPerson) askAttendingFocus("person", selectedPerson);
+});
+
+applyRouteModeClass();
+renderLab();
+loadMainFirstPrinciples(false);
+
+</script>
+</body>
+</html>

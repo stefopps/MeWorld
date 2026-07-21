@@ -17,7 +17,8 @@ Before generating anything, check whether a repo already exists for this project
 
 ## Step 1 — Extract per-set graph data
 For each set's HTML file, parse the `const ITEMS = [...]` array. For every question pull:
-`id`, `sceneId`, `indexInScene`, and the first ~70 chars of `question` (for the hover tooltip).
+`id`, `sceneId`, `indexInScene`, the first ~70 chars of `question` (for the hover tooltip),
+and the full `explanation` (for the set-level metadata — see Step 5 output schema).
 
 ## Step 2 — Classify each question into a category
 Each node needs a category that determines its color. Three categories, same as Set 1:
@@ -63,6 +64,32 @@ Do not redesign the visual. Only the data changes per set.
   secretly being the same diagnosis 40 times. A set that comes out 35 primary / 5 mimic is a
   red flag the clustering collapsed, flag it.
 
+### `graph-data-set-N.json` schema
+
+```json
+{
+  "set": 74,
+  "storyFile": "set-74-story-va.html",
+  "source": "auto-classified: …",
+  "repo": "…",
+  "coreDiagnosis": "Atopic Dermatitis · Topical Retinoid",
+  "recurringThread": "",
+  "mainPath": ["2164", "2342", "2397", "2409"],
+  "generatedAt": "2026-07-13T13:05:43.447Z",
+  "counts": { "primary": 4, "mimic": 36, "thread": 4 },
+  "character": { "name": "David", "age": 44, … },
+  "image": "images/tmj-accountant-bruxism-2409.jpg",
+  "explanation": "Explanation This patient with referred otalgia…TMD commonly causes…",
+  "nodes": [ … ],
+  "edges": [ … ]
+}
+```
+
+| Field | Source | Notes |
+|-------|--------|-------|
+| `image` | Auto-wired by `server.js` `/api/append-img` | Relative path under `images/`. Rendered as the set cover in `concept-graphs.html` via `updateCover()`. |
+| `explanation` | Extracted from the story HTML's `ITEMS` array | The answer-key explanation for the canonical/primary node. Auto-wired by `/api/append-img` when the image name includes a trailing node ID (e.g. `…-2409.jpg`). If the image was placed manually, copy the explanation field from the story file's `ITEMS[].explanation` for the node matching the set's primary diagnosis. Used by the attending voice (Dr. Iwu) as seed context — the frontend (`loadSet`) does NOT currently read `meta.explanation`; it lives at the per-node level. A future agent should plumb it into the chat context block in `sendChat()`. |
+
 ## Guardrails
 - Data is a view, never a source. Pull from the repo (or local files); never regenerate questions.
 - Classification gets its own inspectable JSON before it's rendered, so it can be corrected.
@@ -70,3 +97,35 @@ Do not redesign the visual. Only the data changes per set.
 - If the GitHub repo and local files disagree, stop and ask which is canonical rather than
   picking one silently.
 - Round any displayed counts; no floats.
+
+## Runtime pitfalls (`concept-graphs.html`) — DO NOT REGRESS
+
+These are live bugs that already shipped once. Read before editing click, search, or mic code.
+
+### Module scope vs search IIFE
+
+`openHud` / graph node `.on('click')` run at **module scope**. Search lives in `(function initSearch(){…})()`.
+
+- **Never** reference `lastHitIds`, `clearSearchHighlights`, or `applySearchHighlights` from `openHud` unless they are declared at **module level** (they are, near `activeRecognition`).
+- **Never** re-declare those as `let` / `function` only inside `initSearch` — that shadows module state and can make module callers throw `ReferenceError`, which silently kills node clicks (HUD never opens).
+- IIFE may call module-level helpers; module code must not depend on IIFE locals.
+
+### Mic across HUD switches
+
+- Module `activeRecognition` tracks the live `SpeechRecognition`.
+- `closeHud()` must `abort()` it so Chrome releases the mic.
+- `initRec()` / `start()` must abort any stale recognition before starting a new one.
+- Without this, mic works on the first node and dies until page reload after switching nodes.
+
+### Search highlight clear on graph click
+
+- Direct node clicks (`event` truthy): clear `.search-dim` via `clearSearchHighlights()`.
+- Programmatic opens from search (`openHud(node, null)`): leave highlights until the user clicks the graph.
+
+### Smoke after any click/mic/search edit
+
+1. `node -e` syntax-check the main `<script>` block (see `CLAUDE-HANDOFF.md` § Concept-graphs agent pitfalls).
+2. Hard-refresh `http://localhost:8765/concept-graphs.html`.
+3. Click spine / mimic / thread → HUD opens, console clean.
+4. Mic on node A → stop → open node B → mic starts again.
+5. Search a QID → open hit → click another node → dim clears, HUD opens.

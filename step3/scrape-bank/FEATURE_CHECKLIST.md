@@ -1,8 +1,10 @@
 # Concept Graphs — Feature Implementation Checklist
 
-> Last updated: 2026-07-13 · File: `concept-graphs.html`
+> Last updated: 2026-07-21 · File: `concept-graphs.html`
 > Server: `server.js` · Log: `deepseek-log.jsonl`
 > Coverage: 130 sets (130 graph-data JSONs + 130 story HTMLs, all 4,852 questions)
+>
+> **Agent pitfalls (scope / mic / search):** see bottom of this file + `CLAUDE-HANDOFF.md` § Concept-graphs agent pitfalls + `CURSOR-INSTRUCTIONS-CONCEPT-GRAPH.md` § Runtime pitfalls.
 
 ---
 
@@ -24,7 +26,7 @@
 
 | # | Feature | Status | Notes |
 |---|---------|--------|-------|
-| 8 | Click node → open floating HUD with reveal | ✅ | `openHud()` |
+| 8 | Click node → open floating HUD with reveal | ✅ | `openHud()` — **must not reference IIFE-only symbols** (see Agent pitfalls) |
 | 9 | **Live-node indicator** — green ring on the graph node whose panel is currently open | ✅ | Updates on click, arrow-cycle, keyboard, and timeline jump |
 | 10 | Ctrl+click → isolate node (show only 1-hop subset neighbors) | ✅ | Banner with "Exit isolation" button |
 | 11 | Spine node drag moves only its connected subset nodes | ✅ | Other spine nodes stay in place |
@@ -52,7 +54,7 @@
 | 26 | "Show Answer" toggle — hidden by default (study mode) | ✅ | Green badge reveals likely correct answer |
 | 27 | **Related differentials** — independent toggle, default collapsed | ✅ | Same-scene peer nodes, clickable |
 | 28 | Related differentials — nested inline drill-down | ✅ | Click peer → expands its concept line inline |
-| 29 | Dictation panel — mic + textarea + "Compose story with AI" | ✅ | `webkitSpeechRecognition`, DeepSeek polish |
+| 29 | Dictation panel — mic + textarea + "Compose story with AI" | ✅ | `webkitSpeechRecognition` + module `activeRecognition`; abort on `closeHud` (see Agent pitfalls) |
 | 30 | Distill concept button — "what is this question teaching?" | ✅ | DeepSeek one-sentence summary |
 | 31 | Milling tracker — 3-state study progress per question | ✅ | ○ untouched / ◐ partial / ● drilled, persisted in localStorage |
 | 32 | **Default-collapsed guarantee** — all sections (19–28) start closed | ✅ | Fixed dock-scoping regression (`.dock-reveal-content .ind-body`) |
@@ -203,6 +205,52 @@
 | 99 | Generate 20 draft sets (Pattern A/B Harmon Circle) | ✅ | Standalone HTML + `sets-manifest.md` |
 | 100 | Full bank spine scan — Type 1 (patient-repeat) + Type 2 (encounter) clusters | ✅ | Report for LLM review |
 | 101 | `build-full-bank-graphs.js` — generate sets 21–130 | ✅ | Bigram-frequency `coreDiagnosis` labels |
+
+---
+
+## Agent pitfalls — DO NOT REGRESS (2026-07-21)
+
+Three related bugs shipped and were fixed the same day. Next agents: read this before touching click, search, or mic code.
+
+### A. Node click → HUD never opens (`ReferenceError`)
+
+**Symptom:** Clicking spine / mimic / thread does nothing; console shows `lastHitIds is not defined` (or similar).
+
+**Cause:** `openHud` (module scope) called symbols that lived only inside `(function initSearch(){…})()`.
+
+**Fix / rule:** Keep these at **module level** (near `nodeSel` / `activeRecognition`):
+
+- `let lastHitIds`
+- `clearSearchHighlights()`
+- `applySearchHighlights()`
+
+Never re-declare them as IIFE-only locals. Search IIFE may *use* the module helpers.
+
+### B. Mic works once, then dead until reload
+
+**Cause:** Prior HUD’s `SpeechRecognition` never aborted; Chrome held the mic lock.
+
+**Fix / rule:** Module `activeRecognition`; `closeHud()` aborts; `initRec`/`start` abort stale instances before `rec.start()`.
+
+### C. Graph looks “dead” (dim) after search, until reload
+
+**Cause:** `.search-dim` left on after opening a search hit; graph click did not clear.
+
+**Fix / rule:** In `openHud`, if `event` is truthy and `lastHitIds.size`, call `clearSearchHighlights()`. Search opens pass `null` as event.
+
+### Smoke checklist (mandatory after click / search / mic edits)
+
+```powershell
+cd C:\Users\steve\MeWorld\step3\scrape-bank
+node -e "const fs=require('fs'); const h=fs.readFileSync('concept-graphs.html','utf8'); const m=h.match(/<script>([\s\S]*?)<\/script>/); new Function(m[1]); console.log('JS OK')"
+```
+
+1. Hard-refresh `http://localhost:8765/concept-graphs.html`
+2. Click numbered spine, gray mimic, teal thread → HUD opens, console clean
+3. Mic on node A → stop → open node B → mic works
+4. Search → open hit → click another node → dim clears, HUD opens
+
+Also documented in: `CLAUDE-HANDOFF.md` · `CURSOR-INSTRUCTIONS-CONCEPT-GRAPH.md`
 
 ---
 

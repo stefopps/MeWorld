@@ -10,3 +10,5 @@ Canonical home for scraped question-block JSON from qb.ccscases.com.
 | `logs/` | Pool counter log |
 
 Start here: **[CLAUDE-HANDOFF.md](./CLAUDE-HANDOFF.md)** · **[manifest.json](./manifest.json)**
+
+**Concept graphs:** `concept-graphs.html` + `server.js` (`:8765`). Before editing clicks / search / mic, read **Agent pitfalls** in [FEATURE_CHECKLIST.md](./FEATURE_CHECKLIST.md) and [CLAUDE-HANDOFF.md](./CLAUDE-HANDOFF.md) (module scope vs IIFE — broken node clicks).

@@ -3901,7 +3901,7 @@ const FREE137_DATA = [
   },
   {
     q: 111,
-    id: 'q111_alcohol_withdrawal_hypophosphatemia',
+    id: 'q111_pedigree_inheritance_indeterminant',
     question: 'A 24-year-old woman comes to the office because she had a positive home pregnancy test 2 days ago. Urine pregnancy test in the office today is positive. Ph ysical examination findings are consistent with a 14-week gestation. Ultrasonography shows a twin pregnancy with two female fetuses. This is her first pregnancy, and she says she is concerned because she has a family history of an eye disease in which family members lose their vision begin ning in their 20s. Testing of her vision today discloses no ab norma lities. The patient\'s pedigree is shown; the patient isidentified as IV, 2. Which of the following is the most appropriate conclusion about the inheritanc e of this disorder?',
     answers: [
     {label: 'A', text: 'It is an autosomal dominant disorder'},
@@ -3911,10 +3911,26 @@ const FREE137_DATA = [
     {label: 'E', text: 'It is an X -linked recessive condition'}
     ],
     correctAnswer: 'C',
-    explanation: 'The patient presents with clinical findings consistent with the condition. The correct answer is C: It is indeterminant.',
+    explanation: 'Official Free 137 key: C — indeterminant. The pedigree is suggestive (often of AD) but too small to prove a mode. Vertical transmission looks dominant; an affected father (III-2) with unaffected kids is still allowed in AD; XLD is strained by III-2→IV-2; XLR fits poorly with multiple affected females; aneuploidy does not paint this multi-generation adult-onset tree.',
     labs: [],
     hasReveal: true,
-    set: 40
+    set: 40,
+    pedigreeLab: 'reference/free137/q111-pedigree-interactive.html',
+    pedigreeTeach: {
+      approvedLesson: false,
+      origin: 'I-2',
+      proband: 'IV-2',
+      affected: ['I-2', 'II-2', 'II-3', 'III-2', 'III-3', 'III-4'],
+      keyFork: 'III-2 (affected father) → IV-2 and IV-3 (unaffected)',
+      scoredSkill: 'Intellectual honesty about sample size: suggestive ≠ proven. Key C.',
+      modeTests: {
+        A: 'AD looks right from vertical hits, but n is too small to crown it.',
+        B: 'Aneuploidy is the wrong lane for a tidy multi-generation adult-onset pedigree.',
+        C: 'Correct — indeterminant until more transmissions or molecular confirmation.',
+        D: 'XLD predicts all daughters of an affected father are affected; IV-2 is not.',
+        E: 'Multiple affected females (I-2, II-2, III-4) sink classic XLR.'
+      }
+    }
   },
   {
     q: 112,
@@ -4393,7 +4409,25 @@ let resizeObserver = null;
 let graphW = 0, graphH = 0; // reactive viewport dimensions (updated by ResizeObserver)
 let spineSet = new Set(); // QIDs of nodes in GRAPH.mainPath (module-level for isolation + drag)
 var SEARCH_INDEX = {}; // setNum → { label, text } — populated by eagerLoadTitles() for full-content search
+let activeRecognition = null; // SpeechRecognition instance — aborted on HUD close to free mic
+let lastHitIds = new Set(); // search result highlight tracking (module-level so openHud can clear it)
 
+function clearSearchHighlights() {
+  lastHitIds = new Set();
+  if (!nodeSel) return;
+  nodeSel.classed('search-hit', false).classed('search-dim', false);
+}
+function applySearchHighlights(ids) {
+  lastHitIds = new Set((ids || []).map(String));
+  if (!nodeSel) return;
+  if (!lastHitIds.size) {
+    nodeSel.classed('search-hit', false).classed('search-dim', false);
+    return;
+  }
+  nodeSel
+    .classed('search-hit', d => lastHitIds.has(String(d.id)))
+    .classed('search-dim', d => !lastHitIds.has(String(d.id)));
+}
 function esc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
@@ -4492,6 +4526,9 @@ function joinGraph(meta, items, storyByQid) {
       explanation: q.explanation || '',
       likely: q.likely || '',
       hasReveal: !!q.hasReveal,
+      labs: q.labs || [],
+      pedigreeLab: q.pedigreeLab || null,
+      pedigreeTeach: q.pedigreeTeach || null,
       _step3QNum: n._step3QNum || undefined,      // carry Free 137 marker through pipeline
     };
   });
@@ -4556,6 +4593,11 @@ function markProgress(d) {
 function closeHud() {
   document.querySelectorAll('.hud').forEach(h => h.remove());
   if (svg) svg.selectAll('.leader').remove();
+  // Abort any active speech recognition so the mic is freed for the next HUD
+  if (activeRecognition) {
+    try { activeRecognition.abort(); } catch (_) {}
+    activeRecognition = null;
+  }
   currentLiveNodeId = null;
   updateLiveNodeIndicator();
 }
@@ -5300,6 +5342,7 @@ function questionHTML(q) {
     <div class="qwrap">
       ${stemBlock}
       <ul class="answers">${ans}</ul>
+      ${q.pedigreeLab ? `<p style="margin:8px 0 0;"><a href="/reference/free137/q111-pedigree-interactive.html" target="_blank" rel="noopener" style="font-size:0.78rem;font-weight:600;color:var(--accent);">Open pedigree lab · test A–E on the tree</a></p>` : ''}
 
       ${q.likely ? `
       <div class="ind-toggle" id="it-ans-${q.id}">
@@ -6315,7 +6358,13 @@ function wireHudDictation(hud, nodeId) {
 
   function initRec() {
     if (!Ctor) return;
+    // Abort any previous recognition (from a prior HUD) so the browser releases the mic
+    if (activeRecognition && activeRecognition !== rec) {
+      try { activeRecognition.abort(); } catch (_) {}
+      activeRecognition = null;
+    }
     rec = new Ctor();
+    activeRecognition = rec;
     rec.continuous = true;
     rec.interimResults = true;
     rec.lang = 'en-US';
@@ -6344,6 +6393,8 @@ function wireHudDictation(hud, nodeId) {
         try { rec.start(); } catch (_) {
           // Restart failed — clean up UI but do NOT auto-send (user didn't tap stop)
           recording = false;
+          rec = null;
+          if (activeRecognition) activeRecognition = null;
           if (activeBtn) {
             activeBtn.classList.remove('recording');
             activeBtn.querySelector('i').className = 'ti ti-microphone';
@@ -6357,6 +6408,11 @@ function wireHudDictation(hud, nodeId) {
 
   function start(tgt, btn) {
     if (!Ctor) { status.textContent = 'Not supported in this browser.'; return; }
+    // Abort any stale recognition from a previous HUD before starting
+    if (activeRecognition && activeRecognition !== rec) {
+      try { activeRecognition.abort(); } catch (_) {}
+      activeRecognition = null;
+    }
     targetInput = tgt;
     activeBtn = btn;
     if (!rec) initRec();
@@ -6372,6 +6428,7 @@ function wireHudDictation(hud, nodeId) {
   function stop() {
     recording = false;
     if (rec) { try { rec.stop(); } catch (_) {} }
+    if (activeRecognition === rec) activeRecognition = null;
     if (activeBtn) {
       activeBtn.classList.remove('recording');
       activeBtn.querySelector('i').className = 'ti ti-microphone';
@@ -6543,6 +6600,7 @@ function wireHudDictation(hud, nodeId) {
         `Correct answer key: ${node.likely || 'unknown'}\n` +
         (node.explanation ? `Explanation (answer key): ${String(node.explanation).replace(/\s+/g, ' ').trim()}\n` : '');
       if (node.triggermd) contextBlock += `Clinical trigger: ${node.triggermd}\n`;
+      if (node.pedigreeTeach) contextBlock += '\n' + formatPedigreeTeachBlock(node);
     } else {
       contextBlock = '(No node loaded — ask learner which question they mean.)\n';
     }
@@ -7201,6 +7259,26 @@ async function loadProseCraftGuide() {
 }
 
 // ── First-principles layer: attending-voice explanation ──────────────────
+function formatPedigreeTeachBlock(node) {
+  const t = node.pedigreeTeach;
+  if (!t) return '';
+  const modes = t.modeTests
+    ? Object.entries(t.modeTests).map(([k, v]) => `  ${k}: ${v}`).join('\n')
+    : '';
+  return [
+    'PEDIGREE TEACHING LOCK (Free 137 Q111 — teach from first principles):',
+    `- Disease origin on the drawing: ${t.origin || 'I-2'}`,
+    `- Proband: ${t.proband || 'IV-2'}`,
+    `- Affected on disease line: ${(t.affected || []).join(', ')}`,
+    `- Key fork: ${t.keyFork || ''}`,
+    `- Scored skill: ${t.scoredSkill || ''}`,
+    '- Method: for each inheritance mode, state what transmission the mode REQUIRES, then test this tree. Do not lead with the letter. Build to why the sample is too small to crown a mode.',
+    '- Guided multi-step lesson UI is NOT approved yet. Hypothesis lab (A–E on the tree) is live for the learner.',
+    node.pedigreeLab ? `- Interactive lab path: ${node.pedigreeLab}` : '',
+    modes ? `Mode stress-tests:\n${modes}` : '',
+  ].filter(Boolean).join('\n');
+}
+
 async function fetchFirstPrinciples(node, regen = false) {
   const key = localStorage.getItem('ds_api_key');
   if (!key) return null;
@@ -7323,7 +7401,7 @@ ${prefs.depth === 0 ? '4. STOP: No closing probe. No answer-choice walkthrough. 
 Question: """${node.question}"""
 Correct answer: ${node.likely || 'N/A'}
 Answer choices: ${ans}
-
+${node.pedigreeTeach ? '\n' + formatPedigreeTeachBlock(node) + '\n' : ''}
 No preamble, no sign-off, no filler transitions, no em dashes.`;
 
   // Session-prime: load immersa-prose-craft.md once, append to every FP system prompt
@@ -8221,6 +8299,8 @@ function wireReveal(container, d) {
 
 function openHud(d, event) {
   closeHud();
+  // Clear sticky search highlights on direct graph clicks (not programmatic from search results)
+  if (event && lastHitIds.size) clearSearchHighlights();
   currentLiveNodeId = String(d.id);
   updateLiveNodeIndicator();
   markProgress(d);
@@ -9335,6 +9415,8 @@ async function loadSet(setNum) {
           likely: 'Choice ' + f.correctAnswer + ': ' + (correctAns ? correctAns.text : ''),
           hasReveal: true,
           labs: f.labs || [],
+          pedigreeLab: f.pedigreeLab || null,
+          pedigreeTeach: f.pedigreeTeach || null,
         });
         meta.mainPath.push(nodeId);
       });
@@ -10387,25 +10469,6 @@ async function eagerLoadTitles() {
   let debounceTid = 0;
   let hlIdx = -1;
   let matches = []; // { kind:'question'|'set', id?, num, label, score?, matchIn?, snippet? }
-  let lastHitIds = new Set();
-
-  function clearSearchHighlights() {
-    lastHitIds = new Set();
-    if (!nodeSel) return;
-    nodeSel.classed('search-hit', false).classed('search-dim', false);
-  }
-
-  function applySearchHighlights(ids) {
-    lastHitIds = new Set((ids || []).map(String));
-    if (!nodeSel) return;
-    if (!lastHitIds.size) {
-      nodeSel.classed('search-hit', false).classed('search-dim', false);
-      return;
-    }
-    nodeSel
-      .classed('search-hit', d => lastHitIds.has(String(d.id)))
-      .classed('search-dim', d => !lastHitIds.has(String(d.id)));
-  }
 
   // Re-apply highlights after graph re-renders (set load)
   window._reapplySearchHighlights = () => {

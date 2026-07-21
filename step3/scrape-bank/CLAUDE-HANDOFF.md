@@ -96,7 +96,70 @@ First-10-sets batch: **`scrape-bank/CURSOR-INSTRUCTIONS-FIRST-10-SETS.md`**
 
 ---
 
-## JSON schema (per block file)
+## Graph data schema (`graph-data-set-N.json`)
+
+Per-set metadata files live alongside the story HTML. Two fields were added after the initial bulk generation and may be missing from older sets:
+
+```json
+{
+  "set": 74,
+  "image": "images/tmj-accountant-bruxism-2409.jpg",
+  "explanation": "Explanation This patient with referred otalgia…",
+  …
+}
+```
+
+| Field | Source | Notes |
+|-------|--------|-------|
+| `image` | Auto-wired by `server.js` `/api/append-img` | Relative path under `images/`. Rendered as the set cover in `concept-graphs.html` via `updateCover()`. |
+| `explanation` | Extracted from the story HTML's `ITEMS[].explanation` for the canonical node | The answer-key explanation. Auto-wired by `/api/append-img` when the image name ends in a node ID (e.g. `…-2409.jpg`). If the image was placed manually, the explanation must be copied from the story file's `ITEMS` array by matching the node ID. The frontend (`loadSet`) does NOT currently consume this — a future agent should plumb it into the chat context block in `sendChat()`. |
+
+**Set 74** is the first set with both `image` + `explanation` wired; use it as a reference.
+
+---
+
+## Concept-graphs agent pitfalls (DO NOT REGRESS)
+
+Canonical app: `concept-graphs.html` · server: `server.js` on `:8765`.
+
+### 1. Module scope vs IIFE — node clicks die silently
+
+`openHud()`, `closeHud()`, mic wiring, and graph click handlers live at **module scope**. Search UI lives inside `(function initSearch() { … })()`.
+
+| Safe (module-level) | Unsafe (IIFE-only) |
+|---------------------|--------------------|
+| `let lastHitIds` | Declaring `lastHitIds` only inside `initSearch` |
+| `clearSearchHighlights()` / `applySearchHighlights()` | Defining those only inside the IIFE |
+| `let activeRecognition` | Leaving SpeechRecognition only in a HUD closure |
+
+**Incident (2026-07-21):** A search-highlight clear was added inside `openHud` that referenced `lastHitIds` / `clearSearchHighlights` from the search IIFE. Every node click threw `ReferenceError: lastHitIds is not defined` → HUD never opened. Looked like “clicks broken”; was a scope crash.
+
+**Rule:** If `openHud`, `closeHud`, `wireHudDictation`, or the D3 `.on('click')` path needs a symbol, declare/define it at **module level** (near `nodeSel`, `activeRecognition`, `lastHitIds`). IIFEs may *call* module helpers; module code must never assume IIFE locals exist.
+
+**Before shipping any `openHud` / click / mic change:**
+
+```powershell
+cd C:\Users\steve\MeWorld\step3\scrape-bank
+node -e "const fs=require('fs'); const h=fs.readFileSync('concept-graphs.html','utf8'); const m=h.match(/<script>([\s\S]*?)<\/script>/); new Function(m[1]); console.log('JS OK')"
+```
+
+Then hard-refresh `:8765/concept-graphs.html`, click a spine node (1–N), a gray mimic, and a teal thread — HUD must open with no console errors.
+
+### 2. Mic dies after switching nodes
+
+Each HUD creates its own `SpeechRecognition`. Closing the HUD without `abort()` leaves Chrome holding the mic; the next node’s mic appears dead until reload.
+
+**Rule:** Keep `activeRecognition` at module scope. `closeHud()` must `abort()` it. `initRec()` / `start()` must abort any stale instance before `rec.start()`.
+
+### 3. Search dim sticks after graph click
+
+`applySearchHighlights` adds `.search-dim` (opacity 0.22). Direct graph clicks must clear via `clearSearchHighlights()` when `event` is truthy. Search-result opens pass `event: null` so one-hit highlight can remain until the user clicks the graph.
+
+Full checklist: **FEATURE_CHECKLIST.md** § Agent pitfalls.
+
+---
+
+## JSON schema (per block file — raw scrape)
 
 Top-level roughly:
 

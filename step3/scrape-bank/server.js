@@ -610,6 +610,37 @@ const server = http.createServer((req, res) => {
 
           const graphData = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
           graphData.image = 'images/' + destName;
+
+          // Auto-wire explanation from story file (match node ID from image name suffix)
+          const storyFile = graphData.storyFile;
+          if (storyFile) {
+            const storyPath = path.join(ROOT, storyFile);
+            if (fs.existsSync(storyPath)) {
+              const nodeMatch = name.match(/(\d{3,4})$/); // extract trailing 3-4 digit node id
+              if (nodeMatch) {
+                const nodeId = nodeMatch[1];
+                try {
+                  const storyText = fs.readFileSync(storyPath, 'utf8');
+                  const itemsIdx = storyText.indexOf('const ITEMS = [');
+                  if (itemsIdx !== -1) {
+                    const bracketIdx = storyText.indexOf('[', itemsIdx);
+                    let depth = 0, endIdx = bracketIdx;
+                    for (let i = bracketIdx; i < storyText.length; i++) {
+                      if (storyText[i] === '[') depth++;
+                      else if (storyText[i] === ']') { depth--; if (depth === 0) { endIdx = i + 1; break; } }
+                    }
+                    const items = JSON.parse(storyText.slice(bracketIdx, endIdx));
+                    const node = items.find(q => String(q.id) === nodeId);
+                    if (node && node.explanation) {
+                      graphData.explanation = node.explanation;
+                      console.log('[append-img] Auto-wired explanation from node ' + nodeId + ' (' + node.explanation.length + ' chars)');
+                    }
+                  }
+                } catch (_) { /* explanation autowire is best-effort */ }
+              }
+            }
+          }
+
           fs.writeFileSync(jsonPath, JSON.stringify(graphData, null, 2), 'utf8');
 
           console.log('[append-img] Linked images/' + destName + ' → Set ' + setNum + ' (source: ' + sourcePath + ')');
