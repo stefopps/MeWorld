@@ -1,0 +1,161 @@
+﻿{
+    "caseId":  "lead-poisoning-encephalopathy-2026-07-23",
+    "ccsTitle":  "Abdominal Pain â€” Pediatrics",
+    "ccsCaseNumber":  "64",
+    "diagnosis":  "Lead Intoxication with Encephalopathy",
+    "score":  "62.14%",
+    "avgFirstAttempt":  "69.9%",
+    "zScore":  -2.47,
+    "patient":  {
+                    "age":  2,
+                    "sex":  "male",
+                    "gestation":  null,
+                    "key":  "2-year-old boy, abdominal pain, vomiting, seizures, confusion, anorexia, irritability, headache, joint pain. Lives in older building undergoing renovation. Born at 39 weeks, uncomplicated. Single mother, financially struggling."
+                },
+    "vitals":  {
+                   "temperature":  "normal",
+                   "pulse":  "â€”",
+                   "rr":  "â€”",
+                   "bp":  "hypotension present",
+                   "lactate":  "7.2"
+               },
+    "physicalExam":  {
+                         "general":  "Confused, irritable, ataxic gait",
+                         "neuro":  "Seizures, confusion, encephalopathy",
+                         "abdomen":  "Abdominal pain, vomiting",
+                         "extremities":  "Joint pain"
+                     },
+    "keyLabs":  {
+                    "cbc":  "Hb 9.0 g/dL, Hct 27%, MCV 75 (microcytic anemia), basophilic stippling on peripheral smear",
+                    "leadLevel":  "80 mcg/dL (severe toxicity)",
+                    "cmp":  "Obtained",
+                    "toxScreen":  "Obtained"
+                },
+    "correctlyOrdered":  [
+                             "Physical Exam: General, Chest/Lungs, Heart/CV, Abdomen, Extremities/Spine, Neuro/Psych",
+                             "CBC with differential / Peripheral smear / Hemoglobin and hematocrit",
+                             "BMP / CMP / LFT",
+                             "EDTA (IV continuous)",
+                             "Dimercaprol (IM)",
+                             "IV fluids (NS / LR / D5NS)"
+                         ],
+    "missedOrders":  [
+                         {
+                             "order":  "X-ray, abdomen (AP / acute series)",
+                             "severity":  "critical",
+                             "why":  "Look for radiopaque lead-containing objects in the GI tract. If present, whole bowel irrigation before chelation â€” otherwise chelation pulls more lead from GI reservoir into bloodstream."
+                         },
+                         {
+                             "order":  "CT, head (with or without contrast)",
+                             "severity":  "critical",
+                             "why":  "Lead encephalopathy â†’ rule out increased ICP. 2-year-old with seizures + confusion. CT is the only practical acute neuroimaging â€” MRI requires the patient to lie still, impossible in an irritable uncooperative toddler without general anesthesia."
+                         },
+                         {
+                             "order":  "Lead, blood, quantitative / Heavy metal screen",
+                             "severity":  "critical",
+                             "why":  "Clinches the diagnosis. Level came back 80 mcg/dL â€” severe toxicity requiring dual chelation."
+                         },
+                         {
+                             "order":  "Total iron binding capacity / Iron studies",
+                             "severity":  "high",
+                             "why":  "Microcytic anemia. Iron deficiency often coexists with lead poisoning â€” same risk factors (old housing, poverty). Do NOT give iron during BAL therapy â€” BAL forms toxic complex with iron."
+                         },
+                         {
+                             "order":  "Magnesium, serum",
+                             "severity":  "medium",
+                             "why":  "Ataxia + neuromuscular symptoms. Hypomagnesemia causes unexplained hypocalcemia, refractory hypokalemia, neuromuscular disturbances."
+                         },
+                         {
+                             "order":  "Urinalysis",
+                             "severity":  "medium",
+                             "why":  "Screen for alternative causes of symptoms."
+                         },
+                         {
+                             "order":  "Lorazepam / Diazepam / Midazolam",
+                             "severity":  "high",
+                             "why":  "Acute seizure management in lead encephalopathy. Patient presented with seizures immediately prior to arrival, remains at high risk for recurrence with lead level of 80 and active encephalopathy. BZDs are first-line. Keppra is adjunctive only."
+                         },
+                         {
+                             "order":  "Lead abatement agency / Social work consult",
+                             "severity":  "preventive",
+                             "why":  "Remove lead from the home. Kid goes back to unremediated building, gets poisoned again. 0% on preventive care. The acute chelation is life-saving but the home environment must change."
+                         }
+                     ],
+    "shouldHaveAvoided":  [
+                              {
+                                  "order":  "Succimer / Penicillamine",
+                                  "why":  "Only works for mild-moderate lead poisoning. Severe lead poisoning with encephalopathy (80 mcg/dL) requires EDTA + Dimercaprol dual therapy. Succimer and penicillamine are insufficient."
+                              }
+                          ],
+    "wrongLocation":  {
+                          "stayedAt":  "Emergency Department",
+                          "shouldHaveMovedTo":  "Intensive Care Unit or Inpatient Unit",
+                          "at":  "0 Days, 00 Hours, 15 Minutes",
+                          "reason":  "Lead encephalopathy requires ICU-level monitoring"
+                      },
+    "scoreBreakdown":  {
+                           "diagnosisOrders":  {
+                                                   "percent":  32.43,
+                                                   "weight":  "40%"
+                                               },
+                           "treatmentOrders":  {
+                                                   "percent":  91.67,
+                                                   "weight":  "40%"
+                                               },
+                           "preventiveCare":  {
+                                                  "percent":  0,
+                                                  "weight":  "5%"
+                                              },
+                           "timing":  {
+                                          "percent":  100,
+                                          "weight":  "5%"
+                                      },
+                           "appropriateOrders":  {
+                                                     "percent":  100,
+                                                     "weight":  "5%"
+                                                 },
+                           "locationSequence":  {
+                                                    "percent":  50,
+                                                    "weight":  "5%"
+                                                }
+                       },
+    "pathophysiology":  {
+                            "leadImpostor":  "Lead is a molecular impostor â€” mimics calcium, zinc, and iron. Enzymes bind it instead of their real cofactor.",
+                            "hemeSynthesis":  "Two heme enzymes destroyed: (1) ALA dehydratase â€” lead displaces zinc â†’ ALA accumulates in serum/urine. (2) Ferrochelatase â€” lead displaces iron at the final step â†’ free erythrocyte protoporphyrin (FEP) skyrockets. RBC looks microcytic even with iron present.",
+                            "basophilicStippling":  "Ribosome aggregation because lead inhibits pyrimidine 5\u0027-nucleotidase. Pathognomonic. Not seen in simple iron deficiency.",
+                            "brain":  "Lead opens blood-brain barrier at tight junctions, crosses into astrocytes, disrupts mitochondrial respiration â†’ cerebral edema, seizures, encephalopathy. BAL crosses BBB â€” EDTA does not. Give BAL first, wait 4 hours, then start EDTA. Reversing the order mobilizes lead from bone into blood, straight into CNS without BAL covering.",
+                            "gut":  "Lead paint chips are radiopaque. X-ray them. If positive, whole bowel irrigation BEFORE chelation. Chelating with GI lead load pulls more lead systemically."
+                        },
+    "teachingPoints":  [
+                           "Lead encephalopathy = medical emergency. Prompt chelation.",
+                           "BAL + EDTA = dual therapy for severe toxicity (\u003e70 mcg/dL or any encephalopathy).",
+                           "BAL BEFORE EDTA. BAL crosses BBB. EDTA does not. Reverse order = CNS lead mobilization.",
+                           "Abdominal XR to look for lead chips in GI tract before chelation.",
+                           "Head CT for any encephalopathy â€” rule out cerebral edema.",
+                           "Basophilic stippling on smear = lead (not iron deficiency).",
+                           "Iron deficiency often coexists with lead poisoning. Do NOT give iron during BAL â€” toxic complex.",
+                           "Admit to ICU, not floor. Seizure precautions, neuro checks q1h.",
+                           "Lorazepam for seizures. Benzos are first-line in lead encephalopathy.",
+                           "Lead abatement / social work â€” fix the home or the kid comes back."
+                       ],
+    "images":  {
+                   "descent3x3":  {
+                                      "promptFile":  "images/descent-3x3.prompt.txt",
+                                      "taskId":  "bc083f8f-5922-42ff-ba2d-da92cfb08e2d",
+                                      "sizeKb":  6219.5,
+                                      "resolution":  "2K",
+                                      "path":  "images/descent-3x3.png",
+                                      "model":  "nano-banana-pro",
+                                      "status":  "complete"
+                                  },
+                   "descentGaps":  {
+                                       "promptFile":  "images/descent-gaps-3x3.prompt.txt",
+                                       "taskId":  "43bdfe0f-3e7e-43be-bd75-8e9755d2d11b",
+                                       "sizeKb":  6229.5,
+                                       "resolution":  "2K",
+                                       "path":  "images/descent-gaps-3x3.png",
+                                       "model":  "nano-banana-pro",
+                                       "status":  "complete"
+                                   }
+               }
+}
