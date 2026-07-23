@@ -139,6 +139,28 @@
         "pregnancyDisplacement": "The gravid uterus displaces the appendix superiorly and laterally. RLQ pain may be higher than expected. This makes the physical exam less reliable — imaging becomes even more important.",
         "pregnancyRisks": "Delayed diagnosis → perforation → significantly increased maternal and fetal morbidity/mortality. Fetal loss rate with perforated appendicitis: 20-35% vs <5% with uncomplicated appendicitis."
     },
-    "imageOutputPath": "images",
-    "treatmentPlateStatus": "pending"
+  "imageOutputPath": "images",
+  "treatmentPlateStatus": "generated",
+  "images": {
+    "descent3x3": {
+      "path": "images/descent-3x3.png",
+      "promptFile": "images/descent-3x3.prompt.txt",
+      "size": 7125504,
+      "model": "nano-banana-pro",
+      "resolution": "2K",
+      "taskId": "324264ee-2031-4493-952b-50631b342fd3",
+      "status": "generated",
+      "description": "Appendicitis in pregnancy: ED → ultrasound → no NSAIDs → pre-op bundle → OR → recovery → discharge"
+    },
+    "descentGaps": {
+      "path": "images/descent-gaps-3x3.png",
+      "promptFile": "images/descent-gaps-3x3.prompt.txt",
+      "size": 6136013,
+      "model": "nano-banana-pro",
+      "resolution": "2K",
+      "taskId": "68317d6b-1b71-4c52-ad82-8c42817765f5",
+      "status": "generated",
+      "description": "Pre-op bundle: no NSAIDs, pain control, EKG, type/screen, antibiotics, OB consult, no dextrose, inpatient transfer, recovery"
+    }
+  }
 }
