@@ -1,0 +1,184 @@
+{
+    "caseId":  "crohns-diarrhea-2026-07-23",
+    "diagnosis":  "Crohn\u0027s Disease",
+    "score":  "73.33%",
+    "patient":  {
+                    "age":  30,
+                    "sex":  "male",
+                    "occupation":  "Forest ranger",
+                    "key":  "Perianal skin tags + guaiac positive + 10lb weight loss + father died of colon cancer"
+                },
+    "sequence":  [
+                     {
+                         "step":  1,
+                         "screen":  "Case Introduction",
+                         "what":  "30M, abdominal pain, loose stools, perianal pain — 1-2 months",
+                         "decision":  "Patient recognized — this is chronic diarrhea + weight loss in a young adult"
+                     },
+                     {
+                         "step":  2,
+                         "screen":  "Vital Signs",
+                         "what":  "T 37.5, HR 80, BP 129/69, RR 15, BMI 22 — all normal",
+                         "decision":  "Vitals reassuring, no acute distress"
+                     },
+                     {
+                         "step":  3,
+                         "screen":  "HPI / History",
+                         "what":  "Crampy pain, no blood in stool, loperamide use, 10lb loss, no travel/antibiotics. Father died of colon cancer. Smokes 1/3 PPD. Occasional marijuana for pain.",
+                         "decision":  "Chronic diarrhea + weight loss + family history of CRC = need scope"
+                     },
+                     {
+                         "step":  4,
+                         "screen":  "Physical Exam",
+                         "what":  "Abdomen benign. BUT: perianal skin tags noted on rectal exam + guaiac positive stool.",
+                         "decision":  "Anal tags are the turning point — Crohn\u0027s hallmark. IBD direction confirmed."
+                     },
+                     {
+                         "step":  5,
+                         "screen":  "Order Input",
+                         "orders":  [
+                                        "CBC with diff",
+                                        "CRP",
+                                        "Stool bacterial culture",
+                                        "Vibrio culture",
+                                        "C. diff PCR"
+                                    ],
+                         "status":  "Placed diagnostic labs and stool studies"
+                     },
+                     {
+                         "step":  6,
+                         "screen":  "Colonoscopy",
+                         "result":  "Focal ulcerations + normal mucosa = skip lesions. Cobblestone appearance. Terminal ileum + right colon. Rectal sparing.",
+                         "diagnosis":  "Crohn\u0027s disease confirmed. NOT ulcerative colitis — rectal sparing is the differentiator."
+                     },
+                     {
+                         "step":  7,
+                         "screen":  "CBC Result",
+                         "result":  "WBC 8.5K, Hgb 15.0, Hct 45%, Plt 300K — all normal. Normocytic normochromic.",
+                         "decision":  "Normal CBC. No anemia."
+                     },
+                     {
+                         "step":  8,
+                         "screen":  "C. diff PCR",
+                         "result":  "Negative for C. difficile"
+                     },
+                     {
+                         "step":  9,
+                         "screen":  "Treatment",
+                         "orders":  [
+                                        "Budesonide",
+                                        "Mesalamine / steroid class"
+                                    ],
+                         "status":  "Started Crohn\u0027s treatment"
+                     }
+                 ],
+    "missed":  [
+                   {
+                       "order":  "Iron + TIBC",
+                       "why":  "Terminal ileum absorbs iron. Normal Hgb doesn\u0027t rule out deficiency — ferritin drops first. Crohn\u0027s inflammation at absorption site = micronutrient depletion before anemia."
+                   },
+                   {
+                       "order":  "Vitamin B12",
+                       "why":  "Absorbed in terminal ileum — same inflamed tissue. B12 deficiency precedes macrocytic anemia."
+                   },
+                   {
+                       "order":  "Vitamin D 25-OH",
+                       "why":  "Fat-soluble vitamin malabsorption in IBD"
+                   },
+                   {
+                       "order":  "BMP / CMP / LFTs",
+                       "why":  "Basic screening panel in any new diagnosis"
+                   },
+                   {
+                       "order":  "Upper EGD",
+                       "why":  "Crohn\u0027s can involve upper GI tract — full staging recommended"
+                   },
+                   {
+                       "order":  "Ova \u0026 parasites / Giardia",
+                       "why":  "Rule out parasitic cause of chronic diarrhea"
+                   },
+                   {
+                       "order":  "GI consult",
+                       "why":  "Outpatient follow-up after Crohn\u0027s diagnosis"
+                   },
+                   {
+                       "order":  "Tdap vaccine",
+                       "why":  "Every 10 years — free point"
+                   },
+                   {
+                       "order":  "Smoking cessation counseling",
+                       "why":  "Free point, any smoker. Smoking specifically WORSENS Crohn\u0027s disease."
+                   }
+               ],
+    "mechanismsForImage":  [
+                               {
+                                   "panel":  1,
+                                   "title":  "Transmural Inflammation",
+                                   "concept":  "All four intestinal layers burning — mucosa, submucosa, muscularis, serosa. Unlike UC which is mucosal-only."
+                               },
+                               {
+                                   "panel":  2,
+                                   "title":  "Skip Lesions",
+                                   "concept":  "Patchy inflamed segments alternating with normal mucosa. Terminal ileum + right colon. Rectal sparing."
+                               },
+                               {
+                                   "panel":  3,
+                                   "title":  "Non-caseating Granuloma",
+                                   "concept":  "Macrophage aggregate deep in submucosa — the histological hallmark of Crohn\u0027s."
+                               },
+                               {
+                                   "panel":  4,
+                                   "title":  "Cobblestone Appearance",
+                                   "concept":  "Linear serpentine ulcers intersecting raised polypoid mucosal islands."
+                               },
+                               {
+                                   "panel":  5,
+                                   "title":  "Fistula Formation",
+                                   "concept":  "Transmural inflammation bores through all layers — a fistula channel connecting lumen to adjacent structures."
+                               },
+                               {
+                                   "panel":  6,
+                                   "title":  "Perianal Skin Tags",
+                                   "concept":  "The sentinel finding on exam — extraintestinal Crohn\u0027s manifesting at the anal verge."
+                               },
+                               {
+                                   "panel":  7,
+                                   "title":  "Iron + B12 Malabsorption",
+                                   "concept":  "Terminal ileum inflamed — rust-colored iron particles and cobalt-blue B12 cannot absorb through burned transport channels."
+                               },
+                               {
+                                   "panel":  8,
+                                   "title":  "Crohn\u0027s vs UC Contrast",
+                                   "concept":  "Left: UC — continuous superficial mucosal inflammation, rectum involved. Right: Crohn\u0027s — transmural deep fire, skip pattern, rectal sparing."
+                               },
+                               {
+                                   "panel":  9,
+                                   "title":  "Mesalamine Mechanism",
+                                   "concept":  "Steroid molecule descends as cooling rain onto inflamed mucosa, extinguishing the cytokine inferno."
+                               }
+                           ],
+    "imagePrompt":  "An Unreal Engine 5 cinematic 3D macro render, not a photograph, real-time global illumination, crisp high-poly precision, one dramatic key light, deep black shadow, high contrast. A 3x3 grid, 9 panels, landscape 16:9, no text anywhere, no words, no letters, no numbers, no labels. One continuous environment inside and around the terminal ileum wall. Panel 1 Worm\u0027s-Eye View from lumen: ileal wall rises like canyon, all four layers burning amber-orange transmural inflammation, muscle layer in spasm. Panel 2 Bird\u0027s-Eye View: skip lesions, patchy inflamed segments alternating with normal smooth mucosa like fire islands across calm sea. Panel 3 Crash Zoom In: macrophage cluster forming non-caseating granuloma deep in submucosa, golden granular pearl with no central necrosis. Panel 4 Dolly Zoom Out: linear serpentine ulcers carve deep fissures into swollen mucosa, raised polypoid islands create cobblestone terrain. Panel 5 Through Object In: fistulous track tunnels through all four wall layers, a glowing channel of destruction connecting lumen to adjacent bowel. Panel 6 Worm\u0027s-Eye View perianal: raised fleshy skin tags at anal verge, thickened angry tissue, extraintestinal sentinel of internal disease. Panel 7 Macroscopic pullback terminal ileum lumen: rust-colored iron particles and cobalt-blue B12 molecules drift toward inflamed villi but cannot absorb, transport channels burned shut, particles rebounding off damaged surface. Panel 8 Split contrast matched framing: left ulcerative colitis continuous superficial red inflammation mucosa only rectum involved, right Crohn\u0027s transmural deep amber fire skip pattern rectal sparing, same angle opposite diseases. Panel 9 Extreme close-up payoff: mesalamine molecule descends as cooling rain onto inflamed mucosa, amber-orange fire dims to cool blue where it touches, steroid extinguishing cytokine inferno at source. Cinematic high contrast glossy anatomical detail consistent style throughout, no text anywhere.",
+    "dossierPath":  "C:/Users/steve/MeWorld/dev/screenshots/crohns-anal-tags-2026-07-23",
+    "imageOutputPath":  "C:/Users/steve/MeWorld/dev/screenshots/crohns-anal-tags-2026-07-23/images",
+    "imageGenerationAgentId":  "08e3b4ec",
+    "imageGenerationStatus":  "completed",
+    "descentImagePath":  "images\\descent-3x3.png",
+    "descentAgentId":  "4c06595b",
+    "descentStatus":  "completed",
+    "descentTaskId":  "01e43169-39f3-4c3d-980e-d0a97d2a1073",
+    "descentModel":  "nano-banana-pro",
+    "descentPromptPath":  "images\\descent-3x3.prompt.txt",
+    "descentPromptLength":  2923,
+    "descentImageSizeBytes":  5963776,
+    "imageFilePaths":  [
+                           "01-transmural-inflammation.png",
+                           "02-skip-lesions.png",
+                           "03-granuloma.png",
+                           "04-cobblestone.png",
+                           "05-fistula.png",
+                           "06-anal-tags.png",
+                           "07-malabsorption.png",
+                           "08-crohns-vs-uc.png",
+                           "09-mesalamine.png"
+                       ]
+}

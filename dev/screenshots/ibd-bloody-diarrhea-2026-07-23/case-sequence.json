@@ -1,0 +1,127 @@
+{
+    "caseId": "ibd-bloody-diarrhea-2026-07-23",
+    "ccsCaseNumber": 87,
+    "ccsTitle": "Abdominal Pain — Internal Medicine",
+    "diagnosis": "Ulcerative Colitis",
+    "score": "84.9%",
+    "avgFirstAttempt": "81.7%",
+    "zScore": -1.31,
+    "patient": {
+        "age": 31,
+        "sex": "male",
+        "occupation": "Business executive, college degree, married, 1 child (age 5)",
+        "key": "31M with 1 month of crampy abdominal pain, watery bloody stools (4/day), weight loss, reduced appetite. No dietary triggers, no travel, no sick contacts. PMH childhood asthma. Social: 1/2 PPD smoker, weekend alcohol."
+    },
+    "vitals": {
+        "temperature": "37.2 C (99.0 F)",
+        "pulse": "88 bpm, Regular",
+        "rr": "14/min",
+        "bp": "115/65",
+        "bmi": "24.4"
+    },
+    "history": {
+        "hpi": "31M presents to office with crampy abdominal pain, watery loose stools, and weight loss x1 month. 4 BMs/day. Blood in toilet after defecation. Reduced appetite. No dietary triggers. No recent illness, sick contacts, or travel. Tried Tums without relief.",
+        "pmh": "Childhood asthma. Never hospitalized. No prior procedures.",
+        "meds": "None",
+        "allergies": "NKDA",
+        "social": "Married, 1 child age 5. Weekend alcohol. 1/2 PPD smoker. No marijuana, no illicit drugs.",
+        "family": "Father: hypertension. Mother: healthy.",
+        "ros": "General: see HPI. Skin negative. HEENT negative. Cardiorespiratory negative. GI: see HPI. GU negative. Neuropsychiatric negative."
+    },
+    "physicalExam": {
+        "general": "Well-developed, well-nourished, in no apparent distress.",
+        "heent": "Normocephalic. Vision/hearing normal. Ears, nose, mouth, pharynx normal. Neck supple, no masses.",
+        "chestLungs": "Chest wall normal. Diaphragm and chest move equally. No abnormality on percussion or auscultation.",
+        "heart": "S1/S2 normal. No murmurs, rubs, gallops. No JVD. BP equal in both arms.",
+        "abdomen": "Bowel sounds normal. No bruits. No masses or tenderness. Liver/spleen not palpable. No hernias.",
+        "rectal": "Sphincter tone normal. Stool brown tinged with blood. Occult blood positive. Prostate normal.",
+        "extremities": "No deformity, cyanosis, clubbing, or edema. Peripheral pulses normal. Full ROM.",
+        "neuro": "Mental status normal. Cranial nerves, motor, sensory normal. Cerebellar function normal. DTRs normal."
+    },
+    "ordersPlaced": [
+        "Physical Exam: General Appearance, Skin, Breast, Lymph Node, HEENT, Chest/Lungs, Heart, Abdomen, Genital, Rectal, Extremities/Spine, Neuro/Psych",
+        "CBC with differential / Hgb / Hct",
+        "BMP / CMP / LFTs",
+        "Bacterial culture, stool",
+        "Ova and parasites, stool / Giardia antigen / antibody",
+        "C. difficile PCR / toxin assay, stool",
+        "Vibrio species culture, stool",
+        "HIV antigen, P24, serum",
+        "Lactated Ringer solution, IV continuous",
+        "Diet, high iron",
+        "Prednisolone, IV continuous",
+        "Mesalamine, Oral continuous (Day 2 @ 10:00)",
+        "Vaccine, diphtheria/tetanus/pertussis",
+        "Colonoscopy / Sigmoidoscopy",
+        "ESR (optional — not required)",
+        "CRP (optional — not required)",
+        "Occult blood, stool (optional — not required, already on rectal exam)"
+    ],
+    "missed": [
+        {
+            "order": "X-ray, abdomen, acute series / Abdominal XR AP",
+            "why": "Look for gross abnormalities causing chronic diarrhea. Quick, low-cost screen before scope."
+        },
+        {
+            "order": "Consult, gastroenterology",
+            "why": "GI should follow this patient long-term for IBD management. Not urgent, but proper care."
+        }
+    ],
+    "timingErrors": [
+        "1 negative patient update before correct treatment",
+        "Preventive care (Tdap) ordered before treatment completion — should be last, with 2 min remaining"
+    ],
+    "location": {
+        "used": "Office (entire case)",
+        "correct": "Office — no location switch needed",
+        "destination": "Office at simulated time 1 Days 00 Hrs 00 Min"
+    },
+    "scoreBreakdown": {
+        "diagnosisOrders": { "percent": 91.43, "weight": "40%" },
+        "treatmentOrders": { "percent": 83.33, "weight": "40%" },
+        "preventiveCare": { "percent": 100, "weight": "5%" },
+        "timing": { "percent": 50, "weight": "5%" },
+        "appropriateOrders": { "percent": 100, "weight": "5%" },
+        "locationSequence": { "percent": 50, "weight": "5%" }
+    },
+    "ccsDifferential": [
+        "Crohn's disease",
+        "Diverticulitis",
+        "Gastroenteritis",
+        "Infectious colitis",
+        "Internal hemorrhoid",
+        "Irritable bowel syndrome",
+        "Ischemic colitis",
+        "Lactose intolerance",
+        "Pseudomembranous colitis",
+        "Ulcerative colitis"
+    ],
+    "treatmentPlan": {
+        "firstLine": "Mesalamine (5-ASA) or Sulfasalazine — anti-inflammatory, topical effect on colonic mucosa",
+        "timeline": "Improvement within 1 week. Clinical remission may require 4-6 weeks or longer.",
+        "refractory": "Immunomodulators (azathioprine, infliximab) if 5-ASA fails",
+        "acuteExacerbation": "Corticosteroids (prednisolone) in conjunction with 5-ASA during flares",
+        "maintenance": "GI follow-up, surveillance colonoscopy (UC increases CRC risk)"
+    },
+    "pathophysiology": {
+        "mechanism": "Chronic relapsing inflammatory disorder limited to colonic mucosa and submucosa. Begins in rectum, extends proximally in continuous fashion. Neutrophils infiltrate crypts → crypt abscesses → crypt destruction → mucosal ulceration → bleeding (hematochezia). Unlike Crohn's: no transmural inflammation, no skip lesions, no granulomas, no small bowel involvement, rectum always involved.",
+        "smokingNote": "UC is more common in non-smokers and ex-smokers. Smoking is protective in UC (opposite of Crohn's). However, smoking cessation can trigger UC onset.",
+        "colorectalCancer": "UC increases CRC risk. Risk begins ~8-10 years after diagnosis. Surveillance colonoscopy required."
+    },
+    "teachingPoints": [
+        "Infection must be excluded before scope. Stool studies are the safety gate.",
+        "Abdominal XR is a quick screen before colonoscopy for gross pathology.",
+        "5-ASA (mesalamine) is first-line — topical anti-inflammatory. Steroids are for acute flares only.",
+        "Preventive care (vaccines) should be ordered at end of case, not before treatment.",
+        "GI consult is proper medical care even though it doesn't change the CCS score.",
+        "UC affects mucosa/submucosa only (no transmural). Rectum always involved. Continuous, not patchy."
+    ],
+    "imageOutputPath": "images",
+    "descentStatus": "completed",
+    "descentAgentId": "0564a4f9-5763-4aec-a51d-3f9489a27aab",
+    "descentImagePath": "images/descent-3x3.png",
+    "descentImageSizeKB": 6661,
+    "descentModelUsed": "nano-banana-pro (correct — single API call)",
+    "descentResolution": "2K (correct)",
+    "descentPromptPath": "images/descent-3x3.prompt.txt"
+}

@@ -1,0 +1,166 @@
+﻿{
+    "caseId":  "ischemic-colitis-2026-07-23",
+    "diagnosis":  "Ischemic Colitis (acute colonic ischemia â€” splenic flexure watershed, hypoperfusion)",
+    "score":  "24.43%",
+    "avgFirstAttempt":  "71.1%",
+    "ccsCaseNumber":  "87 or 89",
+    "ccsTitle":  "Abdominal Pain â€” Internal Medicine (Emergency Department)",
+    "patient":  {
+                    "age":  65,
+                    "sex":  "male",
+                    "occupation":  "Financial advisor, BS Finance, married, one son (25)",
+                    "key":  "Volume depleted elderly vasculopath presents with left-sided crampy pain, maroon stools, hypotension, AKI. Normal colonoscopy. CT shows pneumatosis â€” surgical emergency."
+                },
+    "vitals":  {
+                   "temperature":  "37.0C",
+                   "pulse":  "112 bpm",
+                   "bp":  "88/58 (hypotensive)",
+                   "rr":  "22",
+                   "bmi":  "28.5"
+               },
+    "history":  {
+                    "hpi":  "65M to ED with diarrhea, abdominal pain, malaise, and dark red stools for the past day. Severe \u0027crampy\u0027 pain mostly on the LEFT side. Preceded by a \u0027bad stomach bug\u0027 with profuse watery diarrhea, no appetite, increasingly weak and light-headed. The dark red stools and severe left-sided pain started within 24 hours.",
+                    "pmh":  "Appendectomy at 20. Hyperlipidemia (on simvastatin).",
+                    "meds":  "Simvastatin",
+                    "allergies":  "NKDA",
+                    "social":  "Quit smoking 10yr ago (ex-1PPD x15yr). 1-2 drinks socially weekends.",
+                    "family":  "Mother deceased. Father in care center with Alzheimer\u0027s."
+                },
+    "physicalExam":  {
+                         "heent":  "Dry mucous membranes",
+                         "heart":  "Tachycardic, S1/S2 normal, no murmurs",
+                         "abdomen":  "Mildly distended. Hypoactive bowel sounds. Moderately tender diffusely. No rebound. No rigidity.",
+                         "rectal":  "Maroon-colored stool, positive for gross AND occult blood. Prostate normal.",
+                         "neuro":  "Mental status normal at exam (later: Day 2 drowsy and difficult to arouse)"
+                     },
+    "labs":  {
+                 "cmp":  {
+                             "bun":  "52.0 mg/dL (HIGH â€” prerenal azotemia)",
+                             "cr":  "1.70 mg/dL (HIGH â€” AKI, eGFR moderately decreased 30-59)",
+                             "bicarb":  "20 mEq/L (LOW â€” metabolic acidosis)",
+                             "k":  "3.5 mEq/L",
+                             "na":  "140 mEq/L",
+                             "cl":  "97 mEq/L",
+                             "albumin":  "3.6 g/dL"
+                         },
+                 "colonoscopy":  "NORMAL. No polyps, AVM, diverticula. Cecum reached."
+             },
+    "scoreBreakdown":  {
+                           "diagnosisOrders":  {
+                                                   "percent":  33.33,
+                                                   "weight":  "40%"
+                                               },
+                           "treatmentOrders":  {
+                                                   "percent":  8,
+                                                   "weight":  "45%"
+                                               },
+                           "timing":  {
+                                          "percent":  0,
+                                          "weight":  "5%"
+                                      },
+                           "appropriateOrders":  {
+                                                     "percent":  100,
+                                                     "weight":  "5%"
+                                                 },
+                           "locationSequence":  {
+                                                    "percent":  50,
+                                                    "weight":  "5%"
+                                                }
+                       },
+    "correctlyOrdered":  [
+                             "Physical Exam: General Appearance, Chest/Lungs, Heart, Abdomen, Rectal",
+                             "CBC with differential / Hgb / Hct",
+                             "BMP / CMP / LFTs",
+                             "IV fluids (NS / LR)",
+                             "Correctly avoided MRI (pt hemodynamically unstable)"
+                         ],
+    "missed":  [
+                   {
+                       "order":  "CT abdomen/pelvis with contrast / CTA abdomen/pelvis",
+                       "why":  "This is the definitive test. CT shows pneumatosis (gas in bowel wall) â€” pathognomonic for advanced ischemia. Without imaging, you\u0027re guessing."
+                   },
+                   {
+                       "order":  "X-ray, abdomen, acute series",
+                       "why":  "Plain film can show pneumatosis and portal venous gas. Quick bedside test before CT."
+                   },
+                   {
+                       "order":  "Lactate, serum",
+                       "why":  "Elevated lactate indicates hypoperfusion and tissue ischemia. His bicarb is 20 (acidotic), BP is 88/58 â€” he\u0027s in anaerobic metabolism."
+                   },
+                   {
+                       "order":  "EKG, 12-lead",
+                       "why":  "This is a surgical emergency. Pre-op EKG is mandatory before the OR."
+                   },
+                   {
+                       "order":  "PT/PTT / INR",
+                       "why":  "Pre-surgery labs â€” coagulation status needed before laparotomy."
+                   },
+                   {
+                       "order":  "Type and screen / Type and Rh factor",
+                       "why":  "Pre-surgery labs. Maroon stools + hypotension = possible transfusion."
+                   },
+                   {
+                       "order":  "NPO / Nothing by mouth",
+                       "why":  "Surgical abdomen. NPO preps the patient for the OR."
+                   },
+                   {
+                       "order":  "Surgery consult, general / Laparotomy",
+                       "why":  "Ischemic colitis with pneumatosis is a surgical emergency. Once surgery is consulted, the case ends. You need the surgeon the moment imaging confirms ischemia."
+                   },
+                   {
+                       "order":  "Broad-spectrum antibiotics (pip-tazo or carbapenem or cipro/ceftriaxone + metronidazole)",
+                       "why":  "Necrotic bowel â†’ bacterial translocation â†’ sepsis. Cover anaerobes (metronidazole) + gram-negatives."
+                   },
+                   {
+                       "order":  "C. diff PCR + toxin",
+                       "why":  "Bloody diarrhea in a 65-year-old in the hospital. Always rule out C. diff even without recent antibiotic history."
+                   }
+               ],
+    "locationError":  {
+                          "what":  "Stayed in Emergency Department the entire case",
+                          "shouldBe":  "Transfer to ICU or Inpatient Unit by simulated time 0 Days, 07 Hours",
+                          "why":  "This is an emergency requiring surgery. The patient needs ICU-level monitoring."
+                      },
+    "patientUpdates":  [
+                           {
+                               "day":  "Day 2 @ 2:00",
+                               "status":  "Drowsy and difficult to arouse"
+                           }
+                       ],
+    "timingErrors":  [
+                         "2 negative patient updates prior to correct treatment â€” patient decompensated while still in ED with no surgical consult"
+                     ],
+    "zScore":  -2.34,
+    "avgOrdersFor85Percent":  43.15,
+    "ordersPlaced":  12,
+    "ccsDifferential":  [
+                            "Adenocarcinoma of the colon",
+                            "Crohn\u0027s disease",
+                            "Diverticular bleed",
+                            "Infectious colitis",
+                            "Acute mesenteric ischemia",
+                            "Peptic ulcer disease",
+                            "Ulcerative colitis"
+                        ],
+    "pathophysiology":  {
+                            "mechanism":  "Hypoperfusion of mesenteric vasculature â†’ inadequate oxygen delivery to colon â†’ mucosal ischemia â†’ epithelial necrosis and sloughing â†’ bleeding (maroon stools). Splenic flexure = watershed between SMA and IMA â€” the first region to infarct during low-flow states. Risk factors: age \u003e60, hyperlipidemia/atherosclerosis, volume depletion, hypotension.",
+                            "pneumatosis":  "Gas within the intestinal wall â€” produced by bacteria that have translocated through necrotic mucosa. This is the imaging finding that confirms advanced ischemia. Once pneumatosis is present, this is a surgical emergency.",
+                            "surgeryReason":  "Necrotic bowel must be resected. Leaving dead tissue in the abdomen â†’ perforation, peritonitis, sepsis, death. The surgeon needs to be consulted the moment CT confirms pneumatosis."
+                        },
+    "imageOutputPath":  "C:/Users/steve/MeWorld/dev/screenshots/ischemic-colitis-2026-07-23/images",
+    "imageGenerationStatus":  "completed",
+    "descentAgentId":  "06bc39ec-e7f7-4974-87b8-e746ca00bf47",
+    "descentPromptPath":  "descent-prompt.md",
+    "descentPromptLength":  2983,
+    "descentStatus":  "done: 1 grid, 352 KB, 1440x768 — wrong model (flux-2-pro, not nano-banana-pro)",
+    "descentImagePath":  "images/descent-3x3.png",
+    "descentImageSizeKB":  352,
+    "descentModelUsed":  "flux-2-pro (WRONG — subagent ignored nano-banana-pro)",
+    "descentResolution":  "1440x768 (should be 2K)",
+    "detectiveStatus":  "completed",
+    "detectiveAgentId":  "726d932c-faf0-4f1e-823d-327e355a4a11",
+    "detectiveImagePath":  "images/descent-detective-3x3.png",
+    "detectiveImageSizeKB":  6539,
+    "detectiveModelUsed":  "nano-banana-pro (correct — single API call)",
+    "detectiveResolution":  "2K (correct)"
+}

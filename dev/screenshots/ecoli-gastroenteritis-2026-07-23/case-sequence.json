@@ -1,0 +1,266 @@
+﻿{
+    "caseId":  "ecoli-gastroenteritis-2026-07-23",
+    "diagnosis":  "Acute Bacterial Gastroenteritis (E. coli)",
+    "score":  "88.75%",
+    "avgFirstAttempt":  "76.2%",
+    "ccsCaseNumber":  "82",
+    "ccsTitle":  "Abdominal Pain - Internal Medicine",
+    "patient":  {
+                    "age":  29,
+                    "sex":  "male",
+                    "occupation":  "Marketing firm, college graduate",
+                    "key":  "Foul-smelling diarrhea worsening to Day 3 + E. coli on stool culture sensitive to cipro"
+                },
+    "vitals":  {
+                   "temperature":  "37.5C",
+                   "pulse":  "98 bpm",
+                   "bp":  "129/87",
+                   "rr":  "16",
+                   "bmi":  "27.8"
+               },
+    "sequence":  [
+                     {
+                         "step":  1,
+                         "screen":  "Case Introduction",
+                         "what":  "29M, abdominal pain and diarrhea for 8 days, office visit",
+                         "decision":  "Acute diarrhea in a young adult â€” 8 days is subacute, not chronic. Start with history and broad workup."
+                     },
+                     {
+                         "step":  2,
+                         "screen":  "Vital Signs",
+                         "what":  "T 37.5, HR 98, BP 129/87, RR 16, BMI 27.8 â€” mild tachycardia, otherwise stable",
+                         "decision":  "Mildly tachycardic but not in distress. Afebrile."
+                     },
+                     {
+                         "step":  3,
+                         "screen":  "HPI / History",
+                         "what":  "Crampy abdominal pain, frequent loose stools, no blood/melena. Foul-smelling. Uses multivitamin. Single, no children. Smokes 1/2 PPD. Drinks socially. Marketing firm.",
+                         "decision":  "No red flags in PMH. Social: smoker. Foul-smelling = consider infectious."
+                     },
+                     {
+                         "step":  4,
+                         "screen":  "Physical Exam",
+                         "what":  "Abdomen: mild tenderness only. Rectal: no occult blood, no masses, normal. Rest full exam normal.",
+                         "decision":  "No perianal involvement, no blood â€” rules out IBD. Non-inflammatory diarrhea pattern."
+                     },
+                     {
+                         "step":  5,
+                         "screen":  "Order Input",
+                         "orders":  [
+                                        "CBC with diff",
+                                        "CMP",
+                                        "Stool culture",
+                                        "Calprotectin (mentioned but not ordered)",
+                                        "ESR",
+                                        "CRP (mentioned but not ordered)",
+                                        "C. diff PCR + toxin",
+                                        "Tdap"
+                                    ],
+                         "status":  "Placed diagnostic labs. Tdap ordered early â€” should have waited for after treatment."
+                     },
+                     {
+                         "step":  6,
+                         "screen":  "CBC + CMP Results",
+                         "result":  "CBC: WBC 8.5K, Hgb 15.0 â€” all normal. CMP: BUN 14, Cr 1.0, LFTs normal, calcium normal. No dehydration, no organ dysfunction.",
+                         "decision":  "Normal labs rule out severe dehydration and organ failure. ESR = 0 mm/hr â€” confirms non-inflammatory."
+                     },
+                     {
+                         "step":  7,
+                         "screen":  "C. diff Results",
+                         "result":  "C. diff PCR negative. C. diff toxin negative.",
+                         "decision":  "C. diff ruled out."
+                     },
+                     {
+                         "step":  8,
+                         "screen":  "Day 2 â€” Patient Update",
+                         "what":  "Worsening: foul-smelling stools, pain continuing.",
+                         "decision":  "Patient is decompensating despite supportive care. Need to broaden stool studies."
+                     },
+                     {
+                         "step":  9,
+                         "screen":  "Orders â€” Giardia + O\u0026P",
+                         "orders":  [
+                                        "Ova \u0026 parasites, stool",
+                                        "Giardia antigen, stool"
+                                    ],
+                         "status":  "Ordered to cover parasitic causes"
+                     },
+                     {
+                         "step":  10,
+                         "screen":  "Stool Culture + E. coli",
+                         "result":  "E. coli grown â€” resistant to cephalosporins, sensitive to ciprofloxacin, levofloxacin, azithromycin",
+                         "decision":  "Enteropathogenic E. coli is the culprit. Cipro or azithromycin for treatment."
+                     },
+                     {
+                         "step":  11,
+                         "screen":  "Day 3 â€” Patient Update",
+                         "what":  "Vomiting frequently, severe abdominal pain, worsening diarrhea, dizzy.",
+                         "decision":  "Patient is now clinically worsening â€” switch from oral to IV antibiotics immediately."
+                     },
+                     {
+                         "step":  12,
+                         "screen":  "Giardia + O\u0026P Results",
+                         "result":  "Giardia antigen: negative.",
+                         "decision":  "Giardia ruled out. E. coli remains the diagnosis."
+                     },
+                     {
+                         "step":  13,
+                         "screen":  "Treatment",
+                         "orders":  [
+                                        "IV metronidazole",
+                                        "IV ciprofloxacin",
+                                        "IV NS + LR fluids"
+                                    ],
+                         "status":  "Switched to IV ciprofloxacin after Giardia negative. Metronidazole stopped being needed once Giardia was ruled out."
+                     }
+                 ],
+    "missed":  [
+                   {
+                       "order":  "Calprotectin, stool",
+                       "why":  "The mucosal protein released under stress. ESR = 0 doesn\u0027t suffice alone â€” calprotectin + ESR together confirm non-inflammatory etiology. Stool calprotectin is more specific for colonic inflammation than serum ESR."
+                   },
+                   {
+                       "order":  "C-reactive protein (CRP)",
+                       "why":  "Independent inflammatory marker, not the same as ESR. ESR = 0 + low CRP = locked non-inflammatory diagnosis. Ordered verbally but never placed."
+                   },
+                   {
+                       "order":  "Hepatitis A IgM",
+                       "why":  "You recognized this yourself â€” Hepatitis A can present with acute diarrhea and abdominal pain. LFTs were normal so it\u0027s unlikely, but it\u0027s an expected CCS order for acute diarrhea workup."
+                   },
+                   {
+                       "order":  "Smoking cessation counseling",
+                       "why":  "1/2 PPD smoker. Free point in every CCS case with a smoker. Always order regardless of diagnosis."
+                   },
+                   {
+                       "order":  "Medication compliance counseling",
+                       "why":  "Antibiotic resistance prevention. Every antibiotic case needs this."
+                   }
+               ],
+    "timingErrors":  [
+                         {
+                             "error":  "Tdap ordered before acute treatment",
+                             "fix":  "Preventive care should be ordered AFTER the acute problem is treated, not in the initial order stack. Tdap is for \u0027later safe keeping\u0027 â€” literally order it at the end."
+                         },
+                         {
+                             "error":  "One negative patient update before correct treatment",
+                             "fix":  "Patient worsened on Day 3 before IV cipro started. With E. coli on culture at Day 2, treatment should have started immediately upon seeing the sensitivity report."
+                         }
+                     ],
+    "scoreBreakdown":  {
+                           "diagnosisOrders":  {
+                                                   "percent":  100,
+                                                   "weight":  "40%"
+                                               },
+                           "treatmentOrders":  {
+                                                   "percent":  100,
+                                                   "weight":  "40%"
+                                               },
+                           "timing":  {
+                                          "percent":  0,
+                                          "weight":  "5%"
+                                      },
+                           "appropriateOrders":  {
+                                                     "percent":  100,
+                                                     "weight":  "5%"
+                                                 },
+                           "locationSequence":  {
+                                                    "percent":  50,
+                                                    "weight":  "5%"
+                                                },
+                           "preventiveCare":  {
+                                                  "percent":  25,
+                                                  "weight":  "5%"
+                                              }
+                       },
+    "mechanismsForImage":  [
+                               {
+                                   "panel":  1,
+                                   "title":  "Healthy Gut â€” E. coli Invasion",
+                                   "concept":  "Enteropathogenic E. coli bacteria attaching to intestinal epithelium, disrupting microvilli"
+                               },
+                               {
+                                   "panel":  2,
+                                   "title":  "Toxin Secretion",
+                                   "concept":  "E. coli secreting enterotoxins that pump chloride into the lumen, dragging water by osmosis"
+                               },
+                               {
+                                   "panel":  3,
+                                   "title":  "Secretory Diarrhea",
+                                   "concept":  "Water flooding the intestinal lumen, foul-smelling liquid stool, villi overwhelmed"
+                               },
+                               {
+                                   "panel":  4,
+                                   "title":  "Non-Inflammatory Pattern",
+                                   "concept":  "ESR = 0, no blood, no fever â€” the mucosa is intact, no WBC infiltration. Pure secretory diarrhea."
+                               },
+                               {
+                                   "panel":  5,
+                                   "title":  "Dehydration Cascade",
+                                   "concept":  "Patient vomiting, dizzy, tachycardic â€” volume depletion without inflammation"
+                               },
+                               {
+                                   "panel":  6,
+                                   "title":  "Culture + Sensitivity",
+                                   "concept":  "E. coli colonies on agar plate with antibiotic discs â€” cephalosporins show no zone (resistant), ciprofloxacin shows wide zone (sensitive)"
+                               },
+                               {
+                                   "panel":  7,
+                                   "title":  "Ciprofloxacin Mechanism",
+                                   "concept":  "Fluoroquinolone molecule binding bacterial DNA gyrase, preventing DNA replication â€” the bacteria stop dividing"
+                               },
+                               {
+                                   "panel":  8,
+                                   "title":  "Giardia Negative Contrast",
+                                   "concept":  "Giardia antigen test strip showing negative (single control line only) â€” the parasite was ruled out, narrowing to E. coli"
+                               },
+                               {
+                                   "panel":  9,
+                                   "title":  "Recovery",
+                                   "concept":  "IV fluids repleting the depleted intravascular volume, cipro clearing the E. coli, intestinal epithelium regenerating"
+                               }
+                           ],
+    "imageOutputPath":  "C:/Users/steve/MeWorld/dev/screenshots/ecoli-gastroenteritis-2026-07-23/images",
+    "imageGenerationStatus":  "completed",
+    "descentAgentId":  "c5bb2674-58b6-431f-bdfb-a9ac186f5452",
+    "descentPromptPath":  "descent-prompt.md",
+    "descentStatus":  "generating",
+    "descentGenStatus":  "completed: 9 panels + 3x3 grid",
+    "descentGenScript":  "generate-descent.mjs",
+    "ocrPath":  "ocr-full.txt",
+    "ocrJsonPath":  "ocr-full.json",
+    "ccsDifferential":  [
+                            "Giardiasis",
+                            "Amebiasis",
+                            "Viral gastroenteritis",
+                            "Parasitic infection",
+                            "Inflammatory bowel disease",
+                            "Food poisoning (Salmonellosis)",
+                            "Hepatitis A",
+                            "C. difficile infection",
+                            "Cholera",
+                            "Campylobacter infection",
+                            "Shigellosis"
+                        ],
+    "ordersPlaced":  [
+                         "CBC with differential",
+                         "Comprehensive metabolic profile",
+                         "Bacterial culture, stool",
+                         "Vibrio species culture, stool",
+                         "Sedimentation rate, erythrocyte",
+                         "Polymerase chain reaction, clostridium difficile, stool",
+                         "Clostridium difficile toxin assay, stool",
+                         "Vaccine, diphtheria/tetanus/pertussis (IM, Day 1)",
+                         "Saline solution, normal (IV continuous, Day 1)",
+                         "Lactated Ringer solution (IV continuous, Day 1)",
+                         "Metronidazole (IV continuous, Day 2)",
+                         "Giardia antigen, stool (Day 2)",
+                         "Ciprofloxacin (IV continuous, Day 3)"
+                     ],
+    "totalOrdersPlaced":  14,
+    "zScore":  "-1.59",
+    "avgOrdersFor85Percent":  36.24,
+    "descentImagePath":  "images/ecoli-descent-3x3.png",
+    "descentGridDimensions":  "6144x6144",
+    "descentGridSizeMB":  39.4,
+    "panelCount":  9
+}

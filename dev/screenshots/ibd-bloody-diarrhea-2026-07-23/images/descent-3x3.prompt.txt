@@ -1,0 +1,28 @@
+Naughty Dog cinematic CGI style, volumetric rays, PBR materials, dramatic key light with deep falloff into near-black shadow, cinematic concept still — not a photograph, not a textbook diagram, not flat medical illustration. Film grain, high contrast, near-black void. No text, labels, numbers, UI anywhere.
+Consistent volumetric lighting across all panels.
+
+3x3 grid, 9 panels, one unbroken descent.
+
+Story Spine: A 31-year-old executive arrives with a month of bloody diarrhea and weight loss. Gut epithelium being destroyed by inflammation — neutrophils invading crypts, raw bleeding surface. Chronic blood loss drains iron. CBC shows anemia, thrombocytosis, elevated CRP. The gate: stool studies to exclude C. diff, Campylobacter, E. histolytica. CT enterography reveals bowel wall thickening. Scope shows continuous inflammation from rectum with crypt abscesses. The diagnosis lands. A lifetime begins.
+
+Camera: wide office, macro crypts, macro bleed, medium lab, macro plates, bird's-eye CT, medium scope, macro biopsy, wide patient.
+
+Panel 1 (ONCE — wide): 31M in business attire at desk, pale, hollow cheeks, weight loss visible. Hand resting on lower abdomen. Afternoon light through window. The detective enters.
+
+Panel 2 (EVERY DAY — macro, crypts): Cross-section of colonic mucosa. Normal crypts on left: structured pink epithelium. Right: neutrophils streaming between cells, crypt abscesses forming, architecture dissolving. Turnover broken.
+
+Panel 3 (UNTIL — macro, blood): Raw denuded mucosal surface. Exposed capillaries weeping into lumen. Epithelium sloughed, basement membrane visible. Erythrocytes streaming out. Continuous damage.
+
+Panel 4 (BECAUSE — medium, lab): Blood tubes under lab light. One pale tube: low hemoglobin. Iron panel beside it. Bone marrow slide: depleted iron stores. The marrow is starving.
+
+Panel 5 (THEREFORE — macro, stool plates): Petri dishes under sterile light. C. diff colonies distinct. Campylobacter colonies distinct. E. histolytica cysts on slide. These are the mimics. All must be negative.
+
+Panel 6 (BUT — bird's-eye, CTE): CT cross-section on monitor. Small bowel loops. Terminal ileum: wall thickening, skip lesions — inflamed between normal. The buried territory.
+
+Panel 7 (THEREFORE — medium, scope): Colonoscope view. Continuous friable erythema from rectum upward. Loss of vascular pattern, mucopus. No skip lesions. Scope in.
+
+Panel 8 (UNTIL — macro, biopsy): Histology slide. Crypt architecture distorted. Crypt abscess: dense neutrophils inside dilated crypt gland. No granulomas. The pattern locks: ulcerative colitis.
+
+Panel 9 (EVER SINCE — wide, patient): Same man, different chair. Doctor's office. Hand holding a prescription bottle. Morning light through window. Quiet resolve. The label has landed. Mesalamine. A lifetime.
+
+Consistent volumetric lighting, deep black void, no flat diagrams, no histological slides.

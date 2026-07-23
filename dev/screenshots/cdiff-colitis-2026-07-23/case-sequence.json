@@ -1,0 +1,211 @@
+﻿{
+    "caseId":  "cdiff-colitis-2026-07-23",
+    "diagnosis":  "C. difficile Colitis (non-severe)",
+    "score":  "52.67%",
+    "avgFirstAttempt":  "84.7%",
+    "ccsCaseNumber":  "86",
+    "ccsTitle":  "Abdominal Pain - Internal Medicine",
+    "patient":  {
+                    "age":  35,
+                    "sex":  "male",
+                    "occupation":  "Construction worker, high school graduate, divorced, lives alone",
+                    "key":  "Recent antibiotics for sinus infection â†’ C. diff colitis. Leukocytosis 14.1K (not severe). Treat with oral vancomycin, NOT IV ceftriaxone."
+                },
+    "vitals":  {
+                   "temperature":  "38.0C",
+                   "pulse":  "110 bpm (tachycardic)",
+                   "bp":  "105/60",
+                   "rr":  "20",
+                   "bmi":  "27.8"
+               },
+    "history":  {
+                    "hpi":  "35M with abdominal pain, low-grade fever (38.0C), and profuse watery diarrhea x 2 days. 6 bowel movements per day. Denies blood or mucus. \u0027My stomach hurts all over. Nothing makes it better. I don\u0027t want to eat anything.\u0027 Finished a course of antibiotics for sinus infection last week â€” does not recall the name. No recent travel or sick contacts.",
+                    "pmh":  "None. No prior hospitalizations or procedures.",
+                    "meds":  "Daily multivitamin. No known drug allergies.",
+                    "social":  "Smokes 1 PPD cigarettes. Drinks alcohol daily \u0027to calm me down after a long day at work.\u0027 No illicit drugs. Divorced, lives alone, joint custody of one child.",
+                    "family":  "Father has hypertension."
+                },
+    "physicalExam":  {
+                         "general":  "Well-developed, in mild distress",
+                         "abdomen":  "Mild diffuse tenderness, no rebound, no guarding. Bowel sounds normal. No masses. Liver/spleen not palpable.",
+                         "rectal":  "Brown stool, occult blood POSITIVE. Sphincter tone normal. No masses.",
+                         "remainder":  "Full exam (CV, pulmonary, neuro, extremities, lymph, HEENT, skin) all normal."
+                     },
+    "labs":  {
+                 "cbc":  {
+                             "wbc":  "14,100/mm3 (HIGH â€” nl 3,500â€“10,500)",
+                             "hgb":  "14.0 g/dL",
+                             "hct":  "42%",
+                             "platelets":  "300,000",
+                             "peripheralSmear":  "Normochromic-normocytic. Leukocytes and platelets normal in number and morphology."
+                         },
+                 "cmp":  {
+                             "na":  "140 mEq/L",
+                             "k":  "4.0 mEq/L",
+                             "cl":  "103 mEq/L",
+                             "bicarb":  "25 mEq/L",
+                             "bun":  "14.0 mg/dL",
+                             "cr":  "1.00 mg/dL",
+                             "glucose":  "100 mg/dL",
+                             "ca":  "9.5 mg/dL",
+                             "albumin":  "4.0 g/dL",
+                             "totalProtein":  "7.0 g/dL",
+                             "totalBilirubin":  "0.7 mg/dL",
+                             "alp":  "61 U/L",
+                             "ast":  "22 U/L",
+                             "alt":  "16 U/L",
+                             "egfr":  "Normal (â‰¥90)"
+                         },
+                 "esr":  "5 mm/hr (nl 0â€“20)",
+                 "cdiffPcr":  "POSITIVE for C. difficile (Day 1 @ 10:15)",
+                 "cdiffToxin":  "Pending (not yet resulted at case end)",
+                 "vibrio":  "No growth",
+                 "stoolCulture":  "Pending",
+                 "ovaParasites":  "Pending"
+             },
+    "severityClassification":  "NON-SEVERE: WBC 14.1K (\u003c15K threshold), Cr 1.00 (\u003c1.5 threshold). No hypotension, no ileus, no megacolon.",
+    "sequence":  [
+                     {
+                         "step":  1,
+                         "screen":  "Case Introduction",
+                         "what":  "35M, abdominal pain, fever, diarrhea x 4 days (intro) / 2 days (HPI). Office visit.",
+                         "decision":  "Diarrhea + fever + recent antibiotics = C. diff until proven otherwise."
+                     },
+                     {
+                         "step":  2,
+                         "screen":  "Vital Signs",
+                         "what":  "T 38.0, HR 110 tachy, BP 105/60, RR 20 â€” febrile, tachycardic, borderline hypotensive",
+                         "decision":  "Volume depleted from profuse watery diarrhea. Needs IV fluids."
+                     },
+                     {
+                         "step":  3,
+                         "screen":  "HPI / History",
+                         "what":  "Finished antibiotics for sinus infection last week. 6 BMs/day, profuse watery diarrhea. No blood/mucus. Smokes 1 PPD, drinks daily, divorced.",
+                         "decision":  "Recent antibiotic use is the classic C. diff trigger. Risk factors: community-acquired C. diff is real."
+                     },
+                     {
+                         "step":  4,
+                         "screen":  "Physical Exam",
+                         "what":  "Mild diffuse abdominal tenderness. Rectal: occult blood POSITIVE, brown stool. Full exam otherwise normal.",
+                         "decision":  "Occult blood with diarrhea + fever = colonic inflammation."
+                     },
+                     {
+                         "step":  5,
+                         "screen":  "Order Input â€” Day 1",
+                         "orders":  [
+                                        "CBC",
+                                        "CMP",
+                                        "Stool culture",
+                                        "Vibrio culture",
+                                        "C. diff PCR",
+                                        "C. diff toxin",
+                                        "O\u0026P",
+                                        "ESR",
+                                        "IV normal saline",
+                                        "Tdap",
+                                        "Ceftriaxone IV",
+                                        "Alcohol counseling"
+                                    ],
+                         "status":  "Workup was solid. IV fluids correct. C. diff PCR correct. Tdap too early. Ceftriaxone was the fatal error."
+                     },
+                     {
+                         "step":  6,
+                         "screen":  "C. diff PCR Result (Day 1 @ 10:15)",
+                         "result":  "POSITIVE for C. difficile",
+                         "decision":  "The diagnosis is confirmed. Now you need oral vancomycin or fidaxomicin. Ceftriaxone must be STOPPED immediately."
+                     },
+                     {
+                         "step":  7,
+                         "screen":  "Patient Update (Day 1 @ 10:47)",
+                         "result":  "Patient continues to have abdominal pain and diffuse diarrhea. Thinks it is getting worse.",
+                         "decision":  "The ceftriaxone is making it worse â€” it\u0027s a broad-spectrum cephalosporin killing the remaining gut flora while C. diff overgrows."
+                     },
+                     {
+                         "step":  8,
+                         "screen":  "Patient Update (Day 3 @ 9:00)",
+                         "result":  "Patient is dizzy and faint. Does not feel well. Diarrhea has been getting worse.",
+                         "decision":  "Now clinically decompensating. Volume depletion worsening. Still no anti-C. diff antibiotic."
+                     }
+                 ],
+    "criticalError":  {
+                          "order":  "Ceftriaxone sodium, IV continuous",
+                          "placed":  "Day 1 @ 9:18",
+                          "why":  "Ceftriaxone is a 3rd-generation cephalosporin â€” a broad-spectrum antibiotic that kills normal gut flora. Cephalosporins are a KNOWN CAUSE of C. difficile, not a treatment. Ordering ceftriaxone for confirmed C. diff makes the infection WORSE by removing bacterial competition while C. diff spores germinate and proliferate.",
+                          "whatShouldHaveBeen":  "Oral vancomycin 125 mg PO QID x 10 days OR Oral fidaxomicin 200 mg PO BID x 10 days",
+                          "whyOral":  "The vancomycin molecule is too large (~1,449 Da) to cross the intestinal epithelium. It stays in the gut lumen where C. diff lives. IV vancomycin cannot penetrate the colon and is useless for C. diff. Oral vancomycin also does NOT cause Red Man Syndrome because it is not absorbed systemically."
+                      },
+    "missed":  [
+                   {
+                       "order":  "Oral vancomycin or fidaxomicin",
+                       "why":  "First-line treatment for non-severe C. diff colitis per IDSA 2021 guidelines. Metronidazole is third-line only when vancomycin/fidaxomicin unavailable."
+                   },
+                   {
+                       "order":  "Urinalysis",
+                       "why":  "Standard screening â€” expected in every CCS workup."
+                   },
+                   {
+                       "order":  "Fecal fat, stool",
+                       "why":  "Malabsorption workup for chronic diarrhea."
+                   },
+                   {
+                       "order":  "Smoking cessation counseling",
+                       "why":  "1 PPD smoker. Free point."
+                   },
+                   {
+                       "order":  "Medication compliance counseling",
+                       "why":  "Antibiotic resistance prevention."
+                   }
+               ],
+    "correctlyAvoided":  [
+                             {
+                                 "order":  "Loperamide / diphenoxylate-atropine",
+                                 "why":  "Antimotility agents are contraindicated in C. diff colitis â€” they trap toxins in the colon."
+                             }
+                         ],
+    "scoreBreakdown":  {
+                           "diagnosisOrders":  {
+                                                   "percent":  85,
+                                                   "weight":  "40%"
+                                               },
+                           "treatmentOrders":  {
+                                                   "percent":  16.67,
+                                                   "weight":  "40%"
+                                               },
+                           "timing":  {
+                                          "percent":  0,
+                                          "weight":  "5%"
+                                      },
+                           "appropriateOrders":  {
+                                                     "percent":  100,
+                                                     "weight":  "5%"
+                                                 },
+                           "locationSequence":  {
+                                                    "percent":  100,
+                                                    "weight":  "5%"
+                                                },
+                           "preventiveCare":  {
+                                                  "percent":  40,
+                                                  "weight":  "5%"
+                                              }
+                       },
+    "cdiffFirstPrinciples":  {
+                                 "trigger":  "Broad-spectrum antibiotics (cephalosporins, clindamycin, fluoroquinolones) kill normal gut flora â†’ C. diff spores survive and germinate",
+                                 "toxins":  "Toxin A (enterotoxin) causes fluid secretion and mucosal damage. Toxin B (cytotoxin) is 10x more potent â€” disrupts actin cytoskeleton via Rho GTPase glucosylation.",
+                                 "pseudomembrane":  "Yellow-white plaques of fibrin, neutrophils, and necrotic debris on colonic mucosa â€” pathognomonic on colonoscopy.",
+                                 "severity":  "Non-severe: WBC \u003c15K + Cr \u003c1.5. Severe: WBC â‰¥15K or Cr â‰¥1.5. Fulminant: hypotension, shock, ileus, megacolon.",
+                                 "oralVancomycinPharmacology":  "Molecule size ~1,449 Da â€” too large for paracellular transport across tight junctions. No systemic absorption. Stays in gut lumen. This is WHY oral = effective for C. diff and IV = useless.",
+                                 "redManSyndrome":  "IV vancomycin causes histamine release from mast cells â†’ flushing, erythema, pruritus, hypotension. NOT an allergic reaction â€” it\u0027s a rate-dependent infusion reaction. Slow the infusion. Oral vancomycin does NOT cause Red Man Syndrome because the drug never enters the bloodstream."
+                             },
+    "imageOutputPath":  "C:/Users/steve/MeWorld/dev/screenshots/cdiff-colitis-2026-07-23/images",
+    "imageGenerationStatus":  "completed",
+    "ocrPath":  "ocr-full.txt",
+    "ocrJsonPath":  "ocr-full.json",
+    "descentPromptPath":  "descent-prompt.md",
+    "descentGenScript":  "generate-descent.mjs",
+    "descentStatus":  "done: 1 grid, 6.4 MB, 2K, 16:9, 38s",
+    "descentAgentId":  "c54b42f4-a0f7-4e8f-9495-f43b73ce5538",
+    "wrongStylePanelsDeleted":  "7 individual panels moved to pending-delete — wrong style (medical illustration, not Naughty Dog cinematic)",
+    "descentImagePath":  "images/descent-3x3.png",
+    "descentImageSizeKB":  6441,
+    "descentPromptLength":  2713
+}

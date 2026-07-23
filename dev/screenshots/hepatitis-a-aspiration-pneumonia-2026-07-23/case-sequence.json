@@ -1,0 +1,198 @@
+{
+    "caseId": "hepatitis-a-aspiration-pneumonia-2026-07-23",
+    "ccsTitle": "Abdominal Pain — Emergency Medicine",
+    "diagnosis": "Hepatitis A with Aspiration Pneumonia",
+    "score": "63.8%",
+    "avgFirstAttempt": "62.1%",
+    "zScore": -1.36,
+    "patient": {
+        "age": 35,
+        "sex": "male",
+        "occupation": "Accountant (inferred), married, 2 children (7 & 5)",
+        "key": "35M, 3-week Caribbean cruise with social boozing. Symptoms began 7 days ago. Emergency stop on island: treated with anti-emetic only, discharged. Flight home: skin turned yellow. Wife rushes him to ED — vomiting flooding the car. Aspiration event during transport. AST 3117, ALT 2362, Tbili 23.7. Hepatitis A IgM positive. Fetor hepaticus."
+    },
+    "vitals": {
+        "initial": { "temperature": "—", "pulse": "— tachycardic", "rr": "—", "bp": "—" },
+        "day2_1000": { "temperature": "39.7 C (103.5 F)", "pulse": "150 bpm bounding", "rr": "40/min", "bp": "165/100" }
+    },
+    "history": {
+        "hpi": "35M to ED with sharp 7/10 RUQ pain worsening with movement, improving with rest. SOB, pain with deep breaths. 3-week Caribbean cruise with social boozing (1-2 drinks/day, more than usual). Symptoms began 7 days ago: fatigue, subjective fever, chills, poor appetite, nausea, intractable vomiting, intermittent chest pain. Emergency stop made on a Caribbean island on his behalf — treated with anti-emetic and discharged with minimal symptomatic improvement. On flight home after cruise: skin turned yellow-tinged, developed severe pruritis. Wife reports 'putrid breath' since illness. Wife rushes him to ED upon return — vomiting flooding the car during transport. Aspiration event during the car ride to the hospital.",
+        "pmh": "None. Denies any chronic conditions.",
+        "meds": "None",
+        "allergies": "None",
+        "social": "Married, 2 children (7 & 5). Children stayed with grandparents during cruise. No smoking. Social drinker. No illicit substances.",
+        "family": "Father 68, healthy. Mother has hypertension, controlled.",
+        "ros": "General: see HPI. Skin: negative. HEENT: negative. Cardiorespiratory: negative. GI: see HPI. GU: negative. Neuropsychiatric: negative."
+    },
+    "physicalExam": {
+        "general": "Well-developed, well-nourished, diaphoretic, ill-appearing male in mild to moderate distress.",
+        "skin": "Decreased skin turgor. Jaundiced skin. No nodules or lesions.",
+        "heent": "Normocephalic. Foul-smelling breath and sputum (fetor hepaticus). Mucous membranes moist. Neck supple.",
+        "chestLungs": "Shallow breathing. Bilateral wheezing on auscultation. Hypo-resonance with percussion in right lower lobe. Diaphragm and chest move equally.",
+        "heart": "S1/S2 normal. No murmurs, rubs, gallops. No JVD. BP equal in both arms.",
+        "abdomen": "Tender to palpation in RUQ. Hepatomegaly. Bowel sounds normal. No hernias.",
+        "rectal": "Sphincter tone normal. No masses. Stool brown, no occult blood. Prostate normal.",
+        "extremities": "No edema, cyanosis, clubbing. Peripheral pulses normal. Full ROM.",
+        "neuro": "Mental status normal. Cranial nerves, motor, sensory normal. DTRs normal."
+    },
+    "labs": {
+        "cmp": {
+            "ast": "3117 U/L (nl 15-40) — CRITICAL",
+            "alt": "2362 U/L (nl 10-40) — CRITICAL",
+            "alkPhos": "138 U/L (nl 20-115) — mildly elevated",
+            "tBili": "23.7 mg/dL (nl 0.1-1.0) — CRITICAL",
+            "albumin": "2.5 g/dL (nl 3.5-5.5) — low (impaired synthetic function)",
+            "protein": "7.9 g/dL (nl 6.0-7.8) — slightly elevated",
+            "sodium": "129 mEq/L (nl 136-145) — hyponatremia (dilutional from vomiting/fluids)",
+            "potassium": "3.0 mEq/L (nl 3.5-5.0) — hypokalemia",
+            "calcium": "9.5 mg/dL (nl 8.4-10.2)",
+            "glucose": "140 mg/dL (nl 70-110) — stress hyperglycemia"
+        },
+        "ldh": "55 IU/L (nl 45-90) — normal",
+        "ekg": "Sinus tachycardia. No ST changes.",
+        "cxr": "Aspiration pneumonia — RLL infiltrate/consolidation",
+        "hepatitisPanel": "Hepatitis A IgM positive. HBsAg negative. HCV antibody negative."
+    },
+    "ordersPlaced": [
+        "Physical Exam: General Appearance, Skin, Lymph Node, HEENT, Chest/Lungs, Heart, Abdomen, Genital, Rectal, Extremities/Spine, Neuro/Psych",
+        "CBC with differential",
+        "CMP / LFTs",
+        "ABG",
+        "LDH",
+        "Lactate",
+        "Hepatitis panel",
+        "CXR PA/lateral",
+        "EKG, 12-lead",
+        "Troponin I",
+        "Octreotide acetate, IV continuous",
+        "Ondansetron, IV continuous",
+        "Lactated Ringer solution, IV continuous",
+        "Oxygen, inhalation continuous",
+        "Vital Signs q4h",
+        "Weight q24h",
+        "Advise patient, no alcohol",
+        "Liver function panel / CMP (follow-up 1-4 weeks)"
+    ],
+    "missed": [
+        {
+            "order": "Acetaminophen toxicity nomogram / acetaminophen level",
+            "why": "AST 3117, ALT 2362 in a young person. Acetaminophen overdose is the #1 cause of acute liver failure in the US. Must rule out before calling it viral. If positive, start NAC immediately."
+        },
+        {
+            "order": "Pulse oximetry",
+            "why": "Patient says he can't breathe. So simple, so fundamental — free, non-invasive, and it tells you how bad the hypoxia is."
+        },
+        {
+            "order": "Antibiotics for aspiration pneumonia (levofloxacin, ceftriaxone + azithromycin, or ampicillin-sulbactam)",
+            "why": "CXR confirmed aspiration pneumonia. ATS/IDSA guidelines: treat like community-acquired pneumonia. Anaerobic coverage NOT needed unless empyema or abscess. Cefepime + vancomycin is wrong — that's HAP/VAP with MRSA/Pseudomonas risk, not community aspiration."
+        },
+        {
+            "order": "Contact precautions / isolation",
+            "why": "Hepatitis A is fecal-oral transmission. Contact precautions protect staff and other patients. Family needs post-exposure prophylaxis (HAV vaccine or immunoglobulin)."
+        },
+        {
+            "order": "Transfer to Inpatient Unit or ICU",
+            "why": "Patient with AST >3000, Tbili 23.7, hyponatremic, hypokalemic, aspiration pneumonia, and intractable vomiting needs inpatient monitoring. LFTs must trend downward before discharge. Location error cost 50%."
+        },
+        {
+            "order": "Vitamin K, IV or PO (phytomenadione)",
+            "why": "Tbili 23.7 with impaired synthetic function (albumin 2.5). INR likely elevated. Vitamin K corrects coagulopathy from vitamin K malabsorption in cholestasis."
+        },
+        {
+            "order": "INR / PT / PTT",
+            "why": "Assess synthetic liver function. Prolonged PT/INR indicates impaired hepatic synthesis of clotting factors — prognostic in acute liver failure."
+        },
+        {
+            "order": "NPO / diet restrictions initially",
+            "why": "Intractable vomiting. NPO until vomiting controlled. Avoid hepatotoxic medications."
+        }
+    ],
+    "correctlyAvoided": [
+        "Acetaminophen therapy (would be hepatotoxic given AST >3000, ALT >2000)",
+        "Meperidine (normeperidine accumulation in hepatic impairment → neurotoxicity, seizures)"
+    ],
+    "errors": [
+        {
+            "type": "invasive orders",
+            "detail": "Intubation, endotracheal + Mechanical ventilation at Day 1 18:47. Considered inappropriate/invasive for this case (0% on appropriate orders). Patient had aspiration pneumonia but did not meet criteria for intubation — oxygen alone would suffice."
+        },
+        {
+            "type": "location error",
+            "detail": "Stayed in Emergency Department. At simulated time 0 Days 08 Hours 00 Minutes, correct location was ICU or Inpatient Unit. Patient needed monitoring of LFTs downward trajectory.",
+            "cost": "50% on location score"
+        },
+        {
+            "type": "timing",
+            "detail": "1 negative patient update prior to correct treatment (0% on timing)"
+        },
+        {
+            "type": "wrong order",
+            "detail": "Octreotide — indicated for variceal bleeding and hepatorenal syndrome. This patient has hepatitis A with no portal hypertension, no varices. Not indicated."
+        }
+    ],
+    "scoreBreakdown": {
+        "diagnosisOrders": { "percent": 83.61, "weight": "40%" },
+        "treatmentOrders": { "percent": 57.14, "weight": "40%" },
+        "preventiveCare": { "percent": 100, "weight": "5%" },
+        "timing": { "percent": 0, "weight": "5%" },
+        "appropriateOrders": { "percent": 0, "weight": "5%" },
+        "locationSequence": { "percent": 50, "weight": "5%" }
+    },
+    "ccsDifferential": [
+        "Acute hepatitis (confirmed Hep A)",
+        "Chronic hepatitis",
+        "Acute HIV infection",
+        "Acute drug-induced liver injury",
+        "Community acquired pneumonia",
+        "Aspiration pneumonia",
+        "Chronic liver disease"
+    ],
+    "pathophysiology": {
+        "hepatitisA": "HAV is an RNA picornavirus transmitted via fecal-oral route. Common in areas with poor sanitation and on cruise ships (contaminated food/water). Incubation 15-50 days (avg 28). Causes acute hepatocellular injury → transaminases rise (ALT > AST in viral hepatitis usually, but both can be >1000). Jaundice from impaired bilirubin conjugation and excretion. Self-limited illness — fulminant hepatic failure is rare (<1%) but more common with underlying liver disease (especially HCV).",
+        "aspirationPneumonia": "Intractable vomiting → aspiration of gastric contents → chemical pneumonitis → secondary bacterial infection. RLL most common (dependent position). Foul-smelling breath = fetor hepaticus from portosystemic shunting of sulfur compounds, NOT from the pneumonia itself.",
+        "fetorHepaticus": "Dimethyl sulfide and other volatile sulfur compounds bypass hepatic metabolism via portosystemic shunting → exhaled in breath → sweet, musty, 'dead mouse' odor. Sign of significant hepatocellular dysfunction. Not necessarily portal hypertension — acute hepatitis can cause transient intrahepatic shunting."
+    },
+    "teachingPoints": [
+        "Acetaminophen toxicity is the #1 cause of acute liver failure. Always check an acetaminophen level with AST/ALT >1000, even if the patient 'didn't take any.' History is unreliable.",
+        "Aspiration pneumonia in ATS/IDSA guidelines = treat like community-acquired pneumonia. Anaerobic coverage only if empyema or abscess.",
+        "Fetor hepaticus = portosystemic shunting of sulfur compounds. Smell before you see it on labs.",
+        "Octreotide is for variceal bleeding (portal hypertension) — not indicated in acute hepatitis without cirrhosis/portal HTN.",
+        "Intubation is invasive. Aspiration pneumonia alone does not mandate intubation — try oxygen first. Only intubate if P/F ratio <200 or failed NIPPV.",
+        "Hepatitis A is fecal-oral. Contact precautions. Post-exposure prophylaxis for family (vaccine or immunoglobulin).",
+        "Meperidine is contraindicated in hepatic impairment — normeperidine accumulation → neurotoxicity, seizures.",
+        "Always check INR in liver disease — synthetic function is more important than transaminase levels for prognosis.",
+        "Transfer to inpatient/ICU for acute hepatitis with LFTs >2000 — need to monitor downward trajectory.",
+        "COC — island stop: intractable vomiting in a returning traveler = Hepatitis A until proven otherwise, not motion sickness. The island clinic treated a symptom and missed the disease.",
+        "COC — flight home: jaundice appeared at altitude. Lower cabin pressure + hypoxemia = bilirubin more visible in the skin. Hepatocellular injury peaked during the cruise.",
+        "COC — car ride: vomit flooding the car during ED transport. The aspiration pneumonia was acquired en route to the hospital, not on the cruise. RLL infiltrate = aspiration in the car."
+    ],
+    "imageOutputPath": "images",
+    "treatmentPlateStatus": "completed",
+    "descentAgentId": "002a5f1b-6880-4a57-ba45-b95d55e39a03",
+    "descentImagePath": "images/descent-3x3.png",
+    "descentImageSizeKB": 6324,
+    "descentModelUsed": "nano-banana-pro (correct — single API call)",
+    "descentResolution": "2K (correct)",
+    "descentTaskId": "667391b3-d497-401a-b784-3bae2631136b",
+    "descentPromptPath": "images/descent-3x3.prompt.txt",
+    "descentPromptLength": 2902,
+    "gapPlateStatus": "completed",
+    "gapPlateAgentId": "067ea406-d716-4adc-ba52-3833acfcf9de",
+    "gapPlateImagePath": "images/descent-gaps-3x3.png",
+    "gapPlateImageSizeKB": 6054,
+    "gapPlateModelUsed": "nano-banana-pro (correct — single API call)",
+    "gapPlateResolution": "2K (correct)",
+    "gapPlateTaskId": "a61456cf-f6d5-4072-992a-6ac9e0879d72",
+    "gapPlatePromptPath": "images/descent-gaps-3x3.prompt.txt",
+    "gapPlatePromptLength": 2846,
+    "prequelPlateStatus": "completed — style gap: text-prompt only, no Uncharted 4 reference image attached",
+    "prequelPlateAgentId": "2f42b197-446f-4c51-833f-d45e51fd067b",
+    "prequelPlateImagePath": "images/descent-prequel-3x3.png",
+    "prequelPlateImageSizeKB": 6174,
+    "prequelPlateModelUsed": "nano-banana-pro (text-only, no image reference)",
+    "prequelPlateResolution": "2K",
+    "prequelPlateTaskId": "73272bf1-6ae7-47bc-82cd-0603c8534e31",
+    "prequelPlatePromptPath": "images/descent-prequel-3x3.prompt.txt",
+    "prequelPlatePromptLength": 2728,
+    "styleGapNote": "ALL plates tonight used text descriptions of 'Naughty Dog cinematic CGI' — NOT the actual Uncharted 4 reference image (uncharted-4-main-menu.png). The reference specifies cool blue-gray dominant lighting (#0F1418 shadows), warm amber/gold accents (#E8C860), weathered PBR materials, volumetric haze, and deep vignette. Text prompts used 'near-black void + film grain' which diverges from the reference. Fix: Higgsfield generate_image with the Uncharted 4 .png as a style-reference media attachment required for future plates."
+}

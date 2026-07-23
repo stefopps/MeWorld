@@ -1,0 +1,75 @@
+{
+  "caseId": "diverticulitis-2026-07-23",
+  "title": "Acute Diverticulitis — Complicated (2 cm Pericolic Abscess)",
+  "category": "Emergency Medicine",
+  "date": "2026-07-23",
+  "score": {
+    "total": "44.75%",
+    "averageFirstAttempt": "68.2%",
+    "diagnosisOrders": "27.5%",
+    "treatmentOrders": "53.12%",
+    "preventiveCare": "0%",
+    "timing": "100%",
+    "appropriateOrders": "100%",
+    "locationSequence": "50%"
+  },
+  "diagnosis": "Acute Diverticulitis, complicated by 2 cm pericolic abscess",
+  "patient": "50M, LLQ pain, nausea, vomiting, fever 38.2, HR 115, leukocytosis",
+  "correctOrders": [
+    "Physical Exam: General Appearance, Chest/Lungs, Heart/CV, Abdomen, Rectal",
+    "CBC with differential",
+    "BMP/CMP/LFT",
+    "IV fluids (NS/LR/D5LR)",
+    "IV antibiotics: ciprofloxacin AND metronidazole (or ampicillin/sulbactam, etc.)"
+  ],
+  "missedOrders": [
+    { "order": "CT abdomen/pelvis with contrast", "severity": "critical", "why": "Gold standard for diverticulitis diagnosis. Identifies abscess vs uncomplicated. X-ray cannot see the 2 cm pericolic abscess. Directly drives management: <3-4 cm = medical only, >4 cm = percutaneous drainage." },
+    { "order": "Urinalysis", "severity": "high", "why": "Inflamed sigmoid sits on bladder → sterile pyuria. Distinguish from pyelonephritis/renal colic. Same quadrant, same presentation." },
+    { "order": "Blood cultures x2", "severity": "high", "why": "Fever + abscess → bacteremia risk. Draw before antibiotics for organism identification and sensitivity-guided therapy." },
+    { "order": "Urine culture", "severity": "medium", "why": "Abdominal pain + fever + leukocytosis → rule out UTI/pyelo as cause." },
+    { "order": "NPO / Nothing by mouth", "severity": "high", "why": "Bowel rest. Sigmoid generates 90 mmHg during peristalsis — highest in GI tract. Every wave drives bacteria through microperforated wall into abscess." },
+    { "order": "High fiber diet / Nutrition consult", "severity": "preventive", "why": "Long-term prevention. Larger soft stool → lower intraluminal pressure → less herniation. Current standard of care despite ongoing study questions." }
+  ],
+  "wrongLocation": {
+    "stayedAt": "Emergency Department",
+    "shouldHaveMovedTo": "Inpatient Unit",
+    "at": "0 Days, 00 Hours, 45 Minutes",
+    "reason": "Patient requires IV fluids and inpatient monitoring"
+  },
+  "shouldHaveAvoided": [
+    { "order": "Colonoscopy / Sigmoidoscopy", "why": "Contraindicated during acute diverticulitis — risk of perforation of inflamed bowel. Defer 4-6 weeks after resolution to rule out malignancy." }
+  ],
+  "images": {
+    "descent3x3": {
+      "path": "images/descent-3x3.png",
+      "size": 7927690,
+      "model": "nano-banana-pro",
+      "resolution": "2K",
+      "status": "generated",
+      "description": "Pathophysiology arc: osis → itis → abscess → antibiotics → recovery"
+    },
+    "descentGaps1": {
+      "path": "images/descent-gaps-1-3x3.png",
+      "promptFile": "descent-gaps-1-prompt.md",
+      "size": 6459018,
+      "taskId": "5893db18-c2d2-4c76-a87d-b157cbdebe8b",
+      "status": "generated",
+      "model": "nano-banana-pro",
+      "resolution": "2K",
+      "description": "Diagnostic orders: CT vs XR, blood cultures, UA, cipro + metronidazole mechanism"
+    },
+    "descentGaps2": {
+      "path": "images/descent-gaps-2-3x3.png",
+      "promptFile": "descent-gaps-2-prompt.md",
+      "size": 6619614,
+      "status": "generated",
+      "model": "nano-banana-pro",
+      "resolution": "2K",
+      "description": "Management: NPO, pain, inpatient transfer, fiber, colonoscopy, lifelong plan"
+    }
+  },
+  "zScore": -1.34,
+  "orderCount": 19,
+  "averageOrderCount": 33.59,
+  "caseSummary": "The classic triad of diverticulitis is left lower quadrant pain, low-grade fever, and leukocytosis. CT with contrast is the gold standard. Findings in this case: 2 cm pericolic abscess (complicated). Abscesses <3-4 cm managed conservatively with IV antibiotics. Colonoscopy is contraindicated acutely — defer 4-6 weeks. High fiber diet for long-term prevention."
+}

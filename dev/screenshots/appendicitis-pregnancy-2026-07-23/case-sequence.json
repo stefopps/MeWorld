@@ -1,0 +1,144 @@
+{
+    "caseId": "appendicitis-pregnancy-2026-07-23",
+    "ccsCaseNumber": "1 (OB/GYN)",
+    "ccsTitle": "Abdominal Pain — OB/GYN",
+    "diagnosis": "Acute Appendicitis in Pregnancy (Third Trimester)",
+    "score": "76.02%",
+    "avgFirstAttempt": "76.9%",
+    "zScore": -1.25,
+    "patient": {
+        "age": 28,
+        "sex": "female",
+        "pregnant": true,
+        "gestation": "32 weeks (3rd trimester)",
+        "gravidaPara": "G2P1",
+        "occupation": "Teacher",
+        "key": "28F, 32 weeks pregnant, RLQ pain with nausea/vomiting, low-grade fever, leukocytosis with left shift"
+    },
+    "vitals": {
+        "temperature": "38.06 C (100.5 F)",
+        "pulse": "92 bpm, Regular",
+        "rr": "18/min",
+        "bp": "122/76",
+        "spo2": "—"
+    },
+    "history": {
+        "hpi": "28F G2P1, 32 weeks pregnant, presents to ED with abdominal pain. RLQ tenderness with rebound. Nausea and vomiting. Low-grade fever.",
+        "pmh": "Uncomplicated pregnancy. First pregnancy: full-term vaginal delivery 4 years ago. Regular prenatal care. All prenatal labs normal. Anatomy US at 20 weeks normal.",
+        "meds": "None",
+        "allergies": "NKDA",
+        "social": "Teacher. Enjoys reading and walking. ROS negative except GI as per HPI."
+    },
+    "physicalExam": {
+        "general": "Moderate distress from abdominal pain",
+        "heent": "Mucous membranes moist. Normocephalic. Pharynx normal. Neck supple.",
+        "chestLungs": "Clear to auscultation and percussion. Equal chest expansion.",
+        "heart": "S1/S2 normal. No murmurs, rubs, gallops. No JVD.",
+        "abdomen": "Gravid abdomen consistent with 32 weeks. RLQ tenderness. Rebound tenderness present.",
+        "rectal": "No rectal tenderness. No masses. Stool brown, no occult blood.",
+        "extremities": "Trace bilateral lower extremity edema. No cyanosis, clubbing. Peripheral pulses normal.",
+        "neuro": "Mental status normal. Cranial nerves, motor, sensory normal."
+    },
+    "ordersPlaced": [
+        "Physical Exam: General Appearance, Abdomen, Genitalia, Rectal",
+        "CBC with differential",
+        "CMP",
+        "LDH, serum",
+        "Lactate, serum",
+        "PT/PTT / PT/INR",
+        "US, abdomen (showed dilated non-compressible 9mm appendix, echogenic inflammation, absent blood flow)",
+        "Doppler, fetal heart rate / Fetal monitoring",
+        "Lactated Ringer solution, IV continuous",
+        "Consult, surgery, general (→ urgent appendectomy, completed successfully)",
+        "Vaccine, Tdap",
+        "Vital Signs",
+        "Post-op: mobilization, PE prophylaxis",
+        "Counsel: pregnancy, no alcohol, no intercourse, smoking cessation",
+        "Transfusion, fresh frozen plasma",
+        "Deep breathing and coughing"
+    ],
+    "missed": [
+        {
+            "order": "EKG, 12-lead",
+            "why": "Pre-surgery risk stratification. The patient is going to the OR — mandatory pre-op EKG."
+        },
+        {
+            "order": "Type and screen / Type and Rh factor, blood",
+            "why": "Pre-surgery labs. Needed in case transfusion is required during or after appendectomy."
+        },
+        {
+            "order": "Ondansetron / antiemetic",
+            "why": "Patient has nausea and vomiting. Ondansetron is pregnancy-safe. Treat symptoms."
+        },
+        {
+            "order": "Hydromorphone / Fentanyl / Morphine",
+            "why": "Patient has severe pain. Opioids are safe in pregnancy for acute pain. NSAIDs are CONTRAINDICATED in 3rd trimester (premature ductus closure, oligohydramnios). Acetaminophen insufficient alone."
+        },
+        {
+            "order": "Consult, obstetrics/gynecology",
+            "why": "Any pregnant surgical patient needs OB co-management for fetal monitoring and perioperative obstetric care."
+        },
+        {
+            "order": "Pre-op antibiotic prophylaxis",
+            "why": "Within 60 min before incision: cefoxitin + metronidazole OR cefotetan + metronidazole OR cefazolin + metronidazole OR clindamycin + (gentamicin or aztreonam). Coverage for GI flora — gram-negatives and anaerobes. Pregnancy category B only. NOTE: Zosyn (pip-tazo) and Augmentin are NOT accepted — too broad for surgical prophylaxis per ASHP/IDSA/SIS guidelines."
+        }
+    ],
+    "correctlyAvoided": [
+        "CT abdomen/pelvis (radiation to fetus — significant deduction if ordered)",
+        "X-ray, abdomen (radiation to fetus — significant deduction if ordered)",
+        "All NSAIDs (ketorolac, ibuprofen, etc. — contraindicated >20 weeks: premature ductus closure, oligohydramnios, neonatal renal failure. FDA strengthened warning 2020)",
+        "Dextrose-containing IV fluids (D5W, D5NS, D51/2NS, D50W — causes fetal hyperglycemia → neonatal hypoglycemia; inappropriate for volume resuscitation)"
+    ],
+    "errors": [
+        {
+            "type": "wrong order",
+            "order": "Transfusion, fresh frozen plasma",
+            "why": "PT/INR was completely normal (10.5s, INR 1.0). No indication for FFP. Coagulation was intact."
+        },
+        {
+            "type": "location error",
+            "detail": "Stayed in Emergency Department entire case. At simulated time 0 Days 00 Hours 15 Minutes, correct location was Inpatient Unit. Patient needs inpatient hospitalization for surgery and post-op monitoring.",
+            "cost": "50% on location score"
+        }
+    ],
+    "scoreBreakdown": {
+        "diagnosisOrders": { "percent": 83.87, "weight": "45%" },
+        "treatmentOrders": { "percent": 64.44, "weight": "40%" },
+        "timing": { "percent": 100, "weight": "5%" },
+        "appropriateOrders": { "percent": 100, "weight": "5%" },
+        "locationSequence": { "percent": 50, "weight": "5%" },
+        "summary": "0 negative patient updates — treatment timing was excellent. Lost points on missed pre-op bundle (EKG, type/screen, antibiotics, OB consult, pain/nausea management) and wrong location (ED → Inpatient)."
+    },
+    "ccsDifferential": [
+        "Acute appendicitis",
+        "Round ligament pain",
+        "Pyelonephritis",
+        "Preeclampsia",
+        "HELLP syndrome",
+        "Abruptio placenta",
+        "Ectopic pregnancy (unlikely at 32 weeks)",
+        "Cholecystitis",
+        "Gastroenteritis"
+    ],
+    "teachingPoints": [
+        "Appendicitis is the most common non-obstetric surgical emergency in pregnancy — 1 in 1,500.",
+        "First-line imaging in pregnancy = ULTRASOUND (no radiation). MRI without gadolinium if US non-diagnostic.",
+        "NEVER order CT or X-ray in a pregnant patient for abdominal pain.",
+        "NEVER give NSAIDs after 20 weeks gestation — premature ductus arteriosus closure, oligohydramnios.",
+        "NEVER give dextrose-containing fluids perioperatively — fetal hyperglycemia → neonatal hypoglycemia.",
+        "Pregnancy IS an absolute indication for appendectomy — antibiotics alone is contraindicated.",
+        "Pre-op bundle before any surgery: EKG + type/screen + PT/PTT + antibiotics within 60 min before incision.",
+        "Antibiotic prophylaxis for appendectomy: cover GI aerobes (cefazolin/cefoxitin) + anaerobes (metronidazole). Zosyn/Augmentin are too broad per guidelines.",
+        "Fetal monitoring before and after any procedure in a pregnant patient.",
+        "Transfer to Inpatient Unit, not surgery from the ED bay.",
+        "OB consult always accompanies any surgical procedure in pregnancy.",
+        "Treat nausea (ondansetron) and pain (opioids) — suffering is not diagnostic. NSAIDs are the wrong drug."
+    ],
+    "pathophysiology": {
+        "appendicitis": "Luminal obstruction (fecalith, lymphoid hyperplasia) → increased intraluminal pressure → venous congestion → ischemia → bacterial invasion → transmural inflammation → perforation if untreated.",
+        "pregnancyDisplacement": "The gravid uterus displaces the appendix superiorly and laterally. RLQ pain may be higher than expected. This makes the physical exam less reliable — imaging becomes even more important.",
+        "pregnancyRisks": "Delayed diagnosis → perforation → significantly increased maternal and fetal morbidity/mortality. Fetal loss rate with perforated appendicitis: 20-35% vs <5% with uncomplicated appendicitis."
+    },
+    "imageOutputPath": "images",
+    "treatmentPlateStatus": "pending"
+}
