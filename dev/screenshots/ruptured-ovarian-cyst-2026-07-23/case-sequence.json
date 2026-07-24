@@ -1,0 +1,149 @@
+﻿{
+    "caseId":  "ruptured-ovarian-cyst-2026-07-23",
+    "ccsTitle":  "Abdominal Pain - OB/GYN",
+    "diagnosis":  "Hemoperitoneum from a Ruptured Ovarian Cyst",
+    "score":  "76.4%",
+    "avgFirstAttempt":  "86.9%",
+    "zScore":  -1.15,
+    "patient":  {
+                    "age":  26,
+                    "sex":  "female",
+                    "key":  "Sudden onset severe abdominal pain, vomiting, right shoulder pain (Kehr sign), tachycardia 120, BP 110/70 trending down. Sexually active. Guarding and severe tenderness, worse in lower quadrant. Hemorrhagic shock from intraperitoneal bleed."
+                },
+    "vitals":  {
+                   "temperature":  "37.2",
+                   "pulse":  "120 (tachycardia)",
+                   "bp":  "110/70 (trending hypotension)",
+                   "respiratory":  "â€”"
+               },
+    "physicalExam":  {
+                         "general":  "Acutely ill, severe pain",
+                         "neck":  "Supple",
+                         "mucousMembranes":  "Dry",
+                         "abdomen":  "General tenderness, worse in lower quadrants, guarding, severe tenderness",
+                         "shoulder":  "Right shoulder pain â€” Kehr sign (phrenic nerve irritation from intraperitoneal blood)"
+                     },
+    "correctlyOrdered":  [
+                             "Physical Exam: Genitalia",
+                             "Physical Exam: General Appearance",
+                             "Physical Exam: Abdomen",
+                             "Physical Exam: Full (Skin, Breast, Lymph, HEENT, Chest/Lung, Cardio, GU, Rectal, Extremities, Neuro)",
+                             "CBC with differential",
+                             "US abdomen / pelvis (transabdominal + transvaginal) / CT abdomen/pelvis with or without contrast",
+                             "BMP / CMP / Liver function panel",
+                             "Saline / Lactated Ringer solution",
+                             "PT/PTT / PT/INR",
+                             "Laparotomy / Laparoscopy / OB-GYN consult / Surgery consult"
+                         ],
+    "missedOrders":  [
+                         {
+                             "order":  "Î²-hCG (serum quantitative)",
+                             "severity":  "critical",
+                             "why":  "Must differentiate ruptured ovarian cyst from ruptured ectopic pregnancy. Same presentation: sudden severe pain, hemoperitoneum, Kehr sign, shock. Both go to OR but the surgeon needs to know what they\u0027re walking into. An empty Î²-hCG confirms ovarian cyst."
+                         },
+                         {
+                             "order":  "Pulse oximetry",
+                             "severity":  "medium",
+                             "why":  "Hemoperitoneum means blood loss. Hemoglobin drops, oxygen-carrying capacity drops. Simple non-invasive monitoring."
+                         },
+                         {
+                             "order":  "EKG (12-lead)",
+                             "severity":  "medium",
+                             "why":  "Pre-operative clearance. She\u0027s going to the OR. Every surgical patient needs an EKG. The tachycardia could be hemorrhagic shock or could unmask an arrhythmia."
+                         },
+                         {
+                             "order":  "Type and screen / Type and Rh factor",
+                             "severity":  "critical",
+                             "why":  "Pre-operative. She\u0027s actively hemorrhaging â€” you need blood available BEFORE she crashes on the table. Rh typing matters if she\u0027s Rh-negative and pregnant (which you don\u0027t know until Î²-hCG returns)."
+                         },
+                         {
+                             "order":  "Packed RBC transfusion",
+                             "severity":  "critical",
+                             "why":  "Dropping hematocrit, hypotension, symptomatic. She\u0027s bleeding into her peritoneal cavity. Fluids buy time. PRBCs carry oxygen â€” the thing you\u0027re actually losing."
+                         },
+                         {
+                             "order":  "IV opioid analgesia (fentanyl / hydromorphone / morphine)",
+                             "severity":  "high",
+                             "why":  "Severe pain from hemoperitoneum. Do NOT use ketorolac or any NSAID â€” antiplatelet effect worsens active hemorrhage. Also contraindicated perioperatively and in hemodynamic compromise. IV opioids are the only correct choice for pain here."
+                         }
+                     ],
+    "shouldHaveAvoided":  [
+                              {
+                                  "order":  "NSAIDs (ketorolac, ibuprofen, etc.)",
+                                  "why":  "Antiplatelet effect worsens active intraperitoneal hemorrhage. Also contraindicated in perioperative setting and hemodynamic compromise. Use IV opioids only."
+                              }
+                          ],
+    "scoreBreakdown":  {
+                           "diagnosisOrders":  {
+                                                   "percent":  72.73,
+                                                   "weight":  "40%"
+                                               },
+                           "treatmentOrders":  {
+                                                   "percent":  71.79,
+                                                   "weight":  "45%"
+                                               },
+                           "timing":  {
+                                          "percent":  100,
+                                          "weight":  "5%"
+                                      },
+                           "appropriateOrders":  {
+                                                     "percent":  100,
+                                                     "weight":  "5%"
+                                                 },
+                           "locationSequence":  {
+                                                    "percent":  100,
+                                                    "weight":  "5%"
+                                                }
+                       },
+    "location":  {
+                     "icuAt":  "0 Days, 00 Hours, 17 Minutes",
+                     "inpatientAt":  "0 Days, 06 Hours, 17 Minutes"
+                 },
+    "orderCount":  22,
+    "avgOrderCountFor85pct":  36.12,
+    "ordersZScore":  -1.15,
+    "differentialDdx":  [
+                            "Ruptured ectopic pregnancy",
+                            "Endometriosis",
+                            "Pelvic inflammatory disease",
+                            "Adnexal torsion",
+                            "Appendicitis"
+                        ],
+    "pathophysiology":  {
+                            "ovarianCyst":  "Functional ovarian cysts â€” follicular and corpus luteum â€” occur in menstruating women aged 18-35. Usually asymptomatic. Rupture causes sudden sharp pain with no typical pattern.",
+                            "rightOvaryBias":  "The right ovary ruptures more often than the left â€” anatomic proximity to the appendix + differential blood supply.",
+                            "riskFactors":  "Anticoagulation therapy, abdominal trauma. Most ruptures have no clear trigger.",
+                            "bleedingSpectrum":  "Variable â€” from trace free fluid to massive hemoperitoneum and hypovolemic shock (this case).",
+                            "kehrSign":  "Blood pools under the right hemidiaphragm â†’ phrenic nerve irritation (C3-C5) â†’ referred pain to right shoulder. Classic for intraperitoneal blood â€” think ectopic, ovarian cyst rupture, splenic rupture.",
+                            "surgicalIndications":  "Large peritoneal fluid on US + severe pain + dropping hematocrit + unstable vitals = OR. Most ovarian cyst ruptures are managed conservatively with observation and analgesia."
+                        },
+    "teachingPoints":  [
+                           "26F with sudden severe pelvic pain and shock = ectopic until ruled out AND ovarian cyst rupture. Î²-hCG distinguishes them. Same surgical urgency, different surgical plan.",
+                           "Kehr sign (right shoulder pain) = free blood under the diaphragm. Phrenic nerve (C3-C5). Always intraperitoneal bleed.",
+                           "Never NSAIDs in active hemorrhage â€” antiplatelet effect compounds the problem. IV opioids only.",
+                           "Type and screen before they hit the OR. PRBCs if actively hemorrhaging. Don\u0027t wait for the Hb to drop further.",
+                           "Most ovarian cyst ruptures don\u0027t need surgery â€” observation + analgesia. This one needed it because of hemodynamic instability, large hemoperitoneum, dropping hematocrit.",
+                           "Right ovary ruptures more than left. If the pain is right-sided and the appendix is nearby, US sorts it out.",
+                           "Pre-op bundle for any hemorrhaging patient: type and screen, EKG, NPO, IV access (2 large-bore), consents."
+                       ],
+    "images":  {
+                   "descent3x3":  {
+                                      "promptFile":  "images/descent-3x3.prompt.txt",
+                                      "taskId":  "970e945a-f9d3-4c64-9c72-68bd21bbbce3",
+                                      "sizeKb":  5820.9,
+                                      "resolution":  "2K",
+                                      "path":  "images/descent-3x3.png",
+                                      "model":  "nano-banana-pro",
+                                      "status":  "complete"
+                                  },
+                   "descentGaps":  {
+                                       "promptFile":  "images/descent-gaps-3x3.prompt.txt",
+                                       "taskId":  "0443c9f6-6be7-462a-a781-1c9ad5084560",
+                                       "sizeKb":  6558.6,
+                                       "resolution":  "2K",
+                                       "path":  "images/descent-gaps-3x3.png",
+                                       "model":  "nano-banana-pro",
+                                       "status":  "complete"
+                                   }
+               }
+}
