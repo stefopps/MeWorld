@@ -1,0 +1,92 @@
+{
+  "caseId": "ectopic-pregnancy-2026-07-23",
+  "ccsTitle": "Abdominal Pain — OB/GYN",
+  "diagnosis": "Ruptured Ectopic Pregnancy",
+  "score": "31.99%",
+  "avgFirstAttempt": "81.3%",
+  "zScore": -2.15,
+  "patient": {
+    "age": 33,
+    "sex": "female",
+    "pregnant": true,
+    "key": "33F, sudden RLQ pain x3hr, vomiting, malaise. LMP 19 days ago (mid-cycle). History of infertility (fertility meds for only child). Recently divorced, unprotected sex while intoxicated. Binge drinking every 2 weeks, smoker. RLQ rigidity + guarding + rebound, right adnexal tenderness, uterus slightly enlarged with dark bloody discharge. HR 110, BP 70 — hemorrhagic shock from ruptured ectopic."
+  },
+  "vitals": {
+    "temperature": "normal",
+    "hr": "110 (tachycardia, hemorrhagic shock)",
+    "bp": "70 systolic (hypotension, active hemorrhage)"
+  },
+  "history": {
+    "hpi": "33F, sudden onset lower abdominal pain x3 hours, vomiting, malaise. No trauma. Last menstrual period 19 days ago. Mid-cycle spotting. Prior infertility — required multiple rounds of fertility medications to conceive her only child, now age 5.",
+    "obgyn": "G2P1. Fertility medications for prior pregnancy. Divorced. Unprotected sex while intoxicated at a party. No birth control — believes she cannot conceive. LMP 19 days ago. Mid-cycle spotting. Last PAP was normal one year ago.",
+    "social": "Divorced. Lives with 5-year-old daughter. Binge drinks every 2 weeks since divorce. Smokes cigarettes (won't smoke in home or near daughter). No marijuana or illicit drugs. Insurance professional, college degree."
+  },
+  "physicalExam": {
+    "general": "Moderate distress, pale, anxious, clutching lower abdomen",
+    "abdomen": "RLQ tenderness to palpation and percussion. Rigidity, guarding, AND rebound tenderness present. No masses or organomegaly. Bowel sounds normoactive.",
+    "pelvic": "Right adnexal tenderness. Uterus slightly enlarged. Small amount of dark bloody discharge from cervix.",
+    "rectal": "Sphincter tone normal. Stool brown, no occult blood."
+  },
+  "correctlyOrdered": [
+    "Physical Exam: General Appearance, Abdomen, Genitalia",
+    "HCG, beta (urine qualitative / serum qualitative / serum quantitative / total serum qualitative)",
+    "CBC with differential / Hemoglobin and hematocrit",
+    "BMP / CMP",
+    "Saline / Lactated Ringer solution",
+    "PT/PTT / PT/INR"
+  ],
+  "correctlyAvoided": [
+    "CT abdomen/pelvis — positive pregnancy test, avoid radiation",
+    "X-ray abdomen — positive pregnancy test, avoid radiation"
+  ],
+  "missedOrders": [
+    {"order": "EKG, 12-lead", "severity": "critical", "why": "Pre-operative clearance. She needs emergency surgery. Every surgical patient needs a pre-op EKG to rule out arrhythmia before anesthesia."},
+    {"order": "US, pelvis, transvaginal", "severity": "critical", "why": "Transvaginal ultrasound is the gold standard for ectopic pregnancy diagnosis. Empty uterus + adnexal mass + free fluid = ruptured ectopic. Transabdominal may miss it. TVUS is definitive."},
+    {"order": "Ondansetron / antiemetic", "severity": "high", "why": "Patient is vomiting. Control nausea before OR. Ondansetron is pregnancy-safe."},
+    {"order": "Type and screen / Type and Rh factor", "severity": "critical", "why": "Pre-op labs. Blood must be available before she bleeds out on the table. Also need Rh type — if Rh-negative, RhoGAM is indicated for any bleeding in pregnancy."},
+    {"order": "IV opioids (fentanyl / hydromorphone / morphine)", "severity": "critical", "why": "Severe pain in a crashing patient. NSAIDs contraindicated — she's about to go to OR. Opioids are safe in pregnancy for acute surgical pain."},
+    {"order": "Laparotomy / Laparoscopy / OB-GYN consult / Surgery consult", "severity": "critical", "why": "This is the treatment. Ruptured ectopic = immediate surgery. The patient is actively hemorrhaging. Every minute in the ED without a surgeon is a minute of continued intraperitoneal bleeding. Case timed out because surgery was never ordered."},
+    {"order": "Safe sex counseling", "severity": "preventive", "why": "Unprotected sex led to this ectopic. She thinks she's infertile — education needed."},
+    {"order": "Smoking cessation counseling", "severity": "preventive", "why": "Smoking is a risk factor for ectopic pregnancy. Also general health."},
+    {"order": "Alcohol cessation / limit counseling", "severity": "preventive", "why": "Binge drinking every 2 weeks since divorce. Heavy alcohol use impairs judgment — including the decision to have unprotected sex while intoxicated."},
+    {"order": "Gonorrhea / Chlamydia screening", "severity": "preventive", "why": "Unprotected sex. STIs (particularly chlamydia) are a major risk factor for ectopic pregnancy via tubal damage from PID. Screen now, treat if positive."}
+  ],
+  "scoreBreakdown": {
+    "diagnosisOrders": {"percent": 45.83, "weight": "40%"},
+    "treatmentOrders": {"percent": 15.38, "weight": "40%"},
+    "preventiveCare": {"percent": 0, "weight": "5%"},
+    "timing": {"percent": 0, "weight": "5%"},
+    "appropriateOrders": {"percent": 100, "weight": "5%"},
+    "locationSequence": {"percent": 50, "weight": "5%"}
+  },
+  "orderCount": 12,
+  "avgOrderCountFor85pct": 33.58,
+  "timedOut": true,
+  "differentialDdx": [
+    "Ruptured corpus luteum of pregnancy",
+    "Twisted ovarian cyst",
+    "Incomplete abortion",
+    "Acute appendicitis",
+    "Splenic rupture"
+  ],
+  "pathophysiology": {
+    "ectopicImplantation": "Fertilized ovum implants outside the uterine cavity — 95% in the fallopian tube (ampulla > isthmus > fimbria). The tube cannot expand like the uterus. As the embryo grows, it invades the tubal wall, erodes into blood vessels, and eventually ruptures the tube.",
+    "riskFactors": "Smoking, infertility (altered tubal motility from fertility medications?), unprotected sex with potential for undiagnosed chlamydia → tubal damage from subclinical PID. Divorced, binge drinking → impaired judgment → unprotected sex.",
+    "peritonealIrritation": "Blood is an irritant to the peritoneum. Rigidity, guarding, rebound = chemical peritonitis from intraperitoneal blood.",
+    "hemorrhagicShock": "HR 110, BP 70. Tachycardia is the FIRST sign of hemorrhagic shock — the heart compensates for falling stroke volume by increasing rate. Hypotension is a LATE sign. She's Class II-III hemorrhagic shock.",
+    "darkBloodyDischarge": "Decidual cast — the uterine lining sheds because the ectopic doesn't produce enough hCG to maintain it. This is a soft sign of ectopic: vaginal bleeding + empty uterus on US + positive β-hCG + adnexal mass."
+  },
+  "teachingPoints": [
+    "Ectopic pregnancy is the #1 cause of maternal mortality in the first trimester. Every reproductive-age woman with pelvic pain is ectopic until the β-hCG and US say otherwise.",
+    "Hemorrhagic shock = tachycardia FIRST, hypotension LATER. If you wait for the BP to drop, she's already Class II-III.",
+    "Diagnosis is not the same as treatment. You can nail the diagnosis and still lose the patient if you don't advance to surgery.",
+    "TVUS is the gold standard. CT and X-ray are contraindicated in a positive pregnancy test.",
+    "Type and screen BEFORE she crashes. OR consult ASAP. Every minute of delay is continued intraperitoneal hemorrhage.",
+    "Methotrexate is for STABLE ectopics. She's hypotensive and tachycardic with peritoneal signs — she goes to OR, not to MTX.",
+    "Preventive care matters: safe sex counseling, smoking cessation, alcohol counseling, STI screening. 0% on all of it."
+  ],
+  "images": {
+    "descent3x3": {"status": "complete", "path": "images/descent-3x3.png", "size": "5.8 MB", "model": "nano-banana-pro", "resolution": "2K"},
+    "descentGaps": {"status": "complete", "path": "images/descent-gaps-3x3.png", "size": "6.8 MB", "model": "nano-banana-pro", "resolution": "2K"}
+  }
+}
