@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motor Homunculus — Symmetry Lab</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.14.0/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f8fa; --surface: #fff; --border: #e2e2e8;
+    --text: #1a1a24; --dim: #8a8a9a; --dim2: #b0b0bd;
+    --accent: #7D5CFF; --accent-hover: #6a4ae6;
+    --red: #e03131; --green: #2b8a3e;
+    --motor-l: #ff6b6b; --motor-r: #4dabf7; --sensory-l: #ffa94d; --sensory-r: #20c997;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06);
+    --radius: 10px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 14px; line-height: 1.55;
+    min-height: 100vh; padding: 24px;
+  }
+  .layout { display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 20px; max-width: 1400px; margin: 0 auto; min-height: calc(100vh - 48px); }
+  .col { display: flex; flex-direction: column; gap: 14px; }
+
+  .title { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+  .title i { color: var(--accent); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow);
+  }
+  .card-header { font-size: 0.78rem; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+
+  /* ── HOMUNCULUS REFERENCE ── */
+  .homunculus-img-wrap {
+    background: #111; border-radius: 8px; overflow: hidden;
+    display: flex; justify-content: center; align-items: center;
+    cursor: zoom-in; position: relative;
+  }
+  .homunculus-img-wrap img { width:100%; height:auto; display:block; }
+
+  /* ── BODY MAP ── */
+  .body-map-svg { width: 100%; height: auto; }
+  .body-region {
+    fill: transparent; stroke: var(--border); stroke-width: 1.2;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .body-region:hover { fill: rgba(125,92,255,0.08); stroke: var(--accent); stroke-width: 2; }
+  .body-region.active { fill: rgba(125,92,255,0.15); stroke: var(--accent); stroke-width: 2.5; }
+  .body-region.motor-left { fill: rgba(255,107,107,0.08); stroke: var(--motor-l); }
+  .body-region.motor-right { fill: rgba(77,171,247,0.08); stroke: var(--motor-r); }
+  .homunc-svg { width: 100%; height: auto; }
+  .cortex-region { stroke: var(--border); stroke-width: 1; cursor: pointer; transition: all 0.15s; }
+  .cortex-region:hover { opacity: 0.85; stroke: var(--accent); stroke-width: 2; }
+
+  /* ── LEGEND ── */
+  .legend { font-size: 0.78rem; display: flex; flex-wrap: wrap; gap: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* ── INFO PANEL ── */
+  .info-block {
+    font-size: 0.82rem; color: var(--dim); line-height: 1.6;
+  }
+  .info-block .region-name { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+  .info-block .cortex-loc { color: var(--accent); font-weight: 600; }
+  .info-block .symmetry-note { color: var(--green); font-weight: 600; }
+  .info-key { font-weight: 600; color: var(--text); }
+
+  /* ── CLINICAL ── */
+  .clinical-row { display: flex; gap: 10px; align-items: center; font-size: 0.8rem; }
+  .lesion-tag {
+    padding: 3px 8px; border-radius: 5px; font-weight: 600; font-size: 0.72rem;
+  }
+  .lesion-tag.aca { background: #fff0f0; color: var(--red); }
+  .lesion-tag.mca { background: #f0f0ff; color: var(--accent); }
+  .lesion-tag.pca { background: #f0fff4; color: var(--green); }
+
+  /* ── SYMMETRY STRIP ── */
+  .symm-strip {
+    display: flex; gap: 4px; align-items: center; font-size: 0.74rem;
+    color: var(--dim); font-weight: 600; letter-spacing: 0.03em;
+    padding: 8px 0; border-top: 1px dashed var(--border);
+    border-bottom: 1px dashed var(--border);
+  }
+  .symm-strip span { font-variant-numeric: tabular-nums; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ═══ LEFT: Reference Homunculus ═══ -->
+  <div class="col">
+    <div class="title"><i class="ti ti-brain"></i>Motor Homunculus</div>
+
+    <div class="card">
+      <div class="card-header"><i class="ti ti-photo"></i> Canonic</div>
+      <div class="homunculus-img-wrap">
+        <img src="homunculus-reference.jpg" alt="Motor homunculus — precentral gyrus">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="ti ti-color-swatch"></i> Symmetry Map</div>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-swatch" style="background:var(--motor-r)"></span> L cortex → R body</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:var(--motor-l)"></span> R cortex → L body</div>
+      </div>
+      <div style="margin-top:8px; font-size:0.78rem; color:var(--dim); line-height:1.5;">
+        Every voluntary movement is contralateral. The left primary motor cortex controls the right side of the body. The right primary motor cortex controls the left side. The fibers cross at the <strong style="color:var(--text)">medullary decussation</strong> — the pyramids of the medulla.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="ti ti-stethoscope"></i> Clinical — Stroke Localization</div>
+      <div class="info-block">
+        <div class="clinical-row"><span class="lesion-tag aca">ACA</span> Contralateral leg > arm weakness</div>
+        <div class="clinical-row"><span class="lesion-tag mca">MCA</span> Contralateral face + arm > leg weakness</div>
+        <div class="clinical-row"><span class="lesion-tag pca">PCA</span> Visual field defects (not motor)</div>
+        <div style="margin-top:6px; font-size:0.75rem; color:var(--dim);">
+          The homunculus is the map. A stroke in the MCA territory hits the lateral convexity — face, hand, arm. A stroke in the ACA territory hits the medial surface — leg, foot. The PCA territory hits the occipital lobe — vision only.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CENTER: Interactive Body Map + Cortex ═══ -->
+  <div class="col">
+    <div class="card">
+      <div class="card-header"><i class="ti ti-layout-board-split"></i> Homunculus Cortex Map — Click to Explore</div>
+      <svg class="homunc-svg" viewBox="0 0 400 500" id="cortexSvg">
+        <!-- Background brain silhouette -->
+        <defs>
+          <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+
+        <!-- LEFT HEMISPHERE (controls right body — blue) -->
+        <ellipse cx="140" cy="230" rx="100" ry="180" fill="#f8f9fa" stroke="var(--border)" stroke-width="1.5" transform="rotate(-5,140,230)"/>
+
+        <!-- Motor cortex strip — left hemisphere (precentral gyrus, blue = controls right body) -->
+        <g id="cortexLeft" data-hemisphere="left" data-controls="right body">
+          <!-- Face/Lips — huge representation -->
+          <rect x="120" y="300" width="24" height="60" rx="8" class="cortex-region" fill="rgba(77,171,247,0.45)" stroke="var(--motor-r)" stroke-width="1.8"
+                data-region="face" data-symm="Face, Lips, Tongue — ~50% of motor homunculus"/>
+          <!-- Hand — huge representation -->
+          <rect x="120" y="200" width="26" height="65" rx="8" class="cortex-region" fill="rgba(77,171,247,0.45)" stroke="var(--motor-r)" stroke-width="1.8"
+                data-region="hand" data-symm="Hand — ~30% of motor homunculus. Thumb, fingers, precision grip."/>
+          <!-- Arm -->
+          <rect x="115" y="155" width="22" height="40" rx="7" class="cortex-region" fill="rgba(77,171,247,0.35)" stroke="var(--motor-r)" stroke-width="1.5"
+                data-region="arm" data-symm="Arm — shoulder, elbow, wrist extensors/flexors"/>
+          <!-- Trunk -->
+          <rect x="100" y="110" width="20" height="40" rx="6" class="cortex-region" fill="rgba(77,171,247,0.25)" stroke="var(--motor-r)" stroke-width="1.2"
+                data-region="trunk" data-symm="Trunk — postural muscles, axial control"/>
+          <!-- Leg -->
+          <rect x="68" y="90" width="28" height="50" rx="7" class="cortex-region" fill="rgba(77,171,247,0.30)" stroke="var(--motor-r)" stroke-width="1.3"
+                data-region="leg" data-symm="Leg — hip, knee, ankle. Medial surface = ACA territory."/>
+          <!-- Foot -->
+          <rect x="65" y="55" width="22" height="32" rx="6" class="cortex-region" fill="rgba(77,171,247,0.25)" stroke="var(--motor-r)" stroke-width="1.2"
+                data-region="foot" data-symm="Foot — toe flexion/extension, ankle control"/>
+        </g>
+
+        <!-- RIGHT HEMISPHERE (controls left body — red) -->
+        <ellipse cx="260" cy="230" rx="100" ry="180" fill="#f8f9fa" stroke="var(--border)" stroke-width="1.5" transform="rotate(5,260,230)"/>
+
+        <!-- Motor cortex strip — right hemisphere (red = controls left body) -->
+        <g id="cortexRight" data-hemisphere="right" data-controls="left body">
+          <rect x="256" y="300" width="24" height="60" rx="8" class="cortex-region" fill="rgba(255,107,107,0.45)" stroke="var(--motor-l)" stroke-width="1.8"
+                data-region="face" data-symm="Face, Lips, Tongue — contralateral to right hemisphere"/>
+          <rect x="254" y="200" width="26" height="65" rx="8" class="cortex-region" fill="rgba(255,107,107,0.45)" stroke="var(--motor-l)" stroke-width="1.8"
+                data-region="hand" data-symm="Hand — contralateral to right hemisphere"/>
+          <rect x="263" y="155" width="22" height="40" rx="7" class="cortex-region" fill="rgba(255,107,107,0.35)" stroke="var(--motor-l)" stroke-width="1.5"
+                data-region="arm" data-symm="Arm — contralateral to right hemisphere"/>
+          <rect x="280" y="110" width="20" height="40" rx="6" class="cortex-region" fill="rgba(255,107,107,0.25)" stroke="var(--motor-l)" stroke-width="1.2"
+                data-region="trunk" data-symm="Trunk — contralateral to right hemisphere"/>
+          <rect x="304" y="90" width="28" height="50" rx="7" class="cortex-region" fill="rgba(255,107,107,0.30)" stroke="var(--motor-l)" stroke-width="1.3"
+                data-region="leg" data-symm="Leg — medial surface. Contralateral to right hemisphere."/>
+          <rect x="313" y="55" width="22" height="32" rx="6" class="cortex-region" fill="rgba(255,107,107,0.25)" stroke="var(--motor-l)" stroke-width="1.2"
+                data-region="foot" data-symm="Foot — contralateral to right hemisphere"/>
+        </g>
+
+        <!-- DECUSSATION arrow -->
+        <text x="200" y="400" text-anchor="middle" font-size="11" fill="var(--dim)" font-weight="600">↕ medullary decussation (pyramids)</text>
+        <path d="M135 380 L200 395 L265 380" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4,4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ═══ RIGHT: Body Map + Info ═══ -->
+  <div class="col">
+    <div class="card">
+      <div class="card-header"><i class="ti ti-accessible"></i> Interactive Body Map</div>
+
+      <div class="symm-strip">
+        <span class="legend-swatch" style="background:var(--motor-r)"></span> R body ← L cortex
+        <span style="margin:0 8px;">⇄</span>
+        <span>R cortex → L body</span>
+        <span class="legend-swatch" style="background:var(--motor-l);margin-left:8px;"></span>
+      </div>
+
+      <svg class="body-map-svg" viewBox="0 0 200 400" id="bodyMap">
+        <!-- Left body (controlled by RIGHT hemisphere — red) -->
+        <g id="bodyLeft" data-hemisphere="right" data-controls-side="left">
+          <!-- Left hand -->
+          <ellipse cx="42" cy="165" rx="14" ry="8" class="body-region" id="body-hand-l" data-region="hand"
+                   onmouseenter="highlightRegion('hand','left')" onmouseleave="clearHighlight()" onclick="selectRegion('hand','left')"
+                   transform="rotate(-10,42,165)"/>
+          <!-- Left arm -->
+          <rect x="35" y="110" width="14" height="50" rx="7" class="body-region" id="body-arm-l" data-region="arm"
+                onmouseenter="highlightRegion('arm','left')" onmouseleave="clearHighlight()" onclick="selectRegion('arm','left')"/>
+          <!-- Left leg -->
+          <rect x="40" y="240" width="18" height="100" rx="9" class="body-region" id="body-leg-l" data-region="leg"
+                onmouseenter="highlightRegion('leg','left')" onmouseleave="clearHighlight()" onclick="selectRegion('leg','left')"/>
+          <!-- Left foot -->
+          <ellipse cx="49" cy="342" rx="16" ry="8" class="body-region" id="body-foot-l" data-region="foot"
+                   onmouseenter="highlightRegion('foot','left')" onmouseleave="clearHighlight()" onclick="selectRegion('foot','left')"/>
+        </g>
+
+        <!-- Right body (controlled by LEFT hemisphere — blue) -->
+        <g id="bodyRight" data-hemisphere="left" data-controls-side="right">
+          <!-- Right hand -->
+          <ellipse cx="158" cy="165" rx="14" ry="8" class="body-region" id="body-hand-r" data-region="hand"
+                   onmouseenter="highlightRegion('hand','right')" onmouseleave="clearHighlight()" onclick="selectRegion('hand','right')"
+                   transform="rotate(10,158,165)"/>
+          <!-- Right arm -->
+          <rect x="151" y="110" width="14" height="50" rx="7" class="body-region" id="body-arm-r" data-region="arm"
+                onmouseenter="highlightRegion('arm','right')" onmouseleave="clearHighlight()" onclick="selectRegion('arm','right')"/>
+          <!-- Right leg -->
+          <rect x="142" y="240" width="18" height="100" rx="9" class="body-region" id="body-leg-r" data-region="leg"
+                onmouseenter="highlightRegion('leg','right')" onmouseleave="clearHighlight()" onclick="selectRegion('leg','right')"/>
+          <!-- Right foot -->
+          <ellipse cx="151" cy="342" rx="16" ry="8" class="body-region" id="body-foot-r" data-region="foot"
+                   onmouseenter="highlightRegion('foot','right')" onmouseleave="clearHighlight()" onclick="selectRegion('foot','right')"/>
+        </g>
+
+        <!-- Face — midline but has BILATERAL cortical input for upper face, CONTRALATERAL for lower face -->
+        <ellipse cx="100" cy="50" rx="22" ry="20" class="body-region" id="body-face" data-region="face"
+                 onmouseenter="highlightRegion('face','bilateral')" onmouseleave="clearHighlight()" onclick="selectRegion('face','bilateral')"/>
+
+        <!-- Trunk — bilateral innervation -->
+        <rect x="75" y="78" width="50" height="28" rx="8" class="body-region" id="body-trunk" data-region="trunk"
+              onmouseenter="highlightRegion('trunk','bilateral')" onmouseleave="clearHighlight()" onclick="selectRegion('trunk','bilateral')"/>
+
+        <!-- Stroke annotations -->
+        <text x="100" y="18" text-anchor="middle" font-size="10" fill="var(--dim2)" font-weight="600">UPPER FACE → bilateral · LOWER FACE → contralateral</text>
+      </svg>
+    </div>
+
+    <div class="card" id="infoPanel">
+      <div class="card-header"><i class="ti ti-info-circle"></i> <span id="infoTitle">Click a body part or cortex region</span></div>
+      <div class="info-block" id="infoBody">
+        <p>Click any body region on the map above — or any colored strip on the cortex — to see the contralateral mapping. The homunculus is the most important map in clinical neurology. A stroke anywhere along this strip produces a predictable deficit on the opposite side of the body.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const REGION_DATA = {
+  face: { name: 'Face, Lips & Tongue', cortexPct: '~50%', vessel: 'MCA', note: 'Upper face = bilateral innervation (spared in MCA stroke). Lower face = contralateral only (affected). Tongue protrusion deviates toward the lesion side.' },
+  hand: { name: 'Hand & Fingers', cortexPct: '~30%', vessel: 'MCA', note: 'Thumb, fingers, precision grip. The largest single representation in the motor homunculus. MCA stroke = contralateral hand weakness + sensory loss.' },
+  arm: { name: 'Arm & Shoulder', cortexPct: '~8%', vessel: 'MCA', note: 'Shoulder abduction, elbow flexion/extension, wrist. Lateral convexity of precentral gyrus.' },
+  trunk: { name: 'Trunk & Postural', cortexPct: '~5%', vessel: 'ACA/MCA watershed', note: 'Bilateral innervation — rarely completely paralyzed from unilateral stroke. Axial muscles receive input from both hemispheres.' },
+  leg: { name: 'Leg & Knee', cortexPct: '~4%', vessel: 'ACA', note: 'Medial surface of precentral gyrus. ACA territory. Contralateral leg > arm weakness. Urinary incontinence if paracentral lobule involved.' },
+  foot: { name: 'Foot & Toes', cortexPct: '~3%', vessel: 'ACA', note: 'Most medial portion of motor strip. Toe flexion/extension. ACA stroke = contralateral foot drop + leg weakness.' },
+};
+
+function highlightRegion(region, side) {
+  // Highlight body
+  document.querySelectorAll('.body-region').forEach(r => {
+    r.classList.remove('active','motor-left','motor-right');
+  });
+  const bodyEls = document.querySelectorAll(`.body-region[data-region="${region}"]`);
+  bodyEls.forEach(el => {
+    el.classList.add('active');
+    if (side === 'left') el.classList.add('motor-left');
+    if (side === 'right') el.classList.add('motor-right');
+  });
+
+  // Highlight cortex
+  document.querySelectorAll('.cortex-region').forEach(r => {
+    r.setAttribute('fill', r.getAttribute('fill').replace(/0\.[0-9]+/, '0.25'));
+  });
+  const cortexEls = document.querySelectorAll(`.cortex-region[data-region="${region}"]`);
+  cortexEls.forEach(el => {
+    el.setAttribute('fill', el.getAttribute('fill').replace('0.25','0.7'));
+    el.setAttribute('stroke-width', '3');
+    el.setAttribute('filter', 'url(#glow)');
+  });
+
+  updateInfo(region, side);
+}
+
+function clearHighlight() {
+  document.querySelectorAll('.body-region').forEach(r => {
+    r.classList.remove('active','motor-left','motor-right');
+  });
+  document.querySelectorAll('.cortex-region').forEach(r => {
+    const orig = r.getAttribute('fill');
+    r.setAttribute('fill', orig.replace(/0\.[0-9]+/, r.dataset.region === 'hand' || r.dataset.region === 'face' ? '0.45' : r.dataset.region === 'arm' || r.dataset.region === 'leg' ? '0.35' : '0.25'));
+    r.setAttribute('stroke-width', r.dataset.region === 'face' || r.dataset.region === 'hand' ? '1.8' : '1.2');
+    r.removeAttribute('filter');
+  });
+}
+
+function selectRegion(region, side) {
+  highlightRegion(region, side);
+}
+
+function updateInfo(region, side) {
+  const d = REGION_DATA[region];
+  if (!d) return;
+
+  document.getElementById('infoTitle').textContent = d.name;
+  let sideLabel = '';
+  if (side === 'left') sideLabel = '<span style="color:var(--motor-l)">Left body → Right cortex</span>';
+  else if (side === 'right') sideLabel = '<span style="color:var(--motor-r)">Right body → Left cortex</span>';
+  else sideLabel = 'Bilateral / midline innervation';
+
+  document.getElementById('infoBody').innerHTML = `
+    <div class="region-name">${d.name}</div>
+    <div style="margin-top:4px;">
+      <span class="cortex-loc">${d.cortexPct}</span> of motor homunculus &nbsp;·&nbsp; <span class="lesion-tag ${d.vessel.toLowerCase()}">${d.vessel}</span>
+    </div>
+    <div class="symmetry-note" style="margin-top:6px;">${sideLabel}</div>
+    <div style="margin-top:8px;font-size:0.82rem;color:var(--dim);">${d.note}</div>
+  `;
+}
+
+// Cortex click handlers
+document.querySelectorAll('.cortex-region').forEach(r => {
+  r.addEventListener('click', () => {
+    const region = r.dataset.region;
+    const side = r.closest('g').dataset.controls.includes('right') ? 'right' : 'left';
+    highlightRegion(region, side);
+  });
+});
+</script>
+
+</body>
+</html>
