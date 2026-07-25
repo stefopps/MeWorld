@@ -297,7 +297,7 @@ for name in ['descent-3x3', 'descent-gaps-3x3']:
 
 ### 7d — Magnific API gotchas for agents (READ BEFORE GENERATING)
 
-Six roadblocks that have cost hours. Do NOT regress on any of them.
+Seven roadblocks that have cost hours. Do NOT regress on any of them.
 
 | # | Gotcha | Symptom | Fix |
 |---|--------|---------|-----|
@@ -307,6 +307,7 @@ Six roadblocks that have cost hours. Do NOT regress on any of them.
 | **4** | **Prompt > 2995 chars** | Silent API failure or truncated output | Compress panel descriptions; NEVER trim the Naughty Dog style opener or closing "no text anywhere" line |
 | **5** | **Status also nested under `data`** | Poll loop hangs on `IN_PROGRESS` even when done | Check `(resp.get('data') or resp).get('status')` |
 | **6** | **`generated` is list of strings, not dicts** | `KeyError: 'url'` or `None` when accessing `generated[0]['url']` | `generated[0]` IS the URL — a string, not a dict. Do NOT chain `.url` |
+| **7** | **Text-only prompt — no visual reference attached** | Renders ignore the Naughty Dog style description, produce flat generic game art | Encode `uncharted-4-main-menu.png` as base64 data URL, include in `reference_images` array in every Magnific payload |
 
 ### 7e — Reference
 

@@ -17,12 +17,23 @@
 Save as `_gen.py` in the `images/` folder. The prompt files and output PNGs must be in the same directory.
 
 ```python
-import requests, time, os, json
+import requests, time, os, json, base64
 
 API_KEY = 'MS6b2d6d7d3fb64d30960c9856197a9f83'
 TASK_PATH = '/v1/ai/text-to-image/nano-banana-pro'
 CREATE_URL = f'https://api.magnific.com{TASK_PATH}'
 OUTDIR = os.path.dirname(os.path.abspath(__file__))
+
+# MANDATORY: Attach the approved Naughty Dog visual reference
+REF_PATH = r"C:\Users\steve\MeWorld\dev\screenshots\uncharted-4-main-menu.png"
+with open(REF_PATH, "rb") as f:
+    ref_b64 = base64.b64encode(f.read()).decode("ascii")
+REF_DATA_URL = f"data:image/png;base64,{ref_b64}"
+REF_IMAGE = {
+    "image": REF_DATA_URL,
+    "mime_type": "image/png",
+    "text": "Match this exact visual style, lighting, color palette, and atmosphere. Cool blue-gray dominant ambient, warm amber focal accents, volumetric haze, lived-in worn surfaces, soft vignette."
+}
 
 pairs = [
     ('descent-3x3.claude-img.txt', 'descent-3x3.png'),
@@ -45,6 +56,7 @@ for prompt_file, out_name in pairs:
         'aspect_ratio': '16:9',
         'resolution': '2K',
         'num_outputs': 1,
+        'reference_images': [REF_IMAGE],
         'negative_prompt': 'text overlay, lettering, captions, subtitles, cartoon, anime, 2D flat, plastic skin, overexposed, blurry',
     }
 
@@ -137,6 +149,12 @@ if status == 'COMPLETED':
 ```python
 print(f'  poll {i+1}: {status}', flush=True)
 ```
+
+### 4. Text-only prompts cannot match the visual style — reference image REQUIRED
+
+Describing "Naughty Dog cinematic CGI" in text will produce generic high-end renders with no color temperature. The model needs to SEE the reference.
+
+**Fix:** Always encode `uncharted-4-main-menu.png` as base64 data URL and include in `reference_images` array of every payload. The script template above includes this by default. Do NOT omit it.
 
 ---
 
