@@ -1,0 +1,75 @@
+{
+  "caseId": "post-mi-pericarditis-2026-07-25",
+  "ccsTitle": "Chest Pain — Emergency Medicine",
+  "diagnosis": "Post-Myocardial Infarction Pericarditis (Dressler Syndrome / Peri-infarct Pericarditis)",
+  "score": "68.33%",
+  "avgFirstAttempt": "66.2%",
+  "zScore": -1.86,
+  "patient": {
+    "key": "Patient with recent MI, now on aspirin + clopidogrel + atenolol + atorvastatin. Presents with new chest pain. The ECG shows diffuse ST elevation, PR depression — classic pericarditis pattern. But this is a post-MI patient. The question: is this re-infarction or pericarditis?"
+  },
+  "ordersPlaced": ["Physical exam: General, Heart/CV, Chest/Lungs", "EKG 12-lead", "Aspirin therapy + acetaminophen therapy"],
+  "orderCount": 6,
+  "avgOrderCountFor85pct": 29.1,
+  "scoreBreakdown": {
+    "diagnosisOrders": {"percent": 33.33, "weight": "40%"},
+    "treatmentOrders": {"percent": 100, "weight": "40%"},
+    "preventiveCare": {"percent": 0, "weight": "5%"},
+    "timing": {"percent": 100, "weight": "5%"},
+    "appropriateOrders": {"percent": 100, "weight": "5%"},
+    "locationSequence": {"percent": 100, "weight": "5%"}
+  },
+  "correctlyAvoided": [
+    "All NSAIDs (celecoxib, diclofenac, ibuprofen, indomethacin, naproxen, ketorolac, etc.) — contraindicated in post-MI pericarditis. Aspirin is the exception."
+  ],
+  "correctlyOrdered": [
+    "Physical Exam: Heart/CV, Chest/Lungs, General",
+    "EKG 12-lead (diffuse ST elevation + PR depression = pericarditis pattern, not STEMI)",
+    "Aspirin therapy + acetaminophen for pain control",
+    "Continued current post-MI medications (atenolol, clopidogrel, atorvastatin) — not discontinued"
+  ],
+  "missedOrders": [
+    {"order": "Cardiac troponin I", "severity": "high", "why": "Post-MI patient with new chest pain = rule out re-infarction FIRST before calling it pericarditis. Troponin tells you if there's ongoing myocardial necrosis. Pericarditis itself can cause mild troponin elevation, but a significant rise or trend upward changes management entirely."},
+    {"order": "Chest X-ray", "severity": "moderate", "why": "New chest pain in post-MI patient needs a CXR. Ruled out pneumothorax, pleural effusion, widened mediastinum. Pericarditis can cause a pericardial effusion visible on CXR."},
+    {"order": "CBC with differential", "severity": "moderate", "why": "Recent invasive procedure (cardiac cath for MI) = infection risk. Leukocytosis would raise concern for infectious pericarditis rather than post-MI autoimmune pericarditis."},
+    {"order": "BMP / CMP / LFTs", "severity": "minor", "why": "Basic labs for any chest pain admission. Renal function matters for medication dosing."},
+    {"order": "Pulse oximetry", "severity": "minor", "why": "Oxygenation check in cardiac patient."},
+    {"order": "Advise patient, rest at home", "severity": "minor", "why": "Activity triggers recurrence of pericarditis symptoms. Rest until symptoms resolve prevents re-triggering the inflamed pericardium."}
+  ],
+  "optional": [
+    {"order": "Colchicine", "why": "Controversial in post-MI pericarditis — limited studies showing effectiveness. Not required and does not affect grade. Standard for idiopathic/viral pericarditis but evidence is thin in post-MI setting."}
+  ],
+  "differentialDdx": [
+    "Myocardial infarction (re-infarction)",
+    "Myocardial ischemia",
+    "Peptic ulcer disease",
+    "Pulmonary embolism",
+    "Aortic dissection",
+    "Aortic stenosis",
+    "Esophageal rupture",
+    "Esophageal spasm",
+    "Acute gastritis",
+    "GERD",
+    "Coronary artery vasospasm",
+    "Angina pectoris",
+    "Esophagitis",
+    "Cardiac tamponade"
+  ],
+  "pathophysiology": {
+    "postMiPericarditis": "Autoimmune-mediated inflammation of the pericardium occurring days to weeks after myocardial infarction. The damaged myocardium exposes cardiac antigens → autoimmune response → immune complex deposition in the pericardium → inflammation. This is Dressler syndrome (weeks later) or peri-infarct pericarditis (days later). The mechanism is NOT infectious and NOT ischemic — it's the immune system attacking pericardial tissue that shares antigens with the infarcted myocardium.",
+    "ekgPattern": "Diffuse ST elevation (not territorial like STEMI) + PR depression. The PR depression is key: in STEMI, the PR segment is normal. In pericarditis, atrial inflammation causes PR depression. The ST elevation is diffuse (II, III, aVF, V2-V6) rather than confined to a single coronary territory.",
+    "nsaidsContraindication": "NSAIDs (except aspirin) inhibit COX-2, which impairs myocardial scar formation and ventricular remodeling after MI. They also increase cardiovascular thrombotic risk. In post-MI patients, NSAIDs are associated with increased mortality and re-infarction. Aspirin is the exception because it inhibits COX-1 (antiplatelet) at low doses, which is actually protective post-MI.",
+    "aspirinVsNsaids": "Aspirin irreversibly acetylates COX-1 in platelets → blocks thromboxane A2 → antiplatelet effect. This is why aspirin is part of the post-MI regimen. NSAIDs reversibly inhibit COX-1 and COX-2 → block prostaglandin synthesis → analgesic/anti-inflammatory but also block prostacyclin (endothelial protection) → pro-thrombotic state post-MI. The distinction is pharmacologic, not semantic."
+  },
+  "teachingPoints": [
+    "Post-MI chest pain ALWAYS gets troponin first. Even if the ECG looks like pericarditis. Re-infarction kills. Pericarditis hurts but is self-limited. You prove it's not the one that kills before you treat the one that hurts.",
+    "NSAIDs are contraindicated post-MI. Aspirin is the exception. This is a high-yield USMLE concept: COX-2 inhibition impairs myocardial healing.",
+    "Colchicine is optional in post-MI pericarditis. In idiopathic pericarditis, it's standard of care (reduces recurrence). In post-MI, evidence is thin — the case says optional and not graded.",
+    "Pericarditis ECG: diffuse ST elevation + PR depression. STEMI ECG: territorial ST elevation, reciprocal changes, no PR depression. The PR segment tells you which one it is.",
+    "This case rewards restraint. Don't over-investigate (no cath lab for pericarditis). Don't over-treat (no NSAIDs, no colchicine required). Aspirin + acetaminophen + rest = correct management."
+  ],
+  "images": {
+    "descent3x3": {"status": "completed", "path": "images/descent-3x3.png", "size_bytes": 5511794, "model": "nano-banana-pro", "resolution": "2K"},
+    "descentGaps": {"status": "completed", "path": "images/descent-gaps-3x3.png", "size_bytes": 5477121, "model": "nano-banana-pro", "resolution": "2K"}
+  }
+}
