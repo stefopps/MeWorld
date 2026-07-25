@@ -1,0 +1,75 @@
+{
+  "caseId": "chf-hfref-2026-07-25",
+  "ccsTitle": "Shortness of Breath — Office",
+  "diagnosis": "Congestive Heart Failure with Reduced Ejection Fraction (HFrEF, EF 35%)",
+  "score": "64.91%",
+  "avgFirstAttempt": "70.2%",
+  "patient": {
+    "key": "62M, professor, 3-week progressive dyspnea + PND + orthopnea. 30 pack-year smoking. HTN on lisinopril. Prior MI (father died of MI at 65). CXR: cardiomegaly, Kerley B lines, pleural effusion. Echo: EF 35%. This is systolic heart failure from ischemic cardiomyopathy."
+  },
+  "ordersPlaced": ["Furosemide IV", "Lisinopril (continued)", "Spironolactone", "EKG", "CXR", "Echo", "Tdap vaccine", "Physical exam: General, Chest/Lungs, Heart, Extremities, HEENT/Neck"],
+  "orderCount": 9,
+  "scoreBreakdown": {
+    "diagnosisOrders": {"percent": 63.27, "weight": "40%"},
+    "treatmentOrders": {"percent": 66.67, "weight": "40%"},
+    "preventiveCare": {"percent": 8.7, "weight": "5%"},
+    "timing": {"percent": 100, "weight": "5%"},
+    "appropriateOrders": {"percent": 100, "weight": "5%"},
+    "locationSequence": {"percent": 50, "weight": "5%", "note": "Kept patient in Office — should have admitted to inpatient unit"}
+  },
+  "correctlyOrdered": [
+    "Physical exam: General, Chest/Lungs, Heart, Extremities (edema), HEENT (JVD)",
+    "EKG 12-lead",
+    "CXR (cardiomegaly, Kerley B, effusion)",
+    "Echocardiogram (EF 35%)",
+    "Furosemide IV (loop diuretic = first-line for volume overload)",
+    "Spironolactone (MRA — Class I, EF 35%)",
+    "Tdap vaccine"
+  ],
+  "correctlyAvoided": [
+    "Stress echo / stress test — no stress test during acute CHF exacerbation"
+  ],
+  "missedOrders": [
+    {"order": "Beta-blocker (carvedilol, metoprolol succinate, or bisoprolol)", "severity": "critical", "why": "One of the FOUR PILLARS of GDMT for HFrEF. Initiate before discharge once euvolemic, not during acute decompensation. COMET trial: 17% mortality benefit. Multiple studies show predischarge initiation improves adherence. Some hospitals penalize CHF discharge without beta-blocker."},
+    {"order": "SGLT2 inhibitor (dapagliflozin, empagliflozin)", "severity": "critical", "why": "The fourth pillar of GDMT. Class I recommendation in 2022 AHA/ACC/HFSA guidelines. DAPA-HF and EMPEROR-Reduced: ~25% reduction in worsening HF or CV death. Can be initiated during hospitalization once past acute decompensation."},
+    {"order": "Statin (atorvastatin 40-80mg or rosuvastatin 20-40mg)", "severity": "high", "why": "This man has ASCVD (prior MI). High-intensity statin is Class I for secondary prevention. CORONA/GISSI-HF showed no mortality benefit of statins in HF itself — the indication is his CAD, not his CHF."},
+    {"order": "BMP/CMP", "severity": "high", "why": "Renal function and electrolytes are critical before starting spironolactone (K+, eGFR) and for diuretic safety. K+ >5.0 or eGFR <30 = do NOT start MRA."},
+    {"order": "CBC", "severity": "moderate", "why": "Screening tool. Anemia worsens HF. Check before discharge medications."},
+    {"order": "TSH", "severity": "moderate", "why": "Thyroid disease can precipitate arrhythmias and contribute to HF."},
+    {"order": "Troponin", "severity": "high", "why": "The most common cause of HFrEF is ischemic cardiomyopathy. A patient with known CAD and new decompensation needs troponin to rule out acute ischemia as the trigger."},
+    {"order": "HbA1c / fasting glucose", "severity": "moderate", "why": "Uncontrolled diabetes precipitates HF. Screen for it."},
+    {"order": "Pulse oximetry", "severity": "minor", "why": "Shortness of breath — check oxygenation."},
+    {"order": "Smoking cessation counseling", "severity": "high", "why": "30 pack-years. Smoking causes CAD which caused his MI which caused his HFrEF. The chain starts with the cigarette."},
+    {"order": "Low sodium diet instruction", "severity": "moderate", "why": "Sodium restriction is a core HF lifestyle modification. Reduces fluid retention."},
+    {"order": "Limit alcohol / no alcohol", "severity": "moderate", "why": "Alcohol is cardiotoxic and precipitates HF."},
+    {"order": "Reassure patient", "severity": "minor", "why": "Dyspnea is terrifying. The patient is scared."},
+    {"order": "Pneumococcal vaccine", "severity": "moderate", "why": "Indicated in CHF and smoking. PPSV23."},
+    {"order": "Varicella/shingles vaccine", "severity": "minor", "why": "Age 62 — CDC recommends Shingrix at 50+. Office visit is the right moment."},
+    {"order": "Admit to inpatient unit", "severity": "critical", "why": "Patient needs IV diuresis, monitoring, predischarge GDMT initiation, and echo. Cannot manage CHF exacerbation in the office. Location penalty: 50%."}
+  ],
+  "optional": [
+    {"order": "BNP", "why": "Will be elevated in CHF — confirmatory but not required. Does not affect grade."},
+    {"order": "Foley catheter", "why": "Optional for accurate I/O monitoring during diuresis."},
+    {"order": "Digoxin", "why": "Optional — can reduce hospitalizations but no mortality benefit. Consider for rate control if AF present."}
+  ],
+  "gdmtFourPillars": {
+    "description": "Guideline-directed medical therapy for HFrEF — all four should be started (sequentially, not simultaneously during acute decompensation)",
+    "pillars": [
+      {"class": "ACEi/ARB/ARNI", "drug": "Lisinopril (already on)", "status": "continued"},
+      {"class": "Beta-blocker", "drug": "Carvedilol, metoprolol succinate, bisoprolol", "status": "MISSED — should start predischarge after diuresis"},
+      {"class": "MRA", "drug": "Spironolactone or eplerenone", "status": "ordered"},
+      {"class": "SGLT2i", "drug": "Dapagliflozin or empagliflozin", "status": "MISSED — Class I, can start inpatient"}
+    ]
+  },
+  "teachingPoints": [
+    "Acute CHF management: diurese first (furosemide), then layer on GDMT before discharge. Never start beta-blocker during flash pulmonary edema.",
+    "The four pillars are additive — each reduces mortality independently. Missing two (BB + SGLT2i) leaves half the benefit on the table.",
+    "Location matters: CHF exacerbation with PND, orthopnea, pleural effusion = inpatient. Not an office case.",
+    "Statin is for his CAD, not his CHF. CORONA trial: statins don't help HF. But they absolutely help post-MI patients.",
+    "Pneumococcal vaccine is not optional in CHF. Smoking + heart failure = high-risk for pneumonia complications."
+  ],
+  "images": {
+    "descent3x3": {"path": "images/descent-3x3.png", "size": 5602153, "status": "completed"},
+    "descentGaps": {"path": "images/descent-gaps-3x3.png", "size": 5439674, "status": "completed"}
+  }
+}
