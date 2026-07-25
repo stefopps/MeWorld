@@ -1,0 +1,97 @@
+{
+  "caseId": "atrial-fibrillation-2026-07-25",
+  "ccsTitle": "Chest Pain / Palpitations — Emergency Medicine",
+  "diagnosis": "New-Onset Atrial Fibrillation with Rapid Ventricular Response",
+  "score": "54.96%",
+  "avgFirstAttempt": "77.8%",
+  "zScore": -2.23,
+  "patient": {
+    "key": "65F, chest pain + palpitations + dizziness. History of anxiety disorder (taking alprazolam PRN) and HTN. Recent stressors. EKG: AF with RVR. TSH and T3/T4 all normal. Echo: mild LA enlargement, EF 65%, no thrombus. HR rapid on presentation, symptomatically improved after IV metoprolol. Spontaneously converted to sinus rhythm. CHA2DS2-VASc = 3 (female +1, age >=65 +1, HTN +1) → anticoagulation indicated."
+  },
+  "ekg": "Atrial fibrillation with rapid ventricular response",
+  "echo": "Mild left atrial enlargement, no LAA thrombus, EF 65%, normal valves and wall motion",
+  "thyroidLabs": {
+    "TSH": "normal",
+    "T3": "310 pg/dL (nl 230-660)",
+    "T4 total": "6.1 mcg/dL (nl 5.0-12.0)",
+    "Free T4": "normal",
+    "Total T3": "5.6 mcg/dL (nl 5.0-12.0)"
+  },
+  "cha2ds2vasc": {
+    "score": 3,
+    "components": [
+      "Female sex: +1",
+      "Age >= 65: +1",
+      "Hypertension: +1"
+    ],
+    "recommendation": "Score >=2 in women → oral anticoagulation strongly recommended (DOAC preferred)"
+  },
+  "scoreBreakdown": {
+    "diagnosisOrders": {"percent": 58.82, "weight": "40%"},
+    "treatmentOrders": {"percent": 53.57, "weight": "40%"},
+    "preventiveCare": {"percent": 0, "weight": "5%"},
+    "timing": {"percent": 100, "weight": "5%"},
+    "appropriateOrders": {"percent": 0, "weight": "5%", "note": "Ordered 'Ablation, tumor' — considered invasive for this case. Ablation is for recurrent symptomatic AF, not new-onset in ED."},
+    "locationSequence": {"percent": 100, "weight": "5%"}
+  },
+  "orderCount": 12,
+  "avgOrderCountFor85pct": 32.77,
+  "correctlyOrdered": [
+    "Physical Exam: General, Chest/Lungs, Heart, HEENT/Neck (thyroid exam), Neuro/Psych",
+    "EKG 12-lead (caught AF with RVR)",
+    "TSH (ruled out hyperthyroid AF)",
+    "Cardiac troponin I",
+    "Chest X-ray",
+    "Echocardiography (optional but good practice — LAE, no thrombus, EF 65%)",
+    "Beta-blocker / CCB for rate control (metoprolol)",
+    "Cardiology consult"
+  ],
+  "missedOrders": [
+    {"order": "Anticoagulation (warfarin / DOAC: apixaban, rivaroxaban, edoxaban, dabigatran)", "severity": "critical", "why": "CHA2DS2-VASc = 3 → yearly stroke risk ~3-5%. Guidelines strongly recommend OAC. DOACs are first-line over warfarin. Aspirin alone reduces stroke risk by only 20-25% vs ~60-70% with OAC. Aspirin + clopidogrel (ACTIVE-A) still far short of OAC. The entire point of the AF diagnosis is stroke prevention."},
+    {"order": "PT/PTT + PT/INR", "severity": "high", "why": "Need baseline coagulation status before starting anticoagulation. No prior thromboembolism, so heparin bridge is NOT needed — but baseline PT/PTT is standard of care before initiating any anticoagulant."},
+    {"order": "CBC with differential", "severity": "moderate", "why": "Screening tool. Also: anemia affects DOAC dosing and bleeding risk stratification."},
+    {"order": "BMP / CMP", "severity": "high", "why": "Renal function is critical — creatinine clearance determines which DOACs are appropriate and at what dose. Electrolytes may reveal hypokalemia/hypomagnesemia contributing to AF."},
+    {"order": "Cardiac monitor", "severity": "high", "why": "AF patient needs continuous rhythm monitoring. Can detect conversion to sinus vs deterioration to unstable rhythm."},
+    {"order": "Pulse oximetry", "severity": "minor", "why": "Oxygenation check in a distressed patient."},
+    {"order": "Physical Exam: Abdomen", "severity": "minor", "why": "Abdominal pathology can contribute to dizziness/chest discomfort."},
+    {"order": "Physical Exam: Extremities/Spine", "severity": "minor", "why": "Check for edema — sign of heart failure that would change management."},
+    {"order": "Urine toxicology screen", "severity": "moderate", "why": "Substance use (cocaine, amphetamines) can cause palpitations and AF. Patient already on alprazolam (potential for misuse)."}
+  ],
+  "missedPrevention": [
+    "Tdap vaccine (every 10 years, no history given)"
+  ],
+  "wrongDecisions": [
+    {
+      "decision": "Ordered 'Ablation, tumor'",
+      "why": "Cost 0% on Appropriate Orders. Ablation is an elective rhythm-control strategy for RECURRENT symptomatic AF refractory to medication — not for new-onset AF in the ED. The patient spontaneously converted to sinus rhythm after rate control. Ablation is a cardiology subspecialty decision made weeks to months later, not an ED order."
+    }
+  ],
+  "differentialDdx": [
+    "Anxiety",
+    "Substance abuse",
+    "Hyperthyroidism",
+    "Mitral valve prolapse",
+    "Panic attack"
+  ],
+  "pathophysiology": {
+    "afRvr": "Atrial fibrillation: chaotic, rapid atrial electrical activity (400-600 bpm) with irregular conduction through the AV node → irregularly irregular ventricular rhythm. Rapid ventricular response = ventricular rate >100 bpm. Symptoms: palpitations, chest pain (from demand ischemia), dizziness (from reduced cardiac output — loss of atrial kick).",
+    "rateVsRhythm": "Acute management in a STABLE patient = rate control (beta-blocker or CCB). Rhythm control (cardioversion) is for UNSTABLE patients (hypotension, shock, acute heart failure) or elective management. This patient was stable — BP normal, no heart failure — so rate control was correct.",
+    "anticoagulation": "AF causes blood stasis in the left atrium (especially the LAA) → thrombus formation → cardioembolic stroke. CHA2DS2-VASc quantifies stroke risk. Score >=2 = OAC recommended. The paradox of AF: the arrhythmia is annoying but rarely fatal; the stroke is devastating and entirely preventable.",
+    "doacVsWarfarin": "DOACs (apixaban, rivaroxaban, edoxaban, dabigatran): direct factor Xa or thrombin inhibitors, fixed dosing, no INR monitoring, fewer drug interactions, faster onset, at least as effective as warfarin with less intracranial hemorrhage. Warfarin: vitamin K antagonist, requires INR monitoring, many drug/food interactions, but well-established and reversible. Heparin bridge is NOT needed for new-onset AF without prior thromboembolism — start OAC directly.",
+    "laEnlargement": "Mild LAE is a structural consequence of AF (or a predisposing factor). It reflects the atrial remodeling that makes AF more likely to sustain itself ('AF begets AF'). LAE also increases stroke risk independently.",
+    "spontaneousConversion": "Up to 70% of new-onset AF converts spontaneously to sinus rhythm within 24-48 hours, especially after rate control reduces atrial stretch and sympathetic tone. This patient did convert — metoprolol worked."
+  },
+  "teachingPoints": [
+    "The most dangerous thing about AF is not the arrhythmia — it's the stroke. Rate control manages symptoms. Anticoagulation prevents death and disability.",
+    "CHA2DS2-VASc drives the decision. Score 3 → OAC. DOAC first-line. Not aspirin. Not DAPT. Oral anticoagulation.",
+    "PT/PTT before starting AC — baseline coagulation status. Not for heparin bridging (that's for high-risk patients transitioning to warfarin). Just for baseline.",
+    "Renal function (BMP) determines DOAC choice and dose. CKD → dose adjustment or warfarin.",
+    "Ablation is not an ED order. It's a subspecialty decision for recurrent symptomatic AF after medication failure. Ordering it in the ED = invasive penalty.",
+    "Thyroid labs make sense but were normal in this case. Always check TSH in new AF — hyperthyroidism is a reversible cause.",
+    "The anxiety history is a trap. Yes, she has anxiety. No, that doesn't mean her palpitations are a panic attack. AF and anxiety can coexist. Rule out the arrhythmia first."
+  ],
+  "images": {
+    "descent3x3": {"status": "completed", "path": "images/descent-3x3.png", "size_bytes": 6092523, "model": "nano-banana-pro", "resolution": "2K"},
+    "descentGaps": {"status": "completed", "path": "images/descent-gaps-3x3.png", "size_bytes": 6197302, "model": "nano-banana-pro", "resolution": "2K"}
+  }
+}
