@@ -1,0 +1,57 @@
+{
+  "caseId": "hiatal-hernia-2026-07-25",
+  "ccsTitle": "Chest Pain / Dysphagia — Office",
+  "diagnosis": "Type I Hiatal Hernia with GERD",
+  "score": "60.33%",
+  "avgFirstAttempt": "86.9%",
+  "zScore": -2.07,
+  "patient": {
+    "key": "Overweight patient, chest pain with GERD symptoms (heartburn, regurgitation, dysphagia). Dysphagia is an alarm symptom. Office setting. Type I hiatal hernia (sliding) — gastric cardia herniates through the esophageal hiatus. Accounts for 95% of hiatal hernias. Type I = medical management (PPI/H2 blocker). Types II-IV = surgical."
+  },
+  "ordersPlaced": ["Physical exam: General, Chest/Lungs, Heart, Abdomen", "Omeprazole (PPI)", "Metronidazole"],
+  "orderCount": 2,
+  "avgOrderCountFor85pct": 26.82,
+  "scoreBreakdown": {
+    "diagnosisOrders": {"percent": 13.33, "weight": "40%"},
+    "treatmentOrders": {"percent": 100, "weight": "40%"},
+    "preventiveCare": {"percent": 0, "weight": "5%"},
+    "timing": {"percent": 100, "weight": "5%"},
+    "appropriateOrders": {"percent": 100, "weight": "5%"},
+    "locationSequence": {"percent": 100, "weight": "5%"}
+  },
+  "correctlyOrdered": [
+    "Physical Exam: General, Chest/Lungs, Heart, Abdomen",
+    "Omeprazole (PPI) — appropriate for Type I"
+  ],
+  "missedOrders": [
+    {"order": "EGD / Barium swallow / Esophageal manometry", "severity": "critical", "why": "Dysphagia is an ALARM symptom. Cannot empirically treat GERD when the patient has dysphagia — needs structural evaluation to rule out stricture, malignancy, or motility disorder. Also: must confirm Type I (medical) vs Type II-IV (surgical). Type I = PPI only. Types II-IV = surgical repair. The management fork is binary, and you cannot choose without visualizing the hernia."},
+    {"order": "EKG 12-lead", "severity": "high", "why": "Chest pain = rule out cardiac causes. GERD and CAD can coexist, and the history of 'heartburn' can be misleading. An EKG is fast, noninvasive, and necessary for any chest pain presentation."},
+    {"order": "CBC with differential", "severity": "moderate", "why": "Screen for anemia from chronic GI blood loss. GERD can cause erosive esophagitis with occult bleeding."},
+    {"order": "BMP / CMP", "severity": "moderate", "why": "Basic chemistry panel. Renal function is relevant for any patient on long-term medications."},
+    {"order": "Diet, calorie-restricted", "severity": "minor", "why": "Weight loss directly reduces GERD symptoms. Overweight patient — this is preventive care and treatment combined."}
+  ],
+  "teachingPoints": [
+    "Treatment 100%, diagnosis 13%. You treated something you never confirmed. Dysphagia means you must visualize the esophagus.",
+    "Type I hiatal hernia (95% of cases) = sliding, gastric cardia herniates, managed with PPI/H2 blocker. Types II-IV = surgical. You cannot tell which type without imaging.",
+    "Dysphagia is an ALARM SYMPTOM in GERD. It demands endoscopic or radiographic evaluation — not empirical PPI trial.",
+    "Chest pain always gets an EKG. Even when the history sounds GI. Even in the office setting.",
+    "The mirror of the AFib case: in AFib you diagnosed perfectly and forgot treatment. Here you treated perfectly and forgot diagnosis. Both fail."
+  ],
+  "hiatalHerniaTypes": {
+    "typeI": {"description": "Sliding — gastric cardia herniates through esophageal hiatus", "frequency": "95%", "management": "Medical: PPI, H2 blocker, lifestyle. No surgery."},
+    "typeII": {"description": "Paraesophageal — gastric fundus herniates through phrenoesophageal membrane defect", "frequency": "~2%", "management": "Surgical repair"},
+    "typeIII": {"description": "Mixed — both Type I (sliding cardia) and Type II (fundus herniation)", "frequency": "~2%", "management": "Surgical repair"},
+    "typeIV": {"description": "Other organs herniate (colon, spleen, small intestine, pancreas)", "frequency": "<1%", "management": "Surgical repair"}
+  },
+  "alarmSymptoms": ["Dysphagia", "Odynophagia", "Weight loss", "GI bleeding", "Anemia", "Early satiety", "Vomiting"],
+  "differentialDdx": [
+    "Coronary artery disease",
+    "Esophagitis",
+    "Esophageal motility disorder",
+    "Functional dyspepsia"
+  ],
+  "images": {
+    "descent3x3": {"status": "completed", "path": "images/descent-3x3.png", "size_bytes": 6136785, "model": "nano-banana-pro", "resolution": "2K"},
+    "descentGaps": {"status": "completed", "path": "images/descent-gaps-3x3.png", "size_bytes": 5804738, "model": "nano-banana-pro", "resolution": "2K"}
+  }
+}
