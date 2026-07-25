@@ -3,6 +3,18 @@
   "ccsTitle": "Chest Pain — Emergency Medicine (Aortic Dissection)",
   "diagnosis": "Type A Aortic Dissection with Aortic Regurgitation",
   "score": "64.12%",
+  "secondAttempt": {
+    "score": "87.71%",
+    "diagnosisOrders": "80%",
+    "treatmentOrders": "90.48%",
+    "timing": "100%",
+    "locationSequence": "100%",
+    "orderCount": 13,
+    "correctlyOrderedNew": ["IV opioids (morphine/fentanyl)", "CT surgery consult / thoracotomy"],
+    "missedNew": ["IV nitroglycerin/nitroprusside (vasodilator after beta-blocker)", "CBC", "BMP/CMP", "pulse oximetry"],
+    "stillGotRight": ["Correctly avoided aspirin", "Beta-blocker", "PT/PTT", "Type & screen", "EKG + cardiac monitor", "CXR + echo", "Troponin", "Extremities exam", "No negative patient updates"],
+    "whatImproved": "Ordered CT surgery consult/thoracotomy (the critical miss from attempt 1). Added IV opioids for pain control. Stayed in ED (correct location). Zero negative patient updates. Timing 100%."
+  },
   "avgFirstAttempt": "79.8%",
   "zScore": -1.82,
   "patient": {

@@ -250,59 +250,96 @@ Until finally — clinical endpoint / the diagnostic finding
 And ever since then — irreversible state / treatment footprint
 ```
 
-### 7b — Write the prompt
+### 7b — Write the prompt (locked Unreal-5 style, not "Naughty Dog")
+
+Use the exact style block from the `/claude-img` medical mechanism image prompting skill.
 
 ```
-Naughty Dog cinematic CGI style, volumetric rays, PBR materials, dramatic key light with deep falloff into near-black shadow, cinematic concept still — not a photograph, not a textbook diagram, not flat medical illustration. Film grain, high contrast, near-black void isolating every panel. Consistent volumetric lighting. No text, labels, numbers, UI, captions, or arrows anywhere.
+An Unreal Engine 5 cinematic 3D macro render, not a photograph. Real-time global illumination, crisp high-poly precision, one dramatic key light, deep black shadow, high contrast.
 
-3x3 grid, 9 panels, one unbroken descent.
+3x3 grid, 9 panels, landscape 16:9. NO TEXT ANYWHERE. One continuous environment across all panels, camera traveling through it, no two adjacent panels sharing an angle.
 
-Story Spine: [concise causal chain — 3-4 sentences max]
+Story: [concise causal chain — 3-4 sentences max]
 Camera: [one camera term per panel — vary every panel, never repeat adjacent]
-Panel 1-9: [one-sentence visual description each, labeled with Story Spine beat]
-Consistent volumetric lighting throughout, deep black void isolating every panel, no flat diagrams, no histological slides, no cutaways.
+Panel 1-9: [one element per panel; named camera term; mechanism beat]
+Cinematic, high contrast, glossy detail, consistent style throughout, no text anywhere.
 ```
 
-### 7c — Fire background sub-agent (ONE Magnific REST call only)
+If a human character is in frame, use the human variant from the skill (adds subsurface scattering, cloth simulation).
 
-**CRITICAL: ONE call, ONE prompt, ONE image.** Magnific renders the 3x3 grid from a single prompt. Do NOT generate 9 individual panel files.
+**DO NOT use the old "Naughty Dog cinematic CGI style" block.** That was pre-skill and produces inferior results.
 
-```javascript
-Task({
-  subagent_type: "generalPurpose",
-  description: "Generate descent 3x3 for <slug>",
-  run_in_background: true,
-  prompt: `Generate a SINGLE 3x3 descent grid image using Magnific REST API. ONE call, ONE image, ONE file. Do NOT generate individual panels.
+### 7c — Fire generation (Python script, NOT subagent shell delegation)
 
-  API Key: MS6b2d6d7d3fb64d30960c9856197a9f83
-  Endpoint: https://api.magnific.com/v1/ai/text-to-image/nano-banana-pro
-  Body: { prompt, aspect_ratio: "16:9", resolution: "2K" }
-  Poll: GET .../nano-banana-pro/{task_id} every 3s → data.status === "COMPLETED" → download data.generated[0]
-  Output: C:\\Users\\steve\\MeWorld\\dev\\screenshots\\<slug>\\images\\descent-3x3.png
-  Prompt file: C:\\Users\\steve\\MeWorld\\dev\\screenshots\\<slug>\\images\\descent-3x3.prompt.txt
+**CRITICAL: Do NOT delegate Magnific generation to a shell subagent.** Shell subagents hang indefinitely (~705s+) on Magnific polling loops. Instead, use a direct Python script (saved as `_magnific_gen.py` in the images folder) that submits, polls, and downloads.
 
-  HARD GUARD: prompt must be ≤ 2995 chars. If over, compress panel descriptions — never trim style opener or closing line.
-  VERIFY prompt length before submitting, exit if >2995.
+**Two-plate pattern (descent + gaps):**
 
-  [The full prompt from Step 7b goes here as a verbatim code block — do NOT let the subagent modify it]
+```python
+import requests, time, os
 
-  After generation: save PNG + prompt.txt, report path and file size.`
+API_KEY = 'MS6b2d6d7d3fb64d30960c9856197a9f83'
+ENDPOINT = 'https://api.magnific.com/v1/ai/text-to-image/nano-banana-pro'
+OUT = r'<images-folder>'
+HEADERS = {'x-magnific-api-key': API_KEY, 'Content-Type': 'application/json'}
+
+# Load and verify prompts are ≤ 2995 chars each
+for name in ['descent-3x3', 'descent-gaps-3x3']:
+    prompt = open(os.path.join(OUT, f'{name}.claude-img.txt'), encoding='utf-8').read()
+    assert len(prompt) <= 2995, f'{name}: {len(prompt)} chars (over 2995)'
+    r = requests.post(ENDPOINT, json={'prompt': prompt, 'resolution': '2K'}, headers=HEADERS)
+    data = r.json()
+    # CRITICAL: task_id is nested under "data" key
+    tid = (data.get('data') or data).get('task_id')
+    # ... poll every 5s, status from resp['data']['status']
+    # On COMPLETED: download resp['data']['generated'][0]['url']
 ```
 
-### 7d — Reference
+### 7d — Magnific API gotchas for agents (READ BEFORE GENERATING)
+
+Three roadblocks that have cost hours. Do NOT regress on any of them.
+
+| # | Gotcha | Symptom | Fix |
+|---|--------|---------|-----|
+| **1** | **task_id nested under `data`** | `task_id: None`, then 400s on polling | Extract as: `(resp.get('data') or resp).get('task_id')` |
+| **2** | **Subagent shell delegation hangs** | Shell subagent runs 600s+ with no output | Use direct Python script with `block_until_ms: 600000` |
+| **3** | **"Naughty Dog" style block** | Inferior renders, style drift | Use Unreal Engine 5 cinematic block from medical-mechanism-image-prompting skill |
+| **4** | **Prompt > 2995 chars** | Silent API failure or truncated output | Compress panel descriptions; NEVER trim the Unreal-5 opener or closing "no text anywhere" line |
+| **5** | **Status also nested under `data`** | Poll loop hangs on `IN_PROGRESS` even when done | Check `(resp.get('data') or resp).get('status')` |
+
+### 7e — Reference
 
 See `C:\Users\steve\MeWorld\dev\screenshots\crohns-anal-tags-2026-07-23\images\descent-3x3.png` for the gold standard output.
 
 ## Step 8 — Update case-sequence.json
 
-After firing the image sub-agent, update `case-sequence.json`:
+After generating images, update the `images` section:
 
 ```json
 {
-  "imageGenerationAgentId": "<agent-id>",
-  "imageGenerationStatus": "in_progress"
+  "images": {
+    "descent3x3": {"status": "complete", "path": "images/descent-3x3.png", "size": "5.8 MB", "model": "nano-banana-pro", "resolution": "2K", "style": "Unreal Engine 5 cinematic (claude-img)"},
+    "descentGaps": {"status": "complete", "path": "images/descent-gaps-3x3.png", "size": "5.7 MB", "model": "nano-banana-pro", "resolution": "2K", "style": "Unreal Engine 5 cinematic (claude-img)"}
+  }
 }
 ```
+
+### Second attempt handling
+
+If Steve replays a case and a second score report comes in, add a `secondAttempt` block to `case-sequence.json` rather than overwriting the original:
+
+```json
+{
+  "secondAttempt": {
+    "score": "87.71%",
+    "diagnosisOrders": "80%",
+    "treatmentOrders": "90.48%",
+    "whatImproved": "Ordered CT surgery consult (the critical miss from attempt 1), added IV opioids, zero negative updates"
+  }
+}
+```
+
+Also append a "## Second Attempt" section to the README documenting what changed.
 
 ## Tell Steve
 

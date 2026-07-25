@@ -114,6 +114,24 @@ You correctly avoided aspirin. You correctly avoided the ACS reflex. But you con
 
 ---
 
+## Second Attempt — 87.71% (July 25, 2026, 5:00 AM)
+
+Massive improvement. Diagnosis 80%, treatment 90.48%, timing 100%, location/sequence 100%.
+
+**What changed:**
+- Called **cardiothoracic surgery** (not cardiology) — the critical fix
+- Added **IV opioids** (morphine/fentanyl) — pain control as hemodynamic control
+- Stayed in **ED** (correct location) — no detour to ICU
+- **Zero negative patient updates** — got him to OR before he deteriorated
+
+**What was still missed:**
+- IV vasodilator after beta-blocker (nitroprusside/nitroglycerin) — CCP dropped to 80% on diagnosis from missing CBC, BMP, pulse ox
+- Some routine labs (CBC, BMP) were skipped — cost some diagnosis points
+
+**The delta:** 64% → 88%. The two things that mattered most: correct consultant (CT surgery) + correct destination (OR not ICU). Everything else follows from those two decisions.
+
+---
+
 ## Treatment Plates
 
 | Plate | Path | Coverage |
