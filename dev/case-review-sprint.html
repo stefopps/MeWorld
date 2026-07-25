@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Sprint Review</title>
+<style>
+  :root {
+    --bg: #0c0c10;
+    --surface: #14141c;
+    --border: #2a2a38;
+    --text: #e0e0e0;
+    --dim: #68687a;
+    --accent: #7D5CFF;
+    --accent-glow: #A98BFF;
+    --red: #ff4d5a;
+    --green: #4dff88;
+    --gold: #f0c040;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .container {
+    width: 100%;
+    max-width: 860px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+  }
+  .title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .title span { color: var(--accent); }
+
+  /* Case selector */
+  .case-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    min-width: 220px;
+    outline: none;
+  }
+  .case-select:focus { border-color: var(--accent); }
+  .case-select option { background: var(--surface); color: var(--text); }
+
+  /* Timer bar */
+  .timer-bar-wrap {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .timer-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.3s linear, background 0.3s;
+  }
+  .timer-bar.warning { background: var(--gold); }
+  .timer-bar.danger { background: var(--red); }
+
+  .stats-row {
+    display: flex;
+    gap: 20px;
+    font-size: 0.82rem;
+    color: var(--dim);
+  }
+  .stats-row .val { color: var(--text); font-weight: 600; }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Score prompt */
+  .score-prompt {
+    font-size: 0.82rem;
+    color: var(--dim);
+    line-height: 1.5;
+  }
+  .score-prompt .score-num {
+    color: var(--accent-glow);
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  /* Transcript area */
+  .transcript-area {
+    width: 100%;
+    min-height: 180px;
+    max-height: 400px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text);
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+    overflow-y: auto;
+  }
+  .transcript-area:focus { border-color: var(--accent); }
+  .transcript-area::placeholder { color: var(--dim); font-style: italic; }
+  .transcript-area .interim {
+    color: var(--dim);
+    font-style: italic;
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--text);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn:hover { border-color: var(--accent); background: #1a1a26; }
+
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #6a4ae6; }
+
+  .btn-rec {
+    background: #2a1015;
+    border-color: var(--red);
+    color: var(--red);
+    min-width: 90px;
+    justify-content: center;
+  }
+  .btn-rec.recording {
+    background: var(--red);
+    color: #fff;
+    animation: pulse-rec 1.5s infinite;
+  }
+  @keyframes pulse-rec {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,77,90,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(255,77,90,0); }
+  }
+
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 0.78rem;
+  }
+
+  /* Status */
+  .status {
+    font-size: 0.78rem;
+    color: var(--dim);
+    margin-left: auto;
+  }
+
+  /* Analysis placeholder */
+  .analysis-hint {
+    font-size: 0.78rem;
+    color: var(--dim);
+    text-align: center;
+    padding: 8px;
+  }
+  .analysis-hint code {
+    background: var(--surface);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent-glow);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="title">Case <span>Sprint</span> Review</div>
+    <select class="case-select" id="caseSelect" onchange="loadCase()">
+      <option value="">-- pick a case --</option>
+    </select>
+  </div>
+
+  <!-- Timer -->
+  <div class="timer-bar-wrap"><div class="timer-bar" id="timerBar"></div></div>
+  <div class="stats-row" id="statsRow" style="display:none">
+    <span>Time: <span class="val" id="timeDisplay">5:00</span></span>
+    <span>Chars: <span class="val" id="charCount">0</span></span>
+    <span>Words: <span class="val" id="wordCount">0</span></span>
+  </div>
+
+  <!-- Card -->
+  <div class="card">
+    <div class="score-prompt" id="scorePrompt"></div>
+    <div class="transcript-area" id="transcriptArea" contenteditable="true" placeholder="Click the mic and speak your full case rundown..."></div>
+
+    <div class="controls">
+      <button class="btn btn-rec" id="micBtn" onclick="toggleMic()">
+        <span id="micIcon">🎤</span> <span id="micLabel">Record</span>
+      </button>
+      <button class="btn btn-sm" id="restartBtn" onclick="restartTimer()" style="display:none">↺&nbsp;Restart</button>
+      <button class="btn btn-sm" onclick="clearTranscript()">Clear</button>
+      <span class="status" id="statusText"></span>
+    </div>
+  </div>
+
+  <div class="analysis-hint">
+    Speak your full rundown → say <code>analyze</code> or stop recording → the attendant reviews
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CASE DATA — loaded from your dossiers
+// ============================================================
+const CASE_BANK = [
+  // Recent cases with scores
+  { slug:'post-mi-pericarditis','title':'Post-MI Pericarditis',score:'68.33%',avg:'66.2%',dx:'Dressler Syndrome',missed:['troponin (rule out re-MI)','CXR','CBC','rest advice'],got:['avoided all NSAIDs','aspirin + acetaminophen','correct ECG read'],trap:'NSAIDs (except aspirin) are contraindicated post-MI'},
+  { slug:'atrial-fibrillation','title':'Atrial Fibrillation',score:'54.96%',avg:'77.8%',dx:'New-onset AF with RVR',missed:['anticoagulation (CHA2DS2-VASc=3)','PT/PTT baseline','BMP for renal dosing','cardiac monitor'],got:['rate control with metoprolol','EKG diagnosis','TSH before blaming thyroid'],trap:'Rate control manages symptoms; AC prevents stroke. Two separate problems.'},
+  { slug:'hiatal-hernia','title':'Hiatal Hernia',score:'60.33%',avg:'86.9%',dx:'Type I sliding hiatal hernia',missed:['EGD/barium swallow (dysphagia=alarm)','EKG (chest pain)','CBC','weight loss counsel'],got:['PPI correct for Type I','good physical exam','no inappropriate orders'],trap:'Dysphagia demands visualization. Cannot distinguish Type I (PPI) from II-IV (surgery) without imaging.'},
+  { slug:'diverticulitis','title':'Diverticulitis',score:'54.96%',avg:'77.8%',dx:'Acute diverticulitis',missed:['CT abdomen','metronidazole (anaerobic cover)','NPO','blood cultures','inpatient transfer'],got:['diagnosed diverticulitis','bowel rest concept correct'],trap:'Diverticulitis needs anaerobic + gram-negative cover. Metronidazole is not optional.'},
+  { slug:'aortic-dissection','title':'Aortic Dissection',score:'87.71%',avg:'—',dx:'Type A aortic dissection',missed:['TEE before OR','pain control earlier'],got:['CT surgery consult on retry','beta-blocker first','correct diagnosis fast'],trap:'CT surgery is the definitive management for Type A. Beta-blocker before any vasodilator.'},
+  { slug:'unstable-angina','title':'Unstable Angina',score:'—',avg:'—',dx:'Unstable angina / NSTEMI',missed:['full ACS bundle (DAPT, AC, statin)'],got:['aspirin','nitroglycerin'],trap:'ACS bundle = DAPT + anticoagulation + statin + beta-blocker. Aspirin alone is not enough.'},
+  { slug:'ectopic-pregnancy','title':'Ectopic Pregnancy',score:'—',avg:'—',dx:'Ruptured ectopic',missed:['never took patient to OR'],got:['diagnosed ectopic','pregnancy test','USG'],trap:'Ectopic diagnosed but never managed — patient needs surgery, not observation.'},
+  { slug:'lead-poisoning','title':'Lead Poisoning',score:'—',avg:'—',dx:'Lead encephalopathy',missed:['diagnostic workup gaps'],got:['recognized lead toxicity','chelating agents'],trap:'Pica + old building + encephalopathy = lead. Basophilic stippling on smear.'},
+  { slug:'hepatitis-a','title':'Hepatitis A',score:'—',avg:'—',dx:'Hepatitis A with aspiration PNA',missed:['aspiration precautions','vaccination history'],got:['diagnosed hepatitis A'],trap:'Hepatitis A is fecal-oral. Ask about food, travel, contacts.'},
+];
+
+// Build dropdown and pre-load
+const sel = document.getElementById('caseSelect');
+CASE_BANK.forEach((c, i) => {
+  const opt = document.createElement('option');
+  opt.value = i;
+  opt.textContent = `${c.title} (${c.score})`;
+  sel.appendChild(opt);
+});
+
+// ============================================================
+// TIMER
+// ============================================================
+const DURATION = 5 * 60; // 5 minutes in seconds
+let timeLeft = DURATION;
+let timerInterval = null;
+let timerRunning = false;
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const ss = s % 60;
+  return `${m}:${String(ss).padStart(2,'0')}`;
+}
+
+function updateTimerDisplay() {
+  document.getElementById('timeDisplay').textContent = formatTime(timeLeft);
+  const pct = (timeLeft / DURATION) * 100;
+  const bar = document.getElementById('timerBar');
+  bar.style.width = pct + '%';
+  bar.classList.remove('warning','danger');
+  if (timeLeft < 60) bar.classList.add('danger');
+  else if (timeLeft < 120) bar.classList.add('warning');
+}
+
+function startTimer() {
+  if (timerRunning) return;
+  timerRunning = true;
+  document.getElementById('statsRow').style.display = 'flex';
+  document.getElementById('restartBtn').style.display = 'inline-flex';
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      stopTimer();
+      document.getElementById('statusText').textContent = 'Time\'s up — ready for review';
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  timerRunning = false;
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function restartTimer() {
+  stopTimer();
+  timeLeft = DURATION;
+  document.getElementById('timerBar').classList.remove('warning','danger');
+  updateTimerDisplay();
+  startTimer();
+}
+
+// ============================================================
+// CASE LOAD
+// ============================================================
+function loadCase() {
+  const idx = sel.value;
+  if (idx === '') return;
+  const c = CASE_BANK[idx];
+  const prompt = document.getElementById('scorePrompt');
+  prompt.innerHTML = `
+    <strong>${c.title}</strong> &middot; Score: <span class="score-num">${c.score}</span> &middot; Dx: ${c.dx}<br>
+    <span style="color:var(--green)">Got right:</span> ${c.got.join(', ')}<br>
+    <span style="color:var(--red)">Missed:</span> ${c.missed.join(', ')}
+  `;
+  document.getElementById('transcriptArea').focus();
+  restartTimer();
+}
+
+// ============================================================
+// TRANSCRIPT & WORD COUNT
+// ============================================================
+const transcriptEl = document.getElementById('transcriptArea');
+
+transcriptEl.addEventListener('input', () => {
+  const text = transcriptEl.innerText || transcriptEl.textContent || '';
+  const chars = text.replace(/\s/g,'').length;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  document.getElementById('charCount').textContent = chars;
+  document.getElementById('wordCount').textContent = words;
+});
+
+function clearTranscript() {
+  // Save current interim text before clearing
+  const current = transcriptEl.innerText || transcriptEl.textContent || '';
+  transcriptEl.innerHTML = '';
+  document.getElementById('charCount').textContent = '0';
+  document.getElementById('wordCount').textContent = '0';
+}
+
+function getTranscriptText() {
+  return (transcriptEl.innerText || transcriptEl.textContent || '').trim();
+}
+
+// ============================================================
+// VOICE DICTATION (Web Speech API)
+// ============================================================
+let recognition = null;
+let isRecording = false;
+let interimSpan = null;
+
+function initRecognition() {
+  if (recognition) return;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('statusText').textContent = 'No speech API in this browser';
+    return;
+  }
+  recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  let autoRestart = true;
+  let restartTimer = null;
+
+  recognition.onresult = (event) => {
+    // Start timer on first speech
+    if (!timerRunning) startTimer();
+
+    // Remove previous interim
+    if (interimSpan) { interimSpan.remove(); interimSpan = null; }
+
+    let finalText = '';
+    let interimText = '';
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const result = event.results[i];
+      if (result.isFinal) {
+        finalText += result[0].transcript + ' ';
+      } else {
+        interimText += result[0].transcript;
+      }
+    }
+
+    // Append final text
+    if (finalText) {
+      const existingNodes = Array.from(transcriptEl.childNodes);
+      // Remove old interim if present
+      const oldInterim = transcriptEl.querySelector('.interim');
+      if (oldInterim) oldInterim.remove();
+
+      transcriptEl.appendChild(document.createTextNode(finalText));
+    }
+
+    // Show interim
+    if (interimText) {
+      interimSpan = document.createElement('span');
+      interimSpan.className = 'interim';
+      interimSpan.textContent = interimText;
+      transcriptEl.appendChild(interimSpan);
+    }
+
+    // Update counts
+    const text = getTranscriptText();
+    document.getElementById('charCount').textContent = text.replace(/\s/g,'').length;
+    document.getElementById('wordCount').textContent = text.trim() ? text.trim().split(/\s+/).length : 0;
+
+    // Auto-stop if user says "analyze"
+    if (finalText.toLowerCase().includes('analyze')) {
+      stopRecording();
+      document.getElementById('statusText').textContent = 'Review triggered — analyze';
+    }
+  };
+
+  recognition.onerror = (event) => {
+    console.log('Speech error:', event.error);
+    if (event.error === 'no-speech') {
+      document.getElementById('statusText').textContent = 'Waiting for speech...';
+      return;
+    }
+    if (event.error === 'not-allowed') {
+      document.getElementById('statusText').textContent = 'Mic permission denied';
+      stopRecording();
+      return;
+    }
+    if (event.error === 'aborted' && isRecording && autoRestart) {
+      // Auto-restart on transient errors
+      setTimeout(() => {
+        if (isRecording && recognition) {
+          try { recognition.start(); } catch(e) {}
+        }
+      }, 200);
+    }
+  };
+
+  recognition.onend = () => {
+    // Auto-restart if still recording and no manual stop
+    if (isRecording && autoRestart) {
+      setTimeout(() => {
+        if (isRecording && recognition) {
+          try {
+            recognition.start();
+            document.getElementById('statusText').textContent = 'Listening...';
+          } catch(e) {
+            document.getElementById('statusText').textContent = 'Restart failed — click mic again';
+          }
+        }
+      }, 300);
+    }
+  };
+}
+
+function toggleMic() {
+  if (isRecording) {
+    stopRecording();
+  } else {
+    startRecording();
+  }
+}
+
+function startRecording() {
+  initRecognition();
+  if (!recognition) return;
+
+  try {
+    recognition.start();
+    isRecording = true;
+    document.getElementById('micBtn').classList.add('recording');
+    document.getElementById('micLabel').textContent = 'Stop';
+    document.getElementById('statusText').textContent = 'Listening...';
+    if (!timerRunning) startTimer();
+  } catch(e) {
+    document.getElementById('statusText').textContent = 'Could not start mic';
+    console.error(e);
+  }
+}
+
+function stopRecording() {
+  isRecording = false;
+  document.getElementById('micBtn').classList.remove('recording');
+  document.getElementById('micLabel').textContent = 'Record';
+  document.getElementById('statusText').textContent = 'Stopped';
+
+  if (interimSpan) { interimSpan.remove(); interimSpan = null; }
+
+  if (recognition) {
+    try { recognition.stop(); } catch(e) {}
+  }
+
+  stopTimer();
+}
+
+// ============================================================
+// KEYBOARD SHORTCUTS
+// ============================================================
+document.addEventListener('keydown', (e) => {
+  // Ctrl+Space = toggle mic
+  if (e.ctrlKey && e.code === 'Space') {
+    e.preventDefault();
+    toggleMic();
+  }
+  // Escape = stop recording
+  if (e.code === 'Escape' && isRecording) {
+    stopRecording();
+  }
+});
+</script>
+
+</body>
+</html>
