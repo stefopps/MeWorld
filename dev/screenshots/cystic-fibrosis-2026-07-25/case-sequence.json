@@ -1,0 +1,72 @@
+{
+  "caseId": "cystic-fibrosis-2026-07-25",
+  "ccsTitle": "Shortness of Breath, Weight Loss, Oily Stools — Office",
+  "diagnosis": "Cystic Fibrosis (CFTR mutation — Pseudomonas pneumonia)",
+  "score": "52.98%",
+  "avgFirstAttempt": "66.2%",
+  "patient": {
+    "key": "3-year-old Caucasian boy. Triad: dyspnea + failure to thrive + steatorrhea. CXR: unilateral hyperinflation, pneumonia. Sputum culture: Pseudomonas aeruginosa. Sweat chloride / CFTR DNA would confirm. This is CF presenting with pancreatic insufficiency and chronic pseudomonal lung infection."
+  },
+  "ordersPlaced": [
+    "Full physical exam (all systems)",
+    "CBC with differential",
+    "CXR",
+    "BMP/CMP/LFT",
+    "Albumin",
+    "Sputum culture (grew Pseudomonas)",
+    "Piperacillin-tazobactam (antipseudomonal)"
+  ],
+  "scoreBreakdown": {
+    "diagnosisOrders": {"percent": 38.71, "weight": "40%"},
+    "treatmentOrders": {"percent": 62.5, "weight": "40%"},
+    "preventiveCare": {"percent": 0, "weight": "5%"},
+    "timing": {"percent": 100, "weight": "5%"},
+    "appropriateOrders": {"percent": 100, "weight": "5%"},
+    "locationSequence": {"percent": 50, "weight": "5%", "note": "Kept in Office — should be inpatient"}
+  },
+  "correctlyOrdered": [
+    "Full physical exam",
+    "CBC with differential",
+    "CXR (hyperinflation)",
+    "BMP/CMP/LFT",
+    "Albumin",
+    "Sputum culture",
+    "Piperacillin-tazobactam — correct antipseudomonal penicillin for this resistant strain"
+  ],
+  "missedOrders": [
+    {"order": "Sweat chloride test / CFTR DNA", "severity": "critical", "why": "The confirmatory test. Without it you have a clinical suspicion, not a diagnosis. CF is genetically confirmed — CFTR mutation on chromosome 7, most commonly delta-F508. Sweat chloride >60 mmol/L is diagnostic."},
+    {"order": "Pancreatic enzymes", "severity": "critical", "why": "The oily stools are steatorrhea from pancreatic insufficiency. CFTR mutation blocks chloride transport → thickened secretions clog pancreatic ducts → enzymes can't reach the duodenum → fat malabsorption → failure to thrive. Pancrelipase (Creon) replaces the missing enzymes."},
+    {"order": "Oxygen", "severity": "high", "why": "Patient was hypoxic with pneumonia. Oxygen is non-negotiable."},
+    {"order": "Albuterol", "severity": "high", "why": "Bronchodilator before chest physiotherapy. Opens airways so mucus clearance is more effective. CF Foundation guideline."},
+    {"order": "Chest physiotherapy", "severity": "high", "why": "Mechanical mucus clearance — percussion and postural drainage. Essential preventive measure in CF. The thick secretions don't move on their own."},
+    {"order": "Fat-soluble vitamins (A, D, E, K)", "severity": "high", "why": "Fat malabsorption means fat-soluble vitamin deficiency. Every CF patient needs ADEK supplementation. Vitamin A (vision), D (bone, immune), E (antioxidant), K (coagulation)."},
+    {"order": "Fecal fat (72-hour)", "severity": "moderate", "why": "Quantifies steatorrhea and confirms pancreatic insufficiency. The diagnostic test for the GI side of CF."},
+    {"order": "Blood culture", "severity": "high", "why": "Patient has pneumonia + infection. Always get blood cultures before starting antibiotics. bacteremia changes management."},
+    {"order": "IV fluids", "severity": "moderate", "why": "Ill-appearing child, likely poor oral intake. Dehydration worsens thick secretions — the CF cycle."},
+    {"order": "Pulse oximetry", "severity": "minor", "why": "SOB presentation — check oxygenation."},
+    {"order": "RSV / influenza testing", "severity": "moderate", "why": "Most common cause of pneumonia in ages 3-5 is viral. Need to rule out before concluding CF is the only driver."},
+    {"order": "Consult nutrition", "severity": "high", "why": "CF requires high-calorie, high-fat, high-protein diet with enzyme timing. Specialized nutritional management. This child is already malnourished."},
+    {"order": "Consult genetics", "severity": "moderate", "why": "CF is autosomal recessive. Parents need carrier testing. Genetic counseling for future pregnancies."},
+    {"order": "Consult pediatric pulmonology", "severity": "high", "why": "CF is a chronic multisystem disease. Pulmonary specialist manages airway clearance, infection surveillance, and pulmonary decline."},
+    {"order": "Influenza vaccine", "severity": "moderate", "why": "CF patients are particularly vulnerable to respiratory viruses. Annual flu shot is mandatory."},
+    {"order": "Advise CF care center", "severity": "high", "why": "CF Foundation-accredited care centers provide multidisciplinary care — pulmonology, GI, nutrition, social work, genetics — with better outcomes than general care."},
+    {"order": "Admit to inpatient unit", "severity": "critical", "why": "3-year-old with pneumonia, hypoxia, failure to thrive, newly diagnosed CF. Cannot manage in office. Location penalty: 50%."}
+  ],
+  "optionalButNotGraded": [
+    {"order": "PFTs", "why": "Would show obstructive pattern. Not required but confirms pulmonary involvement rhythm."},
+    {"order": "Gram stain, sputum", "why": "Would be abnormal but culture was ordered — gram stain adds little beyond confirming infection"},
+    {"order": "IV access", "why": "Good habit when giving IV fluids/meds — not tested"},
+    {"order": "O2 saturation", "why": "Noted as correct; pulse oximetry listed as missed — might be a grading overlap"}
+  ],
+  "teachingPoints": [
+    "65 roses = cystic fibrosis. The diagnostic triad in a toddler: pulmonary (SOB, hyperinflation on CXR) + nutritional (failure to thrive, low albumin) + GI (steatorrhea, oily stools from pancreatic insufficiency).",
+    "CFTR mutation disrupts chloride transport → secretions are thick and dehydrated in lungs (recurrent infections, bronchiectasis), pancreas (ductal obstruction → enzyme deficiency), and sweat glands (elevated sweat chloride — the diagnostic test).",
+    "Pseudomonas aeruginosa is the signature CF pathogen. This strain was resistant to ceftazidime, gentamicin, tobramycin, amikacin, and ciprofloxacin — the antipseudomonal penicillins (piperacillin-tazobactam) or carbapenems (meropenem) were correct.",
+    "Pancreatic enzymes must be given WITH every meal and snack. Without them, dietary fat passes through undigested — the oily stools and failure to thrive you saw.",
+    "Preventive care in CF is just as important as acute treatment: chest physio, ADEK vitamins, annual flu shot, CF care center enrollment."
+  ],
+  "images": {
+    "descent3x3": {"path": "images/descent-3x3.png", "size": 6502228, "status": "completed"},
+    "descentGaps": {"path": "images/descent-gaps-3x3.png", "size": 5898799, "status": "completed"}
+  }
+}
