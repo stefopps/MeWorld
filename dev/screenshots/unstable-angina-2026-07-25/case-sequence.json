@@ -1,0 +1,135 @@
+{
+  "caseId": "unstable-angina-2026-07-25",
+  "ccsTitle": "Chest Pain — Emergency Medicine",
+  "diagnosis": "Unstable Angina (NSTE-ACS)",
+  "score": "45.01%",
+  "avgFirstAttempt": "64.7%",
+  "zScore": -2.93,
+  "patient": {
+    "age": 65,
+    "sex": "male",
+    "key": "65M, substernal chest pain 8/10 radiating to jaw, recurrent episodes in past 24 hours. Never had this before. PMH: HTN and HLD — never took prescribed meds. Active smoker. Moderate distress. EKG: ST depressions I/aVL/V2-V6 (anterolateral ischemia). Troponin 0. Echo EF 65%, CXR normal. Random glucose 175. TIMI score 4 → early invasive strategy indicated."
+  },
+  "vitals": {
+    "temperature": "37.0 C",
+    "hr": "90 (regular)",
+    "bp": "145/90 (untreated hypertension)",
+    "rr": "15",
+    "bmi": "28.2 (overweight)"
+  },
+  "history": {
+    "hpi": "65M, new-onset substernal chest pain, 8/10 severity, radiation to jaw. Having a recurrent episode currently. Describes sensation as 'someone standing on his chest.' Multiple anginal episodes in past 24 hours. Never had chest pain like this before.",
+    "pmh": "Hypertension (untreated — doctor recommended medication but patient never started). Hyperlipidemia (untreated). Recent screening colonoscopy — normal.",
+    "social": "Active smoker (described as an 'on-going issue'). No mention of alcohol or drug use."
+  },
+  "physicalExam": {
+    "general": "Well-developed, well-nourished, in moderate apparent distress",
+    "chest": "Chest wall normal, diaphragm and chest move equally and symmetrically. No abnormality on percussion or auscultation",
+    "heart": "S1 and S2 normal. No murmurs, rubs, gallops, or extra sounds. Central and peripheral pulses normal. No jugular venous distension. Blood pressure equal in both arms"
+  },
+  "ekg": {
+    "rhythm": "Normal sinus, regular rate",
+    "axis": "+30 degrees",
+    "findings": "ST segment depressions in leads I, aVL, V2-V6. No Q-waves. No ST elevations.",
+    "interpretation": "Abnormal EKG. Evidence of acute ischemic changes in antero-lateral distribution."
+  },
+  "keyLabs": {
+    "troponin": "0 ng/mL (nl <0.6) — initially negative but needs repeat in 1-3 hours",
+    "glucose": "175 mg/dL (nl 70-110) — random, elevated",
+    "cbc": "WBC 8,500, Hgb 15.0, Hct 45%, Plt 300K — all normal",
+    "cmp": "Na 140, K 4.0, Cl 102, Ca 9.5, Cr normal (eGFR >90), LFTs normal, total protein/albumin normal",
+    "echo": "LV and LA sizes normal. Normal valve structure and motion. EF 65%. Normal findings.",
+    "cxr": "Normal cardiac silhouette, lungs, mediastinum, bony structures, and soft tissues. Normal findings."
+  },
+  "correctlyOrdered": [
+    "Physical Exam: General Appearance, Chest/Lungs, Heart/Cardiovascular",
+    "EKG 12-lead",
+    "Cardiac troponin I",
+    "Echocardiography",
+    "X-ray chest PA/lateral",
+    "CBC with differential",
+    "BMP/CMP/LFTs",
+    "Nitroglycerin (sublingual)",
+    "Aspirin therapy",
+    "Consult, cardiology",
+    "IV access"
+  ],
+  "correctlyAvoided": [],
+  "missedOrders": [
+    {"order": "Clopidogrel / Ticagrelor (P2Y12 inhibitor)", "severity": "critical", "why": "All NSTE-ACS patients need DAPT: aspirin PLUS a P2Y12 inhibitor. Aspirin alone is inadequate. This is standard of care — without the second antiplatelet, the patient has ongoing thrombotic risk."},
+    {"order": "Heparin (UFH / LMWH / fondaparinux)", "severity": "critical", "why": "ACS management requires anticoagulation in addition to antiplatelets. The thrombosis cascade needs to be interrupted at multiple points. Anticoagulation reduces reinfarction in NSTE-ACS."},
+    {"order": "Beta-blocker (metoprolol / atenolol / etc.)", "severity": "critical", "why": "Beta-blockers reduce myocardial oxygen demand and are standard of care in acute ACS management. No contraindications present — HR 90, no heart failure, no hypotension."},
+    {"order": "High-dose statin (atorvastatin / rosuvastatin)", "severity": "critical", "why": "All ACS patients get high-intensity statin regardless of baseline LDL. Plaque stabilization, anti-inflammatory effects, LDL lowering. This is not a 'wait and see' order."},
+    {"order": "Cardiac catheterization / angiography ± PCI", "severity": "critical", "why": "Cardiology consult is not treatment — catheterization is. TIMI score 4 (age 65, 3+ CAD risk factors, 2+ anginal episodes in 24h, ST deviation, elevated cardiac markers? Actually no — troponin negative) → early invasive strategy indicated regardless."},
+    {"order": "ACE inhibitor / ARB", "severity": "high", "why": "BP 145/90 + untreated HTN + elevated glucose (pre-diabetes). ACE/ARB is first-line for hypertension in patients with diabetes/pre-diabetes. Also reduces remodeling post-ACS."},
+    {"order": "Cardiac monitor", "severity": "critical", "why": "ACS patients need continuous rhythm monitoring. Arrhythmias are the leading cause of death in the first hours of ACS. VF/VT can occur without warning."},
+    {"order": "Magnesium, serum", "severity": "high", "why": "Hypomagnesemia predisposes to arrhythmias. Any cardiac patient should have Mg checked — low Mg can cause torsades and is easily correctable."},
+    {"order": "PT/PTT / PT/INR", "severity": "high", "why": "Pre-procedure labs. Patient is going to cath lab — need coagulation status before arterial access. Also needed if starting heparin."},
+    {"order": "Lipid profile", "severity": "high", "why": "Screen for elevated cholesterol. Patient has known uncontrolled HLD but no baseline values. Guides statin intensity and long-term management."},
+    {"order": "Hemoglobin A1C", "severity": "moderate", "why": "Random glucose 175 — this is elevated. Needs A1c to diagnose diabetes vs pre-diabetes. Affects medication choices (ACE/ARB over thiazides) and risk stratification."},
+    {"order": "Physical Exam: Abdomen", "severity": "moderate", "why": "Abdominal pathology (pancreatitis, cholecystitis, PUD, esophageal spasm) can present as chest pain. A focused abdominal exam rules out these mimics."}
+  ],
+  "missedPrevention": [
+    "Smoking cessation counseling",
+    "Low sodium diet / diabetic diet counseling",
+    "Exercise program / cardiac rehabilitation referral",
+    "Tdap vaccine (every 10 years)",
+    "Herpes zoster vaccine (Shingrix, age >50 recommended)"
+  ],
+  "scoreBreakdown": {
+    "diagnosisOrders": {"percent": 65.52, "weight": "40%"},
+    "treatmentOrders": {"percent": 22, "weight": "40%"},
+    "preventiveCare": {"percent": 0, "weight": "5%"},
+    "timing": {"percent": 50, "weight": "5%", "note": "1 negative patient update prior to correct treatment: chest pain persisted at 22:00"},
+    "appropriateOrders": {"percent": 100, "weight": "5%"},
+    "locationSequence": {"percent": 50, "weight": "5%", "note": "Stayed in ED at 6 hours. Should have been in ICU or inpatient unit."}
+  },
+  "orderCount": 14,
+  "avgOrderCountFor85pct": 39.54,
+  "timedOut": true,
+  "wrongLocation": true,
+  "timiScore": 4,
+  "timiFactors": [
+    "Age >= 65",
+    ">= 3 CAD risk factors (hyperlipidemia, hypertension, smoking)",
+    "Known CAD (stenosis >= 50%) — none documented",
+    "ASA use in past 7 days — none",
+    ">= 2 anginal episodes in 24 hours ✓",
+    "ST segment deviation on EKG ✓",
+    "Elevated cardiac biomarkers — troponin 0, so no"
+  ],
+  "userConsultedFor": "vasospastic angina",
+  "differentialDdx": [
+    "Aortic dissection",
+    "Costochondritis",
+    "GERD",
+    "STEMI",
+    "NSTEMI",
+    "Pericarditis",
+    "Pneumothorax",
+    "Pulmonary embolism"
+  ],
+  "pathophysiology": {
+    "unstableAngina": "Atherosclerotic plaque fissuring or rupture → partial thrombotic occlusion of coronary artery → supply-demand mismatch → myocardial ischemia WITHOUT necrosis. Unlike NSTEMI, troponin stays negative because no myocyte death occurred. Unstable angina + NSTEMI together form NSTE-ACS. The distinction is only the troponin level — both need the same management (DAPT + anticoagulation + early invasive strategy).",
+    "stDepression": "Subendocardial ischemia. The inner layer of myocardium is most vulnerable to hypoperfusion because it's compressed during systole. When coronary flow is reduced by partial occlusion, the subendocardium becomes ischemic first. The injury current vector points away from the recording electrode, producing ST depression — unlike STEMI's transmural injury current producing ST elevation.",
+    "timiScore": "TIMI 4 = ~20% risk of death, MI, or urgent revascularization at 14 days. Early invasive strategy (cath within 24h) is recommended for TIMI >= 3. The score is additive risk — each factor compounds the probability of a bad outcome.",
+    "daptRationale": "Aspirin inhibits COX-1 → blocks thromboxane A2 → reduces platelet aggregation. P2Y12 inhibitors (clopidogrel/ticagrelor) block the ADP receptor → a DIFFERENT platelet activation pathway. Dual blockade is synergistic — blocking one pathway is insufficient because platelets have redundant activation mechanisms.",
+    "statinsInAcs": "Beyond LDL: statins stabilize plaque by reducing the lipid core, thickening the fibrous cap, and decreasing inflammation (hs-CRP). This is why ALL ACS patients get high-intensity statin regardless of LDL — the benefit is plaque stabilization, not just LDL lowering."
+  },
+  "teachingPoints": [
+    "DAPT is non-negotiable in NSTE-ACS. Aspirin alone is not enough. The second antiplatelet agent (P2Y12 inhibitor) is part of the core ACS bundle alongside anticoagulation.",
+    "Cardiology consult is the door. Cardiac catheterization is walking through it. The consult doesn't place the stent — you must order the procedure.",
+    "Beta-blockers reduce myocardial oxygen demand by lowering heart rate and contractility. In ACS, this is cardioprotective. HR 90 with ST depressions = start a beta-blocker.",
+    "High-intensity statin for ALL ACS patients — atorvastatin 80mg or rosuvastatin 40mg. Don't wait for the lipid panel. Don't wait for the cath result. Start immediately.",
+    "Troponin negativity doesn't mean the patient is safe. Unstable angina has the same pathophysiology as NSTEMI — plaque rupture + partial thrombosis. The only difference is whether myocytes have died yet.",
+    "When the patient is worsening in the ED (pain persists), they need a higher level of care. Transfer to ICU. Don't stay in the ED waiting for the cardiologist to reply.",
+    "Random glucose of 175 is not 'a little high' — it's diagnostic for diabetes in the right context (fasting >=126 or random >=200 with symptoms). At minimum, it demands an HbA1c.",
+    "A focused physical exam for chest pain includes the abdomen. GERD, pancreatitis, PUD, and esophageal spasm all cause substernal chest pain. You won't know unless you examine.",
+    "Preventive medicine is 5% of the score but 100% of the patient's future. Smoking cessation, diet, exercise, cardiac rehab, vaccines — 0% on all of it.",
+    "The TIMI score changes management. Score >=3 → early invasive strategy. At TIMI 4, this patient needed the cath lab, not just a cardiology phone call."
+  ],
+  "images": {
+    "descent3x3": {"status": "complete", "path": "images/descent-3x3.png", "size": "5.8 MB", "model": "nano-banana-pro", "resolution": "2K", "style": "Unreal Engine 5 cinematic (claude-img)"},
+    "descentGaps": {"status": "complete", "path": "images/descent-gaps-3x3.png", "size": "5.7 MB", "model": "nano-banana-pro", "resolution": "2K", "style": "Unreal Engine 5 cinematic (claude-img)"}
+  }
+}
