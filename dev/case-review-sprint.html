@@ -4,211 +4,221 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Case Sprint Review</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.14.0/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0c0c10;
-    --surface: #14141c;
-    --border: #2a2a38;
-    --text: #e0e0e0;
-    --dim: #68687a;
+    --bg: #f8f8fa;
+    --surface: #ffffff;
+    --border: #e2e2e8;
+    --text: #1a1a24;
+    --dim: #8a8a9a;
+    --dim2: #b0b0bd;
     --accent: #7D5CFF;
-    --accent-glow: #A98BFF;
-    --red: #ff4d5a;
-    --green: #4dff88;
-    --gold: #f0c040;
+    --accent-hover: #6a4ae6;
+    --red: #e03131;
+    --red-bg: #fff0f0;
+    --green: #2b8a3e;
+    --green-bg: #f0fff4;
+    --gold: #f08c00;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --radius: 10px;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
     display: flex;
     justify-content: center;
-    align-items: center;
     min-height: 100vh;
-    padding: 24px;
+    padding: 32px 24px 60px;
   }
-  .container {
-    width: 100%;
-    max-width: 860px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
+  .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 16px; }
 
-  /* Header */
+  /* ── Header ── */
   .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 16px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 12px; flex-wrap: wrap;
   }
   .title {
-    font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-size: 1.55rem; font-weight: 700; letter-spacing: -0.03em;
+    display: flex; align-items: center; gap: 10px;
   }
-  .title span { color: var(--accent); }
-
-  /* Case selector */
+  .title i { color: var(--accent); font-size: 1.3rem; }
   .case-select {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    padding: 8px 12px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    min-width: 220px;
-    outline: none;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); padding: 8px 14px; font-size: 0.85rem; font-family: inherit;
+    cursor: pointer; min-width: 200px; outline: none; box-shadow: var(--shadow);
   }
-  .case-select:focus { border-color: var(--accent); }
+  .case-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(125,92,255,0.12); }
   .case-select option { background: var(--surface); color: var(--text); }
 
-  /* Timer bar */
+  /* ── Tabs ── */
+  .tabs {
+    display: flex; gap: 0; border-bottom: 2px solid var(--border);
+    margin-top: 4px;
+  }
+  .tab-btn {
+    padding: 10px 20px; font-size: 0.85rem; font-weight: 600; font-family: inherit;
+    background: none; border: none; color: var(--dim);
+    cursor: pointer; position: relative; display: flex; align-items: center; gap: 7px;
+    transition: color 0.15s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); }
+  .tab-btn.active::after {
+    content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+    height: 2px; background: var(--accent); border-radius: 1px;
+  }
+  .tab-btn i { font-size: 1.1rem; }
+
+  /* ── Timer ── */
+  .timer-row {
+    display: flex; align-items: center; gap: 12px;
+  }
   .timer-bar-wrap {
-    height: 3px;
-    background: var(--border);
-    border-radius: 2px;
-    overflow: hidden;
+    flex: 1; height: 3px; background: var(--border);
+    border-radius: 2px; overflow: hidden;
   }
   .timer-bar {
-    height: 100%;
-    background: var(--accent);
-    border-radius: 2px;
+    height: 100%; background: var(--accent); border-radius: 2px;
     transition: width 0.3s linear, background 0.3s;
   }
   .timer-bar.warning { background: var(--gold); }
   .timer-bar.danger { background: var(--red); }
-
-  .stats-row {
-    display: flex;
-    gap: 20px;
-    font-size: 0.82rem;
-    color: var(--dim);
+  .timer-label {
+    font-size: 0.8rem; font-weight: 600; color: var(--dim);
+    min-width: 36px; text-align: right;
+    font-variant-numeric: tabular-nums;
   }
-  .stats-row .val { color: var(--text); font-weight: 600; }
+  .timer-label.danger { color: var(--red); }
 
-  /* Card */
+  /* ── Card ── */
   .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    display: flex; flex-direction: column; gap: 12px;
+    box-shadow: var(--shadow);
   }
 
-  /* Score prompt */
+  /* ── Score prompt ── */
   .score-prompt {
-    font-size: 0.82rem;
-    color: var(--dim);
-    line-height: 1.5;
+    font-size: 0.82rem; color: var(--dim); line-height: 1.6;
   }
-  .score-prompt .score-num {
-    color: var(--accent-glow);
-    font-weight: 700;
-    font-size: 1rem;
-  }
+  .score-prompt strong { color: var(--text); }
+  .score-num { color: var(--accent); font-weight: 700; }
+  .got-tag { color: var(--green); font-weight: 600; }
+  .missed-tag { color: var(--red); font-weight: 600; }
 
-  /* Transcript area */
-  .transcript-area {
-    width: 100%;
-    min-height: 180px;
-    max-height: 400px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: var(--text);
-    resize: vertical;
-    outline: none;
-    font-family: inherit;
-    overflow-y: auto;
+  /* ── Transcript ── */
+  .transcript-box {
+    width: 100%; min-height: 160px; max-height: 350px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px; font-size: 0.92rem;
+    line-height: 1.65; color: var(--text);
+    resize: vertical; outline: none; font-family: inherit;
+    overflow-y: auto; transition: border-color 0.15s;
   }
-  .transcript-area:focus { border-color: var(--accent); }
-  .transcript-area::placeholder { color: var(--dim); font-style: italic; }
-  .transcript-area .interim {
-    color: var(--dim);
-    font-style: italic;
-  }
+  .transcript-box:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(125,92,255,0.08); }
+  .transcript-box::placeholder { color: var(--dim2); }
+  .transcript-box .interim { color: var(--dim2); font-style: italic; }
 
-  /* Controls */
-  .controls {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
+  /* ── Controls ── */
+  .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .btn {
-    padding: 10px 18px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    font-size: 0.88rem;
-    font-weight: 600;
-    cursor: pointer;
-    background: var(--surface);
-    color: var(--text);
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border);
+    font-size: 0.84rem; font-weight: 600; font-family: inherit;
+    cursor: pointer; background: var(--surface); color: var(--text);
+    transition: all 0.15s; display: inline-flex; align-items: center; gap: 7px;
+    box-shadow: var(--shadow);
   }
-  .btn:hover { border-color: var(--accent); background: #1a1a26; }
+  .btn:hover { border-color: var(--accent); }
+  .btn i { font-size: 1.05rem; }
 
   .btn-primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
+    background: var(--accent); border-color: var(--accent); color: #fff;
   }
-  .btn-primary:hover { background: #6a4ae6; }
+  .btn-primary:hover { background: var(--accent-hover); }
 
   .btn-rec {
-    background: #2a1015;
-    border-color: var(--red);
-    color: var(--red);
-    min-width: 90px;
-    justify-content: center;
+    background: var(--red-bg); border-color: #f0c0c8; color: var(--red);
+    min-width: 100px; justify-content: center;
   }
   .btn-rec.recording {
-    background: var(--red);
-    color: #fff;
+    background: var(--red); color: #fff; border-color: var(--red);
     animation: pulse-rec 1.5s infinite;
   }
   @keyframes pulse-rec {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(255,77,90,0.4); }
-    50% { box-shadow: 0 0 0 8px rgba(255,77,90,0); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(224,49,49,0.35); }
+    50% { box-shadow: 0 0 0 8px rgba(224,49,49,0); }
   }
 
-  .btn-sm {
-    padding: 6px 12px;
-    font-size: 0.78rem;
+  .btn-ghost {
+    background: none; border-color: transparent; box-shadow: none;
+  }
+  .btn-ghost:hover { background: var(--bg); }
+
+  .status-text {
+    font-size: 0.78rem; color: var(--dim);
+    margin-left: auto; display: flex; align-items: center; gap: 5px;
+  }
+  .status-text .dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--dim2);
+  }
+  .status-text .dot.live { background: var(--red); animation: pulse-rec 1.5s infinite; }
+  .status-text .dot.thinking { background: var(--accent); animation: pulse-rec 1s infinite; }
+
+  /* ── Review tab ── */
+  .review-panel { display: none; flex-direction: column; gap: 12px; }
+  .review-panel.active { display: flex; }
+
+  .review-output {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px; min-height: 200px;
+    font-size: 0.9rem; line-height: 1.7; color: var(--text);
+    white-space: pre-wrap; font-family: 'Inter', system-ui, sans-serif;
+  }
+  .review-output .loading {
+    color: var(--dim); font-style: italic;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .review-meta {
+    font-size: 0.78rem; color: var(--dim);
+    display: flex; justify-content: space-between;
+    align-items: center;
   }
 
-  /* Status */
-  .status {
-    font-size: 0.78rem;
-    color: var(--dim);
-    margin-left: auto;
+  .review-btn {
+    background: var(--accent); border: none; color: #fff;
+    padding: 10px 20px; border-radius: 8px; font-size: 0.86rem; font-weight: 600;
+    font-family: inherit; cursor: pointer; display: inline-flex; align-items: center;
+    gap: 7px; transition: background 0.15s;
+  }
+  .review-btn:hover { background: var(--accent-hover); }
+  .review-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .review-btn i { font-size: 1.05rem; }
+
+  /* ── Help text ── */
+  .help-badge {
+    font-size: 0.75rem; color: var(--dim2);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 12px;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .help-badge kbd {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; padding: 1px 6px; font-family: inherit; font-size: 0.72rem;
   }
 
-  /* Analysis placeholder */
-  .analysis-hint {
-    font-size: 0.78rem;
-    color: var(--dim);
-    text-align: center;
-    padding: 8px;
-  }
-  .analysis-hint code {
-    background: var(--surface);
-    padding: 2px 6px;
-    border-radius: 4px;
-    color: var(--accent-glow);
-  }
+  /* ── Panel tabs ── */
+  .panel-content { display: none; }
+  .panel-content.active { display: block; }
 </style>
 </head>
 <body>
@@ -217,58 +227,118 @@
 
   <!-- Header -->
   <div class="header">
-    <div class="title">Case <span>Sprint</span> Review</div>
+    <div class="title"><i class="ti ti-brain"></i>Case Sprint Review</div>
     <select class="case-select" id="caseSelect" onchange="loadCase()">
-      <option value="">-- pick a case --</option>
+      <option value="">— pick a case —</option>
     </select>
   </div>
 
-  <!-- Timer -->
-  <div class="timer-bar-wrap"><div class="timer-bar" id="timerBar"></div></div>
-  <div class="stats-row" id="statsRow" style="display:none">
-    <span>Time: <span class="val" id="timeDisplay">5:00</span></span>
-    <span>Chars: <span class="val" id="charCount">0</span></span>
-    <span>Words: <span class="val" id="wordCount">0</span></span>
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('rundown')" id="tabRundown">
+      <i class="ti ti-microphone"></i>Rundown
+    </button>
+    <button class="tab-btn" onclick="switchTab('review')" id="tabReview">
+      <i class="ti ti-robot"></i>Review
+    </button>
   </div>
 
-  <!-- Card -->
-  <div class="card">
-    <div class="score-prompt" id="scorePrompt"></div>
-    <div class="transcript-area" id="transcriptArea" contenteditable="true" placeholder="Click the mic and speak your full case rundown..."></div>
+  <!-- Timer -->
+  <div class="timer-row">
+    <div class="timer-bar-wrap"><div class="timer-bar" id="timerBar"></div></div>
+    <span class="timer-label" id="timeDisplay">5:00</span>
+  </div>
 
-    <div class="controls">
-      <button class="btn btn-rec" id="micBtn" onclick="toggleMic()">
-        <span id="micIcon">🎤</span> <span id="micLabel">Record</span>
-      </button>
-      <button class="btn btn-sm" id="restartBtn" onclick="restartTimer()" style="display:none">↺&nbsp;Restart</button>
-      <button class="btn btn-sm" onclick="clearTranscript()">Clear</button>
-      <span class="status" id="statusText"></span>
+  <!-- PANEL: Rundown -->
+  <div class="panel-content active" id="panelRundown">
+    <div class="card">
+      <div class="score-prompt" id="scorePrompt"></div>
+      <div class="transcript-box" id="transcriptArea" contenteditable="true"
+           placeholder="Click the mic and speak your full case rundown — what happened, what you were thinking, what you know you missed..."></div>
+      <div class="controls">
+        <button class="btn btn-rec" id="micBtn" onclick="toggleMic()">
+          <i class="ti ti-microphone"></i> <span id="micLabel">Record</span>
+        </button>
+        <button class="btn btn-ghost" onclick="clearTranscript()">
+          <i class="ti ti-eraser"></i> Clear
+        </button>
+        <span class="status-text">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText"></span>
+        </span>
+      </div>
     </div>
   </div>
 
-  <div class="analysis-hint">
-    Speak your full rundown → say <code>analyze</code> or stop recording → the attendant reviews
+  <!-- PANEL: Review -->
+  <div class="panel-content" id="panelReview">
+    <div class="card" style="gap: 14px;">
+      <div class="review-meta">
+        <span id="reviewInfo">No transcript yet — record your rundown first</span>
+        <span class="help-badge" id="reviewStatus" style="display:none"></span>
+      </div>
+      <div class="review-output" id="reviewOutput">
+        <span class="loading" id="reviewPlaceholder">Speak your rundown in the Rundown tab, then come here and click <strong>Review with DeepSeek</strong>.</span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="review-btn" id="reviewBtn" onclick="runDeepSeekReview()" disabled>
+          <i class="ti ti-robot"></i> Review with DeepSeek
+        </button>
+        <button class="btn btn-ghost" onclick="copyReview()" id="copyBtn" style="display:none">
+          <i class="ti ti-copy"></i> Copy
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;">
+    <span class="help-badge"><kbd>Ctrl+Space</kbd> toggle mic &nbsp;·&nbsp; <kbd>Esc</kbd> stop &nbsp;·&nbsp; say <strong>analyze</strong> to auto-stop</span>
   </div>
 </div>
 
 <script>
-// ============================================================
-// CASE DATA — loaded from your dossiers
-// ============================================================
+// ══════════════════════════════════════════
+// CASE DATA
+// ══════════════════════════════════════════
 const CASE_BANK = [
-  // Recent cases with scores
-  { slug:'post-mi-pericarditis','title':'Post-MI Pericarditis',score:'68.33%',avg:'66.2%',dx:'Dressler Syndrome',missed:['troponin (rule out re-MI)','CXR','CBC','rest advice'],got:['avoided all NSAIDs','aspirin + acetaminophen','correct ECG read'],trap:'NSAIDs (except aspirin) are contraindicated post-MI'},
-  { slug:'atrial-fibrillation','title':'Atrial Fibrillation',score:'54.96%',avg:'77.8%',dx:'New-onset AF with RVR',missed:['anticoagulation (CHA2DS2-VASc=3)','PT/PTT baseline','BMP for renal dosing','cardiac monitor'],got:['rate control with metoprolol','EKG diagnosis','TSH before blaming thyroid'],trap:'Rate control manages symptoms; AC prevents stroke. Two separate problems.'},
-  { slug:'hiatal-hernia','title':'Hiatal Hernia',score:'60.33%',avg:'86.9%',dx:'Type I sliding hiatal hernia',missed:['EGD/barium swallow (dysphagia=alarm)','EKG (chest pain)','CBC','weight loss counsel'],got:['PPI correct for Type I','good physical exam','no inappropriate orders'],trap:'Dysphagia demands visualization. Cannot distinguish Type I (PPI) from II-IV (surgery) without imaging.'},
-  { slug:'diverticulitis','title':'Diverticulitis',score:'54.96%',avg:'77.8%',dx:'Acute diverticulitis',missed:['CT abdomen','metronidazole (anaerobic cover)','NPO','blood cultures','inpatient transfer'],got:['diagnosed diverticulitis','bowel rest concept correct'],trap:'Diverticulitis needs anaerobic + gram-negative cover. Metronidazole is not optional.'},
-  { slug:'aortic-dissection','title':'Aortic Dissection',score:'87.71%',avg:'—',dx:'Type A aortic dissection',missed:['TEE before OR','pain control earlier'],got:['CT surgery consult on retry','beta-blocker first','correct diagnosis fast'],trap:'CT surgery is the definitive management for Type A. Beta-blocker before any vasodilator.'},
-  { slug:'unstable-angina','title':'Unstable Angina',score:'—',avg:'—',dx:'Unstable angina / NSTEMI',missed:['full ACS bundle (DAPT, AC, statin)'],got:['aspirin','nitroglycerin'],trap:'ACS bundle = DAPT + anticoagulation + statin + beta-blocker. Aspirin alone is not enough.'},
-  { slug:'ectopic-pregnancy','title':'Ectopic Pregnancy',score:'—',avg:'—',dx:'Ruptured ectopic',missed:['never took patient to OR'],got:['diagnosed ectopic','pregnancy test','USG'],trap:'Ectopic diagnosed but never managed — patient needs surgery, not observation.'},
-  { slug:'lead-poisoning','title':'Lead Poisoning',score:'—',avg:'—',dx:'Lead encephalopathy',missed:['diagnostic workup gaps'],got:['recognized lead toxicity','chelating agents'],trap:'Pica + old building + encephalopathy = lead. Basophilic stippling on smear.'},
-  { slug:'hepatitis-a','title':'Hepatitis A',score:'—',avg:'—',dx:'Hepatitis A with aspiration PNA',missed:['aspiration precautions','vaccination history'],got:['diagnosed hepatitis A'],trap:'Hepatitis A is fecal-oral. Ask about food, travel, contacts.'},
+  { slug:'post-mi-pericarditis','title':'Post-MI Pericarditis',score:'68.33%',avg:'66.2%',dx:'Dressler Syndrome',
+    missed:['troponin (rule out re-MI)','CXR','CBC','rest advice'],
+    got:['avoided all NSAIDs','aspirin + acetaminophen','correct ECG read'],
+    trap:'NSAIDs (except aspirin) are contraindicated post-MI'},
+  { slug:'atrial-fibrillation','title':'Atrial Fibrillation',score:'54.96%',avg:'77.8%',dx:'New-onset AF with RVR',
+    missed:['anticoagulation (CHA2DS2-VASc=3)','PT/PTT baseline','BMP for renal dosing','cardiac monitor'],
+    got:['rate control with metoprolol','EKG diagnosis','TSH before blaming thyroid'],
+    trap:'Rate control manages symptoms. Anticoagulation prevents stroke. Two separate problems.'},
+  { slug:'hiatal-hernia','title':'Hiatal Hernia',score:'60.33%',avg:'86.9%',dx:'Type I sliding hiatal hernia',
+    missed:['EGD/barium swallow (dysphagia=alarm)','EKG (chest pain)','CBC','weight loss counsel'],
+    got:['PPI correct for Type I','good physical exam','no inappropriate orders'],
+    trap:'Dysphagia demands visualization. Cannot distinguish Type I (PPI) from II-IV (surgery) without imaging.'},
+  { slug:'diverticulitis','title':'Diverticulitis',score:'54.96%',avg:'77.8%',dx:'Acute diverticulitis',
+    missed:['CT abdomen','metronidazole (anaerobic cover)','NPO','blood cultures','inpatient transfer'],
+    got:['diagnosed diverticulitis correctly','aspirin stopped'],
+    trap:'Diverticulitis needs anaerobic + gram-negative cover. Metronidazole is not optional.'},
+  { slug:'aortic-dissection','title':'Aortic Dissection',score:'87.71%',avg:'—',dx:'Type A aortic dissection',
+    missed:['TEE before OR','pain control earlier'],
+    got:['CT surgery consult on retry','beta-blocker first','correct diagnosis fast'],
+    trap:'Type A dissection = CT surgery. Beta-blocker before any vasodilator.'},
+  { slug:'unstable-angina','title':'Unstable Angina',score:'—',avg:'—',dx:'Unstable angina / NSTEMI',
+    missed:['full ACS bundle (DAPT, AC, statin)'],
+    got:['aspirin','nitroglycerin'],
+    trap:'ACS bundle = DAPT + anticoagulation + statin + beta-blocker. Aspirin alone is not enough.'},
+  { slug:'ectopic-pregnancy','title':'Ectopic Pregnancy',score:'—',avg:'—',dx:'Ruptured ectopic',
+    missed:['never took patient to OR'],
+    got:['diagnosed ectopic','pregnancy test','ultrasound'],
+    trap:'Ectopic diagnosed but never managed — patient needs surgery, not observation.'},
+  { slug:'lead-poisoning','title':'Lead Poisoning',score:'—',avg:'—',dx:'Lead encephalopathy',
+    missed:['some diagnostic workup gaps'],
+    got:['recognized lead toxicity','chelating agents'],
+    trap:'Pica + old building + encephalopathy = lead. Basophilic stippling on smear.'},
+  { slug:'hepatitis-a','title':'Hepatitis A',score:'—',avg:'—',dx:'Hepatitis A with aspiration PNA',
+    missed:['aspiration precautions','vaccination history'],
+    got:['diagnosed hepatitis A'],
+    trap:'Hepatitis A is fecal-oral. Ask about food, travel, contacts.'},
 ];
 
-// Build dropdown and pre-load
 const sel = document.getElementById('caseSelect');
 CASE_BANK.forEach((c, i) => {
   const opt = document.createElement('option');
@@ -277,10 +347,25 @@ CASE_BANK.forEach((c, i) => {
   sel.appendChild(opt);
 });
 
-// ============================================================
+// ══════════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════════
+let activeTab = 'rundown';
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel-content').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+
+  // Enable review button if there's content
+  if (tab === 'review') updateReviewState();
+}
+
+// ══════════════════════════════════════════
 // TIMER
-// ============================================================
-const DURATION = 5 * 60; // 5 minutes in seconds
+// ══════════════════════════════════════════
+const DURATION = 5 * 60;
 let timeLeft = DURATION;
 let timerInterval = null;
 let timerRunning = false;
@@ -291,28 +376,28 @@ function formatTime(s) {
   return `${m}:${String(ss).padStart(2,'0')}`;
 }
 
-function updateTimerDisplay() {
-  document.getElementById('timeDisplay').textContent = formatTime(timeLeft);
+function updateTimerUI() {
+  const el = document.getElementById('timeDisplay');
+  el.textContent = formatTime(timeLeft);
   const pct = (timeLeft / DURATION) * 100;
   const bar = document.getElementById('timerBar');
   bar.style.width = pct + '%';
   bar.classList.remove('warning','danger');
-  if (timeLeft < 60) bar.classList.add('danger');
+  el.classList.remove('danger');
+  if (timeLeft < 60) { bar.classList.add('danger'); el.classList.add('danger'); }
   else if (timeLeft < 120) bar.classList.add('warning');
 }
 
 function startTimer() {
   if (timerRunning) return;
   timerRunning = true;
-  document.getElementById('statsRow').style.display = 'flex';
-  document.getElementById('restartBtn').style.display = 'inline-flex';
-  updateTimerDisplay();
+  updateTimerUI();
   timerInterval = setInterval(() => {
     timeLeft--;
-    updateTimerDisplay();
+    updateTimerUI();
     if (timeLeft <= 0) {
       stopTimer();
-      document.getElementById('statusText').textContent = 'Time\'s up — ready for review';
+      document.getElementById('statusText').textContent = "Time's up";
     }
   }, 1000);
 }
@@ -327,104 +412,85 @@ function restartTimer() {
   stopTimer();
   timeLeft = DURATION;
   document.getElementById('timerBar').classList.remove('warning','danger');
-  updateTimerDisplay();
+  updateTimerUI();
   startTimer();
 }
 
-// ============================================================
+// ══════════════════════════════════════════
 // CASE LOAD
-// ============================================================
+// ══════════════════════════════════════════
 function loadCase() {
   const idx = sel.value;
   if (idx === '') return;
   const c = CASE_BANK[idx];
   const prompt = document.getElementById('scorePrompt');
   prompt.innerHTML = `
-    <strong>${c.title}</strong> &middot; Score: <span class="score-num">${c.score}</span> &middot; Dx: ${c.dx}<br>
-    <span style="color:var(--green)">Got right:</span> ${c.got.join(', ')}<br>
-    <span style="color:var(--red)">Missed:</span> ${c.missed.join(', ')}
+    <strong>${c.title}</strong> · Score: <span class="score-num">${c.score}</span> · Dx: ${c.dx}<br>
+    <span class="got-tag">Got right:</span> ${c.got.join(', ')}<br>
+    <span class="missed-tag">Missed:</span> ${c.missed.join(', ')}
   `;
   document.getElementById('transcriptArea').focus();
   restartTimer();
 }
 
-// ============================================================
-// TRANSCRIPT & WORD COUNT
-// ============================================================
+// ══════════════════════════════════════════
+// TRANSCRIPT
+// ══════════════════════════════════════════
 const transcriptEl = document.getElementById('transcriptArea');
-
-transcriptEl.addEventListener('input', () => {
-  const text = transcriptEl.innerText || transcriptEl.textContent || '';
-  const chars = text.replace(/\s/g,'').length;
-  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-  document.getElementById('charCount').textContent = chars;
-  document.getElementById('wordCount').textContent = words;
-});
-
-function clearTranscript() {
-  // Save current interim text before clearing
-  const current = transcriptEl.innerText || transcriptEl.textContent || '';
-  transcriptEl.innerHTML = '';
-  document.getElementById('charCount').textContent = '0';
-  document.getElementById('wordCount').textContent = '0';
-}
 
 function getTranscriptText() {
   return (transcriptEl.innerText || transcriptEl.textContent || '').trim();
 }
 
-// ============================================================
-// VOICE DICTATION (Web Speech API)
-// ============================================================
+function clearTranscript() {
+  transcriptEl.innerHTML = '';
+  document.getElementById('statusText').textContent = '';
+  document.getElementById('reviewOutput').innerHTML =
+    '<span class="loading" id="reviewPlaceholder">Speak your rundown in the Rundown tab, then come here and click <strong>Review with DeepSeek</strong>.</span>';
+}
+
+// ══════════════════════════════════════════
+// VOICE DICTATION
+// ══════════════════════════════════════════
 let recognition = null;
 let isRecording = false;
 let interimSpan = null;
 
 function initRecognition() {
   if (recognition) return;
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    document.getElementById('statusText').textContent = 'No speech API in this browser';
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    document.getElementById('statusText').textContent = 'Speech API not available';
     return;
   }
-  recognition = new SpeechRecognition();
+  recognition = new SR();
   recognition.continuous = true;
   recognition.interimResults = true;
   recognition.lang = 'en-US';
 
-  let autoRestart = true;
-  let restartTimer = null;
-
   recognition.onresult = (event) => {
-    // Start timer on first speech
     if (!timerRunning) startTimer();
 
-    // Remove previous interim
     if (interimSpan) { interimSpan.remove(); interimSpan = null; }
 
     let finalText = '';
     let interimText = '';
 
     for (let i = event.resultIndex; i < event.results.length; i++) {
-      const result = event.results[i];
-      if (result.isFinal) {
-        finalText += result[0].transcript + ' ';
+      const r = event.results[i];
+      if (r.isFinal) {
+        finalText += r[0].transcript + ' ';
       } else {
-        interimText += result[0].transcript;
+        interimText += r[0].transcript;
       }
     }
 
-    // Append final text
     if (finalText) {
-      const existingNodes = Array.from(transcriptEl.childNodes);
-      // Remove old interim if present
-      const oldInterim = transcriptEl.querySelector('.interim');
-      if (oldInterim) oldInterim.remove();
-
+      const existing = transcriptEl.querySelector('.interim');
+      if (existing) existing.remove();
       transcriptEl.appendChild(document.createTextNode(finalText));
     }
 
-    // Show interim
     if (interimText) {
       interimSpan = document.createElement('span');
       interimSpan.className = 'interim';
@@ -432,20 +498,15 @@ function initRecognition() {
       transcriptEl.appendChild(interimSpan);
     }
 
-    // Update counts
-    const text = getTranscriptText();
-    document.getElementById('charCount').textContent = text.replace(/\s/g,'').length;
-    document.getElementById('wordCount').textContent = text.trim() ? text.trim().split(/\s+/).length : 0;
-
-    // Auto-stop if user says "analyze"
     if (finalText.toLowerCase().includes('analyze')) {
       stopRecording();
-      document.getElementById('statusText').textContent = 'Review triggered — analyze';
+      document.getElementById('statusText').textContent = 'Auto-stopped — ready for review';
+      switchTab('review');
+      updateReviewState();
     }
   };
 
   recognition.onerror = (event) => {
-    console.log('Speech error:', event.error);
     if (event.error === 'no-speech') {
       document.getElementById('statusText').textContent = 'Waiting for speech...';
       return;
@@ -455,26 +516,20 @@ function initRecognition() {
       stopRecording();
       return;
     }
-    if (event.error === 'aborted' && isRecording && autoRestart) {
-      // Auto-restart on transient errors
-      setTimeout(() => {
-        if (isRecording && recognition) {
-          try { recognition.start(); } catch(e) {}
-        }
-      }, 200);
+    if (event.error === 'aborted' && isRecording) {
+      setTimeout(() => { if (isRecording && recognition) try { recognition.start(); } catch(e) {} }, 200);
     }
   };
 
   recognition.onend = () => {
-    // Auto-restart if still recording and no manual stop
-    if (isRecording && autoRestart) {
+    if (isRecording) {
       setTimeout(() => {
         if (isRecording && recognition) {
           try {
             recognition.start();
             document.getElementById('statusText').textContent = 'Listening...';
           } catch(e) {
-            document.getElementById('statusText').textContent = 'Restart failed — click mic again';
+            document.getElementById('statusText').textContent = 'Restart failed — click mic';
           }
         }
       }, 300);
@@ -483,27 +538,23 @@ function initRecognition() {
 }
 
 function toggleMic() {
-  if (isRecording) {
-    stopRecording();
-  } else {
-    startRecording();
-  }
+  if (isRecording) stopRecording(); else startRecording();
 }
 
 function startRecording() {
   initRecognition();
   if (!recognition) return;
-
   try {
     recognition.start();
     isRecording = true;
-    document.getElementById('micBtn').classList.add('recording');
+    const btn = document.getElementById('micBtn');
+    btn.classList.add('recording');
     document.getElementById('micLabel').textContent = 'Stop';
     document.getElementById('statusText').textContent = 'Listening...';
+    document.getElementById('statusDot').classList.add('live');
     if (!timerRunning) startTimer();
   } catch(e) {
-    document.getElementById('statusText').textContent = 'Could not start mic';
-    console.error(e);
+    document.getElementById('statusText').textContent = 'Mic start failed';
   }
 }
 
@@ -512,30 +563,130 @@ function stopRecording() {
   document.getElementById('micBtn').classList.remove('recording');
   document.getElementById('micLabel').textContent = 'Record';
   document.getElementById('statusText').textContent = 'Stopped';
-
+  document.getElementById('statusDot').classList.remove('live');
   if (interimSpan) { interimSpan.remove(); interimSpan = null; }
-
-  if (recognition) {
-    try { recognition.stop(); } catch(e) {}
-  }
-
+  if (recognition) { try { recognition.stop(); } catch(e) {} }
   stopTimer();
+  updateReviewState();
 }
 
-// ============================================================
-// KEYBOARD SHORTCUTS
-// ============================================================
+// ══════════════════════════════════════════
+// DEEPSEEK REVIEW
+// ══════════════════════════════════════════
+const DEEPSEEK_KEY = 'sk-2fc4cc5ed6184f87be8837bc6ad7a3ff';
+let lastReviewText = '';
+
+function updateReviewState() {
+  const text = getTranscriptText();
+  const btn = document.getElementById('reviewBtn');
+  btn.disabled = text.length < 30;
+
+  if (text.length > 0) {
+    document.getElementById('reviewInfo').textContent =
+      `Transcript: ${text.split(/\s+/).length} words · ${text.length} chars`;
+  }
+}
+
+function getActiveCaseContext() {
+  const idx = sel.value;
+  if (idx === '') return null;
+  const c = CASE_BANK[idx];
+  return `Case: ${c.title}
+Your score: ${c.score} (avg ${c.avg})
+Diagnosis: ${c.dx}
+What you got right: ${c.got.join(', ')}
+What you missed: ${c.missed.join(', ')}
+Key trap: ${c.trap}`;
+}
+
+async function runDeepSeekReview() {
+  const text = getTranscriptText();
+  if (text.length < 30) return;
+
+  const ctx = getActiveCaseContext();
+  const output = document.getElementById('reviewOutput');
+  const btn = document.getElementById('reviewBtn');
+
+  btn.disabled = true;
+  output.innerHTML = '<span class="loading"><span class="dot thinking"></span> DeepSeek is reviewing your case...</span>';
+  document.getElementById('reviewStatus').style.display = 'inline-flex';
+  document.getElementById('reviewStatus').innerHTML = '<span class="dot thinking"></span> Analyzing';
+
+  const systemPrompt = `You are a brilliant attending physician teaching a medical student through case-based review. The student has just done a verbal rundown of a CCS case they played. Your job:
+
+1. Briefly acknowledge what they got RIGHT (specific to their transcript — do not list things they didn't mention)
+2. Identify what they MISSED — be direct and specific, connecting each miss to clinical mechanism
+3. If they misunderstood something, correct it with a short mechanism-first explanation
+4. End with ONE actionable takeaway for next time
+
+Voice: direct, concise, mechanism-first. No flattery. No bullet-point lists of features. Explain WHY things happen, not just what to order. Keep response under 250 words. This is a sprint review — be fast and precise.`;
+
+  const userPrompt = `${ctx ? ctx + '\n\n' : ''}Student's verbal rundown of the case:\n\n"""\n${text}\n"""`;
+
+  try {
+    const r = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${DEEPSEEK_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        max_tokens: 600,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!r.ok) {
+      const err = await r.text();
+      throw new Error(`API error ${r.status}: ${err}`);
+    }
+
+    const data = await r.json();
+    const reply = data.choices?.[0]?.message?.content || '(no response)';
+
+    lastReviewText = reply;
+    output.innerHTML = reply
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    document.getElementById('reviewStatus').innerHTML = '<span class="dot" style="background:var(--green)"></span> Complete';
+    document.getElementById('copyBtn').style.display = 'inline-flex';
+  } catch(err) {
+    output.innerHTML = `<span style="color:var(--red)">Review failed: ${err.message}</span>`;
+    document.getElementById('reviewStatus').innerHTML = '<span class="dot" style="background:var(--red)"></span> Error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function copyReview() {
+  if (!lastReviewText) return;
+  navigator.clipboard.writeText(lastReviewText).then(() => {
+    document.getElementById('reviewStatus').innerHTML = '<span class="dot" style="background:var(--green)"></span> Copied';
+    setTimeout(() => {
+      document.getElementById('reviewStatus').innerHTML = '<span class="dot" style="background:var(--green)"></span> Complete';
+    }, 1500);
+  });
+}
+
+// ══════════════════════════════════════════
+// KEYBOARD
+// ══════════════════════════════════════════
 document.addEventListener('keydown', (e) => {
-  // Ctrl+Space = toggle mic
-  if (e.ctrlKey && e.code === 'Space') {
-    e.preventDefault();
-    toggleMic();
-  }
-  // Escape = stop recording
-  if (e.code === 'Escape' && isRecording) {
-    stopRecording();
-  }
+  if (e.ctrlKey && e.code === 'Space') { e.preventDefault(); toggleMic(); }
+  if (e.code === 'Escape' && isRecording) { stopRecording(); }
 });
+
+// Init
+updateReviewState();
 </script>
 
 </body>
