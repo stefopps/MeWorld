@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOSight — Voice Dictation</title>
+<style>
+  :root {
+    --bg: #0c0c10; --surface: #141418; --border: #252530;
+    --text: #e0e0e0; --dim: #707080; --accent: #7D5CFF; --accent-hover: #9B82FF;
+    --danger: #FF4444; --green: #44CC88;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:"Segoe UI",system-ui,sans-serif; height:100vh; display:flex; flex-direction:column; }
+  .topbar { display:flex; align-items:center; gap:8px; padding:10px 16px; background:var(--surface); border-bottom:1px solid var(--border); -webkit-app-region:drag; user-select:none; }
+  .topbar .logo { font-weight:700; font-size:15px; color:var(--accent); }
+  .topbar .sub { font-size:12px; color:var(--dim); }
+  .main { flex:1; display:flex; flex-direction:column; gap:12px; padding:16px; overflow-y:auto; }
+  .mic-row { display:flex; align-items:center; gap:12px; }
+  .mic-btn { width:56px; height:56px; border-radius:50%; border:2px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; font-size:24px; }
+  .mic-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .mic-btn.recording { background:var(--danger); border-color:var(--danger); color:#fff; animation:pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,68,68,0.4)} 50%{box-shadow:0 0 0 12px rgba(255,68,68,0)} }
+  .mic-status { font-size:13px; color:var(--dim); }
+  .mic-status.active { color:var(--danger); font-weight:600; }
+  .transcript-area { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:14px; min-height:120px; font-size:15px; line-height:1.5; color:var(--text); outline:none; resize:none; overflow-y:auto; white-space:pre-wrap; }
+  .transcript-area:empty::before { content:"Speak to transcribe…"; color:var(--dim); }
+  .actions { display:flex; gap:8px; }
+  .btn { padding:8px 16px; border-radius:6px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; font-size:13px; transition:all 0.15s; }
+  .btn:hover { border-color:var(--accent); color:var(--accent); }
+  .btn.accent { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .btn.accent:hover { background:var(--accent-hover); }
+  .btn.green { background:var(--green); border-color:var(--green); color:#000; }
+  .btn.green:hover { opacity:0.85; }
+  .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--green); color:#000; padding:8px 20px; border-radius:8px; font-size:13px; font-weight:600; opacity:0; transition:opacity 0.2s; pointer-events:none; }
+  .toast.show { opacity:1; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="logo">KOSight</span>
+  <span class="sub">Voice Dictation</span>
+</div>
+<div class="main">
+  <div class="mic-row">
+    <button class="mic-btn" id="micBtn" title="Start recording (click to start, click to stop)">&#x1F399;</button>
+    <span class="mic-status" id="micStatus">Ready</span>
+  </div>
+  <div class="transcript-area" id="transcript" contenteditable="true"></div>
+  <div class="actions">
+    <button class="btn" id="appendInterim">→ Append interim</button>
+    <button class="btn" id="clearBtn">Clear</button>
+    <button class="btn green" id="copyBtn">Copy all + Clear</button>
+  </div>
+</div>
+<div class="toast" id="toast">Copied!</div>
+
+<script>
+const micBtn = document.getElementById('micBtn');
+const micStatus = document.getElementById('micStatus');
+const transcript = document.getElementById('transcript');
+const toast = document.getElementById('toast');
+const appendBtn = document.getElementById('appendInterim');
+const clearBtn = document.getElementById('clearBtn');
+const copyBtn = document.getElementById('copyBtn');
+
+let recognition = null;
+let isRecording = false;
+let interimText = '';
+let finalText = '';
+let sessionStart = null;
+let sessionElapsed = 0;
+let sessionTimer = null;
+let reconnectAttempts = 0;
+const MAX_SESSION_MS = 30 * 60 * 1000; // 30 minutes
+const RECONNECT_DELAY = 800; // ms before restarting after onend
+
+function formatTime(ms) {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+function updateSessionTimer() {
+  if (!sessionStart || !isRecording) return;
+  const now = Date.now();
+  sessionElapsed = now - sessionStart;
+  const remaining = MAX_SESSION_MS - sessionElapsed;
+  if (remaining <= 0) {
+    stopRecording();
+    micStatus.textContent = 'Session ended (30 min max)';
+    return;
+  }
+  micStatus.textContent = 'Recording… ' + formatTime(sessionElapsed) + ' / 30:00 max';
+}
+
+function initRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    micStatus.textContent = 'Speech recognition not supported. Use Chrome or Edge.';
+    micBtn.disabled = true;
+    return null;
+  }
+  const rec = new SpeechRecognition();
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.lang = 'en-US';
+
+  rec.onresult = (event) => {
+    reconnectAttempts = 0; // reset on successful result
+    interimText = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const result = event.results[i];
+      if (result.isFinal) {
+        finalText += result[0].transcript + ' ';
+      } else {
+        interimText += result[0].transcript + ' ';
+      }
+    }
+    const display = finalText + (interimText ? '<span style="color:var(--dim);font-style:italic">' + interimText + '</span>' : '');
+    transcript.innerHTML = display.trim();
+  };
+
+  rec.onerror = (event) => {
+    if (event.error === 'no-speech') {
+      micStatus.textContent = 'Listening… (no speech)';
+      return;
+    }
+    if (event.error === 'not-allowed') {
+      // Browser revoked mic permission — user needs to click Allow again
+      micStatus.textContent = 'Microphone blocked — click mic to re-allow';
+      micStatus.classList.remove('active');
+      micBtn.classList.remove('recording');
+      micBtn.innerHTML = '&#x1F399;';
+      // Flush any pending interim
+      if (interimText.trim()) {
+        finalText += interimText;
+        interimText = '';
+        transcript.innerHTML = finalText.trim();
+      }
+      isRecording = false; // let user manually restart
+      return;
+    }
+    if (event.error === 'aborted') {
+      return; // normal during restart
+    }
+    console.warn('Speech error:', event.error);
+  };
+
+  rec.onend = () => {
+    if (!isRecording) {
+      // User stopped intentionally
+      if (sessionTimer) { clearInterval(sessionTimer); sessionTimer = null; }
+      sessionStart = null;
+      micStatus.textContent = 'Stopped';
+      micStatus.classList.remove('active');
+      micBtn.classList.remove('recording');
+      micBtn.innerHTML = '&#x1F399;';
+      return;
+    }
+    // Auto-restart after silence timeout
+    reconnectAttempts++;
+    updateSessionTimer();
+    if (reconnectAttempts > 6) {
+      micStatus.textContent = 'Auto-restart stalled — click mic to continue';
+      micStatus.classList.remove('active');
+      micBtn.classList.remove('recording');
+      micBtn.innerHTML = '&#x1F399;';
+      if (interimText.trim()) {
+        finalText += interimText;
+        interimText = '';
+        transcript.innerHTML = finalText.trim();
+      }
+      isRecording = false;
+      return;
+    }
+    micStatus.textContent = 'Reconnecting… (' + reconnectAttempts + ')';
+    setTimeout(() => {
+      if (isRecording) {
+        try { rec.start(); } catch(e) {
+          // Chrome may block restart without user gesture
+          reconnectAttempts = 99; // force stop on next onend
+          micStatus.textContent = 'Microphone block — click mic to re-allow';
+          micStatus.classList.remove('active');
+          micBtn.classList.remove('recording');
+          micBtn.innerHTML = '&#x1F399;';
+          if (interimText.trim()) {
+            finalText += interimText;
+            interimText = '';
+            transcript.innerHTML = finalText.trim();
+          }
+          isRecording = false;
+        }
+      }
+    }, RECONNECT_DELAY);
+  };
+
+  return rec;
+}
+
+function startRecording() {
+  if (!recognition) recognition = initRecognition();
+  if (!recognition) return;
+  isRecording = true;
+  reconnectAttempts = 0;
+  sessionStart = Date.now();
+  sessionElapsed = 0;
+  sessionTimer = setInterval(updateSessionTimer, 1000);
+  micBtn.classList.add('recording');
+  micBtn.innerHTML = '&#x23F9;';
+  micStatus.textContent = 'Recording… 0:00';
+  micStatus.classList.add('active');
+  recognition.start();
+}
+
+function stopRecording() {
+  isRecording = false;
+  reconnectAttempts = 99;
+  if (sessionTimer) { clearInterval(sessionTimer); sessionTimer = null; }
+  sessionStart = null;
+  if (recognition) {
+    try { recognition.stop(); } catch(e) {}
+  }
+  // Flush interim into final
+  if (interimText.trim()) {
+    finalText += interimText;
+    interimText = '';
+  }
+  transcript.innerHTML = finalText.trim();
+  micStatus.textContent = 'Stopped';
+  micStatus.classList.remove('active');
+  micBtn.classList.remove('recording');
+  micBtn.innerHTML = '&#x1F399;';
+}
+
+micBtn.addEventListener('click', () => {
+  if (isRecording) {
+    stopRecording();
+  } else {
+    startRecording();
+  }
+});
+
+appendBtn.addEventListener('click', () => {
+  if (interimText.trim()) {
+    finalText += interimText;
+    interimText = '';
+    transcript.innerHTML = finalText.trim();
+  }
+});
+
+clearBtn.addEventListener('click', () => {
+  finalText = '';
+  interimText = '';
+  transcript.innerHTML = '';
+});
+
+copyBtn.addEventListener('click', () => {
+  const text = transcript.innerText || finalText.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1600);
+    finalText = '';
+    interimText = '';
+    transcript.innerHTML = '';
+  }).catch(() => {
+    // Fallback for HTTP
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1600);
+    finalText = '';
+    interimText = '';
+    transcript.innerHTML = '';
+  });
+});
+
+// Keyboard shortcut: Ctrl+Enter to copy and clear
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.key === 'Enter') {
+    e.preventDefault();
+    copyBtn.click();
+  }
+});
+</script>
+</body>
+</html>
