@@ -1,0 +1,92 @@
+{
+  "caseId": "aortic-dissection-2026-07-25",
+  "ccsTitle": "Chest Pain — Emergency Medicine (Aortic Dissection)",
+  "diagnosis": "Type A Aortic Dissection with Aortic Regurgitation",
+  "score": "64.12%",
+  "avgFirstAttempt": "79.8%",
+  "zScore": -1.82,
+  "patient": {
+    "key": "Acute-onset tearing chest pain radiating to back, history of chronic hypertension, new diastolic murmur (aortic regurgitation), SBP differential between arms. CXR: widened mediastinum. Echo: type A dissection with AR. LVH on EKG. Troponin 0. HR 90, SBP 180."
+  },
+  "vitals": {
+    "bp": "180 (severe hypertension — must reduce dP/dt)",
+    "hr": "sinus tachycardia"
+  },
+  "keyImaging": {
+    "cxr": "Widened mediastinum — classic sign. Normal lungs, heart, bones.",
+    "echo": "Large type A aortic dissection with aortic regurgitation. All other chambers normal. No pericardial effusion.",
+    "ekg": "Sinus tachycardia. LVH pattern (increased R in I/aVL/V4-6, deep S in III/aVR/V1-3). No ischemic changes."
+  },
+  "keyLabs": {
+    "troponin": "0 ng/mL — rules out MI",
+    "cbc": "WBC 11,000 (mild leukocytosis from stress), Hgb 14.5, Hct 43.5%, Plt 300K — all else normal",
+    "cmp": "All normal. Cr normal. eGFR >90.",
+    "ptInr": "PT 10.5s, INR 1.0 — normal",
+    "ptPtt": "APTT 27.0s — normal",
+    "typeScreen": "O+, DAT negative, IAT negative"
+  },
+  "scoreBreakdown": {
+    "diagnosisOrders": {"percent": 93.33, "weight": "40%"},
+    "treatmentOrders": {"percent": 42.86, "weight": "45%"},
+    "timing": {"percent": 0, "weight": "5%", "note": "2 negative patient updates — pain worse at 21:00, impending doom at 23:00"},
+    "appropriateOrders": {"percent": 100, "weight": "5%"},
+    "locationSequence": {"percent": 50, "weight": "5%", "note": "Went to ICU too early. Should diagnose in ED then OR, not ICU."}
+  },
+  "orderCount": 16,
+  "avgOrderCountFor85pct": 33.38,
+  "correctlyOrdered": [
+    "Physical Exam: General, Chest/Lungs, Heart, Extremities/Spine",
+    "CBC with differential",
+    "Cardiac troponin I",
+    "EKG 12-lead + cardiac monitor",
+    "CXR (PA/lateral — showed widened mediastinum)",
+    "Echocardiography (TEE/TTE — showed type A dissection with AR)",
+    "BMP / CMP / LFTs",
+    "Nitroglycerin / nitroprusside (vasodilator after beta-blocker)",
+    "Beta-blocker (esmolol/labetalol/metoprolol — reduce dP/dt)",
+    "PT/PTT + PT/INR",
+    "Type and screen",
+    "IV access"
+  ],
+  "correctlyAvoided": [
+    "Aspirin — contraindicated in aortic dissection. DAPT would worsen bleeding risk during surgery.",
+    "MRI chest — correct diagnosis but too slow for surgical emergency"
+  ],
+  "missedOrders": [
+    {"order": "IV opioids (morphine / fentanyl / hydromorphone)", "severity": "critical", "why": "Pain = sympathetic surge = higher HR and BP = higher dP/dt = propagation of the dissection flap. IV opioids break the pain-sympathetic-dissection cycle. Patient was nauseous so PO is not an option."},
+    {"order": "Cardiothoracic surgery consult / Thoracotomy / Open heart surgery", "severity": "critical", "why": "Type A aortic dissection is a surgical emergency. Mortality increases 1-2% per hour untreated. The correct consultant is cardiothoracic surgery (NOT vascular surgery and NOT general cardiology). The patient needs the OR, not the ICU. Cardiology consult said: 'no specific management recommendations — please order any urgent interventions.' That is the game telling you: ORDER THE SURGERY."},
+    {"order": "Pulse oximetry", "severity": "minor", "why": "Always check oxygenation in a distressed patient."}
+  ],
+  "wrongDecisions": [
+    {"decision": "Moved to ICU instead of staying in ED", "why": "The case expects you to diagnose in the ED, call cardiothoracic surgery, and send to OR directly. Moving to ICU is a detour. Type A dissection doesn't get managed medically in the ICU — it goes straight to the OR."},
+    {"decision": "Consulted cardiology instead of cardiothoracic surgery", "why": "Cardiology manages medical cardiac issues (ACS, heart failure, arrhythmias). Cardiothoracic surgery manages surgical aortic pathology. The echo showed type A dissection with aortic regurgitation — this is CT surgery territory from the moment the diagnosis is made."}
+  ],
+  "differentialDdx": [
+    "Pericardial tamponade",
+    "Myocardial infarction",
+    "Pericarditis",
+    "Pulmonary embolism",
+    "Esophageal rupture"
+  ],
+  "pathophysiology": {
+    "aorticDissection": "A tear in the aortic intima allows blood to enter the media, splitting the aortic wall into a true lumen and a false lumen. The dissection flap propagates with each systolic contraction — the dP/dt (rate of pressure rise) is the primary force driving the tear forward. Hypertension and connective tissue disease (Marfan, Ehlers-Danlos) predispose by weakening the media. This patient has chronic untreated hypertension.",
+    "typeA": "Ascending aorta involvement. This is a surgical emergency because: (1) the dissection can propagate retrograde into the coronary ostia → MI, (2) it can disrupt the aortic valve cusps → acute aortic regurgitation, (3) it can rupture into the pericardium → tamponade. This patient already had AR — evidence of valve involvement.",
+    "typeB": "Descending aorta only (distal to left subclavian). Generally managed medically (blood pressure control) unless complicated by malperfusion or rupture.",
+    "dpdt": "dP/dt is the first derivative of left ventricular pressure — how fast the pressure rises. Beta-blockers reduce dP/dt by decreasing contractility velocity. Vasodilators (nitroprusside, nicardipine) reduce afterload but MUST be given AFTER beta-blockade, because vasodilation alone can cause reflex tachycardia → increased dP/dt → worse dissection. This is why the order is: beta-blocker FIRST, then vasodilator.",
+    "widenedMediastinum": "Blood in the false lumen expands the aortic silhouette on CXR. The 'widened mediastinum' is the most common radiographic finding. It's not sensitive enough to rule out dissection, but when present with the right clinical picture, it mandates CT/TEE.",
+    "sbpDifferential": "Blood pressure difference between arms (>20 mmHg) occurs when the dissection flap occludes one of the branch vessels (subclavian, brachiocephalic). This is a classic physical exam finding for type A dissection.",
+    "aorticRegurgitation": "The dissection flap disrupts the aortic valve commissures — the cusps can't coapt properly. This produces a new diastolic murmur. The regurgitation worsens hemodynamics by reducing forward flow and increasing LV volume overload."
+  },
+  "teachingPoints": [
+    "Type A vs Type B is the only question that matters: Type A = OR. Type B = medical (unless complications). The Stanford classification makes this simple.",
+    "Beta-blocker FIRST, vasodilator SECOND. Reversing this order can kill the patient. Reflex tachycardia from vasodilation increases dP/dt and propagates the dissection.",
+    "Aspirin is CONTRAINDICATED. Antiplatelets worsen surgical bleeding. This is not ACS. Don't apply the chest pain protocol blindly.",
+    "Cardiothoracic surgery, not cardiology. The cardiologist will say 'please order any urgent interventions.' You must order the surgery yourself.",
+    "ICU is a detour, not a destination. Type A dissection goes ED → OR. The patient doesn't need monitoring in the ICU — they need a surgeon opening their chest.",
+    "Pain control is therapeutic, not just palliative. Pain → sympathetic response → hypertension/tachycardia → worse dissection. IV opioids are part of the dissection management bundle."
+  ],
+  "images": {
+    "descent3x3": {"status": "complete", "path": "images/descent-3x3.png", "size": "5.65 MB", "model": "nano-banana-pro", "resolution": "2K", "style": "Unreal Engine 5 cinematic (claude-img)"},
+    "descentGaps": {"status": "complete", "path": "images/descent-gaps-3x3.png", "size": "5.81 MB", "model": "nano-banana-pro", "resolution": "2K", "style": "Unreal Engine 5 cinematic (claude-img)"}
+  }
+}
