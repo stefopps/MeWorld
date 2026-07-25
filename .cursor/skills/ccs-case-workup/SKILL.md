@@ -250,12 +250,12 @@ Until finally — clinical endpoint / the diagnostic finding
 And ever since then — irreversible state / treatment footprint
 ```
 
-### 7b — Write the prompt (locked Unreal-5 style, not "Naughty Dog")
+### 7b — Write the prompt (locked Naughty Dog / Uncharted 4 cinematic CGI)
 
-Use the exact style block from the `/claude-img` medical mechanism image prompting skill.
+Use the exact Naughty Dog style block from the `/claude-img` medical mechanism image prompting skill.
 
 ```
-An Unreal Engine 5 cinematic 3D macro render, not a photograph. Real-time global illumination, crisp high-poly precision, one dramatic key light, deep black shadow, high contrast.
+Naughty Dog cinematic CGI macro render, Uncharted 4 / The Last of Us visual style. Not a photograph. Cool blue-gray dominant ambient lighting with warm amber focal accents. Heavy ambient occlusion. Volumetric haze and atmospheric depth. Lived-in worn surfaces with visible material detail. Soft vignette at edges. Warm/cool tension — shadows have color temperature, never pure black. One warm point light catching edges.
 
 3x3 grid, 9 panels, landscape 16:9. NO TEXT ANYWHERE. One continuous environment across all panels, camera traveling through it, no two adjacent panels sharing an angle.
 
@@ -265,9 +265,9 @@ Panel 1-9: [one element per panel; named camera term; mechanism beat]
 Cinematic, high contrast, glossy detail, consistent style throughout, no text anywhere.
 ```
 
-If a human character is in frame, use the human variant from the skill (adds subsurface scattering, cloth simulation).
+If a human character is in frame, use the human variant from the skill (adds subsurface scattering, skin shader).
 
-**DO NOT use the old "Naughty Dog cinematic CGI style" block.** That was pre-skill and produces inferior results.
+**DO NOT use generic "Unreal Engine 5 cinematic" blocks.** The approved visual reference is `dev/screenshots/uncharted-4-main-menu.png` — cool blue-gray dominant, warm focal accents only, volumetric haze, lived-in worn surfaces. UE5 generic produces flat black shadows with no color temperature.
 
 ### 7c — Fire generation (Python script, NOT subagent shell delegation)
 
@@ -292,20 +292,21 @@ for name in ['descent-3x3', 'descent-gaps-3x3']:
     # CRITICAL: task_id is nested under "data" key
     tid = (data.get('data') or data).get('task_id')
     # ... poll every 5s, status from resp['data']['status']
-    # On COMPLETED: download resp['data']['generated'][0]['url']
+    # On COMPLETED: download resp['data']['generated'][0] — generated is a list of strings (direct URLs)
 ```
 
 ### 7d — Magnific API gotchas for agents (READ BEFORE GENERATING)
 
-Three roadblocks that have cost hours. Do NOT regress on any of them.
+Six roadblocks that have cost hours. Do NOT regress on any of them.
 
 | # | Gotcha | Symptom | Fix |
 |---|--------|---------|-----|
 | **1** | **task_id nested under `data`** | `task_id: None`, then 400s on polling | Extract as: `(resp.get('data') or resp).get('task_id')` |
 | **2** | **Subagent shell delegation hangs** | Shell subagent runs 600s+ with no output | Use direct Python script with `block_until_ms: 600000` |
-| **3** | **"Naughty Dog" style block** | Inferior renders, style drift | Use Unreal Engine 5 cinematic block from medical-mechanism-image-prompting skill |
-| **4** | **Prompt > 2995 chars** | Silent API failure or truncated output | Compress panel descriptions; NEVER trim the Unreal-5 opener or closing "no text anywhere" line |
+| **3** | **Generic "cinematic" style block** | Flat renders, no warm/cool tension, pure black shadows | Use the Naughty Dog / Uncharted 4 cinematic CGI block from medical-mechanism-image-prompting skill — cool blue-gray dominant, warm focal accents, volumetric haze |
+| **4** | **Prompt > 2995 chars** | Silent API failure or truncated output | Compress panel descriptions; NEVER trim the Naughty Dog style opener or closing "no text anywhere" line |
 | **5** | **Status also nested under `data`** | Poll loop hangs on `IN_PROGRESS` even when done | Check `(resp.get('data') or resp).get('status')` |
+| **6** | **`generated` is list of strings, not dicts** | `KeyError: 'url'` or `None` when accessing `generated[0]['url']` | `generated[0]` IS the URL — a string, not a dict. Do NOT chain `.url` |
 
 ### 7e — Reference
 
@@ -318,8 +319,8 @@ After generating images, update the `images` section:
 ```json
 {
   "images": {
-    "descent3x3": {"status": "complete", "path": "images/descent-3x3.png", "size": "5.8 MB", "model": "nano-banana-pro", "resolution": "2K", "style": "Unreal Engine 5 cinematic (claude-img)"},
-    "descentGaps": {"status": "complete", "path": "images/descent-gaps-3x3.png", "size": "5.7 MB", "model": "nano-banana-pro", "resolution": "2K", "style": "Unreal Engine 5 cinematic (claude-img)"}
+    "descent3x3": {"status": "complete", "path": "images/descent-3x3.png", "size": "5.8 MB", "model": "nano-banana-pro", "resolution": "2K", "style": "Naughty Dog / Uncharted 4 cinematic CGI"},
+    "descentGaps": {"status": "complete", "path": "images/descent-gaps-3x3.png", "size": "5.7 MB", "model": "nano-banana-pro", "resolution": "2K", "style": "Naughty Dog / Uncharted 4 cinematic CGI"}
   }
 }
 ```

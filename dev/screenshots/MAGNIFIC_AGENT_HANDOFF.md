@@ -143,7 +143,7 @@ print(f'  poll {i+1}: {status}', flush=True)
 ## Prompt constraints
 
 - **Max prompt length:** 2995 characters. The `magnificImage.js` server module trims at 2990.
-- **Style block must come first:** The Naughty Dog / Unreal Engine 5 cinematic style description is the most impactful part of the prompt. Never trim the style block to save space.
+- **Style block must come first:** The Naughty Dog / Uncharted 4 cinematic CGI style description is the most impactful part of the prompt. Never trim the style block to save space.
 - **Negative prompt:** Always include: `'text overlay, lettering, captions, subtitles, cartoon, anime, 2D flat, plastic skin, overexposed, blurry'`
 - **Aspect ratio:** `16:9` for treatment plates.
 - **Resolution:** `2K`.
