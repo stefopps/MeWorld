@@ -1,0 +1,58 @@
+{
+  "caseId": "ptsd",
+  "title": "PTSD — Traumatic Stress >1 Month After Stabbing",
+  "date": "2026-07-26",
+  "score": 7.5,
+  "averageScore": 87.8,
+  "patient": "35-year-old male, stabbed during knife robbery 5 weeks ago, 20 sutures, no organ damage, quick physical recovery",
+  "diagnosis": "Post-Traumatic Stress Disorder (PTSD)",
+  "misdiagnosis": "Acute Stress Disorder (same symptoms but <1 month duration; this patient is at 5 weeks = PTSD)",
+  "category": "Psychiatry",
+  "setting": "Office",
+  "vitals": {
+    "temperature": "37.0 C",
+    "pulse": "85 bpm regular",
+    "respiratory_rate": "22/min",
+    "blood_pressure": "115/81",
+    "height": "185.4 cm",
+    "weight": "90.72 kg",
+    "bmi": "26.4"
+  },
+  "hpi": "35-year-old male presents to office with anxiety. Stabbed during knife robbery 5 weeks ago. Required 20 sutures; no major organ damage; quick physical recovery. Reports can't stop thinking about the attack, nightmares, intrusive images of the robber. Avoids going out at night even with family/friends (fear of re-assault). Irritable with family. Hypervigilant ('always looking over my shoulder'). Difficulty sleeping. Calling in sick to work frequently. Symptoms present every day since the incident.",
+  "orders": {
+    "totalPlaced": 0,
+    "correct": [],
+    "missed": [
+      { "order": "Physical Exam: General Appearance", "why": "Assess how the patient is presenting — anxious, hypervigilant, eye contact, psychomotor agitation.", "weight": "diagnosis" },
+      { "order": "Physical Exam: Neuro/Psych", "why": "Mental status exam is the physical exam for psychiatric chief concerns. Assess affect, thought content, cognition, insight.", "weight": "diagnosis" },
+      { "order": "CBC with differential", "why": "Rule out medical causes of anxiety — anemia, infection. Standard screening before starting psychiatric medication.", "weight": "diagnosis" },
+      { "order": "TSH, serum", "why": "Hyperthyroidism perfectly mimics anxiety. Must rule out before committing to primary psychiatric diagnosis. Given the Graves case immediately prior, this should be reflexive.", "weight": "diagnosis" },
+      { "order": "CMP", "why": "Electrolytes, renal function. Hyponatremia must be corrected before starting SSRI/SNRI (SIADH risk). Baseline creatinine for drug dosing.", "weight": "diagnosis" },
+      { "order": "Consult, psychology / psychiatry", "why": "Evidence-based psychotherapy for PTSD: CBT, CPT (cognitive processing therapy), prolonged exposure therapy, EMDR. USMLE translates all of these as referral to psych/psychology.", "weight": "treatment" },
+      { "order": "SSRI / SNRI (paroxetine, sertraline, fluoxetine, venlafaxine)", "why": "First-line pharmacotherapy for PTSD. Paroxetine and sertraline are FDA-approved. USMLE expects BOTH psychotherapy AND pharmacotherapy to be offered.", "weight": "treatment" }
+    ]
+  },
+  "dsm5Criteria": {
+    "criterionA": "Directly experienced threatened death (stabbed during robbery). MET.",
+    "criterionB_intrusion": "Intrusive memories, nightmares, intrusive images of the robber. MET.",
+    "criterionC_avoidance": "Won't go out at night, avoids family/friend gatherings. MET.",
+    "criterionD_cognitionMood": "Irritability, negative emotional state. MET.",
+    "criterionE_arousal": "Hypervigilance ('looking over my shoulder'), sleep disturbance, exaggerated startle. MET.",
+    "criterionF_duration": "Symptoms persist >1 month (5 weeks). MET — this distinguishes PTSD from acute stress disorder.",
+    "criterionG_impairment": "Calling in sick to work frequently, social withdrawal. MET.",
+    "criterionH_exclusion": "Not attributable to substance or medical condition (vitals normal, no co-occurring illness). MET."
+  },
+  "ptsdVsASD": {
+    "acuteStressDisorder": "Symptoms last 3 days to 1 month after trauma",
+    "ptsd": "Symptoms persist >1 month after trauma",
+    "thisCase": "5 weeks post-trauma with daily symptoms = PTSD, not acute stress disorder"
+  },
+  "scoreBreakdown": {
+    "diagnosisOrders": { "score": 0, "weight": "10%" },
+    "treatmentOrders": { "score": 0, "weight": "75%" },
+    "timing": { "score": 0, "weight": "5%", "note": "Case timed out before diagnosis and treatment" },
+    "appropriateOrders": { "score": 100, "weight": "5%" },
+    "locationSequencing": { "score": 50, "weight": "5%" }
+  },
+  "images": { "status": "pending" }
+}
