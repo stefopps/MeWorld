@@ -1,0 +1,55 @@
+{
+  "caseId": "uti-pregnancy",
+  "title": "UTI in Pregnancy — Fluoroquinolone Contraindication",
+  "date": "2026-07-26",
+  "score": 42.73,
+  "averageScore": 77.2,
+  "patient": "Pregnant female, second trimester, dysuria, anxious about baby's health",
+  "diagnosis": "Urinary Tract Infection — complicated (pregnancy = complicated UTI regardless of anatomy)",
+  "category": "OB/GYN + Infectious Disease",
+  "setting": "Office → Inpatient Unit",
+  "vitals": { "status": "stable, afebrile, no flank pain or nausea (lower UTI, not pyelonephritis)" },
+  "hpi": "Pregnant female presents with dysuria. No fever, no flank pain, no nausea — consistent with lower UTI/cystitis rather than pyelonephritis. Repeatedly expresses concern about the baby's health.",
+  "culture": {
+    "organism": "Escherichia coli",
+    "sensitivities": {
+      "ampicillin": "R", "cephalothin": "R", "cefixime": "R",
+      "ceftriaxone": "R", "ceftizoxime": "R",
+      "ciprofloxacin": "S", "levofloxacin": "S",
+      "nitrofurantoin": "S", "gentamicin": "S"
+    }
+  },
+  "orders": {
+    "correct": ["Physical Exams", "CBC", "CMP", "Urinalysis", "Urine culture", "Fetal heart rate monitoring"],
+    "missed": [
+      { "order": "Chlamydia/gonorrhea screen", "why": "Dysuria in young female = STI on differential. Prompt treatment prevents harm to baby.", "weight": "diagnosis" },
+      { "order": "Reassure patient", "why": "Patient repeatedly expressed anxiety about baby's health. Must address this directly.", "weight": "treatment" },
+      { "order": "Pregnancy-safe antibiotic (nitrofurantoin, cephalexin, amoxicillin-clavulanate, fosfomycin)", "why": "Short-course antibiotic to minimize fetal exposure. Must be guided by culture sensitivities.", "weight": "treatment" },
+      { "order": "Medication compliance counseling", "why": "Stress importance of completing antibiotic course to prevent resistance.", "weight": "treatment" }
+    ],
+    "avoided": [
+      { "order": "Fluoroquinolones (ciprofloxacin, levofloxacin, moxifloxacin)", "why": "CONTRAINDICATED IN PREGNANCY. Teratogenic — fetal cartilage damage. Despite being sensitive on culture, cannot be used." },
+      { "order": "TMP-SMx (Bactrim)", "why": "First trimester: neural tube defects (folate antagonism). Third trimester: kernicterus risk (displaces bilirubin). High E. coli resistance anyway." }
+    ]
+  },
+  "pregnancySafeAntibiotics": {
+    "nitrofurantoin": { "trimester": "Second/third only", "duration": "5 days", "note": "Avoid first trimester (cardiac defects), avoid near delivery (hemolytic anemia in newborn)" },
+    "cephalexin": { "trimester": "All trimesters", "duration": "3 days", "note": "Safe, but culture showed resistance in this case" },
+    "amoxicillin_clavulanate": { "trimester": "All trimesters", "duration": "3 days", "note": "Good option if sensitive" },
+    "fosfomycin": { "trimester": "All trimesters", "duration": "Single dose", "note": "Simplest regimen, single 3g dose" }
+  },
+  "complication": {
+    "type": "Complicated UTI — pregnancy = automatic complicated classification",
+    "risk": "Increased risk of pyelonephritis → preterm birth, low birth weight",
+    "asymptomaticBacteriuria": "Treated in pregnancy even without symptoms — two consecutive positive cultures = treat"
+  },
+  "scoreBreakdown": {
+    "diagnosisOrders": { "score": 81.82, "weight": "40%" },
+    "treatmentOrders": { "score": 0, "weight": "40%" },
+    "preventiveCare": { "score": 0, "weight": "5%" },
+    "timing": { "score": 0, "weight": "5%", "note": "1 negative patient update before correct treatment" },
+    "appropriateOrders": { "score": 100, "weight": "5%" },
+    "locationSequencing": { "score": 100, "weight": "5%" }
+  },
+  "images": { "status": "pending" }
+}
