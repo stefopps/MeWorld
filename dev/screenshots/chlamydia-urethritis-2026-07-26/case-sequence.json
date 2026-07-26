@@ -1,0 +1,34 @@
+{
+  "caseId": "chlamydia-urethritis",
+  "title": "Chlamydia Urethritis — Purulent Discharge, Dysuria, Scrotal Swelling",
+  "date": "2026-07-26",
+  "score": 81.13,
+  "averageScore": 83.1,
+  "patient": "Male, burning during urination, purulent urethral discharge, scrotal swelling",
+  "diagnosis": "Chlamydia trachomatis urethritis",
+  "category": "STI / Infectious Disease",
+  "setting": "Office",
+  "labs": {
+    "UA": "Cloudy appearance, pH 6.0, SG 1.015, negative leukocyte esterase, negative nitrites",
+    "CBC": "WBC 11,200 (mild leukocytosis), otherwise normal",
+    "CMP": "Normal",
+    "chlamydia": "Positive for Chlamydia trachomatis (NAAT)"
+  },
+  "orders": {
+    "correct": ["Full physical exam", "CBC", "CMP", "Urinalysis", "Chlamydia NAAT", "Gonorrhea co-test", "Azithromycin", "Cefixime"],
+    "missed": [
+      { "order": "HIV + Hepatitis B/C screen", "why": "Complete STI panel", "weight": "diagnosis" },
+      { "order": "NSAIDs/acetaminophen", "why": "Fever and pain control", "weight": "treatment" },
+      { "order": "Safe sex counseling, partner notification, no intercourse x 7 days, smoking cessation, no drug use counseling", "why": "Preventive care bundle for STI visit", "weight": "preventive" }
+    ]
+  },
+  "scoreBreakdown": {
+    "diagnosisOrders": { "score": 82, "weight": "40%" },
+    "treatmentOrders": { "score": 83.33, "weight": "40%" },
+    "preventiveCare": { "score": 0, "weight": "5%" },
+    "timing": { "score": 100, "weight": "5%" },
+    "appropriateOrders": { "score": 100, "weight": "5%" },
+    "locationSequencing": { "score": 100, "weight": "5%" }
+  },
+  "images": { "status": "pending" }
+}
