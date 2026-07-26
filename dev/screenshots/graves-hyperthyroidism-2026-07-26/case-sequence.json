@@ -1,0 +1,48 @@
+{
+  "caseId": "graves-hyperthyroidism",
+  "title": "Graves' Hyperthyroidism — Young Female with Anxiety, Palpitations, Tremor",
+  "date": "2026-07-26",
+  "score": 35.04,
+  "averageScore": 83.9,
+  "patient": "Young female, anxiety, palpitations, tremor, sweating, exophthalmos, pretibial myxedema, large thyroid on exam",
+  "diagnosis": "Graves' Hyperthyroidism",
+  "category": "Endocrinology",
+  "vitals": { "status": "tachycardic, tremulous, anxious" },
+  "hpi": "Young woman presents with anxiety, palpitations, tremor, sweating. Physical exam reveals large thyroid, mild exophthalmos, pretibial myxedema, fine tremor.",
+  "exam": {
+    "performed": ["General Appearance", "Chest/Lungs", "Heart/Cardiovascular", "Abdomen", "Extremities/Spine", "Neuro/Psych", "HEENT/Neck"],
+    "relevant": "Large thyroid, mild exophthalmos, tremor, pretibial myxedema"
+  },
+  "orders": {
+    "correct": [
+      "TSH (ultrasensitive)",
+      "Free T3 / Free T4",
+      "Propranolol"
+    ],
+    "missed": [
+      { "order": "hCG / pregnancy test", "why": "Any woman of childbearing age needs pregnancy status before anti-thyroid meds. Methimazole is teratogenic in first trimester (aplasia cutis, choanal atresia, esophageal atresia). PTU is preferred in first trimester. This is the single most critical miss.", "weight": "diagnosis" },
+      { "order": "ECG, 12-lead", "why": "Thyroid hormone directly increases sinoatrial node firing rate, shortens atrial refractory period, and increases sympathetic sensitivity. Result: sinus tachycardia and atrial fibrillation risk. ECG screens for rate, rhythm, and any ischemic changes from demand ischemia.", "weight": "diagnosis" },
+      { "order": "Toxicology screen, urine/serum", "why": "Anxiety, palpitations, tremor = classic stimulant toxidrome (cocaine, methamphetamine). Must rule out before committing to endocrine diagnosis.", "weight": "diagnosis" },
+      { "order": "CBC with differential", "why": "Graves' is autoimmune. Methimazole and PTU both carry risk of agranulocytosis — need baseline WBC before starting. Also screen for anemia of chronic disease.", "weight": "diagnosis" },
+      { "order": "CMP / LFTs", "why": "PTU carries black box warning for fulminant hepatic necrosis. Baseline LFTs mandatory. CMP for renal function (drug clearance) and electrolytes.", "weight": "diagnosis" },
+      { "order": "Methimazole or PTU", "why": "Beta-blocker treats symptoms only. Definitive treatment requires blocking new thyroid hormone synthesis. Methimazole inhibits thyroid peroxidase (TPO), preventing iodination of thyroglobulin. PTU does the same PLUS blocks peripheral T4→T3 conversion (5'-deiodinase).", "weight": "treatment" },
+      { "order": "Consult, endocrinology", "why": "Graves' management is nuanced: titration vs block-and-replace, monitoring for agranulocytosis, timing of definitive therapy (RAI vs surgery). Endocrine should be involved from day 1.", "weight": "treatment" }
+    ]
+  },
+  "mechanism": {
+    "graves": "Autoantibodies (TSI — thyroid-stimulating immunoglobulins) bind TSH receptor on thyroid follicular cells → constitutive activation → uncontrolled T4/T3 production → negative feedback suppresses pituitary TSH → TSH is low/near-zero, free T4/T3 are elevated",
+    "heart": "T3 directly enters cardiomyocytes via MCT8 transporter → binds nuclear thyroid hormone receptor → upregulates: beta-1 adrenergic receptors (increased catecholamine sensitivity), sarcoplasmic reticulum Ca2+-ATPase (faster relaxation, shorter diastolic filling), myosin heavy chain alpha isoform (faster contraction velocity). Net effect: increased heart rate, increased contractility, shortened atrial refractory period → atrial fibrillation risk.",
+    "eye": "TSI cross-reacts with orbital fibroblasts → fibroblast activation → glycosaminoglycan deposition → retro-orbital tissue expansion → proptosis/exophthalmos. Same mechanism in pretibial area → pretibial myxedema.",
+    "beta_blocker": "Propranolol is non-selective beta-1 + beta-2 blockade. At high doses also blocks 5'-monodeiodinase (T4→T3 conversion) — minimal clinical effect, takes ~10 days. Real benefit: slows HR, reduces tremor, decreases anxiety. Atenolol/metoprolol (beta-1 selective) equally effective, better tolerated.",
+    "methimazole_vs_ptu": "Methimazole: once-daily dosing, faster euthyroid state, less hepatotoxicity. Contraindicated in first trimester (teratogenic). PTU: three-times-daily dosing, blocks peripheral T4→T3 conversion (bonus), black box for hepatic necrosis. Preferred in first trimester ONLY. Both carry agranulocytosis risk (~0.3%)."
+  },
+  "scoreBreakdown": {
+    "diagnosisOrders": { "score": 58.33, "weight": "40%" },
+    "treatmentOrders": { "score": 10.53, "weight": "40%" },
+    "preventiveCare": { "score": 0, "weight": "5%" },
+    "timing": { "score": 0, "weight": "5%", "note": "Case timed out before correct diagnosis and treatment" },
+    "appropriateOrders": { "score": 100, "weight": "5%" },
+    "locationSequencing": { "score": 50, "weight": "5%" }
+  },
+  "images": { "status": "pending" }
+}
