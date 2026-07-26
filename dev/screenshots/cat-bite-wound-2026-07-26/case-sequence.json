@@ -1,0 +1,57 @@
+{
+  "caseId": "cat-bite-wound",
+  "title": "Polymicrobial Wound Infection from Cat Bite",
+  "date": "2026-07-26",
+  "score": 62.57,
+  "patient": "Adult with infected cat bite wound, 3-day delay, fever, green discharge, foul odor",
+  "diagnosis": "Polymicrobial Wound Infection (Pasteurella multocida, Pseudomonas aeruginosa, Bacteroides fragilis, Streptococcus anginosus group)",
+  "category": "Infection / Bite Wound",
+  "vitals": {
+    "status": "febrile, infected wound"
+  },
+  "hpi": "Cat bite 3 days ago, presenting with worsening infection, fever, green discharge, foul-smelling wound on lower extremity",
+  "exam": {
+    "performed": ["General Appearance", "Skin", "Extremities/Spine", "Full physical exam panel"],
+    "relevant": "Swelling, erythema, green foul-smelling discharge at bite site"
+  },
+  "orders": {
+    "correct": [
+      "CBC with differential",
+      "Bacterial culture, wound",
+      "Bacterial culture, blood",
+      "CMP / LFTs",
+      "Piperacillin-tazobactam (Zosyn)"
+    ],
+    "missed": [
+      { "order": "Gram stain, wound aspirate", "why": "Gram stain gives immediate Gram+ vs Gram- and morphology data while culture is pending", "weight": "diagnosis" },
+      { "order": "X-ray, tibia/fibula", "why": "Rule out retained tooth fragments, foreign bodies, subcutaneous gas (NF), baseline bone assessment. Osteomyelitis changes lag 10-21 days behind infection.", "weight": "diagnosis" },
+      { "order": "Rabies immune globulin, human", "why": "Stray cat ran away. Cannot observe/test for rabies. HRIG provides immediate passive immunity while vaccine kicks in. Rabies is 100% fatal once symptomatic.", "weight": "preventive" },
+      { "order": "Vaccine, rabies", "why": "Standard post-exposure prophylaxis -- inactivated virus stimulates antibody production over 7-14 days. Given with HRIG for complete PEP.", "weight": "preventive" },
+      { "order": "Tetanus booster", "why": "Cat bites are tetanus-prone (puncture, animal saliva, high infection risk). Last booster >5 years ago requires update.", "weight": "preventive" }
+    ]
+  },
+  "organismSusceptibilities": {
+    "pasteurella_multocida": { "ampicillin": "S", "vancomycin": "R", "cefazolin": "S", "clindamycin": "R", "erythromycin": "R", "gentamicin": "S", "pip-tazo": "S", "meropenem": "S" },
+    "pseudomonas_aeruginosa": { "ampicillin": "R", "vancomycin": "R", "cefazolin": "R", "clindamycin": "R", "gentamicin": "S", "pip-tazo": "S", "meropenem": "S", "cefepime": "R", "ceftriaxone": "R", "ciprofloxacin": "S", "ceftazidime": "S" },
+    "bacteroides_fragilis": { "ampicillin": "R", "vancomycin": "R", "cefazolin": "R", "clindamycin": "S", "gentamicin": "R", "pip-tazo": "S", "meropenem": "S", "metronidazole": "S" },
+    "streptococcus_anginosus": { "ampicillin": "S", "vancomycin": "S", "cefazolin": "S", "clindamycin": "S", "erythromycin": "S", "gentamicin": "S", "pip-tazo": "S", "meropenem": "S", "ceftriaxone": "S" }
+  },
+  "clinicalPearls": {
+    "green_discharge": "Think Pseudomonas (pyocyanin pigment)",
+    "foul_odor": "Think anaerobes (Bacteroides)",
+    "cat_bite": "Think Pasteurella (always in cat saliva — 50-75% of cat bites)",
+    "delayed_presentation": "3-day delay allows secondary contamination (Pseudomonas from environment)",
+    "augmentin_resistance": "Pseudomonas has intrinsic resistance: AmpC beta-lactamase (not inhibited by clavulanate) + low outer membrane permeability + efflux pumps"
+  },
+  "scoreBreakdown": {
+    "diagnosisOrders": { "score": 71.43, "weight": "40%" },
+    "treatmentOrders": { "score": 60.00, "weight": "40%" },
+    "preventiveCare": { "score": 0, "weight": "5%" },
+    "timing": { "score": 0, "weight": "5%", "note": "1 negative patient update before correct treatment" },
+    "appropriateOrders": { "score": 100, "weight": "5%" },
+    "locationSequencing": { "score": 100, "weight": "5%" }
+  },
+  "images": {
+    "status": "pending"
+  }
+}
