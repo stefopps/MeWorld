@@ -1,0 +1,25 @@
+{
+  "caseId": "colon-cancer-adenocarcinoma",
+  "title": "Colon Cancer (Adenocarcinoma) — 71M, Constipation and Malaise",
+  "date": "2026-07-27",
+  "score": 41.67,
+  "averageScore": 75.7,
+  "patient": { "age": 71, "sex": "male", "key": "Chronic constipation + nausea + fatigue + hepatomegaly + guaiac-positive stool" },
+  "diagnosis": "Colon Adenocarcinoma — left-sided (obstructive symptoms: constipation, decreased stool caliber)",
+  "orders": {
+    "correct": ["Physical exam (rectal — occult blood positive)", "CBC", "CMP", "CT abdomen/pelvis with contrast"],
+    "missed": [
+      { "order": "Colonoscopy", "why": "Biopsy confirmation of the mass seen on CT. Sigmoidoscopy doesn't cover enough colon to verify the full extent before surgery." },
+      { "order": "CEA (carcinoembryonic antigen)", "why": "Tumor marker for colorectal cancer. Pre-op baseline, prognostic value, post-op surveillance for recurrence." },
+      { "order": "ECG", "why": "Pre-op cardiac clearance — 71-year-old heading to surgery." },
+      { "order": "PT/PTT, type and screen", "why": "Pre-op bleeding risk and blood availability." },
+      { "order": "NPO", "why": "Pre-op bowel prep. Nothing by mouth before surgery." },
+      { "order": "Surgical consult (colorectal / general surgery)", "why": "Excision of the mass. Then chemotherapy if lymph node mets present. 90% of recurrences within 3 years." },
+      { "order": "Cancer diagnosis counseling", "why": "Patient needs to be told. It's a preventive care requirement on CCS." }
+    ]
+  },
+  "images": {
+    "descent3x3": { "status": "complete", "path": "images/descent-3x3.png", "size": "6.2 MB", "model": "nano-banana-pro", "resolution": "2K" },
+    "descentGaps": { "status": "complete", "path": "images/descent-gaps-3x3.png", "size": "5.7 MB", "model": "nano-banana-pro", "resolution": "2K" }
+  }
+}
