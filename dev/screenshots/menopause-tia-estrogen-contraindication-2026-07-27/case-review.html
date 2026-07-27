@@ -182,6 +182,12 @@ body {
       <div class="cn-meta"><span class="cn-score good">80.0%</span>· Jul 27</div>
       <div class="cn-bar"><div class="cn-bar-seg tx" style="width:66%"></div><div class="cn-bar-seg dx" style="width:28%"></div><div class="cn-bar-seg miss" style="width:6%"></div></div>
     </div>
+    <div class="case-nav-card" onclick="switchCase('drown')">
+      <div class="cn-id">Case 4</div>
+      <div class="cn-title">Pediatric Drowning</div>
+      <div class="cn-meta"><span class="cn-score warn">61.0%</span>· Jul 27</div>
+      <div class="cn-bar"><div class="cn-bar-seg tx" style="width:54%"></div><div class="cn-bar-seg dx" style="width:0%"></div><div class="cn-bar-seg miss" style="width:46%"></div></div>
+    </div>
   </div>
 </div>
 
@@ -317,7 +323,8 @@ body {
 
 </div><!-- /case-text -->
 <div class="case-plates">
-  <div class="plate-card"><div class="plate-card-header">Descent · TIA Contraindication</div><img src="images/descent-3x3.png" onclick="openLightbox(this.src)"><div class="plate-card-footer">TIA → permanent systemic estrogen block → bifurcation to SSRI + vaginal estrogen</div></div>
+  <div class="plate-card"><div class="plate-card-header">Plate A · TIA Mechanism + Bifurcation</div><img src="images/descent-A-tia-bifurcation.png" onclick="openLightbox(this.src)"><div class="plate-card-footer">Vascular endothelium → TIA → systemic estrogen blocked forever → two safe paths diverge</div></div>
+  <div class="plate-card"><div class="plate-card-header">Plate B · Treatment Lanes</div><img src="images/descent-B-treatment-lanes.png" onclick="openLightbox(this.src)"><div class="plate-card-footer">Vaginal estrogen (local, safe) + SSRI/gabapentin (brain thermostat, non-hormonal) — both active simultaneously</div></div>
   <div class="plate-card"><div class="plate-card-header">Gaps · What I Missed</div><img src="images/descent-gaps-3x3.png" onclick="openLightbox(this.src)"><div class="plate-card-footer">TSH · hCG · prolactin · Pap · mammogram · SSRI · vaginal estrogen · Tdap</div></div>
 </div>
 </div><!-- /case-layout -->
@@ -375,6 +382,69 @@ body {
 </div>
 </div><!-- /case-layout -->
 </div><!-- /case-phn -->
+
+<!-- CASE 4: PEDIATRIC DROWNING -->
+<div class="case-panel" id="case-drown">
+<div class="case-layout">
+<div class="case-text">
+
+<div class="header">
+  <div class="header-top"><div class="header-badge">Pediatric Drowning</div><div class="header-score warn-bg">61.0<span>%</span></div></div>
+  <h1>She Wasn't Breathing. I Fixed the Pressure, Not the Heart.</h1>
+  <p class="header-sub">Pediatric · Submersed · Pulseless · Apneic · Hypothermic · Bradycardia &lt;60</p>
+  <div class="header-vitals">
+    <div class="vital-item"><span class="vital-label">BP</span><span class="vital-value" style="color:#ff3b30">30/25</span></div>
+    <div class="vital-item"><span class="vital-label">Setting</span><span class="vital-value">ED → ICU</span></div>
+    <div class="vital-item"><span class="vital-label">First Att Avg</span><span class="vital-value">68.7%</span></div>
+  </div>
+  <div class="score-bar"><div class="score-bar-seg tx" style="width:54%"></div><div class="score-bar-seg dx" style="width:0%"></div><div class="score-bar-seg miss" style="width:46%"></div></div>
+</div>
+
+<div class="mech-box">
+  <div class="mech-title">First Principles · Why Drowning Kills</div>
+  <div class="mech-body">
+    Submersion → laryngospasm → hypoxia → surfactant washout → alveolar collapse → ARDS in fast-forward.<br><br>
+    The child's heart is <span class="mech-highlight">oxygen-dependent</span>. When PaO₂ drops below ~30 mmHg, the myocardium fails. Bradycardia below 60 with poor perfusion IS a cardiac arrest in a child — PALS does not wait for asystole.<br><br>
+    Cold water triggers <span class="mech-highlight">cold diuresis</span>: peripheral vasoconstriction → central volume overload signal → ADH suppressed → kidneys dump water → hypovolemia despite drowning.<br><br>
+    <span class="mech-highlight">The Attending's Law:</span> Adults arrest from arrhythmia. Children arrest from respiratory failure. Treat the hypoxia first. But the failing heart needs epinephrine. Oxygen without circulation is useless. Circulation without oxygen is useless. You need both.
+  </div>
+</div>
+
+<div class="section open">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon missed">✕</div><span class="section-title">What I Missed</span><span class="section-count">7 gaps</span></div><div class="section-chevron">▾</div></div>
+  <div class="section-body">
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Pulse oximetry</div><div class="missed-why">Patient not breathing. You need a real-time oxygen number. Cannot manage what you cannot measure.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Arterial blood gases</div><div class="missed-why">ABG is the objective measurement of oxygenation, ventilation, and acid-base status in a hypoxemic patient.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Cardiac monitor</div><div class="missed-why">Hypoxia → arrhythmia. CPR can induce ventricular fibrillation in a hypothermic heart. You need to see the rhythm.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>CPR (compressions + breathing)</div><div class="missed-why">PALS: HR &lt;60 with signs of poor perfusion = start CPR. Do not wait for asystole. Bradycardia in a hypoxic child IS a cardiac arrest.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Remove cold clothing</div><div class="missed-why">Wet cold fabric perpetuates hypothermia. Hypothermia depresses cardiac function and worsens bradycardia.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Warm IV fluids (NS/LR) + Epinephrine</div><div class="missed-why">Cold diuresis → volume depletion. Warm fluids rewarm from inside. Epinephrine restores cardiac output per PALS protocol.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Transfer to ICU (still in ED at 45 min)</div><div class="missed-why">Post-arrest patient needs ICU for neuroprotection, continued rewarming, and monitoring. ED is for stabilization, not ongoing care.</div></div>
+    <div class="principles-block">
+      <div class="principles-label">The Pattern</div>
+      <div class="principles-text">You stabilized (fluids, warming, intubation) but stopped short of cardiac-specific interventions (epinephrine, monitor, CPR). The goal is not just "fix the pressure." The goal is restore oxygen delivery to the brain by restoring the pump. Every step not directly serving that goal is secondary.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon ordered">✓</div><span class="section-title">What I Got Right</span></div><div class="section-chevron">▾</div></div>
+  <div class="section-body">
+    <div class="missed-item"><div class="missed-order" style="color:#34c759;">Intubation + mechanical ventilation ✓</div><div class="missed-why">Airway protection and oxygenation. The single most critical intervention.</div></div>
+    <div class="missed-item"><div class="missed-order" style="color:#34c759;">Warming blanket ✓</div><div class="missed-why">External rewarming. Core temperature must rise.</div></div>
+    <div class="missed-item"><div class="missed-order" style="color:#34c759;">ECG ✓</div><div class="missed-why">Recognized need to check cardiac rhythm.</div></div>
+    <div class="missed-item"><div class="missed-order" style="color:#34c759;">CBC + CMP/LFT ✓</div><div class="missed-why">Baseline labs in an emergency.</div></div>
+    <div class="missed-item"><div class="missed-order" style="color:#34c759;">Perfect timing · No inappropriate orders · Correct sequencing ✓</div><div class="missed-why">No negative updates before treatment. No harmful orders. Correct order of interventions.</div></div>
+  </div>
+</div>
+
+</div><!-- /case-text -->
+<div class="case-plates">
+  <div class="plate-card"><div class="plate-card-header">Descent · Drowning Pathophysiology</div><img src="../drowning-pediatric-2026-07-27/images/descent-3x3.png" onclick="openLightbox(this.src)"><div class="plate-card-footer">Laryngospasm → surfactant washout → bradycardia → cold diuresis → PALS resuscitation → recovery</div></div>
+  <div class="plate-card"><div class="plate-card-header">Gaps · What I Missed</div><img src="../drowning-pediatric-2026-07-27/images/descent-gaps-3x3.png" onclick="openLightbox(this.src)"><div class="plate-card-footer">Pulse ox · ABG · cardiac monitor · CPR · remove clothes · epinephrine + warm IVF · ICU</div></div>
+</div>
+</div><!-- /case-layout -->
+</div><!-- /case-drown -->
 
 </div><!-- /main -->
 </div><!-- /app -->
