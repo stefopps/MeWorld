@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Review · Trigeminal Neuralgia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --text: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --accent: #0071e3;
+  --accent-light: #e8f0fe;
+  --border: #d2d2d7;
+  --success: #34c759;
+  --warning: #ff9f0a;
+  --danger: #ff3b30;
+  --radius: 18px;
+  --radius-sm: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.06);
+  --transition: 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  padding: 24px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: 720px; margin: 0 auto; }
+
+/* Header */
+.header {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.header-top {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+}
+.header-badge {
+  font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+  background: var(--accent-light); color: var(--accent);
+  padding: 5px 12px; border-radius: 20px;
+}
+.header-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 48px; font-weight: 600; letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #34c759 0%, #30b350 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.header-score span { font-size: 20px; opacity: 0.6; }
+.header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+.header-sub { font-size: 15px; color: var(--text-secondary); }
+.header-vitals {
+  display: flex; gap: 24px; margin-top: 20px; padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.vital-item { display: flex; flex-direction: column; }
+.vital-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); }
+.vital-value { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 600; margin-top: 2px; }
+
+/* Score breakdown bar */
+.score-bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 20px; background: #e8e8ed; }
+.score-bar-seg { height: 100%; transition: width var(--transition); }
+.score-bar-seg.tx { background: var(--success); }
+.score-bar-seg.dx { background: var(--warning); }
+.score-bar-seg.miss { background: var(--danger); }
+
+/* Section card */
+.section {
+  background: var(--card);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: box-shadow var(--transition);
+}
+.section:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 12px 40px rgba(0,0,0,0.08); }
+
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px; cursor: pointer; user-select: none;
+  transition: background var(--transition);
+}
+.section-header:hover { background: #fafafa; }
+.section-header-left { display: flex; align-items: center; gap: 14px; }
+.section-icon {
+  width: 36px; height: 36px; border-radius: 10px; display: flex;
+  align-items: center; justify-content: center; font-size: 18px;
+}
+.section-icon.missed { background: #ffece5; color: #ff3b30; }
+.section-icon.ordered { background: #e5f7ed; color: #34c759; }
+.section-icon.teach { background: #e8f0fe; color: #0071e3; }
+.section-icon.step { background: #f5f0ff; color: #8944ab; }
+.section-title { font-size: 16px; font-weight: 600; }
+.section-count { font-size: 13px; color: var(--text-secondary); }
+.section-chevron {
+  width: 24px; height: 24px; transition: transform var(--transition);
+  opacity: 0.4; display: flex; align-items: center; justify-content: center;
+}
+.section.open .section-chevron { transform: rotate(180deg); }
+
+.section-body { display: none; padding: 0 24px 20px; }
+.section.open .section-body { display: block; }
+
+/* Missed item */
+.missed-item {
+  padding: 16px 0; border-bottom: 1px solid #f0f0f0;
+}
+.missed-item:last-child { border-bottom: none; }
+.missed-order {
+  font-size: 15px; font-weight: 600; margin-bottom: 4px;
+  display: flex; align-items: center; gap: 8px;
+}
+.missed-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); flex-shrink: 0; }
+.missed-why { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+/* Step walkthrough */
+.step-item {
+  display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid #f0f0f0;
+}
+.step-item:last-child { border-bottom: none; }
+.step-number {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+  background: var(--accent); color: white;
+}
+.step-content { flex: 1; }
+.step-order {
+  font-size: 15px; font-weight: 600; margin-bottom: 3px;
+}
+.step-why {
+  font-size: 14px; color: var(--text-secondary); line-height: 1.6;
+}
+
+/* First principles block */
+.principles-block {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f3ff 100%);
+  border-radius: var(--radius-sm); padding: 20px;
+  margin-top: 12px;
+}
+.principles-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--accent); font-weight: 700; margin-bottom: 8px;
+}
+.principles-text { font-size: 14px; line-height: 1.7; color: #1d1d1f; }
+
+/* Mechanism highlight */
+.mech-box {
+  background: #1d1d1f; color: #f5f5f7; border-radius: var(--radius-sm);
+  padding: 24px; margin-bottom: 16px;
+}
+.mech-title {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  color: #86868b; font-weight: 700; margin-bottom: 12px;
+}
+.mech-body { font-size: 15px; line-height: 1.7; }
+.mech-highlight { color: #ff9f0a; font-weight: 600; }
+
+/* Quote */
+.attending-quote {
+  border-left: 3px solid var(--accent); padding-left: 16px;
+  margin: 16px 0; font-size: 15px; font-style: italic;
+  color: var(--text-secondary); line-height: 1.7;
+}
+
+/* Footer */
+.footer {
+  text-align: center; padding: 32px 0;
+  font-size: 13px; color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  body { padding: 12px; }
+  .header { padding: 24px; }
+  .header-score { font-size: 36px; }
+  .header h1 { font-size: 22px; }
+  .header-vitals { flex-wrap: wrap; gap: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="header-badge">Trigeminal Neuralgia</div>
+    <div class="header-score">82.5<span>%</span></div>
+  </div>
+  <h1>Electric Lightning in V2/V3</h1>
+  <p class="header-sub">
+    Male · Facial pain · Triggered by light touch · 30-second episodes · No V1 involvement
+  </p>
+  <div class="header-vitals">
+    <div class="vital-item">
+      <span class="vital-label">Pulse</span>
+      <span class="vital-value">95 bpm</span>
+    </div>
+    <div class="vital-item">
+      <span class="vital-label">BP</span>
+      <span class="vital-value">125/85</span>
+    </div>
+    <div class="vital-item">
+      <span class="vital-label">Setting</span>
+      <span class="vital-value">Office</span>
+    </div>
+    <div class="vital-item">
+      <span class="vital-label">Avg Score</span>
+      <span class="vital-value">80.9%</span>
+    </div>
+  </div>
+  <div class="score-bar">
+    <div class="score-bar-seg tx" style="width:73%"></div>
+    <div class="score-bar-seg dx" style="width:21%"></div>
+    <div class="score-bar-seg miss" style="width:6%"></div>
+  </div>
+</div>
+
+<!-- MECHANISM -->
+<div class="mech-box">
+  <div class="mech-title">First Principles · The Mechanism</div>
+  <div class="mech-body">
+    The trigeminal nerve exits the pons and crosses the prepontine cistern. Right there, the <span class="mech-highlight">superior cerebellar artery loops over the nerve root entry zone</span>. In 80-90% of cases, this artery compresses the nerve. The compression strips away myelin. Demyelinated axons fire ectopically <em>and</em> form ephaptic connections — a touch signal on one axon jumps across to a pain fiber on its neighbor. A breeze on the cheek becomes lightning in the jaw. <span class="mech-highlight">Carbamazepine blocks sodium channels</span>, raising the threshold for firing in those demyelinated axons. It doesn't fix the compression — it just makes the nerve less trigger-happy.
+  </div>
+</div>
+
+<!-- WHAT I MISSED -->
+<div class="section open">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-header-left">
+      <div class="section-icon missed">✕</div>
+      <span class="section-title">What I Missed</span>
+      <span class="section-count">3 diagnostic gaps</span>
+    </div>
+    <div class="section-chevron">▾</div>
+  </div>
+  <div class="section-body">
+
+    <div class="missed-item">
+      <div class="missed-order"><span class="missed-dot"></span>CBC with differential</div>
+      <div class="missed-why">Facial pain in a patient with recent dental procedures — you must rule out acute infection before calling it neuralgic. A leukocytosis or bandemia would change the entire workup from neuro to infectious.</div>
+    </div>
+
+    <div class="missed-item">
+      <div class="missed-order"><span class="missed-dot"></span>Comprehensive metabolic profile</div>
+      <div class="missed-why">
+        Carbamazepine causes hyponatremia via SIADH. You need a <strong>pre-treatment sodium level</strong> before starting therapy. If sodium is 134 and drops to 125 after starting carbamazepine, you caught it. If you never checked baseline, you won't know whether the drop is drug-induced or pre-existing.
+      </div>
+    </div>
+
+    <div class="missed-item">
+      <div class="missed-order"><span class="missed-dot"></span>CT/MRI head (with or without contrast)</div>
+      <div class="missed-why">
+        80-90% of trigeminal neuralgia is caused by a vascular loop compressing the nerve root. But the remaining 10-20% are structural lesions — tumor, MS plaque, or aneurysm. You image to confirm the diagnosis and rule out the things that would change management. A cerebellopontine angle tumor presenting as trigeminal neuralgia is rare, but catastrophic to miss.
+      </div>
+    </div>
+
+    <div class="principles-block">
+      <div class="principles-label">The Attending's Lesson</div>
+      <div class="principles-text">
+        Trigeminal neuralgia is a <strong>clinical diagnosis</strong> — paroxysmal, electric, seconds-to-minutes, triggered by innocuous stimuli, respecting trigeminal distribution. The exam is almost always normal between attacks. The treatment is carbamazepine. The imaging is to rule out a structural mimic, not to confirm what you already know. But the CBC and CMP are not optional — infection mimics neuralgia, and carbamazepine demands a pre-treatment sodium.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT I GOT RIGHT -->
+<div class="section">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-header-left">
+      <div class="section-icon ordered">✓</div>
+      <span class="section-title">What I Got Right</span>
+      <span class="section-count">100% treatment</span>
+    </div>
+    <div class="section-chevron">▾</div>
+  </div>
+  <div class="section-body">
+
+    <div class="missed-item">
+      <div class="missed-order" style="color: #34c759;">Carbamazepine — first-line therapy ✓</div>
+      <div class="missed-why">
+        Sodium channel blockade raises the action potential threshold in demyelinated trigeminal axons. Starts at 100-200 mg BID, titrate to effect (typically 400-800 mg/day). Oxcarbazepine is equally effective with fewer drug interactions but less evidence. Gabapentin is second-line. You ordered first-line immediately, with no negative patient updates. That's attending-level management.
+      </div>
+    </div>
+
+    <div class="missed-item">
+      <div class="missed-order" style="color: #34c759;">Correct location (Office) · Correct timing · No negative updates ✓</div>
+      <div class="missed-why">
+        Trigeminal neuralgia is managed outpatient. You didn't admit unnecessarily. You didn't delay treatment. The patient improved on carbamazepine and the case ended. Flawless execution on the treatment arc.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ATTENDING'S SEQUENCE -->
+<div class="section">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')">
+    <div class="section-header-left">
+      <div class="section-icon step">☰</div>
+      <span class="section-title">If I Were Your Attending</span>
+      <span class="section-count">Sequential walkthrough</span>
+    </div>
+    <div class="section-chevron">▾</div>
+  </div>
+  <div class="section-body">
+
+    <div class="step-item">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <div class="step-order">General appearance + Neuro exam</div>
+        <div class="step-why">You need to see the patient. Is he in acute distress during the attack? Is the neuro exam normal between paroxysms? Trigeminal neuralgia has a normal exam between attacks — if there are sensory deficits or motor weakness, think tumor or MS, not idiopathic TN.</div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <div class="step-order">CBC with differential</div>
+        <div class="step-why">He had multiple dental procedures. A periapical abscess or osteomyelitis of the jaw can present as facial pain mimicking TN. A CBC rules out acute infection before you commit to a neurologic diagnosis.</div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <div class="step-order">Comprehensive metabolic profile</div>
+        <div class="step-why">Carbamazepine is going to be prescribed today. I need a baseline sodium, creatinine, and LFTs before therapy starts. CBZ induces SIADH and can elevate transaminases. I don't start without knowing where we began.</div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-number">4</div>
+      <div class="step-content">
+        <div class="step-order">MRI head with contrast</div>
+        <div class="step-why">High-resolution T2-weighted imaging of the posterior fossa. I'm looking at the trigeminal nerve root entry zone. Is there a vascular loop? Good — 80-90% of cases are neurovascular compression, which responds to carbamazepine. Is there a cerebellopontine angle tumor or an MS plaque? That changes everything. I image to rule out the catastrophic, not to confirm the obvious.</div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-number">5</div>
+      <div class="step-content">
+        <div class="step-order">Carbamazepine 200 mg BID</div>
+        <div class="step-why">Start low, titrate up. The goal is pain freedom within 1-2 weeks. I check sodium and LFTs at 2 weeks and 1 month. If it fails, I try oxcarbazepine. If that fails, I escalate to gabapentin or baclofen. Surgery (microvascular decompression) is reserved for medically refractory cases — and this patient's not there yet.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  MeWorld Case Review · July 27, 2026 · Score 82.5%
+</div>
+
+</div>
+
+<script>
+// Already handled by inline onclick
+document.querySelectorAll('.section-header').forEach(h => {
+  h.addEventListener('click', function(e) {
+    this.parentElement.classList.toggle('open');
+  });
+});
+</script>
+</body>
+</html>
