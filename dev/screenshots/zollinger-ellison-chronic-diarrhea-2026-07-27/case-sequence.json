@@ -1,0 +1,64 @@
+{
+  "caseId": "zollinger-ellison-syndrome",
+  "title": "Zollinger-Ellison Syndrome — Three Years of Diarrhea, One Missed Diagnosis",
+  "date": "2026-07-27",
+  "score": 14.77,
+  "averageScore": 41.3,
+  "patient": {
+    "age": 45,
+    "sex": "male",
+    "key": "3 years of watery, foul-smelling, oily diarrhea + heartburn responsive to pantoprazole"
+  },
+  "diagnosis": "Zollinger-Ellison Syndrome (gastrinoma — autonomously secreting tumor, duodenal or pancreatic origin)",
+  "category": "Gastroenterology / Endocrinology / Surgical Oncology",
+  "setting": "Office → should have been Inpatient Unit",
+  "orders": {
+    "correct": [
+      "Physical exam (general, cardiac, abdomen, rectal)",
+      "CBC with differential",
+      "CMP",
+      "Stool occult blood"
+    ],
+    "missedDiagnosis": [
+      { "order": "Serum gastrin", "why": "THE diagnostic test. Gastrin >1000 pg/mL (10x upper normal limit) is diagnostic of ZES. This patient had gastrin of 1,200.", "weight": 40 },
+      { "order": "Upper GI endoscopy", "why": "Locate the gastrinoma nodule. After biopsy: benign gastric metaplasia. This is the definitive structural diagnosis.", "weight": 40 },
+      { "order": "CT abdomen/pelvis with contrast", "why": "Staging. Gastrinomas can be malignant and metastasize to liver/lymph nodes. Must check before surgery.", "weight": 40 }
+    ],
+    "missedTreatment": [
+      { "order": "PPI — omeprazole/lansoprazole/pantoprazole", "why": "Gastrin drives massive parietal cell acid output. PPI blocks the H+/K+-ATPase pump — the final common pathway — regardless of how much gastrin is screaming upstream. Without acid control: ongoing peptic ulcer disease, esophagitis, secretory diarrhea.", "weight": 40 },
+      { "order": "Surgical consult — laparotomy/laparoscopy", "why": "Sporadic gastrinomas are CURABLE by surgical resection. This is not a chronic medical management case — it's a surgical one if the tumor is resectable.", "weight": 40 }
+    ],
+    "missedPerioperative": [
+      { "order": "PT/PTT, type and screen, ECG", "why": "Patient is heading to surgery. Pre-op labs are standard of care — bleeding risk, blood availability, cardiac clearance.", "weight": 5 }
+    ],
+    "missedMEN1Screen": [
+      { "order": "PTH, ionized calcium, prolactin", "why": "25% of ZES is associated with MEN1. If MEN1 is present, the surgical approach changes: multifocal disease, harder to cure, usually managed medically. Screening is mandatory before surgery.", "weight": 5 }
+    ],
+    "missedPreventive": [
+      { "order": "Smoking cessation counseling", "why": "Patient smokes cigars 2x/week. Smoking worsens peptic ulcer disease and delays healing. Every office visit is a preventive care opportunity.", "weight": 5 }
+    ]
+  },
+  "scoreBreakdown": {
+    "diagnosisOrders": { "score": 18.18, "weight": "40%" },
+    "treatmentOrders": { "score": 0, "weight": "40%" },
+    "preventiveCare": { "score": 0, "weight": "5%" },
+    "timing": { "score": 0, "weight": "5%", "note": "1 negative patient update before correct treatment" },
+    "appropriateOrders": { "score": 100, "weight": "5%" },
+    "locationSequencing": { "score": 50, "weight": "5%", "note": "Wrong location (Office) at Day 2+10:20; should have been Inpatient Unit" }
+  },
+  "mechanismsForImage": [
+    { "panel": 1, "title": "The Patient Before", "concept": "45M musician, healthy, eating, normal life — before the tumor began" },
+    { "panel": 2, "title": "The Tumor", "concept": "Gastrinoma in duodenal wall or pancreas, autonomously secreting gastrin into portal circulation" },
+    { "panel": 3, "title": "Parietal Cell Bombardment", "concept": "Gastrin molecules binding CCK-B receptors on gastric parietal cells → relentless H+/K+-ATPase activation → massive HCl secretion into gastric lumen" },
+    { "panel": 4, "title": "Secretory Diarrhea", "concept": "Acid flood reaches duodenum/jejunum → Na+/H2O absorption fails → high-volume watery diarrhea. Acid inactivates pancreatic lipase → undigested fat in stool (steatorrhea)" },
+    { "panel": 5, "title": "Bile Salt Precipitation", "concept": "Low intestinal pH precipitates bile salts → no micelle formation → fat malabsorption → foul-smelling, oily stools (malabsorptive component)" },
+    { "panel": 6, "title": "Diagnosis: Gastrin Level", "concept": "Blood draw → serum gastrin 1,200 pg/mL (>10x normal). Below: GI endoscopy finding duodenal nodule, biopsy showing benign gastric metaplasia" },
+    { "panel": 7, "title": "PPI Blockade", "concept": "PPI molecule binding irreversibly to H+/K+-ATPase proton pump on parietal cell apical membrane → acid secretion blocked regardless of gastrin levels" },
+    { "panel": 8, "title": "Surgical Cure", "concept": "OR table — laparoscopic resection of duodenal gastrinoma. Curative for sporadic ZES. Pre-op CT abdomen (staging) showing no liver mets" },
+    { "panel": 9, "title": "Recovery and MEN1 Screen", "concept": "Patient recovered, symptom-free. PPI weaned. Labs panel: PTH, ionized Ca, prolactin. Follow-up CT surveillance. Smoking cessation counseling" }
+  ],
+  "images": {
+    "descent3x3": { "status": "complete", "path": "images/descent-3x3.png", "size": "5.4 MB", "model": "nano-banana-pro", "resolution": "2K", "style": "Naughty Dog / Uncharted 4 cinematic CGI" },
+    "descentGaps": { "status": "complete", "path": "images/descent-gaps-3x3.png", "size": "5.2 MB", "model": "nano-banana-pro", "resolution": "2K", "style": "Naughty Dog / Uncharted 4 cinematic CGI" }
+  }
+}
