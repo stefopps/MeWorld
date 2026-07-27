@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeWorld · Case Reviews</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; --text-secondary: #6e6e73;
+  --accent: #0071e3; --accent-light: #e8f0fe; --border: #d2d2d7;
+  --success: #34c759; --warning: #ff9f0a; --danger: #ff3b30;
+  --radius: 18px; --radius-sm: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.06);
+  --transition: 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  --sidebar-w: 280px;
+}
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.5;
+  overflow: hidden; height: 100vh; -webkit-font-smoothing: antialiased;
+}
+
+/* App shell */
+.app { display: flex; height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-w); flex-shrink: 0; background: #1d1d1f;
+  color: #f5f5f7; overflow-y: auto; padding: 24px 16px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.sidebar-title {
+  font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: #86868b; font-weight: 700; margin-bottom: 8px; padding: 0 8px;
+}
+.case-nav {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.case-nav-card {
+  padding: 14px 16px; border-radius: 14px; cursor: pointer;
+  transition: all var(--transition); border: 1.5px solid transparent;
+  background: #2a2a2d;
+}
+.case-nav-card:hover { background: #353538; }
+.case-nav-card.active { background: #3a3a3d; border-color: var(--accent); }
+.case-nav-card .cn-id { font-size: 11px; color: #86868b; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 4px; }
+.case-nav-card .cn-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.case-nav-card .cn-meta { font-size: 12px; color: #a1a1a6; display: flex; align-items: center; gap: 8px; }
+.cn-score { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; }
+.cn-score.good { color: var(--success); }
+.cn-score.warn { color: var(--warning); }
+.cn-score.bad { color: var(--danger); }
+.cn-bar { height: 3px; border-radius: 2px; margin-top: 6px; display: flex; overflow: hidden; background: #404045; }
+.cn-bar-seg { height: 100%; }
+.cn-bar-seg.tx { background: var(--success); }
+.cn-bar-seg.dx { background: var(--warning); }
+.cn-bar-seg.miss { background: var(--danger); }
+
+/* Main scroll area */
+.main { flex: 1; overflow-y: auto; padding: 32px; }
+
+/* Case panel */
+.case-panel { display: none; animation: fadeIn 0.3s ease; }
+.case-panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Content layout: text left, plates right */
+.case-layout { display: flex; gap: 32px; align-items: flex-start; }
+.case-text { flex: 1; min-width: 0; max-width: 640px; }
+.case-plates { position: sticky; top: 32px; flex: 0 0 300px; display: flex; flex-direction: column; gap: 14px; }
+
+/* Plate card */
+.plate-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.plate-card-header { padding: 12px 16px; font-size: 11px; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.04em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+.plate-card img { width: 100%; height: auto; display: block; cursor: pointer; transition: opacity 0.2s; }
+.plate-card img:hover { opacity: 0.92; }
+.plate-card-footer { padding: 8px 16px; font-size: 11px; color: var(--text-secondary); border-top: 1px solid var(--border); }
+
+/* Header card */
+.header { background: var(--card); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.header-badge { font-size: 12px; font-weight: 600; letter-spacing: 0.02em; background: var(--accent-light); color: var(--accent); padding: 4px 12px; border-radius: 20px; }
+.header-score { font-family: 'JetBrains Mono', monospace; font-size: 44px; font-weight: 600; letter-spacing: -0.03em; background: linear-gradient(135deg, #ff3b30 0%, #e0352c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.header-score.good-bg { background: linear-gradient(135deg, #34c759 0%, #30b350 100%); }
+.header-score.warn-bg { background: linear-gradient(135deg, #ff9f0a 0%, #e88a00 100%); }
+.header-score span { font-size: 16px; opacity: 0.6; }
+.header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+.header-sub { font-size: 14px; color: var(--text-secondary); }
+.header-vitals { display: flex; gap: 28px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.vital-item { display: flex; flex-direction: column; }
+.vital-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
+.vital-value { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; margin-top: 2px; }
+
+/* Sections */
+.section { background: var(--card); border-radius: var(--radius); margin-bottom: 14px; box-shadow: var(--shadow); overflow: hidden; }
+.section-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; cursor: pointer; user-select: none; }
+.section-header:hover { background: #fafafa; }
+.section-header-left { display: flex; align-items: center; gap: 12px; }
+.section-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.section-icon.missed { background: #ffece5; color: #ff3b30; }
+.section-icon.ordered { background: #e5f7ed; color: #34c759; }
+.section-icon.step { background: #f5f0ff; color: #8944ab; }
+.section-title { font-size: 15px; font-weight: 600; }
+.section-count { font-size: 12px; color: var(--text-secondary); }
+.section-chevron { font-size: 12px; opacity: 0.4; transition: transform var(--transition); }
+.section.open .section-chevron { transform: rotate(180deg); }
+.section-body { display: none; padding: 0 20px 18px; }
+.section.open .section-body { display: block; }
+
+.missed-item { padding: 14px 0; border-bottom: 1px solid #f0f0f0; }
+.missed-item:last-child { border-bottom: none; }
+.missed-order { font-size: 14px; font-weight: 600; margin-bottom: 3px; display: flex; align-items: center; gap: 8px; }
+.missed-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--danger); flex-shrink: 0; }
+.missed-why { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+.step-item { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+.step-item:last-child { border-bottom: none; }
+.step-number { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; background: var(--accent); color: white; }
+.step-content { flex: 1; }
+.step-order { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.step-why { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+.mech-box { background: #1d1d1f; color: #f5f5f7; border-radius: var(--radius); padding: 22px; margin-bottom: 14px; }
+.mech-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #86868b; font-weight: 700; margin-bottom: 14px; }
+.mech-body { font-size: 14px; line-height: 1.7; }
+.mech-highlight { color: #ff9f0a; font-weight: 600; }
+
+.principles-block { background: linear-gradient(135deg, #f8f9ff 0%, #f0f3ff 100%); border-radius: var(--radius-sm); padding: 16px; margin-top: 10px; }
+.principles-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+.principles-text { font-size: 13px; line-height: 1.7; }
+
+/* Score bar */
+.score-bar { display: flex; height: 4px; border-radius: 2px; overflow: hidden; margin-top: 14px; background: #e8e8ed; }
+.score-bar-seg { height: 100%; }
+.score-bar-seg.tx { background: var(--success); }
+.score-bar-seg.dx { background: var(--warning); }
+.score-bar-seg.miss { background: var(--danger); }
+
+/* Lightbox */
+.lightbox { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.92); z-index: 9999; justify-content: center; align-items: center; cursor: pointer; }
+.lightbox.active { display: flex; }
+.lightbox img { max-width: 92vw; max-height: 92vh; object-fit: contain; border-radius: 12px; }
+
+@media (max-width: 900px) {
+  .app { flex-direction: column; }
+  .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 12px; gap: 8px; }
+  .sidebar-title { display: none; }
+  .case-nav { flex-direction: row; }
+  .case-nav-card { flex-shrink: 0; min-width: 200px; }
+  .case-layout { flex-direction: column; }
+  .case-plates { position: static; flex-direction: row; flex-wrap: wrap; }
+  .case-plates .plate-card { flex: 1; min-width: 250px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-title">Case Reviews</div>
+  <div class="case-nav">
+    <div class="case-nav-card active" onclick="switchCase('tn')">
+      <div class="cn-id">Case 1</div>
+      <div class="cn-title">Trigeminal Neuralgia</div>
+      <div class="cn-meta"><span class="cn-score good">82.5%</span>· Jul 27</div>
+      <div class="cn-bar"><div class="cn-bar-seg tx" style="width:70%"></div><div class="cn-bar-seg dx" style="width:24%"></div><div class="cn-bar-seg miss" style="width:6%"></div></div>
+    </div>
+    <div class="case-nav-card" onclick="switchCase('meno')">
+      <div class="cn-id">Case 2</div>
+      <div class="cn-title">Menopause · TIA Contraindication</div>
+      <div class="cn-meta"><span class="cn-score bad">33.0%</span>· Jul 27</div>
+      <div class="cn-bar"><div class="cn-bar-seg tx" style="width:10%"></div><div class="cn-bar-seg dx" style="width:45%"></div><div class="cn-bar-seg miss" style="width:45%"></div></div>
+    </div>
+    <div class="case-nav-card" onclick="switchCase('phn')">
+      <div class="cn-id">Case 3</div>
+      <div class="cn-title">Postherpetic Neuralgia</div>
+      <div class="cn-meta"><span class="cn-score good">80.0%</span>· Jul 27</div>
+      <div class="cn-bar"><div class="cn-bar-seg tx" style="width:66%"></div><div class="cn-bar-seg dx" style="width:28%"></div><div class="cn-bar-seg miss" style="width:6%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+<!-- CASE 1: TRIGEMINAL NEURALGIA -->
+<div class="case-panel active" id="case-tn">
+<div class="case-layout">
+<div class="case-text">
+
+<div class="header">
+  <div class="header-top"><div class="header-badge">Trigeminal Neuralgia</div><div class="header-score good-bg">82.5<span>%</span></div></div>
+  <h1>Electric Lightning in V2/V3</h1>
+  <p class="header-sub">Male · Facial pain · Triggered by light touch · 30-second episodes · No V1 involvement</p>
+  <div class="header-vitals">
+    <div class="vital-item"><span class="vital-label">Pulse</span><span class="vital-value">95 bpm</span></div>
+    <div class="vital-item"><span class="vital-label">BP</span><span class="vital-value">125/85</span></div>
+    <div class="vital-item"><span class="vital-label">Setting</span><span class="vital-value">Office</span></div>
+    <div class="vital-item"><span class="vital-label">Avg Score</span><span class="vital-value">80.9%</span></div>
+  </div>
+  <div class="score-bar"><div class="score-bar-seg tx" style="width:70%"></div><div class="score-bar-seg dx" style="width:24%"></div><div class="score-bar-seg miss" style="width:6%"></div></div>
+</div>
+
+<div class="mech-box">
+  <div class="mech-title">First Principles</div>
+  <div class="mech-body">
+    The superior cerebellar artery loops over the trigeminal nerve root entry zone. Compression strips myelin. Demyelinated axons fire ectopically <em>and</em> form ephaptic connections — a touch signal jumps to a pain fiber. <span class="mech-highlight">Carbamazepine blocks voltage-gated sodium channels (NaV)</span>, not GABA. Gabapentin/pregabalin are GABAergic and second-line. The hyponatremia from carbamazepine is drug-induced SIADH — entirely separate from channel blockade. Baseline sodium is mandatory.
+  </div>
+</div>
+
+<div class="section open">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon missed">✕</div><span class="section-title">What I Missed</span><span class="section-count">3 gaps</span></div><div class="section-chevron">▾</div></div>
+  <div class="section-body">
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>CBC with differential</div><div class="missed-why">Recent dental procedures — rule out infection before calling it neuralgic.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Comprehensive metabolic profile</div><div class="missed-why">Carbamazepine blocks NaV channels (not GABA). But it causes SIADH. Pre-treatment sodium is mandatory.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>CT/MRI head</div><div class="missed-why">80-90% vascular loops. 10-20% tumors or MS plaques. Image to rule out the catastrophic.</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon ordered">✓</div><span class="section-title">What I Got Right</span></div><div class="section-chevron">▾</div></div>
+  <div class="section-body">
+    <div class="missed-item"><div class="missed-order" style="color:#34c759;">Carbamazepine first-line ✓</div><div class="missed-why">NaV channel blockade. 100-200 mg BID titrate to effect. No negative updates.</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon step">☰</div><span class="section-title">If I Were Your Attending</span></div><div class="section-chevron">▾</div></div>
+  <div class="section-body">
+    <div class="step-item"><div class="step-number">1</div><div class="step-content"><div class="step-order">Exam</div><div class="step-why">Normal between paroxysms = TN. Sensory deficits = think tumor or MS.</div></div></div>
+    <div class="step-item"><div class="step-number">2</div><div class="step-content"><div class="step-order">CBC</div><div class="step-why">Dental procedures. Rule out abscess before committing to neuro.</div></div></div>
+    <div class="step-item"><div class="step-number">3</div><div class="step-content"><div class="step-order">CMP</div><div class="step-why">Carbamazepine = NaV block + SIADH risk. Two mechanisms. Baseline Na needed.</div></div></div>
+    <div class="step-item"><div class="step-number">4</div><div class="step-content"><div class="step-order">MRI</div><div class="step-why">T2 posterior fossa. Vascular loop vs tumor. Image to rule out.</div></div></div>
+    <div class="step-item"><div class="step-number">5</div><div class="step-content"><div class="step-order">Carbamazepine</div><div class="step-why">NaV inactivation gate closed. Titrate. Check Na at 2 weeks.</div></div></div>
+  </div>
+</div>
+
+</div><!-- /case-text -->
+<div class="case-plates">
+  <div class="plate-card"><div class="plate-card-header">Descent</div><img src="images/descent-3x3.png" onclick="openLightbox(this.src)"><div class="plate-card-footer">Vascular loop → demyelination → NaV block</div></div>
+  <div class="plate-card"><div class="plate-card-header">Gaps</div><img src="images/descent-gaps-3x3.png" onclick="openLightbox(this.src)"><div class="plate-card-footer">CBC · CMP · MRI</div></div>
+</div>
+</div><!-- /case-layout -->
+</div><!-- /case-tn -->
+
+<!-- CASE 2: MENOPAUSE + TIA -->
+<div class="case-panel" id="case-meno">
+<div class="case-layout">
+<div class="case-text">
+
+<div class="header">
+  <div class="header-top"><div class="header-badge">Menopause · TIA Contraindication</div><div class="header-score bad-bg">33.0<span>%</span></div></div>
+  <h1>The Estrogen I Should Never Have Given</h1>
+  <p class="header-sub">Female >45 · Amenorrhea 12+ months · Hot flashes · Dyspareunia · TIA 1 year ago</p>
+  <div class="header-vitals">
+    <div class="vital-item"><span class="vital-label">Setting</span><span class="vital-value">Office</span></div>
+    <div class="vital-item"><span class="vital-label">Avg Score</span><span class="vital-value">61.8%</span></div>
+    <div class="vital-item"><span class="vital-label">TIA History</span><span class="vital-value" style="color:#ff3b30">1 year ago</span></div>
+  </div>
+  <div class="score-bar"><div class="score-bar-seg tx" style="width:10%"></div><div class="score-bar-seg dx" style="width:45%"></div><div class="score-bar-seg miss" style="width:45%"></div></div>
+</div>
+
+<div class="mech-box">
+  <div class="mech-title">The Vital Link · Why TIA Means Systemic Estrogen Is Forbidden Forever</div>
+  <div class="mech-body">
+    Systemic estrogen increases hepatic clotting factors (VII, IX, X, XII, fibrinogen) and decreases antithrombin III and protein S. Net effect: a <span class="mech-highlight">pro-thrombotic state</span>. In a woman whose cerebral vasculature already demonstrated vulnerability by spawning a TIA, that small thrombotic risk becomes unacceptable. The vessel wall that already produced one clot is the vessel systemic estrogen will tip over the edge again. <span class="mech-highlight">This contraindication is permanent</span> — not "wait 6 months," not "wait a year." The endothelial injury doesn't reset.<br><br>
+    <span class="mech-highlight">The bifurcation:</span> two symptoms, two separate treatments, neither is systemic estrogen.<br>
+    • <strong>Hot flashes</strong> → SSRI/SNRI (venlafaxine, paroxetine) or gabapentin → modulate hypothalamic thermostat, non-hormonal.<br>
+    • <strong>Dyspareunia / vaginal atrophy</strong> → vaginal estrogen (cream, ring, tablet) → local delivery, minimal systemic absorption, no thrombotic risk.
+  </div>
+</div>
+
+<div class="section open">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon missed">✕</div><span class="section-title">What I Missed</span><span class="section-count">8 gaps across diagnosis, treatment, preventive</span></div><div class="section-chevron">▾</div></div>
+  <div class="section-body">
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>TSH</div><div class="missed-why">Hyperthyroidism causes hot flashes, diaphoresis, palpitations — identical to menopause. Must rule out.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Beta-hCG (pregnancy test)</div><div class="missed-why">Amenorrhea in any woman, regardless of age, requires pregnancy to be ruled out.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Prolactin</div><div class="missed-why">Prolactinoma causes amenorrhea, hot flashes, hormonal symptoms — mimics menopause exactly.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Pap smear / wet mount</div><div class="missed-why">Rule out infectious causes of dyspareunia (BV, trichomonas, candida) before attributing to atrophy.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Mammography</div><div class="missed-why">Must rule out occult breast cancer before initiating any estrogen therapy. Estrogen feeds hormone receptor-positive cancers.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Vaginal estrogen (cream/ring/tablet)</div><div class="missed-why">First-line for GSM/dyspareunia. Local delivery, minimal systemic absorption. SAFE despite TIA history. Systemic estrogen is contraindicated — vaginal is not.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>SSRI/SNRI or gabapentin for hot flashes</div><div class="missed-why">Systemic estrogen is blocked by TIA history. Non-hormonal alternatives are the only option. Venlafaxine, paroxetine, citalopram for vasomotor symptoms.</div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Tdap vaccine</div><div class="missed-why">Every 10 years. Standard preventive care.</div></div>
+    <div class="principles-block">
+      <div class="principles-label">The Attending's Lesson</div>
+      <div class="principles-text">This case hides the highest-yield USMLE trap in menopause management: <strong>TIA/stroke = permanent contraindication to systemic estrogen.</strong> You will be tested on this. The correct answer splits into two paths: non-hormonal for vasomotor symptoms (SSRI/SNRI or gabapentin) and local vaginal estrogen for GSM. And you always rule out thyroid, pregnancy, prolactinoma, and do a mammogram before starting anything.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon ordered">✓</div><span class="section-title">What I Got Right</span></div><div class="section-chevron">▾</div></div>
+  <div class="section-body">
+    <div class="missed-item"><div class="missed-order" style="color:#34c759;">FSH ordered ✓</div><div class="missed-why">Elevated FSH helps distinguish menopause from other causes of amenorrhea when the picture is uncertain.</div></div>
+    <div class="missed-item"><div class="missed-order" style="color:#34c759;">Lubricating jelly ✓</div><div class="missed-why">Helps with dyspareunia from vaginal atrophy. Supportive measure.</div></div>
+    <div class="missed-item"><div class="missed-order" style="color:#34c759;">Correctly avoided systemic estrogen ✓</div><div class="missed-why">You didn't order oral combined HRT. That would have been a catastrophic error with the TIA history. Good instinct.</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon step">☰</div><span class="section-title">If I Were Your Attending</span></div><div class="section-chevron">▾</div></div>
+  <div class="section-body">
+    <div class="step-item"><div class="step-number">1</div><div class="step-content"><div class="step-order">Full exam incl. pelvic</div><div class="step-why">General, CV, abdominal, genital, neuro. Get baseline on a perimenopausal woman.</div></div></div>
+    <div class="step-item"><div class="step-number">2</div><div class="step-content"><div class="step-order">TSH, beta-hCG, prolactin</div><div class="step-why">Before I call this menopause, I rule out hyperthyroidism, pregnancy, and prolactinoma. All three mimic menopause. Menopause is clinical after 45, but I protect against anchoring bias.</div></div></div>
+    <div class="step-item"><div class="step-number">3</div><div class="step-content"><div class="step-order">Pap smear + wet mount</div><div class="step-why">Dyspareunia could be BV, trich, candida — not just atrophy. I examine before I treat.</div></div></div>
+    <div class="step-item"><div class="step-number">4</div><div class="step-content"><div class="step-order">Mammography</div><div class="step-why">Before ANY estrogen product — even vaginal — I confirm there's no occult breast cancer. Estrogen feeds hormone receptor-positive tumors. This is non-negotiable.</div></div></div>
+    <div class="step-item"><div class="step-number">5</div><div class="step-content"><div class="step-order">Vaginal estrogen cream</div><div class="step-why">Local, minimal systemic absorption. Safe despite TIA. Treats dyspareunia directly at the tissue. NOT systemic HRT.</div></div></div>
+    <div class="step-item"><div class="step-number">6</div><div class="step-content"><div class="step-order">SSRI (paroxetine/venlafaxine) or gabapentin</div><div class="step-why">Hot flashes need treatment. Systemic estrogen is permanently off the table due to TIA. Non-hormonal alternatives: SSRI/SNRI modulate the hypothalamic thermostat. Gabapentin works on calcium channels.</div></div></div>
+    <div class="step-item"><div class="step-number">7</div><div class="step-content"><div class="step-order">Tdap vaccine</div><div class="step-why">Every 10 years. Preventive care is never optional on the USMLE.</div></div></div>
+  </div>
+</div>
+
+</div><!-- /case-text -->
+<div class="case-plates">
+  <div class="plate-card"><div class="plate-card-header">Descent · TIA Contraindication</div><img src="images/descent-3x3.png" onclick="openLightbox(this.src)"><div class="plate-card-footer">TIA → permanent systemic estrogen block → bifurcation to SSRI + vaginal estrogen</div></div>
+  <div class="plate-card"><div class="plate-card-header">Gaps · What I Missed</div><img src="images/descent-gaps-3x3.png" onclick="openLightbox(this.src)"><div class="plate-card-footer">TSH · hCG · prolactin · Pap · mammogram · SSRI · vaginal estrogen · Tdap</div></div>
+</div>
+</div><!-- /case-layout -->
+</div><!-- /case-meno -->
+
+<!-- CASE 3: POSTHERPETIC NEURALGIA -->
+<div class="case-panel" id="case-phn">
+<div class="case-layout">
+<div class="case-text">
+
+<div class="header">
+  <div class="header-top"><div class="header-badge">Postherpetic Trigeminal Neuropathy</div><div class="header-score good-bg">80.0<span>%</span></div></div>
+  <h1>Same Nerve, Different Trigger</h1>
+  <p class="header-sub">Male · Facial pain after herpes zoster · V2/V3 distribution · Previous shingles outbreak</p>
+  <div class="header-vitals">
+    <div class="vital-item"><span class="vital-label">Setting</span><span class="vital-value">Office</span></div>
+    <div class="vital-item"><span class="vital-label">Avg Score</span><span class="vital-value">84.6%</span></div>
+    <div class="vital-item"><span class="vital-label">Prior TN Case</span><span class="vital-value" style="color:#ff9f0a">82.5%</span></div>
+  </div>
+  <div class="score-bar"><div class="score-bar-seg tx" style="width:66%"></div><div class="score-bar-seg dx" style="width:28%"></div><div class="score-bar-seg miss" style="width:6%"></div></div>
+</div>
+
+<div class="mech-box">
+  <div class="mech-title">The Critical Distinction</div>
+  <div class="mech-body">
+    <span class="mech-highlight">Classic trigeminal neuralgia</span> (the case you just got 82.5% on): vascular compression of the nerve root → demyelination → ephaptic firing → <strong>carbamazepine</strong> (NaV channel blocker).<br><br>
+    <span class="mech-highlight">Postherpetic trigeminal neuropathy</span> (this case): herpes zoster damages the nerve directly → inflammatory demyelination + peripheral sensitization → <strong>gabapentin/pregabalin</strong> (GABAergic, binds alpha-2-delta subunit of calcium channels).<br><br>
+    Same nerve. Same distribution (V2/V3). Same electric pain. Different cause. Different first-line drug. <span class="mech-highlight">The herpes zoster history is the differentiator.</span> Carbamazepine still works for both — but it's suboptimal for postherpetic, and CCS deducts points.
+  </div>
+</div>
+
+<div class="section open">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon missed">✕</div><span class="section-title">What I Missed</span><span class="section-count">1 treatment gap</span></div><div class="section-chevron">▾</div></div>
+  <div class="section-body">
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Gabapentin/pregabalin (ordered carbamazepine instead)</div><div class="missed-why">Carbamazepine is first-line for <em>classic</em> TN (NaV channel blockade at compressed root). For <em>postherpetic</em> neuralgia, gabapentin/pregabalin are first-line (alpha-2-delta calcium channel blockade in sensitized peripheral nerves). The herpes zoster history changes the pathophysiology — and the treatment. Points deducted for suboptimal first-line choice.</div></div>
+    <div class="principles-block">
+      <div class="principles-label">The Rule</div>
+      <div class="principles-text"><strong>Classic TN:</strong> no rash history, vascular compression at root entry zone, carbamazepine/oxcarbazepine first-line.<br><strong>Postherpetic TN:</strong> preceded by zoster rash in same dermatome, gabapentin/pregabalin first-line. Tricyclics second-line. Antiseizure meds (carbamazepine) only after first two fail.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon ordered">✓</div><span class="section-title">What I Got Right</span></div><div class="section-chevron">▾</div></div>
+  <div class="section-body">
+    <div class="missed-item"><div class="missed-order" style="color:#34c759;">CBC + CMP ✓</div><div class="missed-why">Ruled out infection and got baseline labs. The trigeminal neuralgia case taught you this — and you applied it here.</div></div>
+    <div class="missed-item"><div class="missed-order" style="color:#34c759;">100% diagnosis orders ✓</div><div class="missed-why">Full exam, CBC, CMP, correct diagnosis of postherpetic neuropathy. You identified the zoster link immediately.</div></div>
+    <div class="missed-item"><div class="missed-order" style="color:#34c759;">No negative updates · Correct location · Correct timing ✓</div><div class="missed-why">Flawless execution. Outpatient. Immediate treatment. No delays.</div></div>
+  </div>
+</div>
+
+</div><!-- /case-text -->
+<div class="case-plates">
+  <div class="plate-card" style="opacity:0.5"><div class="plate-card-header">No plate generated</div><div class="plate-card-footer">This was a quick case — the TN plate covers the nerve anatomy. The lesson here is the drug distinction.</div></div>
+</div>
+</div><!-- /case-layout -->
+</div><!-- /case-phn -->
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src="" alt=""></div>
+
+<script>
+// Case switching
+function switchCase(id) {
+  document.querySelectorAll('.case-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.case-nav-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('case-' + id).classList.add('active');
+  document.querySelector('.case-nav-card[onclick*="' + id + '"]').classList.add('active');
+}
+// Sections
+document.querySelectorAll('.section-header').forEach(h => {
+  h.addEventListener('click', function() { this.parentElement.classList.toggle('open'); });
+});
+// Lightbox
+function openLightbox(src) { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox').classList.add('active'); }
+function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+</script>
+</body>
+</html>
