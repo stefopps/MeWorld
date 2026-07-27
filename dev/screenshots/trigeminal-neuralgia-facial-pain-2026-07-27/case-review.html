@@ -9,7 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
   --bg: #f5f5f7;
   --card: #ffffff;
@@ -21,169 +20,105 @@
   --success: #34c759;
   --warning: #ff9f0a;
   --danger: #ff3b30;
-  --radius: 18px;
-  --radius-sm: 12px;
+  --radius: 18px; --radius-sm: 12px;
   --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.06);
   --transition: 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.5;
-  padding: 24px;
-  -webkit-font-smoothing: antialiased;
+  background: var(--bg); color: var(--text); line-height: 1.5;
+  padding: 24px; -webkit-font-smoothing: antialiased;
 }
 
-.container { max-width: 720px; margin: 0 auto; }
+/* Two-column layout */
+.layout { display: flex; gap: 24px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
+.main-col { flex: 1; min-width: 0; max-width: 720px; }
+
+/* Sidecar */
+.sidecar {
+  position: sticky; top: 24px; flex: 0 0 360px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.sidecar-card {
+  background: var(--card); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.sidecar-card-header {
+  padding: 14px 20px; font-size: 13px; font-weight: 600;
+  color: var(--text-secondary); letter-spacing: 0.02em;
+  border-bottom: 1px solid var(--border); text-transform: uppercase;
+}
+.sidecar-card img { width: 100%; height: auto; display: block; }
+.sidecar-card-footer {
+  padding: 10px 20px; font-size: 12px; color: var(--text-secondary);
+  border-top: 1px solid var(--border);
+}
+.sidecar-clickable { cursor: pointer; transition: opacity 0.2s; }
+.sidecar-clickable:hover { opacity: 0.92; }
+
+/* Lightbox */
+.lightbox { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.92); z-index: 9999; justify-content: center; align-items: center; cursor: pointer; }
+.lightbox.active { display: flex; }
+.lightbox img { max-width: 92vw; max-height: 92vh; object-fit: contain; border-radius: 12px; }
 
 /* Header */
-.header {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 32px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow);
-}
-.header-top {
-  display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
-}
-.header-badge {
-  font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
-  background: var(--accent-light); color: var(--accent);
-  padding: 5px 12px; border-radius: 20px;
-}
-.header-score {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 48px; font-weight: 600; letter-spacing: -0.03em;
-  background: linear-gradient(135deg, #34c759 0%, #30b350 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-}
+.header { background: var(--card); border-radius: var(--radius); padding: 32px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.header-badge { font-size: 13px; font-weight: 600; letter-spacing: 0.02em; background: var(--accent-light); color: var(--accent); padding: 5px 12px; border-radius: 20px; }
+.header-score { font-family: 'JetBrains Mono', monospace; font-size: 48px; font-weight: 600; letter-spacing: -0.03em; background: linear-gradient(135deg, #34c759 0%, #30b350 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .header-score span { font-size: 20px; opacity: 0.6; }
 .header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
 .header-sub { font-size: 15px; color: var(--text-secondary); }
-.header-vitals {
-  display: flex; gap: 24px; margin-top: 20px; padding-top: 20px;
-  border-top: 1px solid var(--border);
-}
+.header-vitals { display: flex; gap: 24px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
 .vital-item { display: flex; flex-direction: column; }
 .vital-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); }
 .vital-value { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 600; margin-top: 2px; }
-
-/* Score breakdown bar */
 .score-bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 20px; background: #e8e8ed; }
-.score-bar-seg { height: 100%; transition: width var(--transition); }
+.score-bar-seg { height: 100%; }
 .score-bar-seg.tx { background: var(--success); }
 .score-bar-seg.dx { background: var(--warning); }
 .score-bar-seg.miss { background: var(--danger); }
 
-/* Section card */
-.section {
-  background: var(--card);
-  border-radius: var(--radius);
-  margin-bottom: 16px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  transition: box-shadow var(--transition);
-}
-.section:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 12px 40px rgba(0,0,0,0.08); }
-
-.section-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 20px 24px; cursor: pointer; user-select: none;
-  transition: background var(--transition);
-}
+/* Sections */
+.section { background: var(--card); border-radius: var(--radius); margin-bottom: 16px; box-shadow: var(--shadow); overflow: hidden; }
+.section-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; cursor: pointer; user-select: none; }
 .section-header:hover { background: #fafafa; }
 .section-header-left { display: flex; align-items: center; gap: 14px; }
-.section-icon {
-  width: 36px; height: 36px; border-radius: 10px; display: flex;
-  align-items: center; justify-content: center; font-size: 18px;
-}
+.section-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
 .section-icon.missed { background: #ffece5; color: #ff3b30; }
 .section-icon.ordered { background: #e5f7ed; color: #34c759; }
-.section-icon.teach { background: #e8f0fe; color: #0071e3; }
 .section-icon.step { background: #f5f0ff; color: #8944ab; }
 .section-title { font-size: 16px; font-weight: 600; }
 .section-count { font-size: 13px; color: var(--text-secondary); }
-.section-chevron {
-  width: 24px; height: 24px; transition: transform var(--transition);
-  opacity: 0.4; display: flex; align-items: center; justify-content: center;
-}
+.section-chevron { width: 24px; height: 24px; opacity: 0.4; display: flex; align-items: center; justify-content: center; }
 .section.open .section-chevron { transform: rotate(180deg); }
-
 .section-body { display: none; padding: 0 24px 20px; }
 .section.open .section-body { display: block; }
-
-/* Missed item */
-.missed-item {
-  padding: 16px 0; border-bottom: 1px solid #f0f0f0;
-}
+.missed-item { padding: 16px 0; border-bottom: 1px solid #f0f0f0; }
 .missed-item:last-child { border-bottom: none; }
-.missed-order {
-  font-size: 15px; font-weight: 600; margin-bottom: 4px;
-  display: flex; align-items: center; gap: 8px;
-}
+.missed-order { font-size: 15px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
 .missed-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); flex-shrink: 0; }
 .missed-why { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
-
-/* Step walkthrough */
-.step-item {
-  display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid #f0f0f0;
-}
+.step-item { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid #f0f0f0; }
 .step-item:last-child { border-bottom: none; }
-.step-number {
-  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700;
-  background: var(--accent); color: white;
-}
+.step-number { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; background: var(--accent); color: white; }
 .step-content { flex: 1; }
-.step-order {
-  font-size: 15px; font-weight: 600; margin-bottom: 3px;
-}
-.step-why {
-  font-size: 14px; color: var(--text-secondary); line-height: 1.6;
-}
-
-/* First principles block */
-.principles-block {
-  background: linear-gradient(135deg, #f8f9ff 0%, #f0f3ff 100%);
-  border-radius: var(--radius-sm); padding: 20px;
-  margin-top: 12px;
-}
-.principles-label {
-  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
-  color: var(--accent); font-weight: 700; margin-bottom: 8px;
-}
+.step-order { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+.step-why { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+.principles-block { background: linear-gradient(135deg, #f8f9ff 0%, #f0f3ff 100%); border-radius: var(--radius-sm); padding: 20px; margin-top: 12px; }
+.principles-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); font-weight: 700; margin-bottom: 8px; }
 .principles-text { font-size: 14px; line-height: 1.7; color: #1d1d1f; }
-
-/* Mechanism highlight */
-.mech-box {
-  background: #1d1d1f; color: #f5f5f7; border-radius: var(--radius-sm);
-  padding: 24px; margin-bottom: 16px;
-}
-.mech-title {
-  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
-  color: #86868b; font-weight: 700; margin-bottom: 12px;
-}
+.mech-box { background: #1d1d1f; color: #f5f5f7; border-radius: var(--radius-sm); padding: 24px; margin-bottom: 16px; }
+.mech-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #86868b; font-weight: 700; margin-bottom: 12px; }
 .mech-body { font-size: 15px; line-height: 1.7; }
 .mech-highlight { color: #ff9f0a; font-weight: 600; }
+.footer { text-align: center; padding: 32px 0; font-size: 13px; color: var(--text-secondary); }
 
-/* Quote */
-.attending-quote {
-  border-left: 3px solid var(--accent); padding-left: 16px;
-  margin: 16px 0; font-size: 15px; font-style: italic;
-  color: var(--text-secondary); line-height: 1.7;
+@media (max-width: 960px) {
+  .layout { flex-direction: column; }
+  .sidecar { position: static; flex: 1; width: 100%; }
+  .main-col { max-width: 100%; }
 }
-
-/* Footer */
-.footer {
-  text-align: center; padding: 32px 0;
-  font-size: 13px; color: var(--text-secondary);
-}
-
-/* Responsive */
 @media (max-width: 600px) {
   body { padding: 12px; }
   .header { padding: 24px; }
@@ -194,188 +129,115 @@ body {
 </style>
 </head>
 <body>
-<div class="container">
+<div class="layout">
 
-<!-- HEADER -->
+<!-- LEFT COLUMN -->
+<div class="main-col">
+
 <div class="header">
-  <div class="header-top">
-    <div class="header-badge">Trigeminal Neuralgia</div>
-    <div class="header-score">82.5<span>%</span></div>
-  </div>
+  <div class="header-top"><div class="header-badge">Trigeminal Neuralgia</div><div class="header-score">82.5<span>%</span></div></div>
   <h1>Electric Lightning in V2/V3</h1>
-  <p class="header-sub">
-    Male · Facial pain · Triggered by light touch · 30-second episodes · No V1 involvement
-  </p>
+  <p class="header-sub">Male · Facial pain · Triggered by light touch · 30-second episodes · No V1 involvement</p>
   <div class="header-vitals">
-    <div class="vital-item">
-      <span class="vital-label">Pulse</span>
-      <span class="vital-value">95 bpm</span>
-    </div>
-    <div class="vital-item">
-      <span class="vital-label">BP</span>
-      <span class="vital-value">125/85</span>
-    </div>
-    <div class="vital-item">
-      <span class="vital-label">Setting</span>
-      <span class="vital-value">Office</span>
-    </div>
-    <div class="vital-item">
-      <span class="vital-label">Avg Score</span>
-      <span class="vital-value">80.9%</span>
-    </div>
+    <div class="vital-item"><span class="vital-label">Pulse</span><span class="vital-value">95 bpm</span></div>
+    <div class="vital-item"><span class="vital-label">BP</span><span class="vital-value">125/85</span></div>
+    <div class="vital-item"><span class="vital-label">Setting</span><span class="vital-value">Office</span></div>
+    <div class="vital-item"><span class="vital-label">Avg Score</span><span class="vital-value">80.9%</span></div>
   </div>
-  <div class="score-bar">
-    <div class="score-bar-seg tx" style="width:73%"></div>
-    <div class="score-bar-seg dx" style="width:21%"></div>
-    <div class="score-bar-seg miss" style="width:6%"></div>
-  </div>
+  <div class="score-bar"><div class="score-bar-seg tx" style="width:73%"></div><div class="score-bar-seg dx" style="width:21%"></div><div class="score-bar-seg miss" style="width:6%"></div></div>
 </div>
 
-<!-- MECHANISM -->
 <div class="mech-box">
   <div class="mech-title">First Principles · The Mechanism</div>
   <div class="mech-body">
-    The trigeminal nerve exits the pons and crosses the prepontine cistern. Right there, the <span class="mech-highlight">superior cerebellar artery loops over the nerve root entry zone</span>. In 80-90% of cases, this artery compresses the nerve. The compression strips away myelin. Demyelinated axons fire ectopically <em>and</em> form ephaptic connections — a touch signal on one axon jumps across to a pain fiber on its neighbor. A breeze on the cheek becomes lightning in the jaw. <span class="mech-highlight">Carbamazepine blocks sodium channels</span>, raising the threshold for firing in those demyelinated axons. It doesn't fix the compression — it just makes the nerve less trigger-happy.
+    The trigeminal nerve exits the pons and crosses the prepontine cistern. Right there, the <span class="mech-highlight">superior cerebellar artery loops over the nerve root entry zone</span>. In 80-90% of cases, this artery compresses the nerve. The compression strips away myelin. Demyelinated axons fire ectopically <em>and</em> form ephaptic connections — a touch signal on one axon jumps across to a pain fiber on its neighbor. A breeze on the cheek becomes lightning in the jaw.<br><br>
+    <span class="mech-highlight">Carbamazepine blocks voltage-gated sodium channels (NaV)</span> — it binds and stabilizes the <em>inactivated</em> state, preventing repetitive firing in demyelinated axons. This is <strong>NOT GABAergic</strong>. That's gabapentin/pregabalin. Carbamazepine's anti-neuralgic effect is pure sodium channel blockade.<br><br>
+    <span class="mech-highlight">The hyponatremia is an entirely separate mechanism:</span> carbamazepine stimulates ADH release from the posterior pituitary → drug-induced SIADH → water reabsorption in collecting duct → dilutional hyponatremia. This has nothing to do with sodium channels. Two independent effects: NaV blockade (therapeutic) and SIADH (adverse — hence the baseline sodium check).
   </div>
 </div>
 
-<!-- WHAT I MISSED -->
 <div class="section open">
   <div class="section-header" onclick="this.parentElement.classList.toggle('open')">
-    <div class="section-header-left">
-      <div class="section-icon missed">✕</div>
-      <span class="section-title">What I Missed</span>
-      <span class="section-count">3 diagnostic gaps</span>
-    </div>
+    <div class="section-header-left"><div class="section-icon missed">✕</div><span class="section-title">What I Missed</span><span class="section-count">3 diagnostic gaps</span></div>
     <div class="section-chevron">▾</div>
   </div>
   <div class="section-body">
-
     <div class="missed-item">
       <div class="missed-order"><span class="missed-dot"></span>CBC with differential</div>
-      <div class="missed-why">Facial pain in a patient with recent dental procedures — you must rule out acute infection before calling it neuralgic. A leukocytosis or bandemia would change the entire workup from neuro to infectious.</div>
+      <div class="missed-why">Recent dental procedures. Rule out acute infection before calling it neuralgic. Leukocytosis or bandemia changes the workup from neuro to infectious.</div>
     </div>
-
     <div class="missed-item">
       <div class="missed-order"><span class="missed-dot"></span>Comprehensive metabolic profile</div>
-      <div class="missed-why">
-        Carbamazepine causes hyponatremia via SIADH. You need a <strong>pre-treatment sodium level</strong> before starting therapy. If sodium is 134 and drops to 125 after starting carbamazepine, you caught it. If you never checked baseline, you won't know whether the drop is drug-induced or pre-existing.
-      </div>
+      <div class="missed-why">Carbamazepine blocks sodium <em>channels</em> (NaV) — that's the mechanism. But it also causes SIADH (entirely separate). You need a <strong>pre-treatment sodium</strong> before starting. If Na drops from 134 to 125, you caught it. No baseline = blind.</div>
     </div>
-
     <div class="missed-item">
-      <div class="missed-order"><span class="missed-dot"></span>CT/MRI head (with or without contrast)</div>
-      <div class="missed-why">
-        80-90% of trigeminal neuralgia is caused by a vascular loop compressing the nerve root. But the remaining 10-20% are structural lesions — tumor, MS plaque, or aneurysm. You image to confirm the diagnosis and rule out the things that would change management. A cerebellopontine angle tumor presenting as trigeminal neuralgia is rare, but catastrophic to miss.
-      </div>
+      <div class="missed-order"><span class="missed-dot"></span>CT/MRI head</div>
+      <div class="missed-why">80-90% are vascular loops. But 10-20% are tumors, MS plaques, or aneurysms. Image to rule out the catastrophic — a cerebellopontine angle tumor presenting as TN is rare but devastating to miss.</div>
     </div>
-
     <div class="principles-block">
       <div class="principles-label">The Attending's Lesson</div>
-      <div class="principles-text">
-        Trigeminal neuralgia is a <strong>clinical diagnosis</strong> — paroxysmal, electric, seconds-to-minutes, triggered by innocuous stimuli, respecting trigeminal distribution. The exam is almost always normal between attacks. The treatment is carbamazepine. The imaging is to rule out a structural mimic, not to confirm what you already know. But the CBC and CMP are not optional — infection mimics neuralgia, and carbamazepine demands a pre-treatment sodium.
-      </div>
+      <div class="principles-text">Trigeminal neuralgia is a <strong>clinical diagnosis</strong> — paroxysmal, electric, seconds-to-minutes, triggered by innocuous stimuli, respecting trigeminal distribution. Exam is normal between attacks. Treatment is carbamazepine. Imaging rules out structural mimics. CBC and CMP are not optional.</div>
     </div>
   </div>
 </div>
 
-<!-- WHAT I GOT RIGHT -->
 <div class="section">
   <div class="section-header" onclick="this.parentElement.classList.toggle('open')">
-    <div class="section-header-left">
-      <div class="section-icon ordered">✓</div>
-      <span class="section-title">What I Got Right</span>
-      <span class="section-count">100% treatment</span>
-    </div>
+    <div class="section-header-left"><div class="section-icon ordered">✓</div><span class="section-title">What I Got Right</span><span class="section-count">100% treatment</span></div>
     <div class="section-chevron">▾</div>
   </div>
   <div class="section-body">
-
     <div class="missed-item">
       <div class="missed-order" style="color: #34c759;">Carbamazepine — first-line therapy ✓</div>
-      <div class="missed-why">
-        Sodium channel blockade raises the action potential threshold in demyelinated trigeminal axons. Starts at 100-200 mg BID, titrate to effect (typically 400-800 mg/day). Oxcarbazepine is equally effective with fewer drug interactions but less evidence. Gabapentin is second-line. You ordered first-line immediately, with no negative patient updates. That's attending-level management.
-      </div>
+      <div class="missed-why">NaV channel blockade at the demyelinated trigeminal root entry zone. 100-200 mg BID, titrate to effect (400-800 mg/day). Oxcarbazepine is equally effective. Gabapentin/pregabalin are GABAergic — second-line for a reason. You ordered first-line immediately. Attending-level management.</div>
     </div>
-
     <div class="missed-item">
-      <div class="missed-order" style="color: #34c759;">Correct location (Office) · Correct timing · No negative updates ✓</div>
-      <div class="missed-why">
-        Trigeminal neuralgia is managed outpatient. You didn't admit unnecessarily. You didn't delay treatment. The patient improved on carbamazepine and the case ended. Flawless execution on the treatment arc.
-      </div>
+      <div class="missed-order" style="color: #34c759;">Office · Correct timing · No negative updates ✓</div>
+      <div class="missed-why">TN is outpatient. No unnecessary admission. No delay. Patient improved. Case ended. Flawless treatment arc.</div>
     </div>
-
   </div>
 </div>
 
-<!-- ATTENDING'S SEQUENCE -->
 <div class="section">
   <div class="section-header" onclick="this.parentElement.classList.toggle('open')">
-    <div class="section-header-left">
-      <div class="section-icon step">☰</div>
-      <span class="section-title">If I Were Your Attending</span>
-      <span class="section-count">Sequential walkthrough</span>
-    </div>
+    <div class="section-header-left"><div class="section-icon step">☰</div><span class="section-title">If I Were Your Attending</span><span class="section-count">My sequence</span></div>
     <div class="section-chevron">▾</div>
   </div>
   <div class="section-body">
-
-    <div class="step-item">
-      <div class="step-number">1</div>
-      <div class="step-content">
-        <div class="step-order">General appearance + Neuro exam</div>
-        <div class="step-why">You need to see the patient. Is he in acute distress during the attack? Is the neuro exam normal between paroxysms? Trigeminal neuralgia has a normal exam between attacks — if there are sensory deficits or motor weakness, think tumor or MS, not idiopathic TN.</div>
-      </div>
-    </div>
-
-    <div class="step-item">
-      <div class="step-number">2</div>
-      <div class="step-content">
-        <div class="step-order">CBC with differential</div>
-        <div class="step-why">He had multiple dental procedures. A periapical abscess or osteomyelitis of the jaw can present as facial pain mimicking TN. A CBC rules out acute infection before you commit to a neurologic diagnosis.</div>
-      </div>
-    </div>
-
-    <div class="step-item">
-      <div class="step-number">3</div>
-      <div class="step-content">
-        <div class="step-order">Comprehensive metabolic profile</div>
-        <div class="step-why">Carbamazepine is going to be prescribed today. I need a baseline sodium, creatinine, and LFTs before therapy starts. CBZ induces SIADH and can elevate transaminases. I don't start without knowing where we began.</div>
-      </div>
-    </div>
-
-    <div class="step-item">
-      <div class="step-number">4</div>
-      <div class="step-content">
-        <div class="step-order">MRI head with contrast</div>
-        <div class="step-why">High-resolution T2-weighted imaging of the posterior fossa. I'm looking at the trigeminal nerve root entry zone. Is there a vascular loop? Good — 80-90% of cases are neurovascular compression, which responds to carbamazepine. Is there a cerebellopontine angle tumor or an MS plaque? That changes everything. I image to rule out the catastrophic, not to confirm the obvious.</div>
-      </div>
-    </div>
-
-    <div class="step-item">
-      <div class="step-number">5</div>
-      <div class="step-content">
-        <div class="step-order">Carbamazepine 200 mg BID</div>
-        <div class="step-why">Start low, titrate up. The goal is pain freedom within 1-2 weeks. I check sodium and LFTs at 2 weeks and 1 month. If it fails, I try oxcarbazepine. If that fails, I escalate to gabapentin or baclofen. Surgery (microvascular decompression) is reserved for medically refractory cases — and this patient's not there yet.</div>
-      </div>
-    </div>
-
+    <div class="step-item"><div class="step-number">1</div><div class="step-content"><div class="step-order">General appearance + Neuro exam</div><div class="step-why">Is he in distress? Is the neuro exam normal between paroxysms? TN has a normal exam between attacks — if there are sensory deficits or motor weakness, think tumor or MS.</div></div></div>
+    <div class="step-item"><div class="step-number">2</div><div class="step-content"><div class="step-order">CBC with differential</div><div class="step-why">Dental procedures. Periapical abscess or osteomyelitis mimics TN. Rule out infection before committing to a neuro diagnosis.</div></div></div>
+    <div class="step-item"><div class="step-number">3</div><div class="step-content"><div class="step-order">Comprehensive metabolic profile</div><div class="step-why">Carbamazepine is a sodium channel blocker, not a GABAergic drug. But it causes SIADH. I need baseline sodium, Cr, and LFTs before therapy. Two separate mechanisms: NaV blockade (good) and water retention (monitor).</div></div></div>
+    <div class="step-item"><div class="step-number">4</div><div class="step-content"><div class="step-order">MRI head with contrast</div><div class="step-why">T2-weighted posterior fossa. Vascular loop? Good — 80-90% of cases. Tumor or MS plaque? Catastrophic if missed. Image to rule out, not to confirm the obvious.</div></div></div>
+    <div class="step-item"><div class="step-number">5</div><div class="step-content"><div class="step-order">Carbamazepine 200 mg BID</div><div class="step-why">Start low. Block those NaV channels — demyelinated axons fire because their sodium channels are clustered and hypersensitive. CBZ keeps the inactivation gate closed. Check Na at 2 weeks. Surgery (microvascular decompression) only for refractory cases.</div></div></div>
   </div>
 </div>
 
-<div class="footer">
-  MeWorld Case Review · July 27, 2026 · Score 82.5%
-</div>
+<div class="footer">MeWorld Case Review · July 27, 2026 · Score 82.5%</div>
 
-</div>
+</div><!-- /main-col -->
 
+<!-- SIDECAR -->
+<div class="sidecar">
+  <div class="sidecar-card">
+    <div class="sidecar-card-header">Descent — Mechanism Arc</div>
+    <img class="sidecar-clickable" src="images/descent-3x3.png" alt="Trigeminal Neuralgia Mechanism" onclick="openLightbox(this.src)">
+    <div class="sidecar-card-footer">Vascular loop → demyelination → ephaptic firing → NaV block</div>
+  </div>
+  <div class="sidecar-card">
+    <div class="sidecar-card-header">Gaps — What I Missed</div>
+    <img class="sidecar-clickable" src="images/descent-gaps-3x3.png" alt="Trigeminal Neuralgia Gaps" onclick="openLightbox(this.src)">
+    <div class="sidecar-card-footer">CBC · CMP · MRI head — three diagnostic gaps</div>
+  </div>
+</div><!-- /sidecar -->
+
+</div><!-- /layout -->
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src="" alt=""></div>
 <script>
-// Already handled by inline onclick
-document.querySelectorAll('.section-header').forEach(h => {
-  h.addEventListener('click', function(e) {
-    this.parentElement.classList.toggle('open');
-  });
-});
+function openLightbox(src) { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox').classList.add('active'); }
+function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+document.querySelectorAll('.section-header').forEach(function(h) { h.addEventListener('click', function() { this.parentElement.classList.toggle('open'); }); });
 </script>
 </body>
 </html>
