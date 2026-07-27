@@ -126,7 +126,7 @@ body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui
 <div class="app">
 <div class="sidebar">
   <div class="sidebar-title">Case Reviews</div>
-  <div class="sidebar-count">31 cases</div>
+  <div class="sidebar-count">32 cases</div>
   <div class="search-wrap"><span class="search-icon">&#x1F50D;</span><input type="text" id="searchInput" placeholder="Search cases..." oninput="searchCases()" onkeydown="handleSearchKey(event)"><span class="search-shortcut">/</span></div>
   <span id="search-count" style="display:none"></span>
   <div class="search-no-results" id="searchNoResults">No cases found</div>
@@ -190,6 +190,10 @@ body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui
     <div class="case-nav-card" onclick="switchCase('drowning-pediatric-2026-07-27')">
       <div class="cn-row"><span class="cn-title"> Drowning (PALS protocol)</span><span class="cn-score warn">61<span style="font-size:10px">%</span></span></div>
       <div class="cn-bar"><div class="cn-bar-seg tx" style="width:61%"></div><div class="cn-bar-seg miss" style="width:39%"></div></div>
+    </div>
+    <div class="case-nav-card" onclick="switchCase('endocarditis-substance-abuse-2')">
+      <div class="cn-row"><span class="cn-title">Endocarditis — 45F, Substance Use</span><span class="cn-score warn">60<span style="font-size:10px">%</span></span></div>
+      <div class="cn-bar"><div class="cn-bar-seg tx" style="width:60%"></div><div class="cn-bar-seg miss" style="width:40%"></div></div>
     </div>
     <div class="case-nav-card" onclick="switchCase('hiatal-hernia-2026-07-25')">
       <div class="cn-row"><span class="cn-title">Hiatal Hernia — Attending Walkth...</span><span class="cn-score warn">60<span style="font-size:10px">%</span></span></div>
@@ -567,6 +571,24 @@ Picture a heme synthesis factory. Two stations:
 <div class="case-plates">
   <div class="plate-card"><div class="plate-card-header">Descent</div><img src="./drowning-pediatric-2026-07-27/images/descent-3x3.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">5.6 MB</div></div>
   <div class="plate-card"><div class="plate-card-header">Gaps</div><img src="./drowning-pediatric-2026-07-27/images/descent-gaps-3x3.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">5.6 MB</div></div>
+</div>
+</div><!-- /case-layout -->
+</div><!-- /case-panel -->
+
+<div class="case-panel" id="case-endocarditis-substance-abuse-2">
+<div class="case-layout">
+<div class="case-text">
+
+<div class="header">
+  <div class="header-top"><div class="header-badge">Endocarditis — 45F, Substance Use</div><div class="header-score warn-bg">60.3<span>%</span></div></div>
+  <p class="header-sub">45-year-old female, fever, malaise, substance use history · 2026-07-27 | **Score:** 60.33% | **Diagnosis:** Infective Endocarditis</p>
+  <div class="score-bar"><div class="score-bar-seg tx" style="width:60%"></div><div class="score-bar-seg miss" style="width:40%"></div></div>
+</div>
+
+</div><!-- /case-text -->
+<div class="case-plates">
+  <div class="plate-card"><div class="plate-card-header">Descent</div><img src="./endocarditis-substance-abuse-2026-07-27/images/descent-3x3.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">6.1 MB</div></div>
+  <div class="plate-card"><div class="plate-card-header">Gaps</div><img src="./endocarditis-substance-abuse-2026-07-27/images/descent-gaps-3x3.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">6.6 MB</div></div>
 </div>
 </div><!-- /case-layout -->
 </div><!-- /case-panel -->
