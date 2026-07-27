@@ -126,7 +126,7 @@ body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui
 <div class="app">
 <div class="sidebar">
   <div class="sidebar-title">Case Reviews</div>
-  <div class="sidebar-count">32 cases</div>
+  <div class="sidebar-count">33 cases</div>
   <div class="search-wrap"><span class="search-icon">&#x1F50D;</span><input type="text" id="searchInput" placeholder="Search cases..." oninput="searchCases()" onkeydown="handleSearchKey(event)"><span class="search-shortcut">/</span></div>
   <span id="search-count" style="display:none"></span>
   <div class="search-no-results" id="searchNoResults">No cases found</div>
@@ -146,6 +146,10 @@ body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui
     <div class="case-nav-card" onclick="switchCase('chlamydia-urethritis-2026-07-2')">
       <div class="cn-row"><span class="cn-title"> Male · Dysuria · Purulent ureth...</span><span class="cn-score good">81<span style="font-size:10px">%</span></span></div>
       <div class="cn-bar"><div class="cn-bar-seg tx" style="width:81%"></div><div class="cn-bar-seg miss" style="width:19%"></div></div>
+    </div>
+    <div class="case-nav-card" onclick="switchCase('ibs-not-ibd-2026-07-27')">
+      <div class="cn-row"><span class="cn-title">Irritable Bowel Syndrome — Not IBD</span><span class="cn-score good">80<span style="font-size:10px">%</span></span></div>
+      <div class="cn-bar"><div class="cn-bar-seg tx" style="width:80%"></div><div class="cn-bar-seg miss" style="width:20%"></div></div>
     </div>
     <div class="case-nav-card" onclick="switchCase('ruptured-ovarian-cyst-2026-07-')">
       <div class="cn-row"><span class="cn-title">Ruptured Ovarian Cyst with Hemop...</span><span class="cn-score good">76<span style="font-size:10px">%</span></span></div>
@@ -346,6 +350,24 @@ But what UC lacks in depth, it makes up for in continuity.</div></div>
 <div class="case-plates">
   <div class="plate-card"><div class="plate-card-header">Descent</div><img src="./chlamydia-urethritis-2026-07-26/images/descent-3x3.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">6.5 MB</div></div>
   <div class="plate-card"><div class="plate-card-header">Gaps</div><img src="./chlamydia-urethritis-2026-07-26/images/descent-gaps-3x3.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">5.5 MB</div></div>
+</div>
+</div><!-- /case-layout -->
+</div><!-- /case-panel -->
+
+<div class="case-panel" id="case-ibs-not-ibd-2026-07-27">
+<div class="case-layout">
+<div class="case-text">
+
+<div class="header">
+  <div class="header-top"><div class="header-badge">Irritable Bowel Syndrome — Not IBD</div><div class="header-score good-bg">79.5<span>%</span></div></div>
+  <p class="header-sub">Chronic diarrhea, abdominal discomfort, Office setting · 2026-07-27 | **Score:** 79.53% | **Diagnosis:** Irritable Bowel Syndrome</p>
+  <div class="score-bar"><div class="score-bar-seg tx" style="width:80%"></div><div class="score-bar-seg miss" style="width:20%"></div></div>
+</div>
+
+</div><!-- /case-text -->
+<div class="case-plates">
+  <div class="plate-card"><div class="plate-card-header">Descent</div><img src="./ibs-not-ibd-2026-07-27/images/descent-3x3.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">6.6 MB</div></div>
+  <div class="plate-card"><div class="plate-card-header">Gaps</div><img src="./ibs-not-ibd-2026-07-27/images/descent-gaps-3x3.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">6.0 MB</div></div>
 </div>
 </div><!-- /case-layout -->
 </div><!-- /case-panel -->
