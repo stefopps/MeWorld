@@ -350,7 +350,7 @@ for i, c in enumerate(cases):
             size_mb = img_size / 1048576
             label = "Descent" if 'gaps' not in img_name and 'descent' in img_name else "Gaps" if 'gaps' in img_name else img_name.replace('.png','').replace('_',' ').title()
             if 'panel-' in img_name: label = f"Panel {img_name.replace('panel-','').replace('.png','')}"
-            html_parts.append(f'''  <div class="plate-card"><div class="plate-card-header">{label}</div><img src="../{img_path}/images/{img_name}" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">{size_mb:.1f} MB</div></div>''')
+            html_parts.append(f'''  <div class="plate-card"><div class="plate-card-header">{label}</div><img src="./{img_path}/images/{img_name}" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">{size_mb:.1f} MB</div></div>''')
         html_parts.append('</div>')
 
     html_parts.append('</div><!-- /case-layout -->\n</div><!-- /case-panel -->')
