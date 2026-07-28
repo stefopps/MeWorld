@@ -31,19 +31,16 @@ def extract_diagnosis(text):
     return "Unknown"
 
 def extract_mechanism(text):
-    """Extract first principles / mechanism section — takes up to 2000 chars"""
+    """Extract first principles / mechanism section. Handles Mechanism, Pathophysiology, First Principles headers."""
     patterns = [
-        r'## Mechanism.*?\n(.*?)(?=\n##|\n---|\n# )',
-        r'## First Principles.*?\n(.*?)(?=\n##|\n---|\n# )',
-        r'### Mechanism.*?\n(.*?)(?=\n##|\n###)',
-        r'### First Principles.*?\n(.*?)(?=\n##|\n###)',
+        # Match ## Mechanism: ... or ## Mechanism — ... (all content until next ## heading)
+        r'^#{2,3}\s*(?:Mechanism|Pathophysiology|First\s+Principles).*?\n(.*?)(?=\n#{2}\s|\n---+|\Z)',
     ]
     for pat in patterns:
-        m = re.search(pat, text, re.DOTALL | re.IGNORECASE)
+        m = re.search(pat, text, re.DOTALL | re.IGNORECASE | re.MULTILINE)
         if m:
             content = m.group(1).strip()
             if len(content) > 2000:
-                # Break at paragraph boundary
                 cutoff = content[:2000].rfind('\n\n')
                 if cutoff > 300:
                     content = content[:cutoff] + "..."
@@ -58,35 +55,62 @@ def _strip_md(s):
     s = re.sub(r'\s+', ' ', s)
     return s
 
-def _extract_section_items(text, section_patterns, end_pattern=r'^#{2}\s+(?!\#)|^---'):
+def _extract_section_items(text, section_patterns):
     """Extract (title, why_text) pairs from a markdown section.
-    Parses numbered subsections (### N. **Title**) and collects body text until next subsection."""
+    Handles three formats:
+    1. H3 subsections: ### N. **Title** followed by body paragraphs
+    2. Numbered/bullet lists: N. **Title** or - **Title** followed by body paragraphs
+    3. Tables: | **Item** | Why explanation | (very common in older READMEs)"""
     items = []
     in_section = False
     current_title = None
     current_body = []
-    start_line = None
+    in_table = False
     
-    # Find section start
-    for i, line in enumerate(text.split("\n")):
+    for line in text.split("\n"):
         ls = line.strip()
         
         if not in_section:
             for pat in section_patterns:
-                if re.match(pat, ls):
+                if re.match(pat, ls, re.IGNORECASE):
                     in_section = True
-                    start_line = i
                     break
             continue
         
-        # End of section
-        if re.match(end_pattern, ls):
+        # End of section: next H2 heading or horizontal rule
+        if re.match(r'^#{2}\s+(?!#)', ls) or re.match(r'^---+', ls):
             break
         
-        # New subsection heading
+        # ---------- TABLE FORMAT ----------
+        # Start of a table: header row like | Item | Why |
+        if re.match(r'^\|.*\|.*\|', ls):
+            # Is this a header or separator row?
+            if re.match(r'^\|[\s\-:]+\|', ls):
+                # separator row like |---|---|, skip
+                in_table = True
+                continue
+            if in_table or re.match(r'^\|.*\*\*.*\|\s*(.*)', ls):
+                # Data row or header row with bold text
+                cols = [c.strip() for c in ls.split('|')[1:-1]]
+                # Skip header row (short column labels)
+                if len(cols) >= 2 and len(cols[0]) > 5:
+                    title = _strip_md(cols[0])
+                    why = ' | '.join(cols[1:]) if len(cols) > 1 else ''
+                    items.append({'title': title, 'why': why.strip()})
+                in_table = True
+                continue
+            else:
+                # First row, signal table mode
+                in_table = True
+                continue
+        
+        # End of table (non-table line after table rows)
+        if in_table and not re.match(r'^\|', ls):
+            in_table = False
+        
+        # ---------- H3 SUBSECTION FORMAT ----------
         m = re.match(r'^#{3}\s*\d+\.\s*(.+)', ls)
         if m:
-            # Save previous item
             if current_title:
                 body = '\n'.join(current_body).strip()
                 items.append({'title': _strip_md(current_title), 'why': body})
@@ -94,9 +118,9 @@ def _extract_section_items(text, section_patterns, end_pattern=r'^#{2}\s+(?!\#)|
             current_body = []
             continue
         
-        # Plain numbered heading
-        m = re.match(r'^\d+\.\s*\*?\*?(.+?)\*?\*?$', ls)
-        if m:
+        # ---------- NUMBERED LIST FORMAT ----------
+        m = re.match(r'^\d+\.\s*(.+)', ls)
+        if m and not in_table:
             if current_title:
                 body = '\n'.join(current_body).strip()
                 items.append({'title': _strip_md(current_title), 'why': body})
@@ -104,14 +128,14 @@ def _extract_section_items(text, section_patterns, end_pattern=r'^#{2}\s+(?!\#)|
             current_body = []
             continue
         
-        # Bullet item as heading
-        m = re.match(r'^-\s+\*?\*?(.+?)\*?\*?$', ls)
-        if m and not current_title:
+        # ---------- BULLET LIST FORMAT ----------
+        m = re.match(r'^[-•]\s+\*?\*?(.+?)\*?\*?$', ls)
+        if m and not current_title and not in_table:
             current_title = m.group(1).strip()
             current_body = []
             continue
         
-        # Collect body text (non-empty, non-heading, non-table lines)
+        # ---------- BODY TEXT ----------
         if ls and not ls.startswith('#') and not ls.startswith('|') and not ls.startswith('---'):
             if current_title:
                 current_body.append(ls)
@@ -121,14 +145,48 @@ def _extract_section_items(text, section_patterns, end_pattern=r'^#{2}\s+(?!\#)|
         body = '\n'.join(current_body).strip()
         items.append({'title': _strip_md(current_title), 'why': body})
     
-    return items[:12]
+    # Fallback: if no structured items found but we're in a section with prose text,
+    # capture the paragraph as a single item
+    if not items and in_section:
+        # Re-scan for prose content (skip headers, table markers, empty lines)
+        prose_lines = []
+        started = False
+        for line in text.split("\n"):
+            ls = line.strip()
+            if not started:
+                for pat in section_patterns:
+                    if re.match(pat, ls, re.IGNORECASE):
+                        started = True
+                        break
+                continue
+            if re.match(r'^#{2}\s+(?!#)', ls) or re.match(r'^---+', ls):
+                break
+            # Skip table markers and empty lines at start
+            if not prose_lines and (not ls or re.match(r'^\|', ls)):
+                continue
+            if ls and not ls.startswith('#'):
+                prose_lines.append(ls)
+        prose = '\n'.join(prose_lines).strip()
+        if prose:
+            items.append({'title': '', 'why': prose})
+    
+    return items[:15]
 
 def extract_missed(text):
-    patterns = [r'^#{2,3}\s*(What (You|I|Was|Were)|You|I)\s*Missed', r'^#{2,3}\s*Missed']
+    # Match: "what" followed by "missed" OR "what" followed by "ordered but not" OR "other missed"
+    patterns = [
+        r'^#{2,3}\s+.*what\s+(was|you|i|were)\s+missed',
+        r'^#{2,3}\s+.*what\s+(was|were)\s+ordered\s+but\s+not',
+        r'^#{2,3}\s+.*the\s+other\s+missed',
+        r'^#{2,3}\s+.*missed\s+orders',
+    ]
     return _extract_section_items(text, patterns)
 
 def extract_got_right(text):
-    patterns = [r'^#{2,3}\s*What (Was|You|I) Got Right', r'^#{2,3}\s*Got Right']
+    # Match: "what" followed by "got right" or "Was Got Right"
+    patterns = [
+        r'^#{2,3}\s+.*what\s+(you|i|was|were)\s+got\s+right',
+    ]
     return _extract_section_items(text, patterns)
 
 def extract_patient_info(text):
