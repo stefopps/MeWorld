@@ -1,0 +1,125 @@
+{
+  "caseId": "elder-abuse",
+  "diagnosis": "Elder Abuse",
+  "score": "56.06%",
+  "avgFirstAttempt": "84.6%",
+  "patient": {
+    "age": "85 years",
+    "sex": "female",
+    "key": "Healing + acute rib fractures, contusions and burns in abuse-typical locations (neck, shoulder, upper back), cognitively impaired from dementia, adult son controls the interview"
+  },
+  "vitals": {
+    "temperature": "36.1 C (97.0 F)",
+    "pulse": "120 bpm",
+    "respiratory_rate": "40/min",
+    "blood_pressure": "80/45",
+    "weight": "Unknown",
+    "note": "Tachycardic, tachypneic, hypotensive — pain response from multiple rib fractures"
+  },
+  "sequence": [
+    {
+      "step": 1,
+      "screen": "Initial presentation",
+      "what": "85-year-old female brought to office by adult son, complaint of pain in her side after a fall. Son answers all questions. Patient has dementia.",
+      "decision": "Red flag #1: the caregiver-speaks-for-the-patient pattern. Red flag #2: demented patient with trauma and the caregiver controls the narrative. You must examine the patient yourself."
+    },
+    {
+      "step": 2,
+      "screen": "Physical exam",
+      "what": "General appearance: frail. Skin exam: contusions on neck, shoulder, upper back. Burn wounds. Chest/lungs: tenderness over ribs.",
+      "decision": "This is the diagnostic pivot. Contusions in abuse-distribution areas plus healing AND acute rib fractures = pathognomonic for abuse. The skin exam IS the diagnostic test."
+    },
+    {
+      "step": 3,
+      "screen": "Diagnostic orders",
+      "what": "CBC, BMP/CMP, LFTs, chest imaging (CXR or CT). Chest imaging shows both old healing fractures and fresh acute fractures.",
+      "decision": "Frail elderly patients need broad labs to exclude other acute processes. Rib fractures need imaging to confirm. The combination of old + new fractures on imaging plus concerning physical exam = abuse until proven otherwise."
+    },
+    {
+      "step": 4,
+      "screen": "Location and treatment",
+      "what": "Patient must be admitted to hospital — ED or Inpatient Unit, NOT discharged home from office. Pain management: NSAIDs or acetaminophen, avoid opioids. Social services consult.",
+      "decision": "The correct location is the hospital — she cannot go back to the abuser's care. Social services must be involved for law enforcement and safe discharge. Pain from broken ribs is managed with NSAIDs/acetaminophen in a frail elderly patient."
+    }
+  ],
+  "missed": [
+    {
+      "order": "CBC with differential",
+      "why": "Frail 85-year-old with trauma. You need a baseline to rule out anemia from chronic disease, infection, or bleeding. The differential assesses whether an acute stress response exists. Not ordering labs on a frail trauma patient is like flying without instruments."
+    },
+    {
+      "order": "Chest imaging (CXR PA/Lateral, rib series, or CT chest)",
+      "why": "This is the chief complaint — pain in the side after a fall. You cannot diagnose rib fractures without imaging. More importantly: the pattern of old healing fractures + fresh acute fractures on the same film is the radiographic signature of abuse. You missed the objective evidence that corroborates the physical exam."
+    },
+    {
+      "order": "BMP/CMP/Liver function panel",
+      "why": "This patient is 85, frail, and traumatized. She may have electrolyte derangements, renal impairment, or hepatic dysfunction. General labs establish a baseline before admission and rule out competing pathology that could worsen her condition."
+    },
+    {
+      "order": "Pain medication (NSAIDs or acetaminophen)",
+      "why": "Multiple rib fractures in an 85-year-old are excruciating. Uncontrolled pain causes splinting, which causes hypoventilation, which causes atelectasis, which causes pneumonia. In a frail patient, untreated rib fracture pain is a cascade that ends in respiratory failure. Opioids are avoided due to dementia and frailty, but acetaminophen and NSAIDs are essential."
+    },
+    {
+      "order": "Correct location — Emergency Department or Inpatient Unit",
+      "why": "You stayed in the Office. An abused elderly patient cannot be discharged home to the abuser. She needs hospital admission for protection, pain control, workup, and social services coordination. The office is the wrong site of care — this is a hospital-level problem."
+    }
+  ],
+  "correctMoves": [
+    "Consulted social services — the single most important intervention",
+    "Performed skin exam looking for abuse signs — contusions and burns documented",
+    "Performed chest/lungs exam for the chief complaint",
+    "No inappropriate invasive orders",
+    "Correct timing — no negative patient updates",
+    "Correct sequencing throughout the case"
+  ],
+  "trapExplanation": {
+    "name": "The caregiver who speaks for the patient",
+    "detail": "The adult son answers every question. The patient has dementia and cannot advocate for herself. The caregiver controlling the narrative is a red flag for abuse — especially when the injury mechanism ('she tripped and fell') is inconsistent with the injury pattern (contusions on neck and shoulders in abuse-distribution areas, not a lateral fall). You must examine the patient, not just trust the historian."
+  },
+  "scoreBreakdown": {
+    "diagnosisOrders": "26.92%",
+    "treatmentOrders": "75%",
+    "timing": "100%",
+    "appropriateOrders": "100%",
+    "appropriateLocation": "50%"
+  },
+  "mechanismsForImage": [
+    {
+      "panel": 1,
+      "title": "The Abuse Distribution Pattern",
+      "concept": "Contusions and burns on neck, shoulders, upper back — not the lateral flank expected from falling onto one side. Abuse injuries concentrate in the central/axial distribution: areas that can be grabbed, struck, or restrained. A fall onto the side produces lateral contusions; abuse produces proximal and central ones."
+    },
+    {
+      "panel": 2,
+      "title": "Healing + Acute Fractures — The Radiographic Signature",
+      "concept": "Old callus formations side by side with fresh fracture lines on the same rib series. The body has been broken before, is healing, and has been broken again. This temporal pattern — fractures of different ages — is the imaging hallmark of chronic abuse. A single fall produces one set of fractures. Repeated trauma produces a timeline of injury written in bone."
+    },
+    {
+      "panel": 3,
+      "title": "Caregiver Control and the Unspeakable History",
+      "concept": "An elderly woman with dementia, flanked by a son who answers every question while she remains silent. The patient cannot speak for herself. The caregiver shapes the narrative. When the injury mechanism is inconsistent with the injury pattern and the historian has motive to obscure, the diagnosis shifts from accidental trauma to abuse. You must separate the patient from the caregiver to get a real exam and history."
+    }
+  ],
+  "imageOutputPath": "C:/Users/steve/MeWorld/dev/screenshots/elder-abuse-rib-fractures-2026-07-28/images",
+  "imageGenerationStatus": "in_progress",
+  "images": {
+    "descent3x3": {
+      "status": "complete",
+      "path": "images/elder-abuse-rib-fractures-descent-3x3.png",
+      "size": "5.4 MB",
+      "model": "nano-banana-pro",
+      "resolution": "2K",
+      "style": "Naughty Dog / Uncharted 4 cinematic CGI",
+      "covers": "Full clinical arc: presentation with caregiver → injury pattern → radiographic timeline → hospital admission → protection"
+    },
+    "descentGaps3x3": {
+      "status": "complete",
+      "path": "images/elder-abuse-rib-fractures-gaps-3x3.png",
+      "size": "5.9 MB",
+      "model": "nano-banana-pro",
+      "resolution": "2K",
+      "style": "Naughty Dog / Uncharted 4 cinematic CGI",
+      "covers": "Five missed orders: chest imaging, CBC, BMP/CMP/LFT, pain medication, correct location (hospital admission) vs protection arc"
+    }
+  }
+}

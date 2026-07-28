@@ -1,0 +1,110 @@
+{
+  "caseId": "osa-enuresis",
+  "diagnosis": "Obstructive Sleep Apnea (Severe) with Secondary Nocturnal Enuresis",
+  "score": "47.52%",
+  "avgFirstAttempt": "65.4%",
+  "patient": {
+    "age": "13 years",
+    "sex": "male",
+    "key": "Obese adolescent, 6-9 months of bedwetting + behavioral issues. The bladder is a window into the airway. Sleep fragmentation from OSA prevents arousal to bladder signals — the brain is too exhausted to wake up."
+  },
+  "sequence": [
+    {
+      "step": 1,
+      "screen": "Case introduction",
+      "what": "13-year-old obese male, outpatient pediatric clinic, bedwetting for 6-9 months, behavioral issues at school",
+      "decision": "Secondary enuresis (new onset after a dry period) in an obese teenager = OSA until proven otherwise. Do not chase primary enuresis. Do not start desmopressin. Do not treat for ADHD. The bladder is telling you about the airway."
+    },
+    {
+      "step": 2,
+      "screen": "Physical exam",
+      "what": "General appearance: obese, daytime sleepiness. HEENT: adenotonsillar hypertrophy (grade 3-4+ tonsils), dry mucous membranes (chronic mouth breathing). Abdomen: rule out constipation/impaction.",
+      "decision": "The HEENT exam is the diagnostic pivot. Large tonsils + mouth breathing + obesity = obstructed upper airway. The abdominal exam rules out encopresis-associated enuresis (constipation compresses the bladder)."
+    },
+    {
+      "step": 3,
+      "screen": "Diagnostic orders",
+      "what": "UA (rule out UTI, glucosuria), HbA1c/fasting glucose (screen for prediabetes in obese adolescent), lipid profile (metabolic syndrome), cardiopulmonary sleep study (gold standard — AHI >10 is severe in pediatrics)",
+      "decision": "OSA is a clinical diagnosis but the sleep study is the gold standard confirmatory test. It quantifies severity and links to sequelae. Metabolic screening is essential in obese children — OSA is part of the metabolic syndrome cluster."
+    },
+    {
+      "step": 4,
+      "screen": "Treatment",
+      "what": "Tonsillectomy/adenoidectomy (ENT consult) — first line even in obese children. Calorie-restricted diet + exercise program for weight loss. Do NOT start desmopressin, ADHD meds, antidepressants, or CPAP initially.",
+      "decision": "Adenotonsillectomy is first-line for pediatric OSA. Weight loss is the long game. CPAP is second-line if surgery fails or is refused. The enuresis and behavioral issues resolve when the airway opens — you don't treat the bladder or the brain, you treat the obstruction."
+    }
+  ],
+  "missed": [
+    {
+      "order": "Urinalysis",
+      "why": "Every secondary enuresis workup starts with a UA. Rule out UTI (dysuria, frequency) and glucosuria (undiagnosed diabetes causing osmotic diuresis — especially relevant in this obese adolescent). A negative UA strengthens the OSA diagnosis by excluding competing causes."
+    },
+    {
+      "order": "Hemoglobin A1C / Fasting glucose",
+      "why": "Obese adolescent with OSA is at high risk for insulin resistance and prediabetes. Metabolic syndrome screening is standard of care. Diabetes can also cause polyuria → enuresis — you must rule out the metabolic cause before attributing everything to the airway."
+    },
+    {
+      "order": "Lipid profile",
+      "why": "Part of the metabolic syndrome screen in obese children. OSA and obesity together amplify cardiovascular risk. Dyslipidemia needs to be identified and managed."
+    },
+    {
+      "order": "Cardiopulmonary sleep study (polysomnography)",
+      "why": "The gold standard. Quantifies AHI (apnea-hypopnea index) — >10 is severe in pediatrics. Confirms the diagnosis objectively, documents severity for surgical planning, and links OSA to the enuresis and behavioral symptoms. Without the sleep study, the diagnosis is clinical but not confirmed. Diagnostic score: 13.79%."
+    },
+    {
+      "order": "Calorie-restricted diet / Exercise program",
+      "why": "Adenotonsillectomy opens the airway but obesity is the driver. Without weight loss, OSA recurs. Diet and exercise are the permanent treatment. The tonsils are the acute fix; weight loss is the chronic cure."
+    }
+  ],
+  "correctMoves": [
+    "HEENT exam — identified adenotonsillar hypertrophy and mouth breathing",
+    "Abdominal exam — ruled out constipation/impaction",
+    "ENT consult / Tonsillectomy — first-line treatment for pediatric OSA",
+    "Correctly avoided desmopressin — do not treat the enuresis in isolation",
+    "Correctly avoided ADHD meds — behavioral issues are from sleep fragmentation, not ADHD",
+    "Correctly avoided antidepressants — mood/behavior is OSA-mediated",
+    "Correctly avoided CPAP — second-line after surgery in children",
+    "Correct timing — no negative patient updates",
+    "No inappropriate invasive orders"
+  ],
+  "trapExplanation": {
+    "name": "The Bladder Window",
+    "detail": "Secondary enuresis in an obese adolescent is OSA until proven otherwise. The mechanism: pharyngeal collapse → negative intrathoracic pressure → increased right atrial return → atrial stretch → ANP release → increased nighttime urine production. Simultaneously, sleep fragmentation prevents arousal to bladder signals. The result: the bladder fills fast and the brain doesn't wake up. Treat the airway, not the bladder. Desmopressin treats the symptom; tonsillectomy treats the cause."
+  },
+  "scoreBreakdown": {
+    "diagnosisOrders": "13.79%",
+    "treatmentOrders": "60%",
+    "timing": "100%",
+    "appropriateOrders": "100%"
+  },
+  "mechanismsForImage": [
+    {
+      "panel": 1,
+      "title": "ANP Cascade — Why OSA Fills the Bladder",
+      "concept": "Pharyngeal collapse during sleep → negative intrathoracic pressure → increased venous return to right atrium → atrial stretch → ANP (atrial natriuretic peptide) release → increased sodium and water excretion by kidneys → increased nighttime urine production. The bladder fills faster than the sleep-fragmented brain can respond."
+    },
+    {
+      "panel": 2,
+      "title": "Adenotonsillar Hypertrophy — The Anatomical Block",
+      "concept": "Enlarged tonsils (grade 3-4+) and adenoids obstruct the upper airway during sleep. In an obese adolescent, the pharyngeal fat pad adds external compression. The airway collapses during REM sleep when pharyngeal muscle tone is lowest. This is a mechanical problem with a mechanical solution: remove the obstruction surgically."
+    },
+    {
+      "panel": 3,
+      "title": "The Wrong Paths — What Not to Do",
+      "concept": "Desmopressin (fixes the bladder, ignores the airway), ADHD stimulants (treats the behavioral symptom, not the sleep fragmentation causing it), antidepressants (addresses mood when the real problem is chronic exhaustion from apnea). CPAP is second-line — effective but compliance is poor in teenagers. The correct path is: diagnose OSA, remove the tonsils, lose the weight."
+    }
+  ],
+  "imageOutputPath": "C:/Users/steve/MeWorld/dev/screenshots/osa-nocturnal-enuresis-2026-07-28/images",
+  "imageGenerationStatus": "in_progress",
+  "images": {
+    "descent3x3": {
+      "status": "complete",
+      "path": "images/osa-enuresis-descent-3x3.png",
+      "size": "5.5 MB",
+      "model": "nano-banana-pro",
+      "resolution": "2K",
+      "style": "Naughty Dog / Uncharted 4 cinematic CGI",
+      "covers": "Full clinical arc: airway obstruction → ANP cascade → nocturnal polyuria → tonsillectomy → weight loss → resolution"
+    }
+  }
+}

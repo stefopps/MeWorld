@@ -309,7 +309,10 @@ Seven roadblocks that have cost hours. Do NOT regress on any of them.
 | **6** | **`generated` is list of strings, not dicts** | `KeyError: 'url'` or `None` when accessing `generated[0]['url']` | `generated[0]` IS the URL — a string, not a dict. Do NOT chain `.url` |
 | **7** | **Text-only prompt — no visual reference attached** | Renders ignore the Naughty Dog style description, produce flat generic game art | Encode `uncharted-4-main-menu.png` as **raw base64** (NOT data URL prefix), include in `reference_images` array: `{'image': raw_b64, 'mime_type': 'image/png'}` |
 | **8** | **Missing `mime_type` on reference_image** | `400 Validation error: "Field required"` | Add `'mime_type': 'image/png'` to each reference_images entry — e.g. `{'image': raw_b64, 'mime_type': 'image/png'}` |
-| **9** | **Wrong polling URL** | Status always empty, times out after 600s | Poll at `f'{ENDPOINT}/{task_id}'`, NOT at `f'https://api.magnific.com/v1/ai/tasks/{task_id}'` — the tasks endpoint doesn't exist
+| **9** | **Wrong polling URL** | Status always empty, times out after 600s | Poll at `f'{ENDPOINT}/{task_id}'`, NOT at `f'https://api.magnific.com/v1/ai/tasks/{task_id}'` — the tasks endpoint doesn't exist |
+| **10** | **`x-api-key` header instead of `x-magnific-api-key`** | `401 Unauthorized: No API key provided` — Magnific ignores the wrong header name | Use `x-magnific-api-key` in ALL requests (POST + polling GETs). Never `x-api-key`. |
+| **11** | **Wrong API key (`ao7DcWdM...` from Telegram)** | `401 Unauthorized: The provided API key is invalid` | Use `MS6b2d6d7d3fb64d30960c9856197a9f83` — the key from this SKILL file. The Telegram key is for a different service. |
+| **12** | **Status case mismatch: `"COMPLETED"` vs `"completed"`** | Image is generated (~45s) but script polls all 120 iterations and times out without downloading | Use `status.upper() == "COMPLETED"` and `status.upper() == "FAILED"`. Magnific returns UPPERCASE status strings.
 
 ### 7e — Reference
 

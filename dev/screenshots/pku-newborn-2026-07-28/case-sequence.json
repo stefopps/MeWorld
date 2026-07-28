@@ -1,0 +1,116 @@
+{
+  "caseId": "pku-newborn",
+  "diagnosis": "Phenylketonuria (PKU)",
+  "score": "15.87%",
+  "avgFirstAttempt": "38.5%",
+  "patient": {
+    "age": "3 weeks",
+    "weight": "3.4 kg",
+    "sex": "female",
+    "key": "Irritability, eczema, musty-smelling urine — the PKU triad in a newborn"
+  },
+  "vitals": {
+    "temperature": "36.1 C (97.0 F)",
+    "pulse": "120 bpm",
+    "respiratory_rate": "40/min",
+    "blood_pressure": "80/45",
+    "weight": "3.4 kg (7.5 lb)",
+    "height": "48.3 cm (19.0 in)",
+    "bmi_percentile": "50th"
+  },
+  "sequence": [
+    {
+      "step": 1,
+      "screen": "Initial presentation",
+      "what": "3-week-old female, irritability, eczema, strange-smelling diaper",
+      "decision": "Recognize the metabolic newborn — mousy/musty odor is pathognomonic for PKU. Don't chase infection."
+    },
+    {
+      "step": 2,
+      "screen": "Physical exam",
+      "what": "General Appearance, Skin (eczema), Genitalia (strange smell)",
+      "decision": "Classic PKU: eczema from phenylalanine accumulation in skin, musty odor from phenylacetic acid in sweat/urine."
+    },
+    {
+      "step": 3,
+      "screen": "Orders placed",
+      "what": "LP, CSF cultures, galactokinase, cryptococcal antigen, fungal culture, viral culture, cytology — a complete meningitis workup",
+      "decision": "Wrong direction. This is a metabolic disease, not an infection. The only test needed: serum phenylalanine."
+    },
+    {
+      "step": 4,
+      "screen": "Diagnosis and treatment",
+      "what": "Phenylalanine, serum would confirm PKU. Treatment: low protein diet + nutrition consult.",
+      "decision": "One blood test diagnoses. One dietary change treats. The case is that simple — once you recognize it."
+    }
+  ],
+  "missed": [
+    {
+      "order": "Phenylalanine, serum",
+      "why": "The diagnostic test. PAH deficiency blocks phenylalanine → tyrosine conversion. Serum phenylalanine >20 mg/dL (this patient: 21.47 mg/dL) is diagnostic. Normal is <2 mg/dL. This one $10 test replaces your entire meningitis workup — and scores the 45% diagnostic weight."
+    },
+    {
+      "order": "Diet, low protein / Nutrition consult",
+      "why": "The treatment. PKU is managed by restricting dietary phenylalanine. Special low-phenylalanine formula + breast milk in measured amounts. This is for life. Without it: intellectual disability, seizures, white matter lesions. Treatment scored 0% because you ordered zero therapeutic interventions."
+    }
+  ],
+  "correctMoves": [
+    "Physical exam focused on skin (eczema) and genitalia (odd smell)",
+    "Recognized the patient was ill enough to work up",
+    "No inappropriate invasive orders (LP attempt in a 3-week-old is not penalized if meningitis is suspected)",
+    "Correct location (Office) and sequencing"
+  ],
+  "trapExplanation": {
+    "name": "PKU is a trap name",
+    "detail": "Phenylketonuria suggests urine testing, but PKU is diagnosed via serum phenylalanine. Standard UA ketones screen for acetoacetic acid and beta-hydroxybutyrate — the ketones in PKU (phenylacetic acid) are not detected by routine UA. The name is historical, not diagnostic."
+  },
+  "scoreBreakdown": {
+    "diagnosisOrders": "13.04%",
+    "treatmentOrders": "0%",
+    "timing": "0%",
+    "appropriateOrders": "100%",
+    "appropriateLocation": "100%"
+  },
+  "ordersPlaced": 14,
+  "averageOrders": 22,
+  "zScore": -0.66,
+  "mechanismsForImage": [
+    {
+      "panel": 1,
+      "title": "PAH Enzyme Block — Where the Train Derails",
+      "concept": "Phenylalanine hydroxylase (PAH) is broken. Phenylalanine cannot become tyrosine. The backup pathway produces phenylacetic acid — the musty odor. Brain LAT1 transporters get saturated, starving neurons of tyrosine and tryptophan. Myelination fails. IQ drops irreversibly."
+    },
+    {
+      "panel": 2,
+      "title": "Metabolic Newborn Differential — The Four Smells",
+      "concept": "PKU (musty/mousy), MSUD (maple syrup/burnt sugar), Galactosemia (no smell — silent), Isovaleric Acidemia (sweaty feet). The UA dipstick cannot distinguish them. The smell + timeline can. MSUD crashes in 4-7 days. PKU is insidious over weeks."
+    },
+    {
+      "panel": 3,
+      "title": "The Trap — Why PKU Is Diagnosed in Blood, Not Urine",
+      "concept": "The name ends in -uria, suggesting urine testing. But standard UA ketones test for acetoacetate (nitroprusside reaction). PKU's ketone (phenylacetic acid) does NOT react. Serum phenylalanine is the diagnostic test. One lavender-top tube."
+    }
+  ],
+  "imageOutputPath": "C:/Users/steve/MeWorld/dev/screenshots/pku-newborn-2026-07-28/images",
+  "imageGenerationStatus": "in_progress",
+  "images": {
+    "descent3x3": {
+      "status": "complete",
+      "path": "images/pku-newborn-descent-3x3.png",
+      "size": "5.7 MB",
+      "model": "nano-banana-pro",
+      "resolution": "2K",
+      "style": "Naughty Dog / Uncharted 4 cinematic CGI",
+      "covers": "Full clinical arc: ED presentation → metabolic pathway block → diagnostic trap → treatment"
+    },
+    "contrast3x3": {
+      "status": "complete",
+      "path": "images/pku-newborn-contrast-3x3.png",
+      "size": "5.1 MB",
+      "model": "nano-banana-pro",
+      "resolution": "2K",
+      "style": "Naughty Dog / Uncharted 4 cinematic CGI",
+      "covers": "Metabolic newborn differential: PKU vs MSUD vs Galactosemia vs Isovaleric Acidemia — enzyme blocks, smells, timelines, treatments"
+    }
+  }
+}
