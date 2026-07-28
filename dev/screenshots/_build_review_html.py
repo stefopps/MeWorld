@@ -10,6 +10,128 @@ def read_README(folder_name):
     with open(path, "r", encoding="utf-8", errors="replace") as f:
         return f.read()
 
+def md_to_html(text):
+    """Convert markdown body text to HTML. Handles: **bold**, *italic*, - lists, 1. lists, | tables |, paragraph breaks, inline code."""
+    if not text: return ""
+    lines = text.split("\n")
+    out = []
+    in_ul = in_ol = in_table = False
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+        
+        # Table: detect header + separator pattern
+        if '|' in line and i+1 < len(lines) and re.match(r'^\|[\s\-:]+\|[\s\-:]+\|', lines[i+1].strip()):
+            # Start table
+            if in_ul: out.append('</ul>'); in_ul = False
+            if in_ol: out.append('</ol>'); in_ol = False
+            out.append('<table class="md-table">')
+            # Header row
+            if line.startswith('|') and line.endswith('|'):
+                cells = [c.strip() for c in line.split('|')[1:-1]]
+                out.append('<thead><tr>' + ''.join(f'<th>{_inline_md(c)}</th>' for c in cells) + '</tr></thead>')
+            i += 2  # skip separator row
+            out.append('<tbody>')
+            in_table = True
+            continue
+        
+        if in_table:
+            if '|' in line and line.startswith('|') and line.endswith('|'):
+                cells = [c.strip() for c in line.split('|')[1:-1]]
+                out.append('<tr>' + ''.join(f'<td>{_inline_md(c)}</td>' for c in cells) + '</tr>')
+                i += 1
+                continue
+            else:
+                out.append('</tbody></table>')
+                in_table = False
+                # fall through to process this line
+        
+        # Code block
+        if line.startswith('```'):
+            if in_ul: out.append('</ul>'); in_ul = False
+            if in_ol: out.append('</ol>'); in_ol = False
+            out.append('<pre><code>')
+            i += 1
+            while i < len(lines) and not lines[i].strip().startswith('```'):
+                out.append(lines[i])
+                i += 1
+            out.append('</code></pre>')
+            i += 1
+            continue
+        
+        # Heading (### or ##)
+        if re.match(r'^#{2,4}\s', line):
+            if in_ul: out.append('</ul>'); in_ul = False
+            if in_ol: out.append('</ol>'); in_ol = False
+            level = len(re.match(r'^(#+)', line).group(1))
+            text = _inline_md(line.lstrip('#').strip())
+            out.append(f'<h{level} class="md-h{level}">{text}</h{level}>')
+            i += 1
+            continue
+        
+        # Unordered list
+        if re.match(r'^[-*•]\s', line):
+            if not in_ul:
+                if in_ol: out.append('</ol>'); in_ol = False
+                out.append('<ul>')
+                in_ul = True
+            out.append(f'<li>{_inline_md(re.sub(r"^[-*•]\s+", "", line))}</li>')
+            i += 1
+            continue
+        
+        # Ordered list
+        if re.match(r'^\d+\.\s', line):
+            if not in_ol:
+                if in_ul: out.append('</ul>'); in_ul = False
+                out.append('<ol>')
+                in_ol = True
+            out.append(f'<li>{_inline_md(re.sub(r"^\d+\.\s+", "", line))}</li>')
+            i += 1
+            continue
+        
+        # Blank line: close lists, start para break
+        if not line:
+            if in_ul: out.append('</ul>'); in_ul = False
+            if in_ol: out.append('</ol>'); in_ol = False
+            i += 1
+            continue
+        
+        # Horizontal rule
+        if re.match(r'^---+$', line):
+            if in_ul: out.append('</ul>'); in_ul = False
+            if in_ol: out.append('</ol>'); in_ol = False
+            out.append('<hr>')
+            i += 1
+            continue
+        
+        # Regular paragraph text
+        if in_ul: out.append('</ul>'); in_ul = False
+        if in_ol: out.append('</ol>'); in_ol = False
+        
+        # Collect consecutive paragraph lines
+        para_lines = [line]
+        i += 1
+        while i < len(lines) and lines[i].strip() and not re.match(r'^[#\-*•\d]', lines[i].strip()) and '|' not in lines[i].strip():
+            if not lines[i].strip().startswith('```'):
+                para_lines.append(lines[i].strip())
+            i += 1
+        out.append(f'<p>{" ".join(_inline_md(l) for l in para_lines)}</p>')
+    
+    # Close any open tags
+    if in_ul: out.append('</ul>')
+    if in_ol: out.append('</ol>')
+    if in_table: out.append('</tbody></table>')
+    
+    return '\n'.join(out)
+
+def _inline_md(text):
+    """Convert inline markdown: **bold**, *italic*, `code`"""
+    text = text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
+    text = re.sub(r'`([^`]+)`', r'<code>\1</code>', text)
+    text = re.sub(r'\*\*(.+?)\*\*', r'<span class="mech-highlight">\1</span>', text)
+    text = re.sub(r'\*(.+?)\*', r'<em>\1</em>', text)
+    return text
+
 def extract_score(text):
     # Match **Score:** 60.33% — case-insensitive, word-boundary, handles bold markers
     m = re.search(r'\b[Ss]core\b.*?([\d.]+)\s*%', text)
@@ -247,9 +369,7 @@ for d in sorted(os.listdir(BASE)):
 
     mechanism_html = ""
     if mechanism:
-        mechanism_esc = mechanism.replace('<', '&lt;').replace('>', '&gt;')
-        mechanism_esc = re.sub(r'\*\*(.+?)\*\*', r'<span class="mech-highlight">\1</span>', mechanism_esc)
-        mechanism_html = f'<div class="mech-box"><div class="mech-title">First Principles</div><div class="mech-body">{mechanism_esc}</div></div>'
+        mechanism_html = f'<div class="mech-box"><div class="mech-title">First Principles</div><div class="mech-body">{md_to_html(mechanism)}</div></div>'
 
     cases.append({
         'folder': d, 'score': score, 'diagnosis': diagnosis, 'patient': patient,
@@ -370,6 +490,29 @@ body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui
 .mech-body { font-size:13px; line-height:1.7; }
 .mech-highlight { color:#ff9f0a; font-weight:600; }
 
+/* Markdown-rendered content */
+.md-table { width:100%; border-collapse:collapse; margin:12px 0; font-size:12px; background:#fafafa; border-radius:8px; overflow:hidden; }
+.md-table thead { background:#e8e8ed; }
+.md-table th { padding:8px 12px; text-align:left; font-size:11px; font-weight:600; color:#6e6e73; text-transform:uppercase; letter-spacing:0.03em; }
+.md-table td { padding:8px 12px; border-bottom:1px solid #f0f0f0; line-height:1.5; }
+.md-table tr:last-child td { border-bottom:none; }
+.mech-body .md-table th { background:#3a3a3d; color:#86868b; }
+.mech-body .md-table td { border-bottom:1px solid #2a2a2d; }
+.mech-body .md-table { background:#2a2a2d; }
+.mech-body ul, .missed-why ul, .mech-body ol, .missed-why ol { padding-left:20px; margin:8px 0 0; display:flex; flex-direction:column; gap:2px; }
+.mech-body li, .missed-why li { margin:0; font-size:inherit; line-height:1.6; }
+.mech-body p, .missed-why p { margin:0 0 8px; }
+.mech-body p:last-child, .missed-why p:last-child { margin-bottom:0; }
+.mech-body hr { border:none; border-top:1px solid #3a3a3d; margin:16px 0; }
+.missed-why hr { border:none; border-top:1px solid #e8e8ed; margin:12px 0; }
+.mech-body code, .missed-why code { font-family:'JetBrains Mono',monospace; font-size:11px; background:rgba(255,255,255,0.05); padding:1px 5px; border-radius:4px; }
+.mech-body pre, .missed-why pre { background:rgba(0,0,0,0.3); padding:10px 12px; border-radius:8px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:11px; margin:8px 0; }
+.mech-body em, .missed-why em { font-style:italic; }
+.md-h2, .md-h3, .md-h4 { margin-top:14px; margin-bottom:6px; }
+.md-h2 { font-size:16px; font-weight:700; }
+.md-h3 { font-size:14px; font-weight:600; }
+.md-h4 { font-size:13px; font-weight:600; }
+
 .lightbox { display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.92); z-index:9999; justify-content:center; align-items:center; cursor:pointer; }
 .lightbox.active { display:flex; }
 .lightbox img { max-width:92vw; max-height:92vh; object-fit:contain; border-radius:12px; }
@@ -446,12 +589,12 @@ for i, c in enumerate(cases):
   <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon missed">✕</div><span class="section-title">What I Missed</span><span class="section-count">{len(c['missed'])} gaps</span></div><div class="section-chevron">▾</div></div>
   <div class="section-body">''')
         for item in c['missed']:
-            title_esc = item['title'].replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
-            why_esc = item['why'].replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;') if item['why'] else ''
-            # Process bold markers in why text
-            why_esc = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', why_esc)
-            why_esc = re.sub(r'\*(.+?)\*', r'<em>\1</em>', why_esc)
-            html_parts.append(f'''    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>{title_esc}</div><div class="missed-why">{why_esc}</div></div>''')
+            title_html = _inline_md(item['title']) if item['title'] else ''
+            why_html = md_to_html(item['why']) if item['why'] else ''
+            if title_html:
+                html_parts.append(f'''    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>{title_html}</div><div class="missed-why">{why_html}</div></div>''')
+            elif why_html:
+                html_parts.append(f'''    <div class="missed-item"><div class="missed-why">{why_html}</div></div>''')
         html_parts.append('  </div>\n</div>')
 
     # Got Right
@@ -460,11 +603,12 @@ for i, c in enumerate(cases):
   <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon ordered">✓</div><span class="section-title">What I Got Right</span></div><div class="section-chevron">▾</div></div>
   <div class="section-body">''')
         for item in c['got_right']:
-            title_esc = item['title'].replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
-            why_esc = item['why'].replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;') if item['why'] else ''
-            why_esc = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', why_esc)
-            why_esc = re.sub(r'\*(.+?)\*', r'<em>\1</em>', why_esc)
-            html_parts.append(f'''    <div class="missed-item"><div class="got-right-order"><span class="got-right-dot"></span>{title_esc}</div><div class="missed-why">{why_esc}</div></div>''')
+            title_html = _inline_md(item['title']) if item['title'] else ''
+            why_html = md_to_html(item['why']) if item['why'] else ''
+            if title_html:
+                html_parts.append(f'''    <div class="missed-item"><div class="got-right-order"><span class="got-right-dot"></span>{title_html}</div><div class="missed-why">{why_html}</div></div>''')
+            elif why_html:
+                html_parts.append(f'''    <div class="missed-item"><div class="missed-why">{why_html}</div></div>''')
         html_parts.append('  </div>\n</div>')
 
     html_parts.append('\n</div><!-- /case-text -->')
