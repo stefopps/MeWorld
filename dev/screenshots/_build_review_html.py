@@ -571,6 +571,35 @@ body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui
   .case-plates { position:static; flex-direction:row; flex-wrap:wrap; max-height:none; }
   .case-plates .plate-card { flex:1; min-width:220px; }
 }
+
+/* Attending chat section */
+.attending-section { background:linear-gradient(135deg,#1a1a2e,#16213e); border-radius:var(--radius); margin-bottom:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); }
+.attending-header { padding:16px 20px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; }
+.attending-header:hover { background:rgba(255,255,255,0.03); }
+.attending-header-left { display:flex; align-items:center; gap:10px; }
+.attending-icon { width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,#7c3aed,#a78bfa); display:flex; align-items:center; justify-content:center; font-size:15px; }
+.attending-title { font-size:13px; font-weight:600; color:#e2e8f0; }
+.attending-sub { font-size:10px; color:#94a3b8; margin-top:2px; }
+.attending-ask-btn { padding:6px 14px; border-radius:8px; border:none; background:linear-gradient(135deg,#7c3aed,#6d28d9); color:#fff; font-family:'Inter',sans-serif; font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+.attending-ask-btn:hover { background:linear-gradient(135deg,#8b5cf6,#7c3aed); transform:translateY(-1px); }
+.attending-ask-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+.attending-body { display:none; padding:0 20px 18px; }
+.attending-section.open .attending-body { display:block; }
+.attending-response { font-size:13px; line-height:1.75; color:#e2e8f0; }
+.attending-response p { margin:0 0 10px; }
+.attending-response p:last-child { margin-bottom:0; }
+.attending-response strong { color:#fbbf24; font-weight:600; }
+.attending-response em { color:#a78bfa; font-style:italic; }
+.attending-spinner { display:flex; align-items:center; gap:8px; color:#94a3b8; font-size:12px; padding:12px 0; }
+.attending-spinner .spinner-dot { width:5px; height:5px; border-radius:50%; background:#7c3aed; animation:spinner-pulse 1s infinite; }
+.attending-spinner .spinner-dot:nth-child(2) { animation-delay:0.2s; }
+.attending-spinner .spinner-dot:nth-child(3) { animation-delay:0.4s; }
+@keyframes spinner-pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+.attending-error { color:#f87171; font-size:12px; padding:12px 0; }
+.attending-source { font-size:9px; color:#64748b; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06); }
+.api-key-prompt { font-size:12px; color:#94a3b8; padding:12px 0; }
+.api-key-prompt input { width:100%; padding:8px 10px; border-radius:6px; border:1px solid #334155; background:#0f172a; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:11px; margin:8px 0; }
+.api-key-prompt button { padding:6px 14px; border-radius:6px; border:none; background:#7c3aed; color:#fff; font-family:'Inter',sans-serif; font-size:11px; font-weight:600; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -656,6 +685,18 @@ for i, c in enumerate(cases):
                 html_parts.append(f'''    <div class="missed-item"><div class="missed-why">{why_html}</div></div>''')
         html_parts.append('  </div>\n</div>')
 
+    # Attending Teach Me section
+    html_parts.append(f'''<div class="attending-section" id="attending-{sid}">
+  <div class="attending-header" onclick="var s=document.getElementById('attending-{sid}');s.classList.toggle('open');">
+    <div class="attending-header-left">
+      <div class="attending-icon">🧠</div>
+      <div><div class="attending-title">Teach Me, Attending</div><div class="attending-sub">First principles · Mechanism · Spatial logic</div></div>
+    </div>
+    <button class="attending-ask-btn" id="ask-btn-{sid}" onclick="event.stopPropagation();askAttending('{sid}')">Ask Attending</button>
+  </div>
+  <div class="attending-body" id="attending-body-{sid}"></div>
+</div>''')
+
     html_parts.append('\n</div><!-- /case-text -->')
 
     # Images
@@ -671,6 +712,30 @@ for i, c in enumerate(cases):
 
     html_parts.append('</div><!-- /case-layout -->\n</div><!-- /case-panel -->')
     first = False
+
+# Build CASE_CONTEXTS JS object
+ctx_entries = []
+for c in cases:
+    sid = slugify(c['folder'])
+    # Build clean missed items for JSON
+    missed_json = []
+    for item in c.get('missed', []):
+        missed_json.append({
+            'title': item.get('title', ''),
+            'why': re.sub(r'<[^>]+>', '', item.get('why', ''))
+        })
+    # Extract plain text mechanism (first 500 chars)
+    mech = re.sub(r'<[^>]+>', '', c.get('mechanism_html', ''))[:500]
+    ctx_entry = {
+        'diagnosis': c['diagnosis'].replace("'", "\\'"),
+        'patient': c['patient'].replace("'", "\\'"),
+        'score': c['score'],
+        'missed': missed_json,
+        'mechanism': mech.replace("'", "\\'").replace('\n', ' ')
+    }
+    ctx_entries.append(f"'{sid}': {{diagnosis:'{ctx_entry['diagnosis']}',patient:'{ctx_entry['patient']}',score:{ctx_entry['score']},missed:{json.dumps(ctx_entry['missed'])},mechanism:'{ctx_entry['mechanism']}'}}")
+
+html_parts.append('''<script>CASE_CONTEXTS={' + ','.join(ctx_entries) + '};</script>''')
 
 html_parts.append('''</div><!-- /main -->
 </div><!-- /app -->
@@ -736,6 +801,86 @@ document.addEventListener('keydown', function(e) {
 function openLightbox(src) { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox').classList.add('active'); }
 function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+
+// --- Attending Chat ---
+var CASE_CONTEXTS = {};
+var DEEPSEEK_KEY = localStorage.getItem('schoonmaker_deepseek_key') || '';
+
+function askAttending(sid) {
+  var section = document.getElementById('attending-' + sid);
+  var body = document.getElementById('attending-body-' + sid);
+  var btn = document.getElementById('ask-btn-' + sid);
+  
+  if (!section.classList.contains('open')) {
+    section.classList.add('open');
+  }
+  
+  if (!DEEPSEEK_KEY) {
+    body.innerHTML = '<div class="api-key-prompt"><strong>DeepSeek API key needed</strong><p style="margin-top:4px">Paste your key below. It stays in your browser (localStorage) and is never sent anywhere except to DeepSeek.</p><input type="password" id="key-input-' + sid + '" placeholder="sk-..."><br><button onclick="saveKeyThenAsk(\'' + sid + '\')">Save &amp; Ask</button></div>';
+    return;
+  }
+  
+  var ctx = CASE_CONTEXTS[sid];
+  if (!ctx) { body.innerHTML = '<div class="attending-error">No case context found.</div>'; return; }
+  
+  body.innerHTML = '<div class="attending-spinner"><div class="spinner-dot"></div><div class="spinner-dot"></div><div class="spinner-dot"></div> The attending is thinking...</div>';
+  btn.disabled = true;
+  btn.textContent = 'Thinking...';
+  
+  var missedText = ctx.missed.map(function(m,i) { return (i+1) + '. ' + m.title + (m.why ? ' \u2014 ' + m.why.replace(/<[^>]+>/g,'').substring(0,200) : ''); }).join('\n');
+  var userMsg = 'I just finished this CCS case. Here is the context:\n\n' +
+    'Diagnosis: ' + ctx.diagnosis + '\n' +
+    'My score: ' + ctx.score + '%\n' +
+    'Patient: ' + ctx.patient + '\n\n' +
+    'What I missed:\n' + (missedText || 'No specific items recorded.') + '\n\n' +
+    'Teach me what I missed from first principles. Lead with mechanism. Answer the spatial/physical why. Connect findings to each other. Use contrast to sharpen. End with a clinical anchor. Keep it tight. The teaching style: a brilliant attending who loves mechanism, not a textbook. No bullet lists of features without explaining why they exist.';
+  
+  var systemPrompt = 'You are a brilliant attending physician teaching a medical student. You teach from first principles: physics, biology, chemistry. Not memorization. Your voice: confident, direct, excited by mechanism. Short sentences. No hedging. No passive voice. Every explanation should make the learner feel "Of course. How could it be any other way?"\n\nRules:\n1. Lead with mechanism, not the feature\n2. Answer the spatial/physical "why"\n3. Connect findings to each other\n4. Use contrast to sharpen understanding\n5. End with a clinical anchor\n6. Never bullet-point a list of features without explaining why they exist\n7. Keep each explanation tight\n8. Occasional questions back to the learner\n9. Use spatial language: "picture..." "think of..." "look at..."';
+  
+  fetch('https://api.deepseek.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DEEPSEEK_KEY },
+    body: JSON.stringify({
+      model: 'deepseek-chat',
+      temperature: 0.7,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMsg }
+      ]
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.disabled = false;
+    btn.textContent = 'Ask Attending';
+    var content = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : '';
+    if (!content) {
+      body.innerHTML = '<div class="attending-error">The attending had no response. Check your API key or try again.</div>';
+      return;
+    }
+    var html = content
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>');
+    body.innerHTML = '<div class="attending-response"><p>' + html + '</p></div><div class="attending-source">DeepSeek \u00b7 Immersa attending voice \u00b7 temp 0.7</div>';
+  })
+  .catch(function(e) {
+    btn.disabled = false;
+    btn.textContent = 'Ask Attending';
+    body.innerHTML = '<div class="attending-error">Could not reach DeepSeek. ' + e.message + '</div>';
+  });
+}
+
+function saveKeyThenAsk(sid) {
+  var input = document.getElementById('key-input-' + sid);
+  if (input && input.value.trim()) {
+    DEEPSEEK_KEY = input.value.trim();
+    localStorage.setItem('schoonmaker_deepseek_key', DEEPSEEK_KEY);
+    askAttending(sid);
+  }
+}
 </script>
 </body>
 </html>''')
