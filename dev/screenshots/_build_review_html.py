@@ -4,6 +4,35 @@ from pathlib import Path
 BASE = r"C:\Users\steve\MeWorld\dev\screenshots"
 OUT = os.path.join(BASE, "case-review-all.html")
 
+# --- Read the full MeWorld attending teaching voice from the canonical spec ---
+ATTENDING_MDC_PATH = r"C:\Users\steve\MeWorld\game\.cursor\rules\immersa-attendant-teaching.mdc"
+
+def load_attending_system_prompt():
+    """Read the MeWorld attending teaching spec, strip YAML frontmatter, return JS-escaped string."""
+    if not os.path.exists(ATTENDING_MDC_PATH):
+        return "You are a brilliant attending physician teaching a medical student from first principles."
+    with open(ATTENDING_MDC_PATH, "r", encoding="utf-8") as f:
+        raw = f.read()
+    # Strip YAML frontmatter (between --- markers)
+    frontmatter_end = 0
+    if raw.startswith("---"):
+        lines = raw.split("\n")
+        for i in range(1, len(lines)):
+            if lines[i].strip() == "---":
+                frontmatter_end = i + 1
+                break
+    prompt_text = raw[raw.index("\n", raw.index("\n", frontmatter_end)) + 1:] if frontmatter_end else raw
+    # Strip trailing whitespace per line but preserve paragraph structure
+    prompt_text = re.sub(r"[ \t]+$", "", prompt_text, flags=re.MULTILINE)
+    # Escape for JavaScript string literal: \ → \\, newline → \\n, " → \\", ' → \\'
+    escaped = prompt_text.replace("\\", "\\\\").replace("\n", "\\n").replace('"', '\\"')
+    # Collapse triple+ newlines
+    escaped = re.sub(r"(\\n){3,}", r"\\n\\n", escaped)
+    return escaped
+
+ATTENDING_SYSTEM_PROMPT = load_attending_system_prompt()
+print(f"Attending prompt loaded: {len(ATTENDING_SYSTEM_PROMPT)} chars (escaped)")
+
 def read_README(folder_name):
     path = os.path.join(BASE, folder_name, "README.md")
     if not os.path.exists(path): return None
@@ -860,15 +889,18 @@ function askAttending(sid) {
   
   var missedText = ctx.missed.map(function(m,i) { return (i+1) + '. ' + m.title + (m.why ? ' \u2014 ' + m.why.replace(/<[^>]+>/g,'').substring(0,200) : ''); }).join('\\n');
   var overText = (ctx.overordered || []).map(function(m,i) { return (i+1) + '. ' + m.title + (m.why ? ' \u2014 ' + m.why.replace(/<[^>]+>/g,'').substring(0,200) : ''); }).join('\\n');
-  var userMsg = 'I just finished this CCS case. Here is the context:\\n\\n' +
-    'Diagnosis: ' + ctx.diagnosis + '\\n' +
-    'My score: ' + ctx.score + '%\\n' +
-    'Patient: ' + ctx.patient + '\\n\\n' +
-    'What I missed:\\n' + (missedText || 'No specific items recorded.') + '\\n\\n' +
-    'What I may have over-ordered or ordered unnecessarily:\\n' + (overText || 'No over-ordering data available.') + '\\n\\n' +
-    'Teach me what I missed from first principles. Also tell me if I ordered anything unnecessary. Lead with mechanism. Answer the spatial/physical why. Connect findings to each other. Use contrast to sharpen. End with a clinical anchor. Keep it tight. The teaching style: a brilliant attending who loves mechanism, not a textbook. No bullet lists of features without explaining why they exist.';
+  var mechText = ctx.mechanism || '';
+  var userMsg = 'I just finished this CCS case. Here is the context for you to teach from first principles:\\n\\n' +
+    'DIAGNOSIS: ' + ctx.diagnosis + '\\n' +
+    'MY SCORE: ' + ctx.score + '%\\n' +
+    'PATIENT: ' + ctx.patient + '\\n\\n' +
+    (mechText ? 'MECHANISM / PATHOPHYSIOLOGY (from the case README):\\n' + mechText + '\\n\\n' : '') +
+    'WHAT I MISSED:\\n' + (missedText || 'No specific items recorded.') + '\\n\\n' +
+    'WHAT I OVER-ORDERED:\\n' + (overText || 'No over-ordering data available.') + '\\n\\n' +
+    'Teach me what I missed from first principles. Walk me through each missed item using mechanistic inevitability. Answer the spatial/physical why for each finding. Connect the findings to each other as a single disease story. Use contrast to sharpen understanding against similar conditions. End each teaching point with a clinical anchor. Keep each explanation tight (150-300 words per key concept). If something was over-ordered, explain whether it was truly unnecessary or if it has a niche indication for this presentation.';
   
-  var systemPrompt = 'You are a brilliant attending physician teaching a medical student. You teach from first principles: physics, biology, chemistry. Not memorization. Your voice: confident, direct, excited by mechanism. Short sentences. No hedging. No passive voice. Every explanation should make the learner feel "Of course. How could it be any other way?"\\n\\nRules:\\n1. Lead with mechanism, not the feature\\n2. Answer the spatial/physical "why"\\n3. Connect findings to each other\\n4. Use contrast to sharpen understanding\\n5. End with a clinical anchor\\n6. Also evaluate whether any listed "over-ordered" items were truly unnecessary\\n7. Never bullet-point a list of features without explaining why they exist\\n8. Keep each explanation tight\\n9. Occasional questions back to the learner\\n10. Use spatial language: "picture..." "think of..." "look at..."';
+  var systemPrompt = '{attending_prompt}';
+
   
   fetch('https://api.deepseek.com/v1/chat/completions', {
     method: 'POST',
@@ -893,8 +925,8 @@ function askAttending(sid) {
     }
     var html = content
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>')
+      .replace(/\\*(.+?)\\*/g, '<em>$1</em>')
       .replace(/\\n\\n/g, '</p><p>')
       .replace(/\\n/g, '<br>');
     body.innerHTML = '<div class="attending-response"><p>' + html + '</p></div><div class="attending-source">DeepSeek \u00b7 Immersa attending voice \u00b7 temp 0.7</div>';
@@ -916,7 +948,7 @@ function saveKeyThenAsk(sid) {
 }
 </script>
 </body>
-</html>''')
+</html>'''.replace('{attending_prompt}', ATTENDING_SYSTEM_PROMPT))
 
 with open(OUT, 'w', encoding='utf-8') as f:
     f.write('\n'.join(html_parts))
