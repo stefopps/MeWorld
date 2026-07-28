@@ -149,7 +149,7 @@ body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui
 <div class="app">
 <div class="sidebar">
   <div class="sidebar-title">Case Reviews</div>
-  <div class="sidebar-count">35 cases</div>
+  <div class="sidebar-count">36 cases</div>
   <div class="search-wrap"><span class="search-icon">&#x1F50D;</span><input type="text" id="searchInput" placeholder="Search cases..." oninput="searchCases()" onkeydown="handleSearchKey(event)"><span class="search-shortcut">/</span></div>
   <span id="search-count" style="display:none"></span>
   <div class="search-no-results" id="searchNoResults">No cases found</div>
@@ -197,6 +197,10 @@ body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui
     <div class="case-nav-card" onclick="switchCase('post-mi-pericarditis-2026-07-2')">
       <div class="cn-row"><span class="cn-title">Post-MI Pericarditis — Attending...</span><span class="cn-score warn">68<span style="font-size:10px">%</span></span></div>
       <div class="cn-bar"><div class="cn-bar-seg tx" style="width:68%"></div><div class="cn-bar-seg miss" style="width:32%"></div></div>
+    </div>
+    <div class="case-nav-card" onclick="switchCase('postherpetic-neuralgia-2026-07')">
+      <div class="cn-row"><span class="cn-title"> Trigeminal Postherpetic Neuropa...</span><span class="cn-score warn">66<span style="font-size:10px">%</span></span></div>
+      <div class="cn-bar"><div class="cn-bar-seg tx" style="width:66%"></div><div class="cn-bar-seg miss" style="width:34%"></div></div>
     </div>
     <div class="case-nav-card" onclick="switchCase('chf-hfref-2026-07-25')">
       <div class="cn-row"><span class="cn-title">Congestive Heart Failure (HFrEF)...</span><span class="cn-score warn">65<span style="font-size:10px">%</span></span></div>
@@ -750,6 +754,58 @@ body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui
 <div class="case-plates">
   <div class="plate-card"><div class="plate-card-header">Descent</div><img src="./post-mi-pericarditis-2026-07-25/images/descent-3x3.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">5.3 MB</div></div>
   <div class="plate-card"><div class="plate-card-header">Gaps</div><img src="./post-mi-pericarditis-2026-07-25/images/descent-gaps-3x3.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">5.2 MB</div></div>
+</div>
+</div><!-- /case-layout -->
+</div><!-- /case-panel -->
+
+<div class="case-panel" id="case-postherpetic-neuralgia-2026-07">
+<div class="case-layout">
+<div class="case-text">
+
+<div class="header">
+  <div class="header-top"><div class="header-badge"> Trigeminal Postherpetic Neuropathy (Postherpetic Neuralgia of CN V)</div><div class="header-score warn-bg">65.7<span>%</span></div></div>
+  <p class="header-sub"> · July 27, 2026</p>
+  <div class="score-bar"><div class="score-bar-seg tx" style="width:66%"></div><div class="score-bar-seg miss" style="width:34%"></div></div>
+</div>
+<div class="mech-box"><div class="mech-title">First Principles</div><div class="mech-body"><h3 class="md-h3">Varicella-zoster virus (VZV) does not leave the body after chickenpox.</h3>
+<p>After primary infection (chickenpox), VZV travels retrogradely along sensory nerves to the dorsal root ganglia and cranial nerve ganglia, where it enters latency. The viral genome persists as circular episomal DNA inside the neuronal cell body. The host immune system (specifically VZV-specific CD8+ T cells) keeps it suppressed for decades.</p>
+<h3 class="md-h3">Reactivation: the dermatomal march</h3>
+<p>When cell-mediated immunity wanes (age, stress, immunosuppression), VZV reactivates. It travels anterogradely down the sensory nerve to the skin, producing the characteristic dermatomal vesicular rash. The trigeminal ganglion is the most commonly affected cranial nerve ganglion, with the ophthalmic division (V1) most frequently involved.</p>
+<h3 class="md-h3">The pain comes from two distinct mechanisms</h3>
+<p><span class="mech-highlight">Acute herpetic neuralgia (the rash phase):</span></p>
+<ul>
+<li>Direct viral cytolysis of keratinocytes</li>
+<li>Inflammatory infiltrate in the dorsal root ganglion</li>
+<li>Hemorrhagic necrosis of the ganglion</li>
+<li>Nociceptor sensitization from local prostaglandins, bradykinin, cytokines</li>
+</ul>
+<p><span class="mech-highlight">Postherpetic neuralgia (PHN) - pain persisting &gt;90 days after rash resolution:</span></p>
+<ul>
+<li><span class="mech-highlight">Deafferentation pain.</span> The virus destroys large myelinated A-beta fibers. These fibers normally gate pain transmission in the dorsal horn (Melzack and Wall's gate control theory). When A-beta fibers are lost, the gate stays open. C-fiber nociceptive input flows unimpeded to the thalamus.</li>
+<li><span class="mech-highlight">Central sensitization.</span> Persistent nociceptive barrage upregulates NMDA receptors in the dorsal horn. The spinal cord becomes hyperexcitable. Non-painful stimuli (allodynia) now trigger pain.</li>
+<li><span class="mech-highlight">Ectopic pacemakers.</span> Damaged nerve endings and the cell body in the ganglion develop spontaneous ectopic discharges. Sodium channels (Nav1.7, Nav1.8) accumulate at the injury site, lowering the threshold for spontaneous firing....</li>
+</ul></div></div>
+<div class="section open">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon missed">✕</div><span class="section-title">What I Missed</span><span class="section-count">6 gaps</span></div><div class="section-chevron">▾</div></div>
+  <div class="section-body">
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Treatment: Gabapentin/Pregabalin First-Line (Not Carbamazepine)</div><div class="missed-why"><p><span class="mech-highlight">Score impact: 66.67% on treatment (treated but suboptimal)</span> You ordered medication, and it was accepted. But CCS deducted points because you did not order gabapentin/pregabalin first. Here's the reasoning: This patient had a herpes zoster outbreak that injured CN V. The timeline (pain starting after shingles) makes this postherpetic neuralgia, not classical trigeminal neuralgia. The distinction matters because:</p>
+<ul>
+<li>Classical trigeminal neuralgia: vascular compression → focal demyelination → ephaptic cross-talk → carbamazepine</li>
+<li>Postherpetic neuralgia: viral ganglion destruction → A-beta fiber loss → central sensitization → gabapentin/pregabalin</li>
+</ul>
+<p><span class="mech-highlight">The treatment hierarchy for PHN:</span></p></div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Gabapentin/pregabalin (first-line, alpha-2-delta calcium channel)</div><div class="missed-why"></div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>TCAs - amitriptyline, nortriptyline (second-line, SNRI + NMDA)</div><div class="missed-why"></div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Antiseizure medications - valproic acid, carbamazepine (third-line, when above fail)</div><div class="missed-why"><p>By ordering carbamazepine (or another anti-seizure medication that's not first-line for PHN), you got partial credit but lost points for not choosing the evidence-based first-line agent.</p>
+<p><span class="mech-highlight">The capsacin cream</span> prescribed by urgent care was also anterior treatment: topical capsaicin depletes substance P from C-fiber terminals, reducing nociceptive transmission. It's adjunctive, not primary therapy.</p></div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>CBC with Differential</div><div class="missed-why"><p><span class="mech-highlight">Score impact: Diagnostic orders 42.86%</span> The CCS algorithm wants you to rule out acute infection as a cause of symptoms. While shingles and PHN are post-infectious (not acute infection), CBC is a screening lab expected in nearly every CCS case. In postherpetic neuralgia specifically, you want to check for leukocytosis that might suggest ongoing active zoster rather than resolved PHN, or a secondary bacterial infection of the healed rash site.</p></div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>BMP/CMP</div><div class="missed-why"><p><span class="mech-highlight">Score impact: Diagnostic orders 42.86%</span> Chemistries are standard screening labs. In a patient with PHN being started on gabapentin (renally cleared) or TCAs (cardiotoxic in overdose, metabolized hepatically), baseline renal and hepatic function are prudent. Additionally, electrolyte abnormalities (particularly calcium, magnesium) can cause or exacerbate neuropathic symptoms.</p></div></div>
+  </div>
+</div>
+
+</div><!-- /case-text -->
+<div class="case-plates">
+  <div class="plate-card"><div class="plate-card-header">Gaps</div><img src="./postherpetic-neuralgia-2026-07-27/images/postherpetic-neuralgia-gaps.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">6.5 MB</div></div>
 </div>
 </div><!-- /case-layout -->
 </div><!-- /case-panel -->
