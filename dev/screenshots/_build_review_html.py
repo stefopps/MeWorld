@@ -766,7 +766,7 @@ for c in cases:
     }
     ctx_entries.append(f"'{sid}': {{diagnosis:'{ctx_entry['diagnosis']}',patient:'{ctx_entry['patient']}',score:{ctx_entry['score']},missed:{json.dumps(ctx_entry['missed'])},overordered:{json.dumps(ctx_entry['overordered'])},mechanism:'{ctx_entry['mechanism']}'}}")
 
-html_parts.append('''<script>CASE_CONTEXTS={' + ','.join(ctx_entries) + '};</script>''')
+html_parts.append('<script>CASE_CONTEXTS={' + ','.join(ctx_entries) + '};</script>')
 
 html_parts.append('''</div><!-- /main -->
 </div><!-- /app -->
@@ -834,7 +834,7 @@ function closeLightbox() { document.getElementById('lightbox').classList.remove(
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
 
 // --- Attending Chat ---
-var CASE_CONTEXTS = {};
+var CASE_CONTEXTS = window.CASE_CONTEXTS || {};
 var DEEPSEEK_KEY = localStorage.getItem('schoonmaker_deepseek_key') || '';
 
 function askAttending(sid) {
@@ -847,7 +847,7 @@ function askAttending(sid) {
   }
   
   if (!DEEPSEEK_KEY) {
-    body.innerHTML = '<div class="api-key-prompt"><strong>DeepSeek API key needed</strong><p style="margin-top:4px">Paste your key below. It stays in your browser (localStorage) and is never sent anywhere except to DeepSeek.</p><input type="password" id="key-input-' + sid + '" placeholder="sk-..."><br><button onclick="saveKeyThenAsk(\'' + sid + '\')">Save &amp; Ask</button></div>';
+    body.innerHTML = '<div class="api-key-prompt"><strong>DeepSeek API key needed</strong><p style="margin-top:4px">Paste your key below. It stays in your browser (localStorage) and is never sent anywhere except to DeepSeek.</p><input type="password" id="key-input-' + sid + '" placeholder="sk-..."><br><button onclick="saveKeyThenAsk(\\'' + sid + '\\')">Save &amp; Ask</button></div>';
     return;
   }
   
@@ -858,17 +858,17 @@ function askAttending(sid) {
   btn.disabled = true;
   btn.textContent = 'Thinking...';
   
-  var missedText = ctx.missed.map(function(m,i) { return (i+1) + '. ' + m.title + (m.why ? ' \u2014 ' + m.why.replace(/<[^>]+>/g,'').substring(0,200) : ''); }).join('\n');
-  var overText = (ctx.overordered || []).map(function(m,i) { return (i+1) + '. ' + m.title + (m.why ? ' \u2014 ' + m.why.replace(/<[^>]+>/g,'').substring(0,200) : ''); }).join('\n');
-  var userMsg = 'I just finished this CCS case. Here is the context:\n\n' +
-    'Diagnosis: ' + ctx.diagnosis + '\n' +
-    'My score: ' + ctx.score + '%\n' +
-    'Patient: ' + ctx.patient + '\n\n' +
-    'What I missed:\n' + (missedText || 'No specific items recorded.') + '\n\n' +
-    'What I may have over-ordered or ordered unnecessarily:\n' + (overText || 'No over-ordering data available.') + '\n\n' +
+  var missedText = ctx.missed.map(function(m,i) { return (i+1) + '. ' + m.title + (m.why ? ' \u2014 ' + m.why.replace(/<[^>]+>/g,'').substring(0,200) : ''); }).join('\\n');
+  var overText = (ctx.overordered || []).map(function(m,i) { return (i+1) + '. ' + m.title + (m.why ? ' \u2014 ' + m.why.replace(/<[^>]+>/g,'').substring(0,200) : ''); }).join('\\n');
+  var userMsg = 'I just finished this CCS case. Here is the context:\\n\\n' +
+    'Diagnosis: ' + ctx.diagnosis + '\\n' +
+    'My score: ' + ctx.score + '%\\n' +
+    'Patient: ' + ctx.patient + '\\n\\n' +
+    'What I missed:\\n' + (missedText || 'No specific items recorded.') + '\\n\\n' +
+    'What I may have over-ordered or ordered unnecessarily:\\n' + (overText || 'No over-ordering data available.') + '\\n\\n' +
     'Teach me what I missed from first principles. Also tell me if I ordered anything unnecessary. Lead with mechanism. Answer the spatial/physical why. Connect findings to each other. Use contrast to sharpen. End with a clinical anchor. Keep it tight. The teaching style: a brilliant attending who loves mechanism, not a textbook. No bullet lists of features without explaining why they exist.';
   
-  var systemPrompt = 'You are a brilliant attending physician teaching a medical student. You teach from first principles: physics, biology, chemistry. Not memorization. Your voice: confident, direct, excited by mechanism. Short sentences. No hedging. No passive voice. Every explanation should make the learner feel "Of course. How could it be any other way?"\n\nRules:\n1. Lead with mechanism, not the feature\n2. Answer the spatial/physical "why"\n3. Connect findings to each other\n4. Use contrast to sharpen understanding\n5. End with a clinical anchor\n6. Also evaluate whether any listed "over-ordered" items were truly unnecessary\n7. Never bullet-point a list of features without explaining why they exist\n8. Keep each explanation tight\n9. Occasional questions back to the learner\n10. Use spatial language: "picture..." "think of..." "look at..."';
+  var systemPrompt = 'You are a brilliant attending physician teaching a medical student. You teach from first principles: physics, biology, chemistry. Not memorization. Your voice: confident, direct, excited by mechanism. Short sentences. No hedging. No passive voice. Every explanation should make the learner feel "Of course. How could it be any other way?"\\n\\nRules:\\n1. Lead with mechanism, not the feature\\n2. Answer the spatial/physical "why"\\n3. Connect findings to each other\\n4. Use contrast to sharpen understanding\\n5. End with a clinical anchor\\n6. Also evaluate whether any listed "over-ordered" items were truly unnecessary\\n7. Never bullet-point a list of features without explaining why they exist\\n8. Keep each explanation tight\\n9. Occasional questions back to the learner\\n10. Use spatial language: "picture..." "think of..." "look at..."';
   
   fetch('https://api.deepseek.com/v1/chat/completions', {
     method: 'POST',
@@ -895,8 +895,8 @@ function askAttending(sid) {
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/\n\n/g, '</p><p>')
-      .replace(/\n/g, '<br>');
+      .replace(/\\n\\n/g, '</p><p>')
+      .replace(/\\n/g, '<br>');
     body.innerHTML = '<div class="attending-response"><p>' + html + '</p></div><div class="attending-source">DeepSeek \u00b7 Immersa attending voice \u00b7 temp 0.7</div>';
   })
   .catch(function(e) {
