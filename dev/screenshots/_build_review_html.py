@@ -139,11 +139,16 @@ def extract_score(text):
     return 0
 
 def extract_diagnosis(text):
-    # Try "Case:" line
+    # Prefer "Diagnosis:" line over "Case:" line
     for line in text.split("\n"):
-        line = line.strip()
-        if line.startswith("Case:") or line.startswith("**Case:**"):
-            d = re.sub(r'\*\*', '', line.replace("Case:", "").strip())
+        ls = line.strip()
+        if ls.startswith("Diagnosis:") or ls.startswith("**Diagnosis:**"):
+            d = re.sub(r'\*{1,3}', '', ls.replace("Diagnosis:", "").strip())
+            if d and len(d) < 80: return d
+    for line in text.split("\n"):
+        ls = line.strip()
+        if ls.startswith("Case:") or ls.startswith("**Case:**"):
+            d = re.sub(r'\*{1,3}', '', ls.replace("Case:", "").strip())
             if d and len(d) < 80: return d
     # Try first H1
     m = re.search(r'^# (.+?)$', text, re.MULTILINE)
@@ -348,6 +353,44 @@ def score_label(score):
     if score >= 50: return "warn"
     return "bad"
 
+def extract_keywords(text):
+    """Extract clinical keywords from README for search indexing.
+    Pulls from: diagnosis, bold terms, FA coverage table, medication names, mechanism terms."""
+    keywords = set()
+    
+    # All bold terms (clinical concepts are typically bolded in READMEs)
+    for m in re.finditer(r'\*\*(.+?)\*\*', text):
+        term = m.group(1).strip().lower()
+        if len(term) > 2 and len(term) < 60 and not term.startswith('#'):
+            keywords.add(term)
+            # Add hyphen-less variant preserving spaces (turns "pre-eclampsia" into "preeclampsia")
+            deh = term.replace('-', '')
+            if deh != term:
+                keywords.add(deh)
+            # Add individual words (split on spaces, then remove hyphens from each)
+            for word in re.findall(r'[a-z]{3,}', deh):
+                keywords.add(word)
+            for word in re.findall(r'[a-z]{3,}', term):
+                keywords.add(word)
+                keywords.add(word.replace('-', ''))
+    
+    # Extract medication names (capitalized drug names)
+    for m in re.finditer(r'\b([A-Z][a-z]+(?:[ /]+[A-Z][a-z]+)*)\b', text):
+        drug = m.group(1).lower()
+        if drug not in ('the','This','That','These','Those','Each','What','Which','When','Where','Case','Score','Date','July','First','Average','High','Completed','Reason','Weight','Total','Diagnosis','Correctly','Should','Optional','Required','Treatment','Timing','Appropriate','Number','Action','Simulated','Physical','General','Neuro','Heart','Chest','Skin','Abdomen','HEENT','Extremities','Spine','Genitalia','Summary','Differential','Hook','Mechanism','Clinical','Attending','Session','Source','First','Coverage','Plate','Plates','Key','What','How','Why','Reactivation','Stage','Stages','Panel','Panels','Left','Right','Center','Bottom','Ask','Once','Classical','Secondary','Both','CCS','USMLE','ACOG','MAGPIE','VEGF','PlGF','CBC','BMP','CMP','LFTs','PT','PTT','INR','UA','US','OB','ED','IV','BP','CNS','PRES','SIADH','NMDA','SNRI','TCA','VZV','PHN','TN','CN','HELLP','AFLP','TTP','HUS','RUQ','AFI','RhoGAM','NNT','AIP','PBG','ALA','PBGD'): continue
+        keywords.add(drug)
+    
+    # Grab topics from First Aid coverage table rows
+    for m in re.finditer(r'^\|.*?\|\s*(.+?)\s*\|', text, re.MULTILINE):
+        topic = _strip_md(m.group(1)).lower()
+        if topic and len(topic) > 3 and not topic.startswith('fa') and not topic.startswith('-'):
+            keywords.add(topic)
+            for word in re.findall(r'[a-z]{4,}', topic):
+                keywords.add(word)
+    
+    return list(keywords)
+
+
 def slugify(name):
     return re.sub(r'[^a-z0-9]', '-', name.lower())[:30]
 
@@ -366,6 +409,7 @@ for d in sorted(os.listdir(BASE)):
     patient = extract_patient_info(readme)
     images = get_images(d)
     date_str = d[-10:]
+    keywords = extract_keywords(readme)
 
     mechanism_html = ""
     if mechanism:
@@ -374,7 +418,7 @@ for d in sorted(os.listdir(BASE)):
     cases.append({
         'folder': d, 'score': score, 'diagnosis': diagnosis, 'patient': patient,
         'mechanism_html': mechanism_html, 'missed': missed, 'got_right': got_right,
-        'images': images, 'date': date_str
+        'images': images, 'date': date_str, 'keywords': keywords
     })
 
 # Sort by score descending
@@ -549,7 +593,8 @@ for i, c in enumerate(cases):
     if len(name) > 35: name = name[:32] + '...'
     tx_pct = min(100, max(0, c['score']))
     miss_pct = 100 - tx_pct
-    html_parts.append(f'''    <div class="case-nav-card{active}" onclick="switchCase('{sid}')">
+    search_terms = ' '.join(c['keywords'] + [c['diagnosis'].lower(), c['diagnosis'].lower().replace('-',''), c['patient'].lower()])
+    html_parts.append(f'''    <div class="case-nav-card{active}" onclick="switchCase('{sid}')" data-search="{search_terms.replace(chr(34), '').replace('<','').replace('>','')}">
       <div class="cn-row"><span class="cn-title">{name}</span><span class="cn-score {sl}">{c['score']:.0f}<span style="font-size:10px">%</span></span></div>
       <div class="cn-bar"><div class="cn-bar-seg tx" style="width:{tx_pct:.0f}%"></div><div class="cn-bar-seg miss" style="width:{miss_pct:.0f}%"></div></div>
     </div>''')
@@ -686,10 +731,6 @@ document.addEventListener('keydown', function(e) {
     document.getElementById('searchInput').focus();
     document.getElementById('searchInput').select();
   }
-});
-
-document.querySelectorAll('.case-nav-card').forEach(function(c) {
-  c.setAttribute('data-search', c.textContent.replace(/\\s+/g,' ').trim());
 });
 
 function openLightbox(src) { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox').classList.add('active'); }
