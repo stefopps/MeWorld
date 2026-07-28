@@ -149,7 +149,7 @@ body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui
 <div class="app">
 <div class="sidebar">
   <div class="sidebar-title">Case Reviews</div>
-  <div class="sidebar-count">34 cases</div>
+  <div class="sidebar-count">35 cases</div>
   <div class="search-wrap"><span class="search-icon">&#x1F50D;</span><input type="text" id="searchInput" placeholder="Search cases..." oninput="searchCases()" onkeydown="handleSearchKey(event)"><span class="search-shortcut">/</span></div>
   <span id="search-count" style="display:none"></span>
   <div class="search-no-results" id="searchNoResults">No cases found</div>
@@ -173,6 +173,10 @@ body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui
     <div class="case-nav-card" onclick="switchCase('ibs-not-ibd-2026-07-27')">
       <div class="cn-row"><span class="cn-title">Irritable Bowel Syndrome — Not IBD</span><span class="cn-score good">80<span style="font-size:10px">%</span></span></div>
       <div class="cn-bar"><div class="cn-bar-seg tx" style="width:80%"></div><div class="cn-bar-seg miss" style="width:20%"></div></div>
+    </div>
+    <div class="case-nav-card" onclick="switchCase('pre-eclampsia-severe-2026-07-2')">
+      <div class="cn-row"><span class="cn-title"> Facial and Upper Extremity Edema</span><span class="cn-score good">78<span style="font-size:10px">%</span></span></div>
+      <div class="cn-bar"><div class="cn-bar-seg tx" style="width:78%"></div><div class="cn-bar-seg miss" style="width:22%"></div></div>
     </div>
     <div class="case-nav-card" onclick="switchCase('ruptured-ovarian-cyst-2026-07-')">
       <div class="cn-row"><span class="cn-title">Ruptured Ovarian Cyst with Hemop...</span><span class="cn-score good">76<span style="font-size:10px">%</span></span></div>
@@ -501,6 +505,56 @@ body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui
 <div class="case-plates">
   <div class="plate-card"><div class="plate-card-header">Descent</div><img src="./ibs-not-ibd-2026-07-27/images/descent-3x3.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">6.6 MB</div></div>
   <div class="plate-card"><div class="plate-card-header">Gaps</div><img src="./ibs-not-ibd-2026-07-27/images/descent-gaps-3x3.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">6.0 MB</div></div>
+</div>
+</div><!-- /case-layout -->
+</div><!-- /case-panel -->
+
+<div class="case-panel" id="case-pre-eclampsia-severe-2026-07-2">
+<div class="case-layout">
+<div class="case-text">
+
+<div class="header">
+  <div class="header-top"><div class="header-badge"> Facial and Upper Extremity Edema</div><div class="header-score good-bg">77.7<span>%</span></div></div>
+  <p class="header-sub"> · July 27, 2026</p>
+  <div class="score-bar"><div class="score-bar-seg tx" style="width:78%"></div><div class="score-bar-seg miss" style="width:22%"></div></div>
+</div>
+<div class="mech-box"><div class="mech-title">First Principles</div><div class="mech-body"><h3 class="md-h3">The placenta is not a passive organ. It's an invasive trophoblastic graft.</h3>
+<p>Normal placentation requires cytotrophoblast invasion of the maternal spiral arterioles, converting them from high-resistance muscular vessels into low-resistance, high-flow sinusoidal channels. This happens by week 20. When it fails, the spiral arteries remain narrow, high-resistance, and reactive - and the placenta becomes progressively hypoperfused.</p>
+<p><span class="mech-highlight">Stage 1 (abnormal placentation):</span> Incomplete trophoblast invasion of spiral arteries. This is silent, mechanical, happens by mid-pregnancy.</p>
+<p><span class="mech-highlight">Stage 2 (placental ischemia):</span> The under-perfused placenta releases anti-angiogenic factors into maternal circulation - most critically soluble fms-like tyrosine kinase-1 (sFlt-1) and soluble endoglin (sEng). sFlt-1 binds and neutralizes VEGF and PlGF (placental growth factor). Soluble endoglin blocks TGF-beta signaling in the maternal endothelium.</p>
+<p><span class="mech-highlight">Stage 3 (systemic endothelial dysfunction):</span> Without VEGF/PlGF maintenance signals, the maternal vascular endothelium becomes leaky, activated, and dysfunctional. This is the clinical stage:</p>
+<ul>
+<li><span class="mech-highlight">Vasospasm:</span> Endothelin dominates over NO/prostacyclin. Systemic vasoconstriction. BP 189/99.</li>
+<li><span class="mech-highlight">Capillary leak:</span> Albumin escapes into interstitium. Facial edema. Pulmonary edema if severe.</li>
+<li><span class="mech-highlight">Glomerular endotheliosis:</span> The renal glomerulus swells - endothelial cells proliferate, capillaries narrow. Proteinuria (&gt;300 mg/24h). Creatinine rises.</li>
+<li><span class="mech-highlight">Cerebral autoregulation failure:</span> Hypertension overcomes cerebral autoregulatory capacity. Vasogenic edema. Headache. Visual scotoma. Risk of posterior reversible encephalopathy syndrome (PRES). Risk of eclampsia.</li>
+<li><span class="mech-highlight">HELLP spectrum:</span> If microvascular thrombosis dominates - hemolysis, elevated liver enzymes, low platelets. RUQ pain from hepatic sinusoidal obstruction and Glisson capsule stretch.</li>
+</ul>
+<h3 class="md-h3">Severe features (present here):...</h3></div></div>
+<div class="section open">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon missed">✕</div><span class="section-title">What I Missed</span><span class="section-count">5 gaps</span></div><div class="section-chevron">▾</div></div>
+  <div class="section-body">
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Urinalysis / 24-Hour Urine Protein: The Defining Test</div><div class="missed-why"><p>Proteinuria is the classic end-organ marker of pre-eclampsia. A spot urine protein/creatinine ratio &gt;= 0.3 or 24-hour urine protein &gt;= 300 mg confirms the renal manifestation of glomerular endotheliosis.</p>
+<p><span class="mech-highlight">Why it matters:</span> The BP + headache + blurry vision are enough to diagnose severe pre-eclampsia. But documenting proteinuria closes the diagnostic loop and rules out mimics (chronic HTN without pre-eclampsia, gestational hypertension). It also establishes baseline renal involvement - if creatinine rises later, you know it's progression, not a new problem.</p></div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Type and Screen / Rh Factor: Pre-Op Labs for Delivery</div><div class="missed-why"><p>You ordered PT/PTT correctly. But type and screen is the other half of the pre-op coagulation panel. She's 33 weeks, heading toward delivery - possibly emergent cesarean. You need to know her blood type, Rh status, and antibody screen before she's on the table.</p>
+<p><span class="mech-highlight">Why it matters:</span> Rh-negative mothers need RhoGAM within 72 hours of delivery. Unexpected antibodies mean cross-matched blood takes longer. This is a 30-second order that prevents a crisis in the OR.</p></div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Pelvic Ultrasound: Fetal Assessment</div><div class="missed-why"><p>Transabdominal then transvaginal ultrasound. At 33 weeks with severe pre-eclampsia, the fetus is at risk for:</p>
+<ul>
+<li><span class="mech-highlight">Oligohydramnios</span> (uteroplacental insufficiency reduces fetal renal perfusion and urine output)</li>
+<li><span class="mech-highlight">Intrauterine growth restriction</span> (IUGR - chronic placental hypoperfusion)</li>
+<li><span class="mech-highlight">Abnormal umbilical artery Dopplers</span> (absent or reversed end-diastolic flow signals decompensation)</li>
+</ul>
+<p><span class="mech-highlight">Why it matters:</span> The ultrasound determines delivery timing. If there's IUGR with abnormal Dopplers, delivery is urgent even at 33 weeks. If fetal status is reassuring, you have time for the full 48-hour betamethasone course.</p></div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>Pulse Oximetry: The Simplest Test</div><div class="missed-why"><p>The CCS algorithm expects pulse ox on nearly every patient. This one is low-yield medically in an otherwise stable pre-eclamptic without respiratory complaints, but clinically it's a habit: O2 saturation is a vital sign. If pulmonary edema develops (a severe feature), you need a baseline.</p></div></div>
+    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>The Diagnostic Order Ratio</div><div class="missed-why"><p>You placed 11 orders. The average high-scorer places 27. You were 1.58 standard deviations below the mean. This is not a clinical failure - it's efficiency. You recognized the emergency and moved to treatment. But the CCS scoring algorithm weights diagnostic orders at 40% of total score. Even when you know the diagnosis, you must demonstrate the workup.</p>
+<p><span class="mech-highlight">The fix:</span> After your physical exam, run the standard pre-eclampsia lab panel: CBC, BMP, LFTs, urinalysis, 24-hour urine protein, type and screen. Then ultrasound. Then deliver. The extra orders add 2 minutes of clicking and protect 30% of your score.</p></div></div>
+  </div>
+</div>
+
+</div><!-- /case-text -->
+<div class="case-plates">
+  <div class="plate-card"><div class="plate-card-header">Descent</div><img src="./pre-eclampsia-severe-2026-07-27/images/pre-eclampsia-severe-descent-3x3.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">6.0 MB</div></div>
+  <div class="plate-card"><div class="plate-card-header">Gaps</div><img src="./pre-eclampsia-severe-2026-07-27/images/pre-eclampsia-severe-gaps.png" onclick="openLightbox(this.src)" loading="lazy"><div class="plate-card-footer">6.1 MB</div></div>
 </div>
 </div><!-- /case-layout -->
 </div><!-- /case-panel -->
