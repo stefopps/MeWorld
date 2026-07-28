@@ -1,0 +1,97 @@
+{
+  "caseId": "viral-meningitis-infant",
+  "diagnosis": "Viral Meningitis",
+  "score": "49.8%",
+  "avgFirstAttempt": "52.7%",
+  "patient": {
+    "age": "infant under 6 months",
+    "sex": "unknown",
+    "key": "Bulging fontanelle + nuchal rigidity + photophobia = infant meningitis triad"
+  },
+  "csfFindings": {
+    "wbc": "20 cells/microL",
+    "protein": "50 mg/dL",
+    "glucose": "normal",
+    "gramStain": "negative",
+    "culture": "negative"
+  },
+  "sequence": [
+    {
+      "step": 1,
+      "screen": "Initial presentation",
+      "what": "Infant with fever, poor feeding, behavioral change",
+      "decision": "Recognize infant meningitis — classic signs absent under 6 months, look for bulging fontanelle + paradoxical irritability"
+    },
+    {
+      "step": 2,
+      "screen": "Physical exam",
+      "what": "General Appearance, Skin, HEENT/Neck — bulging fontanelle, nuchal rigidity, photophobia",
+      "decision": "Infant meningitis triad confirmed. LP indicated regardless of nonspecific history."
+    },
+    {
+      "step": 3,
+      "screen": "Lumbar puncture + CSF studies",
+      "what": "CSF: WBC 20, protein 50, glucose normal, gram stain negative, culture negative",
+      "decision": "Viral meningitis pattern. Normal glucose distinguishes from bacterial. Do NOT start empiric antibiotics."
+    },
+    {
+      "step": 4,
+      "screen": "Treatment",
+      "what": "IV fluids for poor feeding, supportive care, observation",
+      "decision": "Viral meningitis = supportive care. No antibiotics needed. Can manage inpatient or outpatient."
+    }
+  ],
+  "missed": [
+    {
+      "order": "CBC with differential",
+      "why": "Fever with high suspicion for meningitis — CBC differentiates bacterial (neutrophilic leukocytosis with bandemia) from viral (lymphocytic predominance or normal WBC). This is the single most important blood test for ruling in or out bacterial meningitis before the LP results return."
+    },
+    {
+      "order": "Urinalysis",
+      "why": "Infants with meningitis need source identification. UA screens for UTI — a common bacterial source that can seed the meninges hematogenously. Sterile pyuria or bacteriuria would raise suspicion for bacterial meningitis from a urinary source."
+    },
+    {
+      "order": "Bacterial culture, urine",
+      "why": "Urine culture completes the UA. If the UA is positive, you need organism identification and sensitivities. Infants under 6 months with fever should have a full septic workup including urine culture."
+    },
+    {
+      "order": "Bacterial culture, blood",
+      "why": "Blood cultures are part of the complete septic workup in any infant with suspected meningitis. Bacteremia is the bridge between a distant infection and the meninges — catching it in blood confirms the portal of entry and guides antibiotic choice if bacterial."
+    },
+    {
+      "order": "Glucose, cerebrospinal fluid",
+      "why": "CSF glucose is the single most important parameter for distinguishing bacterial from viral meningitis. Bacterial meningitis consumes glucose — it drops below 40% of serum glucose or below 40 mg/dL. Viral meningitis has normal CSF glucose. You ordered cell count and protein but missed the third pillar of the CSF triad. Normal glucose = viral. Low glucose = bacterial. This one number changes management."
+    },
+    {
+      "order": "Gram stain, cerebrospinal fluid",
+      "why": "Gram stain of CSF is the fastest result in meningitis workup — it comes back in minutes, not days. A negative gram stain strongly supports viral etiology. A positive gram stain (gram-positive cocci in pairs = pneumococcus, gram-negative rods = H. flu or E. coli) gives you organism identification before the culture grows. In infants, group B strep (gram-positive cocci in chains) and E. coli (gram-negative rods) are the top pathogens. You need this result to confidently withhold antibiotics."
+    },
+    {
+      "order": "BMP/CMP",
+      "why": "An infant with poor feeding and meningitis is at risk for electrolyte derangement (hyponatremia from SIADH, common in CNS infections). Renal function matters for medication dosing. Chemistries are standard for any admission-worthy illness in a pediatric patient. The CCS algorithm expects them on every case with poor feeding."
+    },
+    {
+      "order": "Acetaminophen / Ibuprofen",
+      "why": "The infant has high fever and pain (photophobia, nuchal rigidity = headache equivalent). Antipyretics reduce fever burden, improve comfort, and allow better assessment of mental status (a comfortable baby is a more examinable baby). Acetaminophen is weight-based: 10-15 mg/kg/dose. Ibuprofen only if >6 months. You correctly avoided aspirin (Reye syndrome), but gave nothing for the fever. Treatment orders scored 50% — this is where the other 50% went."
+    }
+  ],
+  "correctMoves": [
+    "Physical exam — General Appearance, Skin, HEENT/Neck (identified the triad)",
+    "LP with CSF culture, cell count, protein",
+    "IV fluids for poor feeding",
+    "Correctly avoided aspirin (Reye syndrome risk in febrile child)",
+    "Correctly avoided empiric antibiotics — recognized viral pattern from CSF, did not treat a negative culture"
+  ],
+  "scoreBreakdown": {
+    "diagnosisOrders": "44%",
+    "treatmentOrders": "50%",
+    "timing": "0%",
+    "appropriateOrders": "100%",
+    "appropriateLocation": "100%"
+  },
+  "ordersPlaced": 19,
+  "averageOrders": 36.56,
+  "zScore": -1.50,
+  "imageOutputPath": "C:/Users/steve/MeWorld/dev/screenshots/viral-meningitis-infant-2026-07-27/images",
+  "imageGenerationStatus": "pending"
+}

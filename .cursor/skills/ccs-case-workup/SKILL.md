@@ -307,7 +307,9 @@ Seven roadblocks that have cost hours. Do NOT regress on any of them.
 | **4** | **Prompt > 2995 chars** | Silent API failure or truncated output | Compress panel descriptions; NEVER trim the Naughty Dog style opener or closing "no text anywhere" line |
 | **5** | **Status also nested under `data`** | Poll loop hangs on `IN_PROGRESS` even when done | Check `(resp.get('data') or resp).get('status')` |
 | **6** | **`generated` is list of strings, not dicts** | `KeyError: 'url'` or `None` when accessing `generated[0]['url']` | `generated[0]` IS the URL — a string, not a dict. Do NOT chain `.url` |
-| **7** | **Text-only prompt — no visual reference attached** | Renders ignore the Naughty Dog style description, produce flat generic game art | Encode `uncharted-4-main-menu.png` as base64 data URL, include in `reference_images` array in every Magnific payload |
+| **7** | **Text-only prompt — no visual reference attached** | Renders ignore the Naughty Dog style description, produce flat generic game art | Encode `uncharted-4-main-menu.png` as **raw base64** (NOT data URL prefix), include in `reference_images` array: `{'image': raw_b64, 'mime_type': 'image/png'}` |
+| **8** | **Missing `mime_type` on reference_image** | `400 Validation error: "Field required"` | Add `'mime_type': 'image/png'` to each reference_images entry — e.g. `{'image': raw_b64, 'mime_type': 'image/png'}` |
+| **9** | **Wrong polling URL** | Status always empty, times out after 600s | Poll at `f'{ENDPOINT}/{task_id}'`, NOT at `f'https://api.magnific.com/v1/ai/tasks/{task_id}'` — the tasks endpoint doesn't exist
 
 ### 7e — Reference
 
