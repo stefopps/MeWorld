@@ -31,8 +31,7 @@ def extract_diagnosis(text):
     return "Unknown"
 
 def extract_mechanism(text):
-    """Extract first principles / mechanism section"""
-    # Look for "Mechanism" or "First Principles" section
+    """Extract first principles / mechanism section — takes up to 2000 chars"""
     patterns = [
         r'## Mechanism.*?\n(.*?)(?=\n##|\n---|\n# )',
         r'## First Principles.*?\n(.*?)(?=\n##|\n---|\n# )',
@@ -43,44 +42,94 @@ def extract_mechanism(text):
         m = re.search(pat, text, re.DOTALL | re.IGNORECASE)
         if m:
             content = m.group(1).strip()
-            # Take first 300 chars
-            if len(content) > 300:
-                content = content[:300].rsplit('.', 1)[0] + "."
+            if len(content) > 2000:
+                # Break at paragraph boundary
+                cutoff = content[:2000].rfind('\n\n')
+                if cutoff > 300:
+                    content = content[:cutoff] + "..."
+                else:
+                    content = content[:2000].rsplit('.', 1)[0] + "..."
             return content
     return ""
 
-def extract_missed(text):
-    """Extract missed orders"""
-    items = []
-    in_missed = False
-    for line in text.split("\n"):
-        if re.match(r'## What You Missed|## What I Missed|### Missed', line):
-            in_missed = True
-            continue
-        if in_missed:
-            if re.match(r'^##|^---', line):
-                break
-            if line.strip().startswith("|") or re.match(r'\*\*.*?\*\*.*?\n', line):
-                continue
-            m = re.match(r'^\d+\.\s*\*?\*?\*?(.+?)\*?\*?\*?$', line.strip())
-            if m:
-                items.append(m.group(1).strip())
-    return items[:8]  # max 8
+def _strip_md(s):
+    """Strip markdown bold/italic wrappers and standardize spacing"""
+    s = re.sub(r'\*{1,3}', '', s).strip()
+    s = re.sub(r'\s+', ' ', s)
+    return s
 
-def extract_got_right(text):
+def _extract_section_items(text, section_patterns, end_pattern=r'^#{2}\s+(?!\#)|^---'):
+    """Extract (title, why_text) pairs from a markdown section.
+    Parses numbered subsections (### N. **Title**) and collects body text until next subsection."""
     items = []
     in_section = False
-    for line in text.split("\n"):
-        if re.match(r'## What You Got Right', line):
-            in_section = True
+    current_title = None
+    current_body = []
+    start_line = None
+    
+    # Find section start
+    for i, line in enumerate(text.split("\n")):
+        ls = line.strip()
+        
+        if not in_section:
+            for pat in section_patterns:
+                if re.match(pat, ls):
+                    in_section = True
+                    start_line = i
+                    break
             continue
-        if in_section:
-            if re.match(r'^##|^---', line):
-                break
-            m = re.match(r'^\d+\.\s*\*?\*?\*?(.+?)\*?\*?\*?$', line.strip())
-            if m:
-                items.append(m.group(1).strip())
-    return items[:6]
+        
+        # End of section
+        if re.match(end_pattern, ls):
+            break
+        
+        # New subsection heading
+        m = re.match(r'^#{3}\s*\d+\.\s*(.+)', ls)
+        if m:
+            # Save previous item
+            if current_title:
+                body = '\n'.join(current_body).strip()
+                items.append({'title': _strip_md(current_title), 'why': body})
+            current_title = m.group(1).strip()
+            current_body = []
+            continue
+        
+        # Plain numbered heading
+        m = re.match(r'^\d+\.\s*\*?\*?(.+?)\*?\*?$', ls)
+        if m:
+            if current_title:
+                body = '\n'.join(current_body).strip()
+                items.append({'title': _strip_md(current_title), 'why': body})
+            current_title = m.group(1).strip()
+            current_body = []
+            continue
+        
+        # Bullet item as heading
+        m = re.match(r'^-\s+\*?\*?(.+?)\*?\*?$', ls)
+        if m and not current_title:
+            current_title = m.group(1).strip()
+            current_body = []
+            continue
+        
+        # Collect body text (non-empty, non-heading, non-table lines)
+        if ls and not ls.startswith('#') and not ls.startswith('|') and not ls.startswith('---'):
+            if current_title:
+                current_body.append(ls)
+    
+    # Save last item
+    if current_title:
+        body = '\n'.join(current_body).strip()
+        items.append({'title': _strip_md(current_title), 'why': body})
+    
+    return items[:12]
+
+def extract_missed(text):
+    patterns = [r'^#{2,3}\s*(What (You|I|Was|Were)|You|I)\s*Missed', r'^#{2,3}\s*Missed']
+    return _extract_section_items(text, patterns)
+
+def extract_got_right(text):
+    patterns = [r'^#{2,3}\s*What (Was|You|I) Got Right', r'^#{2,3}\s*Got Right']
+    return _extract_section_items(text, patterns)
 
 def extract_patient_info(text):
     """Extract patient: age, complaints, vitals"""
@@ -339,8 +388,12 @@ for i, c in enumerate(cases):
   <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon missed">✕</div><span class="section-title">What I Missed</span><span class="section-count">{len(c['missed'])} gaps</span></div><div class="section-chevron">▾</div></div>
   <div class="section-body">''')
         for item in c['missed']:
-            item_esc = item.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
-            html_parts.append(f'''    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>{item_esc}</div></div>''')
+            title_esc = item['title'].replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
+            why_esc = item['why'].replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;') if item['why'] else ''
+            # Process bold markers in why text
+            why_esc = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', why_esc)
+            why_esc = re.sub(r'\*(.+?)\*', r'<em>\1</em>', why_esc)
+            html_parts.append(f'''    <div class="missed-item"><div class="missed-order"><span class="missed-dot"></span>{title_esc}</div><div class="missed-why">{why_esc}</div></div>''')
         html_parts.append('  </div>\n</div>')
 
     # Got Right
@@ -349,8 +402,11 @@ for i, c in enumerate(cases):
   <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon ordered">✓</div><span class="section-title">What I Got Right</span></div><div class="section-chevron">▾</div></div>
   <div class="section-body">''')
         for item in c['got_right']:
-            item_esc = item.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
-            html_parts.append(f'''    <div class="missed-item"><div class="got-right-order"><span class="got-right-dot"></span>{item_esc}</div></div>''')
+            title_esc = item['title'].replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
+            why_esc = item['why'].replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;') if item['why'] else ''
+            why_esc = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', why_esc)
+            why_esc = re.sub(r'\*(.+?)\*', r'<em>\1</em>', why_esc)
+            html_parts.append(f'''    <div class="missed-item"><div class="got-right-order"><span class="got-right-dot"></span>{title_esc}</div><div class="missed-why">{why_esc}</div></div>''')
         html_parts.append('  </div>\n</div>')
 
     html_parts.append('\n</div><!-- /case-text -->')
