@@ -25,7 +25,7 @@ def load_attending_system_prompt():
     # Strip trailing whitespace per line but preserve paragraph structure
     prompt_text = re.sub(r"[ \t]+$", "", prompt_text, flags=re.MULTILINE)
     # Escape for JavaScript string literal: \ → \\, newline → \\n, " → \\", ' → \\'
-    escaped = prompt_text.replace("\\", "\\\\").replace("\n", "\\n").replace('"', '\\"')
+    escaped = prompt_text.replace("\\", "\\\\").replace("\n", "\\n").replace('"', '\\"').replace("'", "\\'")
     # Collapse triple+ newlines
     escaped = re.sub(r"(\\n){3,}", r"\\n\\n", escaped)
     return escaped
@@ -429,12 +429,27 @@ def extract_keywords(text):
 
 
 def slugify(name):
-    return re.sub(r'[^a-z0-9]', '-', name.lower())[:30]
+    """Slugify folder name for use as HTML ID. No truncation — full name."""
+    return re.sub(r'[^a-z0-9]', '-', name.lower())
 
 # Collect all cases
 cases = []
+folders_seen = {}  # track slugs for collision detection
+collisions = []
 for d in sorted(os.listdir(BASE)):
     if not re.search(r'-\d{4}-\d{2}-\d{2}$', d): continue
+    slug = slugify(d)
+    # Detect collisions (two different folders → same slug)
+    if slug in folders_seen:
+        collisions.append(f"COLLISION: {d} → {slug} (conflicts with {folders_seen[slug]})")
+        # uniquify by appending a counter
+        cnt = 2
+        while f"{slug}-{cnt}" in folders_seen:
+            cnt += 1
+        slug = f"{slug}-{cnt}"
+        folders_seen[slug] = d
+    else:
+        folders_seen[slug] = d
     readme = read_README(d)
     if not readme: continue
 
@@ -454,7 +469,7 @@ for d in sorted(os.listdir(BASE)):
         mechanism_html = f'<div class="mech-box"><div class="mech-title">First Principles</div><div class="mech-body">{md_to_html(mechanism)}</div></div>'
 
     cases.append({
-        'folder': d, 'score': score, 'diagnosis': diagnosis, 'patient': patient,
+        'folder': d, 'slug': slug, 'score': score, 'diagnosis': diagnosis, 'patient': patient,
         'mechanism_html': mechanism_html, 'missed': missed, 'got_right': got_right,
         'overordered': overordered,
         'images': images, 'date': date_str, 'keywords': keywords
@@ -654,7 +669,7 @@ body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui
 # Sidebar entries
 first = True
 for i, c in enumerate(cases):
-    sid = slugify(c['folder'])
+    sid = c['slug']
     active = ' active' if first else ''
     sl = score_label(c['score'])
     name = c['diagnosis'].replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
@@ -675,7 +690,7 @@ html_parts.append('''  </div>
 # Case panels
 first = True
 for i, c in enumerate(cases):
-    sid = slugify(c['folder'])
+    sid = c['slug']
     active = ' active' if first else ''
     sl = score_label(c['score'])
     sc = score_color(c['score'])
@@ -769,7 +784,7 @@ for i, c in enumerate(cases):
 # Build CASE_CONTEXTS JS object
 ctx_entries = []
 for c in cases:
-    sid = slugify(c['folder'])
+    sid = c['slug']
     # Build clean missed items for JSON
     missed_json = []
     for item in c.get('missed', []):
