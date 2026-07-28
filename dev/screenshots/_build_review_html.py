@@ -316,6 +316,14 @@ def extract_got_right(text):
     ]
     return _extract_section_items(text, patterns)
 
+def extract_overordered(text):
+    patterns = [
+        r'^#{2,3}\s+.*what\s+(you|i)\s+over[-\s]ordered',
+        r'^#{2,3}\s+.*over[-\s]ordered',
+        r'^#{2,3}\s+.*ordered\s+unnecessarily',
+    ]
+    return _extract_section_items(text, patterns)
+
 def extract_patient_info(text):
     """Extract patient: age, complaints, vitals"""
     patient = ""
@@ -406,6 +414,7 @@ for d in sorted(os.listdir(BASE)):
     mechanism = extract_mechanism(readme)
     missed = extract_missed(readme)
     got_right = extract_got_right(readme)
+    overordered = extract_overordered(readme)
     patient = extract_patient_info(readme)
     images = get_images(d)
     date_str = d[-10:]
@@ -418,6 +427,7 @@ for d in sorted(os.listdir(BASE)):
     cases.append({
         'folder': d, 'score': score, 'diagnosis': diagnosis, 'patient': patient,
         'mechanism_html': mechanism_html, 'missed': missed, 'got_right': got_right,
+        'overordered': overordered,
         'images': images, 'date': date_str, 'keywords': keywords
     })
 
@@ -685,6 +695,20 @@ for i, c in enumerate(cases):
                 html_parts.append(f'''    <div class="missed-item"><div class="missed-why">{why_html}</div></div>''')
         html_parts.append('  </div>\n</div>')
 
+    # Over-Ordered
+    if c['overordered']:
+        html_parts.append(f'''<div class="section">
+  <div class="section-header" onclick="this.parentElement.classList.toggle('open')"><div class="section-header-left"><div class="section-icon" style="background:#fff3e0;color:#e65100;">⚠</div><span class="section-title">What I Over-Ordered</span><span class="section-count">{len(c['overordered'])} items</span></div><div class="section-chevron">▾</div></div>
+  <div class="section-body">''')
+        for item in c['overordered']:
+            title_html = _inline_md(item['title']) if item['title'] else ''
+            why_html = md_to_html(item['why']) if item['why'] else ''
+            if title_html:
+                html_parts.append(f'''    <div class="missed-item"><div class="missed-order"><span class="missed-dot" style="background:#e65100;"></span>{title_html}</div><div class="missed-why">{why_html}</div></div>''')
+            elif why_html:
+                html_parts.append(f'''    <div class="missed-item"><div class="missed-why">{why_html}</div></div>''')
+        html_parts.append('  </div>\n</div>')
+
     # Attending Teach Me section
     html_parts.append(f'''<div class="attending-section" id="attending-{sid}">
   <div class="attending-header" onclick="var s=document.getElementById('attending-{sid}');s.classList.toggle('open');">
@@ -724,6 +748,12 @@ for c in cases:
             'title': item.get('title', ''),
             'why': re.sub(r'<[^>]+>', '', item.get('why', ''))
         })
+    over_json = []
+    for item in c.get('overordered', []):
+        over_json.append({
+            'title': item.get('title', ''),
+            'why': re.sub(r'<[^>]+>', '', item.get('why', ''))
+        })
     # Extract plain text mechanism (first 500 chars)
     mech = re.sub(r'<[^>]+>', '', c.get('mechanism_html', ''))[:500]
     ctx_entry = {
@@ -731,9 +761,10 @@ for c in cases:
         'patient': c['patient'].replace("'", "\\'"),
         'score': c['score'],
         'missed': missed_json,
+        'overordered': over_json,
         'mechanism': mech.replace("'", "\\'").replace('\n', ' ')
     }
-    ctx_entries.append(f"'{sid}': {{diagnosis:'{ctx_entry['diagnosis']}',patient:'{ctx_entry['patient']}',score:{ctx_entry['score']},missed:{json.dumps(ctx_entry['missed'])},mechanism:'{ctx_entry['mechanism']}'}}")
+    ctx_entries.append(f"'{sid}': {{diagnosis:'{ctx_entry['diagnosis']}',patient:'{ctx_entry['patient']}',score:{ctx_entry['score']},missed:{json.dumps(ctx_entry['missed'])},overordered:{json.dumps(ctx_entry['overordered'])},mechanism:'{ctx_entry['mechanism']}'}}")
 
 html_parts.append('''<script>CASE_CONTEXTS={' + ','.join(ctx_entries) + '};</script>''')
 
@@ -828,14 +859,16 @@ function askAttending(sid) {
   btn.textContent = 'Thinking...';
   
   var missedText = ctx.missed.map(function(m,i) { return (i+1) + '. ' + m.title + (m.why ? ' \u2014 ' + m.why.replace(/<[^>]+>/g,'').substring(0,200) : ''); }).join('\n');
+  var overText = (ctx.overordered || []).map(function(m,i) { return (i+1) + '. ' + m.title + (m.why ? ' \u2014 ' + m.why.replace(/<[^>]+>/g,'').substring(0,200) : ''); }).join('\n');
   var userMsg = 'I just finished this CCS case. Here is the context:\n\n' +
     'Diagnosis: ' + ctx.diagnosis + '\n' +
     'My score: ' + ctx.score + '%\n' +
     'Patient: ' + ctx.patient + '\n\n' +
     'What I missed:\n' + (missedText || 'No specific items recorded.') + '\n\n' +
-    'Teach me what I missed from first principles. Lead with mechanism. Answer the spatial/physical why. Connect findings to each other. Use contrast to sharpen. End with a clinical anchor. Keep it tight. The teaching style: a brilliant attending who loves mechanism, not a textbook. No bullet lists of features without explaining why they exist.';
+    'What I may have over-ordered or ordered unnecessarily:\n' + (overText || 'No over-ordering data available.') + '\n\n' +
+    'Teach me what I missed from first principles. Also tell me if I ordered anything unnecessary. Lead with mechanism. Answer the spatial/physical why. Connect findings to each other. Use contrast to sharpen. End with a clinical anchor. Keep it tight. The teaching style: a brilliant attending who loves mechanism, not a textbook. No bullet lists of features without explaining why they exist.';
   
-  var systemPrompt = 'You are a brilliant attending physician teaching a medical student. You teach from first principles: physics, biology, chemistry. Not memorization. Your voice: confident, direct, excited by mechanism. Short sentences. No hedging. No passive voice. Every explanation should make the learner feel "Of course. How could it be any other way?"\n\nRules:\n1. Lead with mechanism, not the feature\n2. Answer the spatial/physical "why"\n3. Connect findings to each other\n4. Use contrast to sharpen understanding\n5. End with a clinical anchor\n6. Never bullet-point a list of features without explaining why they exist\n7. Keep each explanation tight\n8. Occasional questions back to the learner\n9. Use spatial language: "picture..." "think of..." "look at..."';
+  var systemPrompt = 'You are a brilliant attending physician teaching a medical student. You teach from first principles: physics, biology, chemistry. Not memorization. Your voice: confident, direct, excited by mechanism. Short sentences. No hedging. No passive voice. Every explanation should make the learner feel "Of course. How could it be any other way?"\n\nRules:\n1. Lead with mechanism, not the feature\n2. Answer the spatial/physical "why"\n3. Connect findings to each other\n4. Use contrast to sharpen understanding\n5. End with a clinical anchor\n6. Also evaluate whether any listed "over-ordered" items were truly unnecessary\n7. Never bullet-point a list of features without explaining why they exist\n8. Keep each explanation tight\n9. Occasional questions back to the learner\n10. Use spatial language: "picture..." "think of..." "look at..."';
   
   fetch('https://api.deepseek.com/v1/chat/completions', {
     method: 'POST',
