@@ -1,0 +1,158 @@
+{
+  "caseId": "osa-bariatric-preop",
+  "ccsTitle": "Fatigue - Preoperative / Bariatric Clearance",
+  "diagnosis": "Obstructive Sleep Apnea (obesity-related; pre-bariatric screening)",
+  "score": "29.69%",
+  "averageFirstAttempt": "61.8%",
+  "scoreBreakdown": {
+    "diagnosisOrders": "26.32%",
+    "treatmentOrders": "16.67%",
+    "preventiveCare": "100%",
+    "timing": "0%",
+    "appropriateOrders": "100%",
+    "locationSequence": "50%"
+  },
+  "patient": {
+    "age": 48,
+    "sex": "male",
+    "key": "BMI 43, daytime hypersomnolence despite 9h sleep, pre-bariatric clearance in 2 weeks — needs sleep study then CPAP"
+  },
+  "vitals": {
+    "temperature": "37.0 C",
+    "pulse": "98",
+    "rr": "20",
+    "bp": "160/90",
+    "bmi": "43.0",
+    "height": "182.88 cm",
+    "weight": "143.8 kg (317 lb)"
+  },
+  "sequence": [
+    {
+      "step": 1,
+      "screen": "Initial Vital Signs / History",
+      "what": "48M BMI 43, HTN 160/90, office visit for fatigue/daytime sleepiness; bariatric surgery in 2 weeks pending clearance; GERD on pantoprazole; DOE",
+      "decision": "Obesity + hypersomnolence = OSA until sleep study proves it; clearance is the clock"
+    },
+    {
+      "step": 2,
+      "screen": "Exam / Meds",
+      "what": "Office → continued lisinopril, atorvastatin, pantoprazole, metformin; added amlodipine; HEENT/chest/heart/abdomen largely unrevealing",
+      "decision": "Normal lung/heart exam does not exclude OSA — the pathology is nocturnal airway collapse"
+    },
+    {
+      "step": 3,
+      "screen": "Workup",
+      "what": "CBC normal Hct; UA normal; echo mild PASP rise; facial XR normal; ENT consult no recs; A1c + insulin started; calorie-restricted diet",
+      "decision": "You screened obesity comorbidities and preop labs but never ordered the cardiopulmonary sleep study"
+    },
+    {
+      "step": 4,
+      "screen": "Case end",
+      "what": "Patient update: proceeding to bariatric surgery; timed out without polysomnography or CPAP",
+      "decision": "Case ends when CPAP is ordered after positive sleep study — without those two, score collapses"
+    }
+  ],
+  "missed": [
+    {
+      "order": "Cardiopulmonary sleep study (polysomnography)",
+      "why": "Daytime sleepiness with 9 hours in bed in a BMI-43 man is OSA until measured. Only the sleep study diagnoses obstructive apneas; without it you cannot clear him for bariatric anesthesia safely."
+    },
+    {
+      "order": "Positive airway pressure (CPAP/BPAP)",
+      "why": "Treatment that ends the case. Splints the collapsible oropharynx open at night, stops intermittent hypoxia, and is required before elective surgery in known OSA."
+    },
+    {
+      "order": "Lipid profile",
+      "why": "Documented hyperlipidemia on atorvastatin and obesity comorbidity screen before surgery — lipids are part of the metabolic package the case grades."
+    },
+    {
+      "order": "Type and screen",
+      "why": "Laparoscopic bariatric surgery in two weeks — preop blood bank readiness is graded with the other surgical labs you already ordered (EKG, coag)."
+    }
+  ],
+  "correctHighlights": [
+    "PE: general, chest, heart",
+    "CBC with differential",
+    "Hemoglobin A1c",
+    "EKG (preop)",
+    "PT/PTT and PT/INR",
+    "CMP/BMP",
+    "Insulin for perioperative diabetes control",
+    "Calorie-restricted / diabetic diet (preventive 100%)"
+  ],
+  "mechanismsForImage": [
+    {
+      "panel": 1,
+      "title": "Obesity load",
+      "concept": "Severe obesity loads the neck and pharynx"
+    },
+    {
+      "panel": 2,
+      "title": "Airway collapse",
+      "concept": "Sleep hypotonia lets soft tissue collapse the upper airway"
+    },
+    {
+      "panel": 3,
+      "title": "Apnea hypoxia",
+      "concept": "Repeated obstructive apneas cause intermittent hypoxia"
+    },
+    {
+      "panel": 4,
+      "title": "Daytime fatigue",
+      "concept": "Fragmented sleep produces daytime hypersomnolence despite long time in bed"
+    },
+    {
+      "panel": 5,
+      "title": "Pulmonary pressure hint",
+      "concept": "Mild pulmonary hypertension echo as chronic hypoxia footprint"
+    },
+    {
+      "panel": 6,
+      "title": "Sleep study",
+      "concept": "Polysomnography captures apneas and desaturations"
+    },
+    {
+      "panel": 7,
+      "title": "CPAP stent",
+      "concept": "Positive airway pressure stents the pharynx open"
+    },
+    {
+      "panel": 8,
+      "title": "Metabolic prep",
+      "concept": "Insulin and calorie restriction prepare for bariatric surgery"
+    },
+    {
+      "panel": 9,
+      "title": "Safe clearance",
+      "concept": "Treated OSA allows safer anesthetic airway for surgery"
+    }
+  ],
+  "imageOutputPath": "C:/Users/steve/MeWorld/dev/screenshots/osa-bariatric-preop-2026-08-01/images",
+  "imageGenerationStatus": "completed",
+  "imageFilePaths": [
+    "images/descent-3x3.png",
+    "images/descent-gaps-3x3.png"
+  ],
+  "images": {
+    "descent3x3": {
+      "status": "complete",
+      "path": "images/descent-3x3.png",
+      "size": "5.1 MB",
+      "model": "nano-banana-pro",
+      "resolution": "2K",
+      "style": "Naughty Dog / Uncharted 4 cinematic CGI"
+    },
+    "descentGaps": {
+      "status": "complete",
+      "path": "images/descent-gaps-3x3.png",
+      "size": "5.7 MB",
+      "model": "nano-banana-pro",
+      "resolution": "2K",
+      "style": "Naughty Dog / Uncharted 4 cinematic CGI"
+    }
+  },
+  "ordersPlacedCount": 29,
+  "averageOrdersHighScorers": 29.48,
+  "zScore": -0.04,
+  "timingNote": "Case timed out prior to correctly diagnosing and treating the patient"
+}

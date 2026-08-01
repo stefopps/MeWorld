@@ -1,0 +1,174 @@
+{
+  "caseId": "cellulitis-diabetic-calf",
+  "ccsTitle": "Leg Pain - Emergency Medicine / Internal Medicine",
+  "diagnosis": "Cellulitis (bacterial skin/soft tissue infection of the calf) in poorly controlled type 2 diabetes",
+  "score": "72.6%",
+  "averageFirstAttempt": "80.7%",
+  "scoreBreakdown": {
+    "diagnosisOrders": "76.92%",
+    "treatmentOrders": "73.33%",
+    "preventiveCare": "0%",
+    "timing": "100%",
+    "appropriateOrders": "100%",
+    "locationSequence": "50%"
+  },
+  "patient": {
+    "age": 50,
+    "sex": "male",
+    "key": "Poorly demarcated warm erythematous indurated anterior calf + fever/leukocytosis in uncontrolled DM2; duplex ruled out DVT"
+  },
+  "vitals": {
+    "temperature": "38.3 C (101.0 F)",
+    "pulse": "88 regular",
+    "rr": "14",
+    "bp": "125/79",
+    "bmi": "27.0",
+    "height": "188 cm",
+    "weight": "95.5 kg"
+  },
+  "sequence": [
+    {
+      "step": 1,
+      "screen": "Initial Vital Signs",
+      "what": "Fever 38.3 C, otherwise stable vitals; BMI 27",
+      "decision": "Systemic infection signal already present before you examine the leg"
+    },
+    {
+      "step": 2,
+      "screen": "Initial History",
+      "what": "50M DM2 with week of progressive left leg swelling, heat, redness, pain worse with walking, better with elevation; no trauma",
+      "decision": "Unilateral inflammatory leg + diabetes = soft tissue infection until proven otherwise; still must exclude DVT"
+    },
+    {
+      "step": 3,
+      "screen": "Physical Exam",
+      "what": "Poorly demarcated diffusely erythematous indurated anterior calf; no ulcer, drainage, or purulence; HEENT/chest/heart normal",
+      "decision": "Classic non-purulent cellulitis geometry — not abscess, not nec fasc demarcation"
+    },
+    {
+      "step": 4,
+      "screen": "Labs / Imaging",
+      "what": "CBC WBC 11.3k; venous duplex: no DVT; CMP ordered; blood cultures ordered; metformin continued",
+      "decision": "Leukocytosis + negative duplex clears the major mimic and supports bacterial soft tissue infection"
+    },
+    {
+      "step": 5,
+      "screen": "Treatment / Location",
+      "what": "Clindamycin IM, LR IV, stayed in ED; missed insulin, analgesia, A1c, UA, diabetes teaching, Tdap, inpatient transfer",
+      "decision": "Systemic signs need IV abx on the floor plus glucose control and pain — ED boarding is the wrong destination"
+    }
+  ],
+  "missed": [
+    {
+      "order": "Urinalysis",
+      "why": "In a febrile diabetic with soft tissue infection, UA screens for concurrent UTI/bacteruria that can seed or amplify bacteremia and explain persistent fever after the leg is treated."
+    },
+    {
+      "order": "Hemoglobin A1C",
+      "why": "This cellulitis is a complication of chronic hyperglycemia. A1c proves the months-long glucose failure that impairs neutrophil chemotaxis and skin barrier healing — it is the disease that invited the bug."
+    },
+    {
+      "order": "Analgesia (NSAID/acetaminophen/opioid)",
+      "why": "He cannot walk on a hot swollen calf and took nothing at home. Pain control is part of treating soft tissue infection, not optional comfort."
+    },
+    {
+      "order": "Insulin (stop metformin-only strategy)",
+      "why": "Infection drives stress hyperglycemia; metformin alone will not correct the acute glucose that further cripples leukocyte function. Score explicitly wanted insulin and metformin stopped."
+    },
+    {
+      "order": "Instruct patient, diabetes",
+      "why": "Without teaching on glucose monitoring, foot/skin care, and adherence, he returns with the next portal of entry cellulitis. Preventive care scored 0%."
+    },
+    {
+      "order": "Tdap vaccine",
+      "why": "No recent vaccinations documented; soft tissue infection workup is a catch-up vaccination moment every 10 years."
+    },
+    {
+      "order": "Transfer to Inpatient Unit",
+      "why": "Fever + leukocytosis cellulitis needs inpatient IV antibiotics. Staying in the ED at 00:15 and 15:15 sim time was graded wrong location."
+    }
+  ],
+  "correctHighlights": [
+    "Exam: general, skin, extremities, chest, heart, abdomen",
+    "CBC with differential",
+    "BMP/CMP",
+    "Venous duplex LE (no DVT)",
+    "Blood cultures before/with empiric abx",
+    "IV fluids (LR)",
+    "Empiric antibiotic covering gram-positives (clindamycin accepted)"
+  ],
+  "mechanismsForImage": [
+    {
+      "panel": 1,
+      "title": "Diabetic skin barrier",
+      "concept": "Chronic hyperglycemia weakens skin barrier and neutrophil chemotaxis at the calf"
+    },
+    {
+      "panel": 2,
+      "title": "Bacterial entry",
+      "concept": "Gram-positive organisms invade dermis/subcutis through microbreaches"
+    },
+    {
+      "panel": 3,
+      "title": "Spreading cellulitis",
+      "concept": "Poorly demarcated erythema, warmth, edema expand through soft tissue planes"
+    },
+    {
+      "panel": 4,
+      "title": "Systemic response",
+      "concept": "Fever and leukocytosis as cytokine response to soft tissue infection"
+    },
+    {
+      "panel": 5,
+      "title": "Rule out DVT",
+      "concept": "Venous duplex clears clot mimic of unilateral swollen red leg"
+    },
+    {
+      "panel": 6,
+      "title": "Empiric IV antibiotics",
+      "concept": "Gram-positive coverage floods infected tissue planes"
+    },
+    {
+      "panel": 7,
+      "title": "Insulin and glucose",
+      "concept": "Insulin restores leukocyte function while metformin-only fails under stress"
+    },
+    {
+      "panel": 8,
+      "title": "Inpatient destination",
+      "concept": "Floor IV therapy, not ED boarding"
+    },
+    {
+      "panel": 9,
+      "title": "Discharge loop",
+      "concept": "Oral abx, insulin, diabetic teaching close the portal-of-entry loop"
+    }
+  ],
+  "imageOutputPath": "C:/Users/steve/MeWorld/dev/screenshots/cellulitis-diabetic-calf-2026-08-01/images",
+  "imageGenerationStatus": "completed",
+  "imageFilePaths": [
+    "images/descent-3x3.png",
+    "images/descent-gaps-3x3.png"
+  ],
+  "images": {
+    "descent3x3": {
+      "status": "complete",
+      "path": "images/descent-3x3.png",
+      "size": "5.7 MB",
+      "model": "nano-banana-pro",
+      "resolution": "2K",
+      "style": "Naughty Dog / Uncharted 4 cinematic CGI"
+    },
+    "descentGaps": {
+      "status": "complete",
+      "path": "images/descent-gaps-3x3.png",
+      "size": "5.0 MB",
+      "model": "nano-banana-pro",
+      "resolution": "2K",
+      "style": "Naughty Dog / Uncharted 4 cinematic CGI"
+    }
+  },
+  "ordersPlacedCount": 11,
+  "averageOrdersHighScorers": 37.02,
+  "zScore": -2.40
+}
