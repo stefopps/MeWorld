@@ -846,6 +846,126 @@ Produce the cinematic storyboard.`;
       return;
     }
 
+    // ── API: chat — routes DeepSeek calls through cloud API or local Ollama ──
+    if (url.pathname === '/api/chat' && req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', async () => {
+        const send = (code, obj) => {
+          res.writeHead(code, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify(obj));
+        };
+        try {
+          const { mode, model, messages, temperature, max_tokens } = JSON.parse(body);
+
+          if (mode === 'local') {
+            // ── Local Ollama deepseek-r1 ──
+            // R1 needs explicit bolding guidance not buried in prose rules.
+            // Inject a short instruction into the first system message (or first
+            // message if no system role exists).
+            const boldingNote = 'CRITICAL FORMATTING: Bold **salient mechanistic anchors** with **double asterisks**: the lab value with unit (e.g., **TSH 8.2 mIU/L**), the pathophysiology name (e.g., **podocyte effacement**), the pivotal exam finding (e.g., **delayed reflexes**), or the treatment decision. Do NOT bold section headers, transition words, or category labels. 2-4 bold phrases per paragraph.';
+            const systemIdx = messages.findIndex(m => m.role === 'system');
+            let msgs = [...messages];
+            if (systemIdx >= 0) {
+              msgs[systemIdx] = { ...msgs[systemIdx], content: boldingNote + '\n\n' + msgs[systemIdx].content };
+            } else {
+              msgs = [{ role: 'system', content: boldingNote }].concat(msgs);
+            }
+            const ollamaBody = {
+              model: model || 'deepseek-r1:14b',
+              messages: msgs,
+              stream: false,
+              options: {},
+            };
+            // num_predict controls TOTAL tokens (thinking + content) for R1.
+            // If caller specified max_tokens, scale it up: R1 spends ~85% on
+            // thinking before it writes a word of content.
+            if (max_tokens != null) {
+              ollamaBody.options.num_predict = Math.max(max_tokens * 4, 4096);
+            }
+            if (temperature != null) {
+              ollamaBody.options.temperature = temperature;
+            }
+
+            try {
+              const ollamaRes = await fetch('http://localhost:11434/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(ollamaBody),
+              });
+              if (!ollamaRes.ok) {
+                return send(502, { ok: false, error: 'Ollama returned HTTP ' + ollamaRes.status });
+              }
+              const data = await ollamaRes.json();
+              const content = (data.message?.content || '').trim();
+
+              // If content is empty and done_reason is 'length', the cap was
+              // too low — all tokens went to thinking.
+              if (!content && data.done_reason === 'length') {
+                return send(200, {
+                  ok: false,
+                  error: 'Response truncated. num_predict is too low for deepseek-r1 (thinking consumed all tokens before content). Raise max_tokens or omit it.',
+                  done_reason: data.done_reason,
+                });
+              }
+
+              return send(200, {
+                ok: true,
+                content,
+                model: data.model,
+                done_reason: data.done_reason,
+                usage: {
+                  prompt_tokens: data.prompt_eval_count || 0,
+                  completion_tokens: data.eval_count || 0,
+                  total_tokens: (data.prompt_eval_count || 0) + (data.eval_count || 0),
+                },
+              });
+            } catch (err) {
+              if (err.code === 'ECONNREFUSED' || err.cause?.code === 'ECONNREFUSED') {
+                return send(503, { ok: false, error: 'Ollama not reachable at localhost:11434 — is it running?' });
+              }
+              throw err;
+            }
+          }
+
+          // ── Cloud DeepSeek (default) ──
+          const dsKey = MASTER_ENV.DEEPSEEK_API_KEY;
+          if (!dsKey) return send(400, { ok: false, error: 'No DeepSeek API key configured' });
+
+          const dsBody = {
+            model: model || 'deepseek-chat',
+            messages,
+            stream: false,
+          };
+          if (temperature != null) dsBody.temperature = temperature;
+          if (max_tokens != null) dsBody.max_tokens = max_tokens;
+
+          const dsRes = await fetch('https://api.deepseek.com/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + dsKey },
+            body: JSON.stringify(dsBody),
+          });
+          if (!dsRes.ok) {
+            const errText = await dsRes.text();
+            return send(502, { ok: false, error: 'DeepSeek API error ' + dsRes.status + ': ' + errText.substring(0, 200) });
+          }
+          const dsData = await dsRes.json();
+          send(200, {
+            ok: true,
+            content: dsData.choices?.[0]?.message?.content?.trim() || '',
+            model: dsData.model,
+            done_reason: dsData.choices?.[0]?.finish_reason || 'stop',
+            usage: dsData.usage || null,
+          });
+
+        } catch (e) {
+          console.error('[chat] Error:', e);
+          send(500, { ok: false, error: e.message });
+        }
+      });
+      return;
+    }
+
     // ── Static files ──────────────────────────────────────────────────
     let fp = path.join(ROOT, url.pathname);
     // Prevent directory traversal

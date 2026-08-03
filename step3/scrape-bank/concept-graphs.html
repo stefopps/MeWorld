@@ -1225,6 +1225,61 @@
     display: flex; align-items: center; gap: 6px; cursor: pointer;
   }
   .settings-toggle-row input[type=checkbox] { width: auto; accent-color: var(--accent); }
+  .chat-toggle-track {
+    position: relative; display: inline-block; width: 36px; height: 20px; cursor: pointer;
+  }
+  .chat-toggle-track input[type=checkbox] {
+    opacity: 0; width: 0; height: 0; position: absolute;
+  }
+  .chat-toggle-slider {
+    position: absolute; inset: 0;
+    background: #444;
+    border-radius: 10px;
+    transition: background 0.25s;
+  }
+  .chat-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    left: 3px; bottom: 3px;
+    background: #3b82f6;
+    border-radius: 50%;
+    transition: transform 0.25s;
+  }
+  .chat-toggle-track input:checked + .chat-toggle-slider {
+    background: #1a365d;
+  }
+  .chat-toggle-track input:checked + .chat-toggle-slider::before {
+    transform: translateX(16px);
+  }
+  .compact-toggle-track {
+    position: relative; display: inline-flex; align-items: center;
+    width: 26px; height: 16px; cursor: pointer; flex-shrink: 0;
+  }
+  .compact-toggle-track input[type=checkbox] {
+    opacity: 0; width: 0; height: 0; position: absolute;
+  }
+  .compact-toggle-slider {
+    position: absolute; inset: 0;
+    background: #444;
+    border-radius: 8px;
+    transition: background 0.25s;
+  }
+  .compact-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 10px; height: 10px;
+    left: 3px; bottom: 3px;
+    background: #3b82f6;
+    border-radius: 50%;
+    transition: transform 0.25s;
+  }
+  .compact-toggle-track input:checked + .compact-toggle-slider {
+    background: #1a365d;
+  }
+  .compact-toggle-track input:checked + .compact-toggle-slider::before {
+    transform: translateX(10px);
+  }
   .settings-popup input[type=password] {
     font-family: inherit; font-size: 0.72rem; padding: 6px 8px;
     border: 1px solid var(--border); border-radius: 6px; outline: none; width: 100%;
@@ -1826,6 +1881,16 @@
       <input type="checkbox" id="chkShowTimeline" />
       <span class="settings-label">Show Story timeline bar</span>
     </label>
+    <label class="settings-label" style="margin-top:10px;">Chat model</label>
+    <div style="display:flex; align-items:center; gap:8px; font-size:0.82rem; color:var(--muted); margin-bottom:4px;">
+      <span>Cloud DeepSeek</span>
+      <label class="chat-toggle-track">
+        <input type="checkbox" id="chatModeToggle" onchange="setChatMode(this.checked?'local':'cloud')">
+        <span class="chat-toggle-slider"></span>
+      </label>
+      <span>Local R1</span>
+    </div>
+    <button id="testKeyBtn" style="margin-top:0; margin-bottom:6px; padding:4px 10px; font-size:0.8rem; background:var(--accent-muted); border:1px solid var(--border); color:var(--txt); border-radius:4px; cursor:pointer;">Test Key</button>
     <label class="settings-label" style="margin-top:12px;">DeepSeek API Key</label>
     <input type="password" id="dsApiKey" placeholder="Loading from server…" />
     <div class="settings-hint">Key is loaded from the server. It stays in your browser's localStorage.</div>
@@ -5883,6 +5948,82 @@ function creativityToTemperature(score) {
   return 0.75;                   // Immersive
 }
 
+// ── Shared DeepSeek chat helper — routes all AI calls through /api/chat ──
+// Replaces all direct fetch('https://api.deepseek.com/…') in the codebase.
+// Takes messages array + opts { temperature, max_tokens, retries }.
+async function deepseekChat(messages, opts = {}) {
+  const mode = localStorage.getItem('cg_chat_mode') || 'cloud';
+  const body = {
+    mode,
+    model: mode === 'local' ? 'deepseek-r1:14b' : 'deepseek-chat',
+    messages,
+  };
+  if (opts.temperature != null) body.temperature = opts.temperature;
+  if (opts.max_tokens != null) body.max_tokens = opts.max_tokens;
+
+  let lastError = null;
+  const maxAttempts = (opts.retries || 0) + 1;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'API error');
+      return data.content;
+    } catch (e) {
+      lastError = e;
+      if (attempt < maxAttempts) {
+        if (body.max_tokens != null) body.max_tokens = Math.round(body.max_tokens * 1.3);
+        await new Promise(r => setTimeout(r, 500));
+      }
+    }
+  }
+  throw lastError;
+}
+
+// ── Test API key — short round-trip ──
+async function testKey() {
+  const status = document.getElementById('aiStatus');
+  const mode = localStorage.getItem('cg_chat_mode') || 'cloud';
+  if (mode === 'local') {
+    status.textContent = 'N/A — local mode has no API key';
+    return;
+  }
+  status.textContent = 'Testing…';
+  try {
+    await deepseekChat([{ role: 'user', content: 'Say OK' }], { max_tokens: 5 });
+    status.textContent = 'Key valid ✓';
+  } catch (e) {
+    status.textContent = 'Failed: ' + e.message;
+  }
+}
+
+// ── Compact toggle HTML for top control bar ──
+function compactToggleHTML() {
+  return `<label class="compact-toggle-track" title="Chat model: Cloud / Local R1">
+    <input type="checkbox" id="compactChatToggle" onchange="setChatMode(this.checked?'local':'cloud')">
+    <span class="compact-toggle-slider"></span>
+  </label>`;
+}
+
+// ── Persist and sync chat mode toggle ──
+function setChatMode(mode) {
+  localStorage.setItem('cg_chat_mode', mode);
+  const toggle = document.getElementById('chatModeToggle');
+  if (toggle) toggle.checked = (mode === 'local');
+  const compact = document.getElementById('compactChatToggle');
+  if (compact) compact.checked = (mode === 'local');
+  const btn = document.getElementById('testKeyBtn');
+  if (btn) btn.style.display = (mode === 'local') ? 'none' : '';
+  const status = document.getElementById('aiStatus');
+  if (status && mode === 'local') status.textContent = '';
+  // Grey accent when local, revert to blue when cloud
+  document.documentElement.style.setProperty('--accent', mode === 'local' ? '#6b7280' : '#2563eb');
+}
+
 function restoreHudPosition(hud) {
   try {
     const key = hudStorageKey(hud);
@@ -6038,8 +6179,9 @@ function wireDistillToggle(hud) {
 
 // ── Distill concept: extract the ONE core teaching from a question ─────
 async function distillConcept(hud, node) {
+  const mode = localStorage.getItem('cg_chat_mode') || 'cloud';
   const key = localStorage.getItem('ds_api_key');
-  if (!key) { alert('Set your DeepSeek API key in Settings first.'); return; }
+  if (mode === 'cloud' && !key) { alert('Set your DeepSeek API key in Settings first.'); return; }
 
   const resultDiv = hud.querySelector('#distill-result-' + node.id);
   if (!resultDiv) return;
@@ -6060,19 +6202,7 @@ Answer choices: ${ans}
 Respond with only the single sentence. No preamble, no markdown.`;
 
   try {
-    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.3,
-        max_tokens: 150,
-      }),
-    });
-    if (!res.ok) { const err = await res.text(); throw new Error('HTTP ' + res.status + ': ' + err.slice(0, 200)); }
-    const data = await res.json();
-    const concept = data.choices?.[0]?.message?.content?.trim() || '';
+    const concept = await deepseekChat([{ role: 'user', content: prompt }], { temperature: 0.3, max_tokens: 150 });
     if (concept) {
       resultDiv.innerHTML = '<strong>Core concept:</strong> ' + esc(concept);
       logDS(node.id, 'distill', prompt, '', concept);
@@ -6581,8 +6711,9 @@ function wireHudDictation(hud, nodeId) {
       return;
     }
 
+    const mode = localStorage.getItem('cg_chat_mode') || 'cloud';
     const key = localStorage.getItem('ds_api_key');
-    if (!key) { status.textContent = 'No API key. Open Settings.'; return; }
+    if (mode === 'cloud' && !key) { status.textContent = 'No API key. Open Settings.'; return; }
 
     // Add user message and persist immediately
     chatHistory.push({ role: 'user', content: text });
@@ -6617,13 +6748,9 @@ function wireHudDictation(hud, nodeId) {
     }
 
     try {
-      const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-        body: JSON.stringify({
-          model: 'deepseek-chat',
-          messages: [{
-            role: 'system',
+      const reply = await deepseekChat(
+        [{
+          role: 'system',
             content: `You are Dr. Iwu, a brilliant senior attending physician who teaches by mechanism — not by memorization.
 
 The learner is chatting with you at the bedside about a USMLE question. Reveal WHY through physiology, pathophysiology, spatial patterns, and what finding rules in or out for THIS patient. They should feel: "Of course — how could it be any other way?"
@@ -6665,13 +6792,11 @@ ${contextBlock}
 
 The learner is asking you questions about this case node. Teach them the mechanism.`
           }].concat(chatHistory),
+        {
           temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(),
           max_tokens: (() => { const prefs = readAttendingPrefs(); return DEPTH_CONFIG[prefs.depth].maxTokens; })(),
-        }),
-      });
-      if (!res.ok) { const err = await res.text(); throw new Error('HTTP ' + res.status); }
-      const data = await res.json();
-      const reply = data.choices?.[0]?.message?.content?.trim() || '';
+        }
+      );
       if (reply) {
         chatHistory.push({ role: 'assistant', content: reply });
         renderChatLog();
@@ -7323,8 +7448,9 @@ function formatPedigreeTeachBlock(node) {
 }
 
 async function fetchFirstPrinciples(node, regen = false) {
+  const mode = localStorage.getItem('cg_chat_mode') || 'cloud';
   const key = localStorage.getItem('ds_api_key');
-  if (!key) return null;
+  if (mode === 'cloud' && !key) return null;
 
   // Check log for existing response first (skip if regen)
   if (!regen) {
@@ -7454,57 +7580,46 @@ No preamble, no sign-off, no filler transitions, no em dashes.`;
     : systemPrompt;
 
   try {
-    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: primedSystem },
-          { role: 'user', content: prompt },
-        ],
-        temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(), max_tokens: dc.maxTokens + 180,
-      }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    let reply = (data.choices?.[0]?.message?.content?.trim() || '');
+    let reply = await deepseekChat(
+      [
+        { role: 'system', content: primedSystem },
+        { role: 'user', content: prompt },
+      ],
+      {
+        temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(),
+        max_tokens: dc.maxTokens + 180,
+      }
+    );
     // Truncation check: ends mid-sentence → retry once with more tokens
-    const finishReason = data.choices?.[0]?.finish_reason;
     const hasDualEnd = /<<<END>>>/i.test(reply) || /<<<SUMMARY>>>/i.test(reply);
     const endsClean = hasDualEnd || /[.?!]$/.test(reply.slice(-1));
-    if (finishReason === 'length' || !endsClean) {
+    if (!endsClean) {
       console.warn('firstPrinciples: truncated or incomplete ending, retrying with ' + (dc.maxTokens + 280) + ' tokens');
       try {
-        const retry = await fetch('https://api.deepseek.com/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-          body: JSON.stringify({
-            model: 'deepseek-chat',
-            messages: [
-              { role: 'system', content: primedSystem },
-              { role: 'user', content: prompt },
-            ],
-            temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(), max_tokens: dc.maxTokens + 280,
-          }),
-        });
-        if (retry.ok) {
-          const rdata = await retry.json();
-          reply = (rdata.choices?.[0]?.message?.content?.trim() || '');
-        }
+        reply = await deepseekChat(
+          [
+            { role: 'system', content: primedSystem },
+            { role: 'user', content: prompt },
+          ],
+          {
+            temperature: (() => { const prefs = readAttendingPrefs(); return creativityToTemperature(prefs.creativity); })(),
+            max_tokens: dc.maxTokens + 280,
+          }
+        );
       } catch (_) { /* keep original truncated if retry fails */ }
     }
     // Log raw dual output; return parsed pair for storage + UI
     logDS(node.id, 'firstPrinciples', prompt, primedSystem, reply);
     logActivity(node.id, 'firstPrinciples', 'Mechanism explanation generated');
     return parseDualExplanation(reply);
-  } catch (_) { return null; }
+  } catch (e) { return { error: e.message || 'Unknown error' }; }
 }
 
 // ── Bank explanation bullets (batch-time only — full text already exists) ──
 async function fetchExplanationSummary(node) {
+  const mode = localStorage.getItem('cg_chat_mode') || 'cloud';
   const key = localStorage.getItem('ds_api_key');
-  if (!key) return null;
+  if (mode === 'cloud' && !key) return null;
   const full = String(node.explanation || '').trim();
   if (!full || full.length < 40) return null;
   const logged = await fetchLogged(node.id, 'explanationSummary');
@@ -7528,26 +7643,17 @@ Rules: 4-5 bullets. Each is one dense takeaway from the explanation. No new fact
 Explanation:
 """${full.slice(0, 3500)}"""`;
   try {
-    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: 'You compress existing medical board explanations into 4-5 study bullets. Output only the <<<SUMMARY>>> block.' },
-          { role: 'user', content: prompt },
-        ],
-        temperature: 0.3,
-        max_tokens: 400,
-      }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const reply = (data.choices?.[0]?.message?.content?.trim() || '');
+    const reply = await deepseekChat(
+      [
+        { role: 'system', content: 'You compress existing medical board explanations into 4-5 study bullets. Output only the <<<SUMMARY>>> block.' },
+        { role: 'user', content: prompt },
+      ],
+      { temperature: 0.3, max_tokens: 400 }
+    );
     logDS(node.id, 'explanationSummary', prompt, '', reply);
     const parsed = parseDualExplanation('<<<FULL>>>\n.\n' + reply);
     return parsed.summary.length ? parsed.summary : null;
-  } catch (_) { return null; }
+  } catch (e) { return { error: e.message || 'Unknown error' }; }
 }
 
 // ── Four-layer reveal v2: pinned concept + independent toggles + nested drill ──
@@ -7574,8 +7680,9 @@ function writeTriage(qid, data) {
 }
 
 async function fetchConceptLine(node) {
+  const mode = localStorage.getItem('cg_chat_mode') || 'cloud';
   const key = localStorage.getItem('ds_api_key');
-  if (!key) return null;
+  if (mode === 'cloud' && !key) return null;
 
   // Check log first
   const logged = await fetchLogged(node.id, 'concept');
@@ -7590,27 +7697,18 @@ Answer choices: ${ans}
 
 Respond with ONLY the concept line. No preamble.`;
   try {
-    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.3, max_tokens: 30,
-      }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const line = (data.choices?.[0]?.message?.content?.trim() || '').slice(0, 120);
-    if (line) logDS(node.id, 'concept', prompt, '', line);
-    return line;
-  } catch (_) { return null; }
+    const line = await deepseekChat([{ role: 'user', content: prompt }], { temperature: 0.3, max_tokens: 30 });
+    let result = (line || '').slice(0, 120);
+    if (result) logDS(node.id, 'concept', prompt, '', result);
+    return result || null;
+  } catch (e) { return { error: e.message || 'Unknown error' }; }
 }
 
 // ── Why these are connected: clustering rationale for this scene ──────────
 async function fetchWhyConnected(node) {
+  const mode = localStorage.getItem('cg_chat_mode') || 'cloud';
   const key = localStorage.getItem('ds_api_key');
-  if (!key) return null;
+  if (mode === 'cloud' && !key) return null;
 
   const sceneId = node.sceneId;
   // Cache key uses sceneId so all nodes in the same scene share one rationale
@@ -7672,29 +7770,22 @@ Write ONE sentence that explains why these questions belong together as a differ
 Respond with ONLY the rationale sentence. No preamble, no sign-off.`;
 
   try {
-    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: prompt },
-        ],
-        temperature: 0.5, max_tokens: 200,
-      }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const rationale = (data.choices?.[0]?.message?.content?.trim() || '');
-    if (!rationale) return null;
+    const rationale = await deepseekChat(
+      [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: prompt },
+      ],
+      { temperature: 0.5, max_tokens: 200 }
+    );
+    const trimmedRationale = (rationale || '').trim();
+    if (!trimmedRationale) return null;
 
-    const result = { rationale, weak: isWeak };
+    const result = { rationale: trimmedRationale, weak: isWeak };
     localStorage.setItem(cacheKey, JSON.stringify(result));
     logDS(node.id, 'whyConnected', prompt, systemPrompt, rationale);
     logActivity(node.id, 'whyConnected', 'Rationale generated');
     return result;
-  } catch (_) { return null; }
+  } catch (e) { return { error: e.message || 'Unknown error' }; }
 }
 
 function buildRevealHTML(d) {
@@ -8061,9 +8152,9 @@ function wireReveal(container, d) {
   // Generate concept line on first view if missing
   if (!readTriage(qid)?.concept) {
     fetchConceptLine(d).then(l => {
-      if (l) { oneLinerEl.textContent = l; oneLinerEl.classList.remove('loading'); const t = readTriage(qid) || {}; t.concept = l; writeTriage(qid, t); }
-      else { oneLinerEl.textContent = 'Could not distill - try refresh.'; }
-    });
+      if (l && !l.error) { oneLinerEl.textContent = l; oneLinerEl.classList.remove('loading'); const t = readTriage(qid) || {}; t.concept = l; writeTriage(qid, t); }
+      else { oneLinerEl.textContent = (l && l.error) ? l.error : 'Could not distill - try refresh.'; }
+    }).catch(e => { oneLinerEl.textContent = e.message || 'Could not distill - try refresh.'; });
   }
 
   // Refresh - uses fieldSave so history is preserved
@@ -8073,8 +8164,8 @@ function wireReveal(container, d) {
     oneLinerEl.classList.add('loading');
     const l = await fetchConceptLine(d);
     refreshBtn.classList.remove('spinning');
-    if (l) { oneLinerEl.classList.remove('loading'); fieldSave(qid, 'concept', l); oneLinerEl.textContent = l; }
-    else { oneLinerEl.textContent = 'Failed - try again.'; }
+    if (l && !l.error) { oneLinerEl.classList.remove('loading'); fieldSave(qid, 'concept', l); oneLinerEl.textContent = l; }
+    else { oneLinerEl.textContent = (l && l.error) ? l.error : 'Failed - try again.'; }
   };
 
   // Approve / Needs work
@@ -8125,11 +8216,11 @@ function wireReveal(container, d) {
         } else {
           fpContent.textContent = 'Teaching…';
           const fp = await fetchFirstPrinciples(d);
-          if (fp && fp.full) {
+          if (fp && !fp.error && fp.full) {
             saveFirstPrinciplesPair(qid, fp.full, fp.summary);
             paintFirstPrinciples(fpContent, qid);
           } else {
-            fpContent.textContent = 'Could not generate - try refresh.';
+            fpContent.textContent = (fp && fp.error) ? fp.error : 'Could not generate - try refresh.';
           }
         }
         wireVersionNav(qid, 'firstPrinciples', fpContent, container.querySelector('#fpn-' + qid));
@@ -8161,7 +8252,7 @@ function wireReveal(container, d) {
         } finally {
           fpRefBtn.classList.remove('spinning');
         }
-        if (fp && fp.full) {
+        if (fp && !fp.error && fp.full) {
           saveFirstPrinciplesPair(qid, fp.full, fp.summary);
           paintFirstPrinciples(fpContent, qid);
           wireVersionNav(qid, 'firstPrinciples', fpContent, container.querySelector('#fpn-' + qid));
@@ -8236,11 +8327,11 @@ function wireReveal(container, d) {
         if (!whyContent.dataset.loaded) {
           whyContent.textContent = 'Loading rationale…';
           const result = await fetchWhyConnected(d);
-          if (result && result.rationale) {
+          if (result && !result.error && result.rationale) {
             whyContent.textContent = result.rationale;
             whyContent.classList.toggle('weak', !!result.weak);
           } else {
-            whyContent.textContent = 'Could not generate rationale. Verify your DeepSeek API key in Settings.';
+            whyContent.textContent = (result && result.error) ? result.error : 'Could not generate rationale. Verify your DeepSeek API key in Settings.';
           }
           whyContent.dataset.loaded = '1';
         }
@@ -8291,9 +8382,9 @@ function wireReveal(container, d) {
                   } else {
                     blurb.textContent = 'Distilling…';
                     fetchConceptLine(byId[pid]).then(l => {
-                      if (l) { blurb.textContent = esc(l); const t = readTriage(pid) || {}; t.concept = l; writeTriage(pid, t); }
-                      else blurb.textContent = 'Could not distill.';
-                    });
+                      if (l && !l.error) { blurb.textContent = esc(l); const t = readTriage(pid) || {}; t.concept = l; writeTriage(pid, t); }
+                      else { blurb.textContent = (l && l.error) ? l.error : 'Could not distill.'; }
+                    }).catch(e => { blurb.textContent = e.message || 'Could not distill.'; });
                   }
                 } else if (!isNestedOpen) {
                   blurb.textContent = 'Tap to see what this tests…';
@@ -8572,8 +8663,9 @@ async function openEdgeHud(link, event) {
 
 // ── Fetch a specific clinical bridge between two spine beats ──
 async function fetchBridgeLine(a, b) {
+  const mode = localStorage.getItem('cg_chat_mode') || 'cloud';
   const key = localStorage.getItem('ds_api_key');
-  if (!key) return null;
+  if (mode === 'cloud' && !key) return null;
 
   const ctxA = [`Concept: ${a.why || 'Unlabeled'}`];
   if (a.storyText) ctxA.push(`Story text: ${a.storyText}`);
@@ -8608,21 +8700,11 @@ Beat B: ${ctxB.join(' | ')}
 Respond with ONLY the connection sentence. No preamble. No em dashes. Never use the word "contrast" or the structure "whereas.../while..."`;
 
   try {
-    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.4, max_tokens: 80,
-      }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const line = (data.choices?.[0]?.message?.content?.trim() || '').slice(0, 240);
+    const result = await deepseekChat([{ role: 'user', content: prompt }], { temperature: 0.4, max_tokens: 80 });
+    const line = (result || '').slice(0, 240);
     if (line) logDS(a.id + '-' + b.id, 'bridge', prompt, '', line);
     return line || null;
-  } catch (_) { return null; }
+  } catch (e) { return { error: e.message || 'Unknown error' }; }
 }
 
 function applyReveal(v) {
@@ -9231,13 +9313,20 @@ window.addEventListener('blur', () => {
 
   document.getElementById('genStoryBtn').onclick = generateStory;
   document.getElementById('saveJsonBtn').onclick = saveStoryJson;
+
+  // Sync chat mode toggle on page load
+  setChatMode(localStorage.getItem('cg_chat_mode') || 'cloud');
+  const testKeyBtn = document.getElementById('testKeyBtn');
+  if (testKeyBtn) testKeyBtn.onclick = testKey;
+
   updateAiButtons();
 })();
 
 async function generateStory() {
   if (selectedNodes.size < 2) return;
+  const mode = localStorage.getItem('cg_chat_mode') || 'cloud';
   const key = localStorage.getItem('ds_api_key');
-  if (!key) return alert('Enter your DeepSeek API key first.');
+  if (mode === 'cloud' && !key) return alert('Enter your DeepSeek API key first.');
   
   const status = document.getElementById('aiStatus');
   status.textContent = 'Generating…';
@@ -9273,24 +9362,7 @@ ${nodeData}
 Respond with ONLY the narrative. No preamble, no sign-off.`;
 
   try {
-    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7,
-        max_tokens: 1200,
-      }),
-    });
-
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error('HTTP ' + res.status + ': ' + err.slice(0, 200));
-    }
-
-    const data = await res.json();
-    const story = data.choices[0].message.content.trim();
+    const story = await deepseekChat([{ role: 'user', content: prompt }], { temperature: 0.7, max_tokens: 1200 });
     logDS(selected[0]?.id || 'multi', 'generateStory', prompt, '', story);
     generatedStory = {
       set: currentSet,
@@ -10334,6 +10406,7 @@ async function eagerLoadTitles() {
         <button class="drn-back"><i class="ti ti-arrow-left"></i>&nbsp;Controls</button>
         <span class="drn-count">${dockNodeIdx+1} / ${dockNodeList.length}</span>
         ${copyPacketButtonHTML()}
+        ${compactToggleHTML()}
         <div class="drn-arrows">
           <button class="drn-prev" ${dockNodeIdx <= 0 ? 'disabled' : ''}><i class="ti ti-chevron-left"></i></button>
           <button class="drn-next" ${dockNodeIdx >= dockNodeList.length-1 ? 'disabled' : ''}><i class="ti ti-chevron-right"></i></button>
@@ -10375,6 +10448,7 @@ async function eagerLoadTitles() {
         <button class="drn-back"><i class="ti ti-arrow-left"></i>&nbsp;Controls</button>
         <span class="drn-count">${dockNodeIdx+1} / ${dockNodeList.length}</span>
         ${copyPacketButtonHTML()}
+        ${compactToggleHTML()}
         <div class="drn-arrows">
           <button class="drn-prev" ${dockNodeIdx <= 0 ? 'disabled' : ''}><i class="ti ti-chevron-left"></i></button>
           <button class="drn-next" ${dockNodeIdx >= dockNodeList.length-1 ? 'disabled' : ''}><i class="ti ti-chevron-right"></i></button>
