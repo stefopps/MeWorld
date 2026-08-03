@@ -584,11 +584,11 @@
   /* ── Floating Notes & Chat widget (undocked full block) ── */
   .float-dict {
     position: fixed; z-index: 50; top: 80px; left: 80px;
-    width: 340px; min-width: 260px; min-height: 120px;
+    width: 600px; min-width: 340px; min-height: 160px;
+    max-height: 85vh;
     background: #fff; border: 1px solid var(--border);
     border-radius: 10px; box-shadow: 0 4px 24px rgba(20,25,35,0.15);
     display: flex; flex-direction: column; overflow: hidden;
-    max-height: 70vh;
   }
   [data-theme="dark"] .float-dict { background: #1a1c26; }
   .float-dict .fd-header {
@@ -1280,6 +1280,14 @@
   .compact-toggle-track input:checked + .compact-toggle-slider::before {
     transform: translateX(10px);
   }
+  .compact-toggle-wrap {
+    display: inline-flex; align-items: center; gap: 4px;
+    flex-shrink: 0;
+  }
+  .compact-toggle-label {
+    font-size: 0.6rem; font-weight: 600; color: var(--muted);
+    line-height: 1; user-select: none;
+  }
   .settings-popup input[type=password] {
     font-family: inherit; font-size: 0.72rem; padding: 6px 8px;
     border: 1px solid var(--border); border-radius: 6px; outline: none; width: 100%;
@@ -1861,6 +1869,14 @@
       <span class="settings-fs-pill" id="settingsNsPill">100%</span>
       <button class="settings-fs-btn" id="settingsNsUp" title="Larger text">A+</button>
       <button class="settings-fs-btn" id="settingsNsReset" title="Reset text size"><i class="ti ti-refresh"></i></button>
+    </div>
+    <div class="attending-slider-row" style="margin-top:4px;">
+      <label>Chat panel width <span class="asr-val" id="settingsCwPill">600px</span></label>
+      <input type="range" id="settingsCwSlider" min="340" max="1400" value="600" step="20" />
+    </div>
+    <div class="attending-slider-row" style="margin-top:4px;">
+      <label>Chat panel height <span class="asr-val" id="settingsChPill">500px</span></label>
+      <input type="range" id="settingsChSlider" min="200" max="1200" value="500" step="20" />
     </div>
     <label class="settings-label" style="margin-top:10px;">Dr. Iwu style</label>
     <div class="attending-slider-row">
@@ -5524,11 +5540,9 @@ function makeFloaterDraggable(el, storageKey) {
       el.style.transition = '';
       el.style.cursor = 'grab';
       el.dataset.dragged = '1';
-      // Save position + dimensions (debounced 40s)
+      // Save position (size always resets to default on reopen)
       if (storageKey) {
         const data = { left: el.style.left, top: el.style.top };
-        if (el.style.width && el.style.width !== '340px') { data.width = el.style.width; mergeNotesPanelDims({ width: el.style.width, docked: false }); }
-        if (el.style.height && el.style.height !== 'auto') data.height = el.style.height;
         debouncedSave(storageKey, JSON.stringify(data));
       }
     };
@@ -5597,15 +5611,9 @@ function wireFloaterResize(wrapper, storageKey) {
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
         wrapper.style.transition = '';
-        // Save position + dimensions
+        // Save position only (size always resets to default on reopen)
         const data = { left: wrapper.style.left, top: wrapper.style.top };
-        const w = wrapper.style.width || (wrapper.offsetWidth + 'px');
-        const h = wrapper.style.height || (wrapper.offsetHeight + 'px');
-        if (w && w !== '340px') data.width = w;
-        if (h && h !== 'auto' && h !== '') data.height = h;
         debouncedSave(storageKey, JSON.stringify(data));
-        // Also write to cross-mode shared key so docked HUD picks it up on redock
-        if (w) mergeNotesPanelDims({ width: w, docked: false });
       };
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
@@ -6003,10 +6011,15 @@ async function testKey() {
 
 // ── Compact toggle HTML for top control bar ──
 function compactToggleHTML() {
-  return `<label class="compact-toggle-track" title="Chat model: Cloud / Local R1">
-    <input type="checkbox" id="compactChatToggle" onchange="setChatMode(this.checked?'local':'cloud')">
-    <span class="compact-toggle-slider"></span>
-  </label>`;
+  const isLocal = (localStorage.getItem('cg_chat_mode') || 'cloud') === 'local';
+  return `<span class="compact-toggle-wrap" title="Chat model">
+    <span class="compact-toggle-label">Cloud</span>
+    <label class="compact-toggle-track">
+      <input type="checkbox" id="compactChatToggle" onchange="setChatMode(this.checked?'local':'cloud')"${isLocal ? ' checked' : ''}>
+      <span class="compact-toggle-slider"></span>
+    </label>
+    <span class="compact-toggle-label">Local R1</span>
+  </span>`;
 }
 
 // ── Persist and sync chat mode toggle ──
@@ -6883,6 +6896,20 @@ function mergeNotesPanelDims(partial) {
   writeNotesPanelDims({ ...dims, ...partial });
 }
 
+// ── Chat panel dims (persisted width/height for floating dict) ──
+const CHAT_PANEL_KEY = 'cg-chat-panel-dims';
+const CHAT_W_DEFAULT = 600, CHAT_H_DEFAULT = 500;
+const CHAT_DIM_STEP = 20;
+const CHAT_W_MIN = 340, CHAT_W_MAX = 1400;
+const CHAT_H_MIN = 200, CHAT_H_MAX = 1200;
+
+function readChatPanelDims() {
+  try { const raw = localStorage.getItem(CHAT_PANEL_KEY); return raw ? JSON.parse(raw) : {}; } catch (_) { return {}; }
+}
+function writeChatPanelDims(dims) {
+  try { localStorage.setItem(CHAT_PANEL_KEY, JSON.stringify(dims)); } catch (_) {}
+}
+
 function createFloatingDict(dictSect, nodeId) {
   if (window._floatDict) destroyFloatingDict();
 
@@ -6892,6 +6919,11 @@ function createFloatingDict(dictSect, nodeId) {
   wrapper.removeAttribute('id');
   wrapper.style.display = '';
   document.body.appendChild(wrapper);
+
+  // Restore saved width/height from settings sliders
+  const cDims = readChatPanelDims();
+  if (cDims.width) wrapper.style.width = cDims.width + 'px';
+  if (cDims.height) wrapper.style.height = cDims.height + 'px';
 
   const body = wrapper.querySelector('.fd-body');
   body.appendChild(dictSect);
@@ -6903,16 +6935,9 @@ function createFloatingDict(dictSect, nodeId) {
 
   wrapper.querySelector('.fd-redock').onclick = () => destroyFloatingDict();
 
-  // Draggable + restore position + size
+  // Draggable + restore position (not size — always start at default dimensions)
   makeFloaterDraggable(wrapper, FLOAT_DICT_POS_KEY + nodeId);
-  // Restore saved size (per-node first, then cross-mode shared key as fallback)
-  restoreFloaterSize(wrapper, FLOAT_DICT_POS_KEY + nodeId);
-  // If no per-node dimensions saved yet, use cross-mode shared key
-  if (!wrapper.style.width || wrapper.style.width === '340px') {
-    const dims = readNotesPanelDims();
-    if (dims.width) wrapper.style.width = dims.width;
-  }
-  // Wire 8-way resize handles
+  // Wire 8-way resize handles (resize works in-session, resets on close)
   wireFloaterResize(wrapper, FLOAT_DICT_POS_KEY + nodeId);
 
   window._floatDict = { wrapper, dictSect, nodeId };
@@ -6922,18 +6947,8 @@ function destroyFloatingDict() {
   if (!window._floatDict) return;
   const { wrapper, dictSect, nodeId } = window._floatDict;
 
-  // Before destroying, save current float width to cross-mode shared key
-  // so the docked HUD picks it up on next open
-  const floatW = wrapper.style.width || wrapper.offsetWidth + 'px';
-  if (floatW) mergeNotesPanelDims({ width: floatW, docked: true });
-
   const parent = document.querySelector('.hud:not([style*="display: none"])') || document.querySelector('.hud') || document.querySelector('.hud-content');
   if (parent && dictSect) {
-    // Apply the saved width back to the HUD now (immediate visual transfer)
-    if (floatW) parent.style.width = floatW;
-    // Also persist to HUD position key so it survives HUD close/reopen
-    saveHudPosition(parent);
-
     const concept = parent.querySelector('.pinned-concept');
     if (concept) {
       concept.insertAdjacentElement('afterend', dictSect);
@@ -9298,6 +9313,38 @@ window.addEventListener('blur', () => {
     updateAllNotesPills(clamped);
   };
   if (nsRst) nsRst.onclick = () => { writeNotesFontScale(NOTES_FONT_DEFAULT); updateAllNotesPills(NOTES_FONT_DEFAULT); };
+
+  // ── Settings: chat panel width range slider ──
+  const cwSlider = document.getElementById('settingsCwSlider');
+  const cwPill = document.getElementById('settingsCwPill');
+  if (cwPill && cwSlider) {
+    const d = readChatPanelDims();
+    const savedW = d.width || CHAT_W_DEFAULT;
+    cwSlider.value = savedW;
+    cwPill.textContent = savedW + 'px';
+    cwSlider.oninput = () => {
+      const v = parseInt(cwSlider.value, 10);
+      cwPill.textContent = v + 'px';
+      writeChatPanelDims({ ...readChatPanelDims(), width: v });
+      if (window._floatDict && window._floatDict.wrapper) window._floatDict.wrapper.style.width = v + 'px';
+    };
+  }
+
+  // ── Settings: chat panel height range slider ──
+  const chSlider = document.getElementById('settingsChSlider');
+  const chPill = document.getElementById('settingsChPill');
+  if (chPill && chSlider) {
+    const d = readChatPanelDims();
+    const savedH = d.height || CHAT_H_DEFAULT;
+    chSlider.value = savedH;
+    chPill.textContent = savedH + 'px';
+    chSlider.oninput = () => {
+      const v = parseInt(chSlider.value, 10);
+      chPill.textContent = v + 'px';
+      writeChatPanelDims({ ...readChatPanelDims(), height: v });
+      if (window._floatDict && window._floatDict.wrapper) window._floatDict.wrapper.style.height = v + 'px';
+    };
+  }
 
   // Pre-load key on page load
   const saved = localStorage.getItem('ds_api_key');
