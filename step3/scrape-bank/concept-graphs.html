@@ -5290,7 +5290,8 @@ function buildNodePacketMarkdown(node) {
   if (!node) return '';
   const qid = String(node.id);
   const triage = readTriage(qid) || {};
-  const concept = (triage.concept || node.why || '').trim();
+  const rawConcept = typeof triage.concept === 'string' ? triage.concept : '';
+  const concept = (rawConcept || node.why || '').trim();
   const setNum = (GRAPH && GRAPH.meta && GRAPH.meta.set != null)
     ? GRAPH.meta.set
     : (GRAPH && GRAPH.setId != null
@@ -7805,7 +7806,7 @@ Respond with ONLY the rationale sentence. No preamble, no sign-off.`;
 
 function buildRevealHTML(d) {
   const triage = readTriage(d.id);
-  const line = triage?.concept || '';
+  const line = typeof triage?.concept === 'string' ? triage.concept : '';
   const approved = triage?.approved === true;
   const needsWork = triage?.needsWork === true;
   const spineNum = GRAPH.mainPath.indexOf(d.id);
@@ -8167,7 +8168,7 @@ function wireReveal(container, d) {
   // Generate concept line on first view if missing
   if (!readTriage(qid)?.concept) {
     fetchConceptLine(d).then(l => {
-      if (l && !l.error) { oneLinerEl.textContent = l; oneLinerEl.classList.remove('loading'); const t = readTriage(qid) || {}; t.concept = l; writeTriage(qid, t); }
+      if (l && !l.error) { const s = typeof l === 'string' ? l : String(l); if (s === '[object Object]') { oneLinerEl.textContent = 'Could not distill - try refresh.'; return; } oneLinerEl.textContent = s; oneLinerEl.classList.remove('loading'); const t = readTriage(qid) || {}; t.concept = s; writeTriage(qid, t); }
       else { oneLinerEl.textContent = (l && l.error) ? l.error : 'Could not distill - try refresh.'; }
     }).catch(e => { oneLinerEl.textContent = e.message || 'Could not distill - try refresh.'; });
   }
@@ -8389,7 +8390,7 @@ function wireReveal(container, d) {
                 const isNestedOpen = nest.classList.toggle('open');
                 if (isNestedOpen && byId[pid]) {
                   const triage = readTriage(pid);
-                  const nLine = triage?.concept || '';
+                  const nLine = typeof triage?.concept === 'string' ? triage.concept : '';
                   if (nLine) {
                     blurb.textContent = esc(nLine);
                     blurb.style.cursor = 'default';
@@ -8397,7 +8398,7 @@ function wireReveal(container, d) {
                   } else {
                     blurb.textContent = 'Distilling…';
                     fetchConceptLine(byId[pid]).then(l => {
-                      if (l && !l.error) { blurb.textContent = esc(l); const t = readTriage(pid) || {}; t.concept = l; writeTriage(pid, t); }
+                      if (l && !l.error) { const s = typeof l === 'string' ? l : String(l); if (s === '[object Object]') { blurb.textContent = 'Could not distill.'; return; } blurb.textContent = esc(s); const t = readTriage(pid) || {}; t.concept = s; writeTriage(pid, t); }
                       else { blurb.textContent = (l && l.error) ? l.error : 'Could not distill.'; }
                     }).catch(e => { blurb.textContent = e.message || 'Could not distill.'; });
                   }
@@ -9805,7 +9806,7 @@ async function eagerLoadTitles() {
       const node = byId[id];
       if (!node) return [id, '(missing node)'];
       const triage = readTriage(id);
-      return [id, triage?.concept || '(no concept line generated yet)'];
+      return [id, typeof triage?.concept === 'string' ? triage.concept : '(no concept line generated yet)'];
     });
     originalIds = GRAPH.mainPath.slice();
     renderList();
