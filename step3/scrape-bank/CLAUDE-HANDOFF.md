@@ -245,6 +245,37 @@ Known handoff pain points (already partially fixed in code):
 
 ---
 
+## ECG Morph Explorer (2026-08-04)
+
+A standalone interactive ECG waveform morph tool built to match the concept-graphs visual language. Lives alongside the D3 explorer as `ecg-morph.html`.
+
+**File:** `scrape-bank/ecg-morph.html`
+
+**What it does:**
+- Mode toggle: **RBBB** (single-lead, P/PR/QRS/T/R' zones) or **LBBB** (dual-lead V1+V6 with annotation arrows)
+- Floating slider morphs the trace from normal → bundle branch block with smooth linear interpolation (no jump-cuts)
+- Click any segment of the trace or a legend chip to open a draggable HUD explanation panel (matches concept-graphs `.hud` pattern)
+- Live QRS duration readout (90 → 160 ms)
+- Annotation toggle (LBBB mode) shows/hides arrows pointing to the deep S wave (V1) and broad notched R (V6)
+- Full dark theme support via `[data-theme="dark"]`
+
+**Architecture — reusable:**
+The `CONFIG` / `CONFIGS` object at the top of the script holds all waveform definitions: point arrays, zone hit-regions, labels, and explanation text. Adding a new before/after morph (e.g. normal → LAD, normal → hyperkalemia) means adding a new config entry — the render engine stays the same.
+
+**Design tokens — matches concept-graphs:**
+Same CSS vars (`--ink`, `--muted`, `--accent`, `--coral`, `--border`), Inter font, floating control panels with `backdrop-filter: blur()`, HUD drag bar, identical button/legend/slider patterns. Built to drop into concept-graphs as an embedded component when approved.
+
+**Data sources:**
+- RBBB point arrays + zone definitions: hand-crafted from ECG reference
+- LBBB V1/V6 arrays: ported from `C:\Users\steve\Downloads\normal_to_lbbb_v1_v6_with_annotations.html`
+
+**Next:**
+- Embed into concept-graphs as a first-principles panel (replace placeholder with iframe or inline)
+- Add more morph pairs: LAD, hyperkalemia, pericarditis, STEMI
+- Wire the "Attending" HUD to a chat interface (the concept-graphs dictation/chat pattern)
+
+---
+
 ## Suggested Claude tasks (pick up here)
 
 1. **Post-process all raw JSONs** in `scrape-bank/raw` → slim `data-linked.json` + PNGs  

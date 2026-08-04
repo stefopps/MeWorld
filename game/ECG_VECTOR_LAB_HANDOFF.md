@@ -172,6 +172,18 @@ See `docs/ECG_LAB_INCREMENTAL_REVERT.md` for `git revert` order.
 5. **Git commit** — MeWorld branch is ahead of remote; commit after Steve sign-off on Layout 9.
 6. Update stale sections in `ECG_VECTOR_LAB_SPEC.md` if still referenced.
 
+### ECG Morph Explorer (2026-08-04) — working prototype for concept-graphs
+
+A standalone interactive ECG waveform morph tool now exists at `step3/scrape-bank/ecg-morph.html`. It handles the “normal → abnormal” teaching mechanic as a simpler, embeddable component:
+
+- **RBBB mode:** single-lead trace with clickable P/PR/QRS/T/R' zones, draggable HUD explanations
+- **LBBB mode:** dual-lead V1+V6 with annotation toggle (deep S wave arrow, broad notched R arrow)
+- Smooth slider-based linear interpolation between point arrays (no jump-cuts)
+- Built to concept-graphs visual tokens (ready to embed as iframe/panel)
+- Config-driven: add new morph pairs by extending the CONFIGS object
+
+**Relationship to ECG Vector Lab:** The morph explorer is the “first principles” teaching layer. The Vector Lab is the immersive hexaxial + vectorscope + body-plate study tool. They serve different depths — morph explains *what changes* in the waveform; Vector Lab explains *why* through conduction pathways and electrical axis. The morph tool is the on-ramp; Vector Lab is the deep dive.
+
 ### Shipped after original Phases 0–5 (2026-06-14 session)
 
 | Feature | What it does |
